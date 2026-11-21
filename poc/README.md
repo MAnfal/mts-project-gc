@@ -68,10 +68,14 @@ trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wo
 |---|---|---|
 | Recall ≥ 90% | 89.8% (dev 91.2%, test 88.2%) | just short |
 | Precision ≥ 80% | 81.5% (dev 91.2%, test 72.6%) | ✅ overall, short on held-out |
-| Dates and citations verified | 100% dates (97/97), 100% trace checks | ✅ |
+| Dates and citations verified | 100% dates (97/97), 100% trace checks (measured on both 06 suites) | ✅ |
 | Tier identical across 3 runs | 100% right (97/97) | ✅ |
-| Relevance agrees across 3 runs ≥ 90% | 94.6% of keyed docs (pooled); 82.5% on real flags alone | ✅ (weaker on flags) |
+| Relevance agrees across 3 runs ≥ 90% | 94.6% of keyed docs (pooled); 82.5% on real flags alone, a regression from 89.5% with `strict` | ✅ overall, ❌ on flags |
 | Beats single-prompt baseline | recall 90% vs 63%, precision 82% vs 69%, dates 100% vs 79%, $0.20 vs $0.52/run. Cross-suite: the baseline's old-week runs are from the first suite | ✅ |
+
+The held-out weeks have now gated four decisions (02–06), so these test figures are slightly optimistic. The user
+view's demo pre-runs are partly from the previous setup: a Gateway outage on Jev failed most re-runs (failed runs are
+kept in `data/user-view/runs/` with status `error`; the user view hides them).
 
 The previous live setup (`strict`) in the same two suites: recall 86.3%, precision 78.9%, $0.12/run. Flags outside
 the key (not penalised under subset grading) ran at about 0.3 per run, mostly docs the key reviewers called 50/50.

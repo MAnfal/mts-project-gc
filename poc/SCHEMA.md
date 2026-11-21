@@ -8,7 +8,7 @@ shape changes, bump `schemaVersion` in the export manifest and record the change
 | File | Shape | Validated by |
 |---|---|---|
 | `experiment.yaml` | budget, Jev model, arena concurrency, user-view setup, eval gates, score weights | `ExperimentSchema` in `src/lib/config.ts` |
-| `setups.yaml` | `models[]` (id, label, vendor, search), `methods[]`, `setups[]` (id, label, model, method, promptSet?, estUsd) | `SetupsSchema` |
+| `setups.yaml` | `models[]` (id, label, vendor, search), `methods[]`, `setups[]` (id, label, model, method, promptSet?, filterVotes? (odd; LLM filter passes, majority vote), filterExcerpts? {topN, chunkChars, perDoc, maxChunks} (Jev-picked full-text passages for the filter), estUsd) | `SetupsSchema` |
 | `judges.yaml` | `minAgree`, `judges[]` (model), `criteria[]` (id, question, needsRubric?) | `JudgesSchema` |
 | `pipeline.yaml` | tier rules, batch sizes, concurrency, text limits | `PipelineSchema` |
 | `prompts.yaml` | every prompt template with `{{placeholders}}` | `PromptsSchema` + `render()` (missing or unused vars throw) |
@@ -40,9 +40,9 @@ shape changes, bump `schemaVersion` in the export manifest and record the change
 
 ### `data/runs/<runId>.json`: run summary (`RunRecord` in `src/lib/types.ts`)
 
-The run's `config` (incl. `arena`, `cell` = setup id, `evalset`, `repeatIndex`, `promptSet`), `configHash`, `status`,
+The run's `config` (incl. `arena`, `cell` = setup id, `evalset`, `repeatIndex`, `promptSet`, `filterVotes?`, `filterExcerpts?`), `configHash`, `status`,
 `stages[]` (name, ms, costUsd, in/out counts), `calls[]` (per LLM call: stage, model, prompt, output, tokens, cost),
-`decisions[]` (per document: Jev probability, LLM verdict and reason), `items[]` (the action items), `dropped[]`,
+`decisions[]` (per document: Jev probability, LLM verdict and reason, `llm.votes` {yes, no, passes} when filterVotes > 1), `items[]` (the action items), `dropped[]`,
 `claimed[]` (baseline only), `markdown`, `panel` (judge-panel votes and verdicts), `totalCostUsd`, `totalMs`.
 
 ### `data/traces/<runId>.jsonl`: full execution trace, one event per line
@@ -54,7 +54,8 @@ Every event has `seq` (0, 1, 2… with no gaps), `ts`, `runId`, `type`, plus:
 | `run.start` | `config`, `configHash`, resolved `profile`, `promptSet`, full `prompts` in effect, `pipeline` knobs, `setup`, `jevModel` |
 | `stage.start` / `stage.end` | `stage`; end adds `ms`, `costUsd`, `inCount`, `outCount`, `note`, `runCostSoFar` |
 | `scan.result` | `count`, `documents[]` (number, type, title) |
-| `jev.call` | `document_number`, `model`, `question`, `state` (exact input), `probability`, `costUsd`, `ms` |
+| `jev.call` | `document_number` (`<doc>#p<i>` when scoring passage i), `model`, `question`, `state` (exact input), `probability`, `costUsd`, `ms` |
+| `filter.passages` | `document_number`, `chunks` (passages scored), `picked[]` (index, p, text): what the LLM filter was shown (stage `filter:passages`, filterExcerpts setups only) |
 | `llm.call` | `stage`, `model`, `system`, `prompt`, `tools[]`, `output`, `toolCalls[]` (name, input, output), `sources`, `steps`, `usage`, `costUsd`, `ms`, `error?` |
 | `filter.decision` | `document_number`, `jevProbability`, `jevThreshold`, `passedJev`, `llm` (relevant, reason, areas), `relevant` (one per scanned doc) |
 | `verify.doc` | `document_number`, `refetched`, `fields` (from the re-fetch), `textSource` (cache, govinfo, federalregister, none), `textChars`, `fieldChecks[]`, `extracted[]` (date, kind, quote, verified, note), `extractedDuplicatesOfFields[]`, `citationVerified` |
@@ -79,3 +80,12 @@ Spend of deleted runs (`entries[]`: date, reason, runs, usd), so cleanup never m
 `manifest.json` (schemaVersion, arena, configHash, totals), `runs.jsonl` (one `RunRecord` per line),
 `traces/<runId>.jsonl`, `report.json` (dashboard numbers from `suiteReport`), `trace-checks.json`, and
 `config/` (a snapshot of the config the suite ran with, keys included).
+
+### `data/iterations/<NN-slug>/`: one improvement iteration
+
+`spec.yaml` (hand-written: id, title, date, suite, setup, comparedTo?, `targets[]` (error-analysis buckets or
+`rootCause:<i>`), hypothesis, change, codeChanges?, evalChanges?, plan?, decision, notes?),
+`error-analysis.json` (dev-only evidence of the previous suite: suite, setup, split, excludedTestRuns, runs,
+generatedAt, bySignal, buckets, `steps` (per-step scores: jev, llm, verify), rows, llm root causes),
+`iteration.yaml` (generated: spec + results + code commit + config changes), `system.diff`, `config.diff`, `config/`
+(snapshot). `scripts/iteration.mts` refuses a new iteration without the evidence (see README, the improvement loop).
