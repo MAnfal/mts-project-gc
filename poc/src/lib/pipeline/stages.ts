@@ -235,7 +235,7 @@ export async function writeActions(ctx: RunCtx, profile: CompanyProfile, items: 
       const r = await ctx.object("output-actions", {
         model: ctx.run.config.model,
         system:
-          "Write one action item per document for a busy general counsel: an imperative sentence (≤ 25 words) saying what the owner should do and why. Do NOT write any dates or citations — those are rendered separately from verified data.",
+          "Write one action item per document for a busy general counsel: an imperative sentence (≤ 25 words) saying what the owner should do and why, in plain English a non-lawyer understands — spell out acronyms, no regulatory jargon. Do NOT write any dates or citations — those are rendered separately from verified data.",
         prompt: `${profileBrief(profile)}\n\n${items
           .map((i) => `[${i.document_number}] ${i.type}: ${i.title}\nTier: ${i.tier} (${i.tierReason})\nOwner: ${i.owner.name}\nWhy relevant: ${i.reason}`)
           .join("\n\n")}`,
