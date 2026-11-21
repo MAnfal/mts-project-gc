@@ -7,6 +7,8 @@ export interface TierRules {
   criticalWindowDays: number;
   /** A final rule that took effect this recently is still an active fire drill. Older = catch-up publication. */
   recentlyEffectiveDays: number;
+  /** Doc types whose upcoming deadline can make them Critical. Others with a deadline are Medium. */
+  criticalDocTypes: readonly DocType[];
 }
 
 /**
@@ -35,9 +37,7 @@ export function assignTier(input: {
     .filter((d) => days(d) >= 0)
     .sort((a, b) => a.date.localeCompare(b.date));
   const next = upcoming[0] ?? null;
-  const isRulemaking = input.type === "Rule" || input.type === "Proposed Rule";
-
-  if (next && isRulemaking && days(next) < CRITICAL_WINDOW_DAYS) {
+  if (next && input.rules.criticalDocTypes.includes(input.type) && days(next) < CRITICAL_WINDOW_DAYS) {
     return { tier: "Critical", deadline: next, reason: `${next.kind} deadline in ${days(next)} days (< ${CRITICAL_WINDOW_DAYS})` };
   }
 

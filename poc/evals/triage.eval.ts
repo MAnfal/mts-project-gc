@@ -12,11 +12,11 @@
  */
 import { expect } from "vitest";
 import { createHarness, createJudge, describeEval } from "vitest-evals";
-import { allCells, cellConfig, type Cell } from "../src/lib/arena";
-import { evalsets, experiment, loadKey } from "../src/lib/config";
+import { cellConfig, suiteCells, type Cell } from "../src/lib/arena";
+import { evalsets, experiment, getCompany, loadKey, pipelineCfg } from "../src/lib/config";
 import { judgeClarity } from "../src/lib/judge";
 import { execute, newRun } from "../src/lib/pipeline/run";
-import { datesAgainstKey, scoreRun } from "../src/lib/score";
+import { gradeRun } from "../src/lib/grade";
 import { listRuns } from "../src/lib/store";
 import type { LabelSet, RunRecord } from "../src/lib/types";
 
@@ -62,7 +62,7 @@ async function getRun(c: CaseInput): Promise<RunRecord | null> {
 
 const CASES: CaseInput[] = evalsets().flatMap((set) => {
   const key = loadKey(set.company, set.windowStart, set.windowEnd);
-  return key ? allCells().map((cell) => ({ name: `${set.id} · ${cell.label}`, set, cell, key })) : [];
+  return key ? suiteCells().map((cell) => ({ name: `${set.id} · ${cell.label}`, set, cell, key })) : [];
 });
 
 const harness = createHarness<CaseInput, CaseOutput>({
@@ -70,22 +70,23 @@ const harness = createHarness<CaseInput, CaseOutput>({
   run: async ({ input }) => {
     const run = await getRun(input);
     if (!run) throw new Error(`No finished run for "${input.name}" — run an arena or set EVAL_MODE=live.`);
-    const s = scoreRun(run, input.key);
-    const d = datesAgainstKey(run, input.key);
+    const g = gradeRun(run, input.key, getCompany(input.set.company), pipelineCfg().tiering);
+    const flagged = g.counts.tp + g.counts.trapHit + g.counts.unlabeled;
+    const shown = (run.items ?? []).filter((i) => i.deadline);
     // Transcript check: pipeline grounds on the FR API by construction; baseline must have searched AND every kept item resolved to FR.
     const searched = run.config.mode === "pipeline" || run.calls.some((c) => c.toolCalls?.some((t) => /search/i.test(t.name)));
     const output: CaseOutput = {
       runId: run.id,
-      recall: s.recall,
-      precision: s.precision,
-      tp: s.tp,
-      fp: s.fp,
-      missed: s.missed,
-      extra: s.extra,
-      datesChecked: d.checked,
-      datesCorrect: d.correct,
-      datesShown: s.datesShown,
-      datesVerified: s.datesVerified,
+      recall: g.counts.tp + g.counts.fn ? g.counts.tp / (g.counts.tp + g.counts.fn) : 1,
+      precision: flagged ? g.counts.tp / flagged : 1,
+      tp: g.counts.tp,
+      fp: g.counts.trapHit + g.counts.unlabeled,
+      missed: g.missed,
+      extra: [...g.trapHits, ...g.unlabeled],
+      datesChecked: g.checks.date.total,
+      datesCorrect: g.checks.date.correct,
+      datesShown: shown.length,
+      datesVerified: shown.filter((i) => i.deadline!.verified).length,
       clarity: run.judge?.clarity ?? null,
       costUsd: run.totalCostUsd + (run.judge?.costUsd ?? 0),
       seconds: run.totalMs / 1000,

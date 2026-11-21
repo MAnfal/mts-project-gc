@@ -28,6 +28,8 @@ export interface Owner {
 
 export interface CompanyProfile {
   id: string;
+  /** eval = used in eval sets; demo = held out for the user view, never evaluated or tuned on. */
+  use?: "eval" | "demo";
   name: string;
   summary: string;
   /** What the company does — the relevance anchor. */
@@ -117,9 +119,17 @@ export interface RunConfig {
   webLeads: boolean;
   /** Free label to group repeated runs for consistency scoring. */
   group?: string;
+  /** Prompt set (config/prompt-sets/<name>.yaml) overriding some prompts for this run; unset = config/prompts.yaml. */
+  promptSet?: string;
+  /** User view: a profile typed in by the user instead of one from config/companies/. */
+  customProfile?: CompanyProfile;
   /** Arena this run belongs to, and its cell (config) key inside the arena. */
   arena?: string;
   cell?: string;
+  /** Eval set id (config/evalsets/manifest.yaml) this run belongs to. */
+  evalset?: string;
+  /** 0-based repeat number inside an arena (repeats measure consistency; only repeat 0 is judged by the panel). */
+  repeatIndex?: number;
 }
 
 export interface RunRecord {
@@ -142,6 +152,8 @@ export interface RunRecord {
   markdown?: string;
   /** LLM-judge clarity score for the action items, run once after the run finishes. */
   judge?: { model: string; clarity: number | null; perItem: { document_number: string; score: number; why: string }[]; costUsd: number; error?: string };
+  /** Judge-panel verdicts (config/judges.yaml), stored beside the run so the panel can be re-run without re-running the pipeline. */
+  panel?: PanelResult;
   totalCostUsd: number;
   totalMs: number;
 }
@@ -160,12 +172,46 @@ export interface LabelSet {
   /** Per relevant doc: expected owner area, plain reason, confidence, and the expected deadline from the source. */
   details?: Record<string, KeyDetail>;
   borderlineRejected?: Record<string, { reason: string; confidence: string }>;
+  /** Should-NOT-flag cases: look-relevant documents a good system leaves out. */
+  traps?: Record<string, TrapCase>;
 }
 
 export interface KeyDetail {
   relevant: true;
+  /** direct = changes what the company must do; indirect = suppliers, customers, demand. */
+  kind?: "direct" | "indirect";
+  docType?: DocType;
   area: string;
   reason: string;
   confidence: "high" | "medium" | "low";
   deadline: { date: string; kind: DeadlineKind; quote: string } | null;
+  /** Other dates a reasonable reader could pick as the key deadline (graded as right). */
+  acceptDates?: string[];
+  /** For the judge panel: what a good action conveys, and false claims to watch for. */
+  rubric?: { mustMention: string[]; mustNotClaim: string[] };
+}
+
+export type TrapType = "other-industry" | "other-product" | "closed-or-expired" | "withdrawn" | "no-obligation" | "minor-correction" | "meeting-or-admin" | "other";
+
+export interface TrapCase {
+  trapType: TrapType;
+  docType?: DocType;
+  reason: string;
+  confidence: string;
+}
+
+export interface PanelVote {
+  document_number: string;
+  criterion: string;
+  verdict: "PASS" | "FAIL" | "UNKNOWN";
+  why: string;
+}
+
+export interface PanelResult {
+  /** Hash of config/judges.yaml + the judge prompt when this verdict was made. */
+  panelHash: string;
+  judges: { model: string; votes: PanelVote[]; costUsd: number; error?: string }[];
+  /** Majority verdict per (doc, criterion). */
+  verdicts: { document_number: string; criterion: string; verdict: "PASS" | "FAIL" | "CONTESTED"; votes: ("PASS" | "FAIL" | "UNKNOWN" | "MISSING")[] }[];
+  costUsd: number;
 }

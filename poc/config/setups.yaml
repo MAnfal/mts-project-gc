@@ -39,3 +39,34 @@ methods:
     label: Baseline · 1 prompt + web search
     estUsd: 0.6
     mode: baseline
+
+# The setups the eval suite runs (the interviewer view's contestants). Each is one model + one method above.
+# id is permanent: runs record it, so rename the label freely but never reuse an id for something else.
+# estUsd = measured $/run on 2026-11-21 (Brightside week), used for the pre-flight budget check.
+setups:
+  - id: jev-sonnet
+    label: Sonnet · Jev filter · default prompt
+    model: anthropic/claude-sonnet-5.5
+    method: jev+llm
+    estUsd: 0.2
+  - id: llm-sonnet
+    label: Sonnet · reads every document
+    model: anthropic/claude-sonnet-5.5
+    method: llm
+    estUsd: 0.65
+  - id: jev-gpt
+    label: GPT · Jev filter · default prompt
+    model: openai/gpt-6.2-sol
+    method: jev+llm
+    estUsd: 0.15
+  - id: baseline-sonnet
+    label: Baseline · Sonnet, 1 prompt + web search
+    model: anthropic/claude-sonnet-5.5
+    method: baseline
+    estUsd: 0.6
+  - id: jev-sonnet-strict
+    label: Sonnet · Jev filter · strict prompt
+    model: anthropic/claude-sonnet-5.5
+    method: jev+llm
+    promptSet: strict
+    estUsd: 0.2

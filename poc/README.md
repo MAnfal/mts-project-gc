@@ -32,38 +32,54 @@ Gateway-reported cost, and runs refuse to start past it.
 
 | Path | What |
 |---|---|
-| `src/lib/pipeline/stages.ts` | scan, web leads, Jev/LLM filter, verify + tier, output |
-| `src/lib/pipeline/run.ts` | pipeline orchestration + baseline |
-| `src/lib/tier.ts` | deterministic tiering (tested) |
-| `src/lib/verify.ts` | quote-based date verification, FR URL → doc number (tested) |
-| `src/lib/score.ts` | recall/precision, consistency, Jev threshold sweep (tested) |
-| `evals/triage.eval.ts` | vitest-evals suite: 3 configs × code graders + LLM judge |
-| `config/` | **everything the code executes**: setups, prompts, knobs, companies, eval sets (see `config/README.md`) |
-| `data/runs/*.json` | every run: config, config hash, stages, full model transcript, items, cost |
+| `config/` | **everything the code executes**: companies, prompts, setups, judge panel, knobs, eval sets + answer keys (`config/README.md`) |
+| `SCHEMA.md` | every file format (config, keys, runs, traces, export bundle) — the contract the real build loads |
+| `src/lib/pipeline/` | the workflow: scan → Jev/LLM filter → verify + tier → actions; baseline |
+| `src/lib/grade.ts` · `suite.ts` | code graders vs the answer key (found / missed / trap / dates / tier / owner, pass^k) and the dashboard numbers |
+| `src/lib/panel.ts` | 3-vendor judge panel, 2-of-3 vote |
+| `src/lib/trace.ts` · `trace-checks.ts` | full JSONL execution trace per run + deterministic checks on it |
+| `data/evals/<arenaId>/` | the canonical eval suite: `runs/<id>.json` + `traces/<id>.jsonl` |
+| `data/user-view/` | user-view runs (pre-runs + fresh ones), same shape |
+| `data/exports/<arenaId>/` | portable bundle for the real build (static files; traces gzipped) |
+| `scripts/` | `suite` (run evals), `prerun`, `judge-panel`, `export`, `cleanup`, `freeze-week`, `validate-config`, `report` |
 
-## Findings so far (week 2026-11-09 → 13, Ledgerly profile, Sonnet 5.5)
+Pages: `/` start an eval · `/arena/<id>` interviewer dashboard · `/runs/<id>/trace` trace viewer · `/try` user view.
 
-- **Data:** 448 docs/week, ~54K tokens of title+abstract. One week fits in one context;
-  Brian's 5M-token concern doesn't arise at weekly scale.
-- **Structured dates:** 46/54 rules have `effective_on` and 32/36 proposed rules have
-  `comments_close_on`. The rest live in prose, so dates are extracted with a verbatim quote and
-  code checks the quote against the source text.
-- **Jev (`typesafe-ai/jev`):** ~$0.014 per 448 docs, ~13s at concurrency 16. Scores are
-  bimodal: 432/448 below 0.2.
-- **Profile ambiguity, not just batch effect (hypothesis):** the LLM-on-every-doc run dropped
-  the 4 OFAC general licenses, citing the profile line "sanctions actions only matter via the
-  screening program". The Jev-prefiltered runs kept them, calling them changes to authorized
-  activity. The same rule is read two ways, so the label decision has to be made explicitly.
-- **Date kinds drift:** "GL W was issued on May 1, 2026" was tagged `effective` in the pilot
-  and `other` later. The quote check proves the date is in the text, not that it is the right
-  deadline kind. Tier stability depends on kind classification, so expected deadlines belong
-  in the labels.
-- **Baseline:** the same 2 items in 3/3 runs, $0.47–0.66/run, ~20s. **Pipeline:**
-  $0.09–0.13/run, ~33s, 6–7 items, tiers identical across 3 runs.
-- **Recall/precision:** pending hand labels (Label page). This week has 2–7 positives, so one
-  doc moves recall 14–50 points. Report raw counts; one week can't test the 0.9/0.8 targets.
-- **Gates that can't fail yet:** "grounded on FR" is true by construction, and "dates verified"
-  is always 100% for the pipeline (tiering only uses verified dates). They need labeled
-  expected deadline + tier per relevant doc to mean anything.
-- **Tooling:** `vitest-evals` 0.18 declares a peer of `ai < 7`. The core `createHarness` works
-  with AI SDK 7; the `harness-ai-sdk` package was not needed.
+## Findings (eval suite arena-2026-11-21-18-40-w0i, 2026-11-21)
+
+**Setup:** 3 everyday companies (food, pharmacy, airline) × 2 frozen weeks (Nov 9–13 = dev, Nov 2–6 = held-out
+test) × 5 setups × 3 repeats = 90 runs, $27.65. Keys: two blind drafts (Opus + Sonnet) reconciled by a third blind
+agent: 14 should-flag rules, 79 traps. Graded by code vs the key, deterministic trace checks, and a 3-vendor judge
+panel (2 of 3).
+
+| Setup | Score | Found | Flags right | Traps avoided | $/run |
+|---|---|---|---|---|---|
+| **Jev → Sonnet, strict prompt** | **89%** | 93% | 79.6% | 97% | $0.13 |
+| Sonnet reads everything | 85% | 100% | 44% | 79% | $0.62 |
+| Jev → Sonnet | 85% | 98% | 45% | 82% | $0.16 |
+| Jev → GPT (cheap) | 84% | 86% | 44% | 85% | $0.10 |
+| Baseline (Sonnet + web search) | 83% | 71% | 79% | 97% | $0.53 |
+
+- **The prompt matters more than the model.** Spelling out what does NOT count (other models or industries,
+  closed periods, paperwork) cut trap hits from 43 to 8 with almost no recall loss. On the held-out week the strict
+  setup handled 124/132 cases vs 109/132 with the default prompt. Caveat: that claim is about traps; recall on the
+  test week rests on very few rules.
+- **The baseline is precise but misses real rules** (4 of 9 "directly affects us" rules), and it is the only setup
+  failing trace checks: unverified dates and dates written into action text, i.e. no guardrails.
+- **Recall rests on 14 distinct rules** (42 checks with repeats); the strict setup's 3 misses are 3 different rules,
+  each missed in 1 of 3 runs.
+- **Tier gap:** past-dated *notices* (e.g. SNAP candy bans already in force Nov 1) get no headline date and tier Low;
+  the "recently effective" rule only covers final rules. Fix in the real build (`pipeline.yaml → tiering`).
+- **Full text:** federalregister.gov serves a captcha to scripts; govinfo.gov has the same GPO text. Before the fix,
+  15/22 "full texts" were block pages (dates still came out right via structured API fields).
+- **Judges:** Opus was the lenient judge (it passed nearly everything); the 2-of-3 vote absorbs that.
+- **Config pinning:** a suite must freeze config at start. An edit mid-suite crashed one attempt (`pinConfig()` now).
+- **Possible key bias:** keys were drafted by Claude models; the only non-Claude setup ranks lowest on recall.
+
+## For the real build
+
+- Load `config/` and the export bundle (`scripts/export.mts`) as-is; formats are in `SCHEMA.md`.
+- Serve eval results as static files (`public/evals/<suite>/`, traces `.jsonl.gz`); stream + window the trace
+  viewer (fetch → DecompressionStream → line parse → virtualized list); split index vs heavy bodies.
+- Scale: add a free rules-based prefilter (agency, CFR part, doc type) before Jev, prompt-cache the profile, and cache
+  verdicts per (profile, doc).

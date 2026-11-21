@@ -10,7 +10,7 @@ const d = (date: string, kind: Deadline["kind"], verified = true): Deadline => (
 });
 
 // Cases are taken from the real week of 2026-11-09..13 where possible.
-const rules = { criticalWindowDays: 90, recentlyEffectiveDays: 30 };
+const rules = { criticalWindowDays: 90, recentlyEffectiveDays: 30, criticalDocTypes: ["Rule", "Proposed Rule"] as const };
 
 describe("assignTier", () => {
   const asOf = "2026-11-13";

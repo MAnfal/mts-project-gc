@@ -1,0 +1,2912 @@
+{
+  "id": "2026-11-21T19-22-35-758Z_pipeline_t6m4",
+  "createdAt": "2026-11-21T19:22:35.758Z",
+  "config": {
+    "profileId": "ledgerly",
+    "windowStart": "2026-11-02",
+    "windowEnd": "2026-11-06",
+    "asOf": "2026-11-06",
+    "mode": "pipeline",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "promptSet": "strict",
+    "group": "user-view",
+    "cell": "jev-sonnet-strict"
+  },
+  "configHash": "aa7f7a5238",
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 0,
+      "costUsd": 0,
+      "outCount": 466
+    },
+    {
+      "name": "filter:jev",
+      "ms": 16973,
+      "costUsd": 0.014321874,
+      "inCount": 466,
+      "outCount": 23,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 8970,
+      "costUsd": 0.029275999999999996,
+      "inCount": 23,
+      "outCount": 3,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 3334,
+      "costUsd": 0.011608000000000007,
+      "inCount": 3,
+      "outCount": 3,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 2868,
+      "costUsd": 0.004962000000000001,
+      "outCount": 3
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2871,
+      "costUsd": 0.006696,
+      "inputTokens": 2043,
+      "outputTokens": 261,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (3) ===\n\n[2026-22675] Notice — Treasury Department; Internal Revenue Service\nTitle: Agency Information Collection Activities; Requesting Comment Notice of Taxpayer Statement Regarding Refund\nAction: Notice of information collection; request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, the IRS is inviting comments on the information collection request outlined in this notice.\n\n[2026-22705] Notice — Homeland Security Department\nTitle: Agency Information Collection Activities: Incident Communications Activity Report\nAction: 60-Day notice and request for comments; extension of a previously approved collection.\nAbstract: The Emergency Communications Division (ECD) within Cybersecurity and Infrastructure Security Agency (CISA) submits the following Information Collection Request (ICR) to the Office of Management and Budget (OMB) for review and clearance.\n\n[2026-22717] Rule — Justice Department; Drug Enforcement Administration\nTitle: Specific Listing for 3-Chloromethcathinone, A Currently Controlled Schedule I Substance\nAction: Final rule.\nAbstract: The Drug Enforcement Administration (DEA) is establishing a specific listing and DEA Controlled Substances Code Number (drug code) for 1-(3-chlorophenyl)-2-(methylamino)propan-1-one (3- chloromethcathinone; 3-CMC) in schedule I of the Controlled Substances Act (CSA). Although 3-chloromethcathinone is not specifically listed in schedule I of the CSA with its own unique drug code, it is a schedule I controlled substances in the United States because it is a positional isomer of 4-chloromethcathinone, which is a schedule I hallucinogen. Therefore, DEA is simply amending the schedule I hallucinogenic substances list in its regulations to separately include 3- chloromethcathinone.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22675",
+            "relevant": false,
+            "reason": "IRS paperwork renewal on taxpayer refund statements; no new 1099-K/1099-DA reporting duty for Ledgerly's payment or crypto wallet business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22705",
+            "relevant": false,
+            "reason": "CISA emergency communications information collection extension; not aimed at fintech or payment providers and creates no new duty for Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22717",
+            "relevant": false,
+            "reason": "DEA drug scheduling listing for 3-CMC; already controlled as a positional isomer, so it adds no AML, sanctions or payments obligation for Ledgerly.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 8969,
+      "costUsd": 0.02258,
+      "inputTokens": 4410,
+      "outputTokens": 1376,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (20) ===\n\n[2026-22248] Notice — State Department\nTitle: Notice of Department of State Sanctions Actions\nAction: Notice of sanctions action.\nAbstract: On February 24, 2026, the Secretary of State Marco Rubio determined that each of Sergey Sergeyevich Zelenyuk, Matrix LLC, and Special Technology Services LLC FZ met the criteria for sanctions set forth in section 2(a)(1)(A) of the Protecting American Intellectual Property Act of 2022 (Pub. L. 117-336) (PAIPA) and, in consultation with the heads of other relevant agencies, as appropriate, selected the sanctions described in section 2(b)(1)(A), (D), (H), (I), and (J) to be imposed on the entities.\n\n[2026-22257] Notice — National Archives and Records Administration\nTitle: Records Schedules; Availability and Request for Comments\nAction: Notice of availability of proposed records schedules; request for comments.\nAbstract: The National Archives and Records Administration (NARA) publishes notice of certain Federal agency requests for records disposition authority (records schedules). We publish notice in the Federal Register and on regulations.gov for records schedules in which agencies propose to dispose of records they no longer need to conduct agency business. We invite public comments on such records schedules.\n\n[2026-22356] Notice — Social Security Administration\nTitle: Privacy Act of 1974; System of Records\nAction: Notice of a modified system of records.\nAbstract: In accordance with the Privacy Act of 1974, we are issuing public notice of our intent to modify an existing system of records entitled, Master Files of Social Security Number (SSN) Holders and SSN Applications (60-0058), last published on February 20, 2025. We use information in this system to assign SSNs and for a number of administrative and program purposes, as detailed in the PURPOSE section. This notice publishes details of the modified system as set forth below under the caption, SUPPLEMENTARY INFORMATION.\n\n[2026-22374] Notice — Securities and Exchange Commission\nTitle: Self-Regulatory Organizations; NYSE Arca, Inc.; Notice of Filing and Immediate Effectiveness of Proposed Rule Change To List Shares of the Bitwise 10 Crypto Index ETF Under NYSE Arca Rule 8.201-E (Generic)\nAbstract: (none)\n\n[2026-22379] Notice — Federal Trade Commission\nTitle: Sunshine Act Meeting Notice\nAction: Announcement of meeting.\nAbstract: Please take notice that the Federal Trade Commission (\"Commission\") has scheduled a meeting, which will be closed to the public, for the consideration of law enforcement matters.\n\n[2026-22440] Notice — Defense Department; Office of the Secretary\nTitle: Proposed Collection; Comment Request\nAction: 60-Day information collection notice.\nAbstract: In compliance with the Paperwork Reduction Act of 1995, the USD(P&R) announces a proposed public information collection and seeks public comment on the provisions thereof. Comments are invited on: whether the proposed collection of information is necessary for the proper performance of the functions of the agency, including whether the information shall have practical utility; the accuracy of the agency's estimate of the burden of the proposed information collection; ways to enhance the quality, utility, and clarity of the information to be collected; and ways to minimize the burden of the information collection on respondents, including through the use of automated collection techniques or other forms of information technology.\n\n[2026-22469] Notice — Small Business Administration\nTitle: Presidential Declaration of a Major Disaster for the State of Texas\nAction: Notice.\nAbstract: This is notice of the Presidential declaration of a major disaster for the State of Texas (FEMA-4935-DR), dated October 30, 2026. Incident: Severe Storms, Straight-line Winds, Tornadoes, and Flooding.\n\n[2026-22470] Notice — Small Business Administration\nTitle: Presidential Declaration of a Major Disaster for Public Assistance Only for the State of Florida\nAction: Notice.\nAbstract: This is notice of the Presidential declaration of a major disaster for Public Assistance Only for the state of Florida (FEMA- 4955-DR), dated October 27, 2026. Incident: Hurricane Isaias.\n\n[2026-22471] Notice — State Department\nTitle: Determination With Respect to Syria\nAction: Notice.\nAbstract: On July 20, 2026, the Deputy Secretary of State, pursuant to delegated authority, signed a determination of the Secretary of State related to assistance for Syria. The determination is set out below.\n\n[2026-22472] Notice — State Department\nTitle: Determination With Respect to Yemen\nAction: Notice.\nAbstract: On June 29, 2026, the Deputy Secretary of State for Management and Resources, pursuant to delegated authority, signed a determination of the Secretary of State related to assistance for Yemen. The determination is set out below.\n\n[2026-22474] Notice — Small Business Administration\nTitle: Presidential Declaration of a Major Disaster for the State of Florida\nAction: Notice.\nAbstract: This is notice of the Presidential declaration of a major disaster for the State of Florida (FEMA-4955-DR), dated October 27, 2026. Incident: Hurricane Isaias.\n\n[2026-22489] Notice — Homeland Security Department\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Information Collection for the State, Local, Tribal and Private Sector (SLTPS) Clearance Program\nAction: 30-Day notice of information collection; request for comment; extension of previously approved collection 1670-0013.\nAbstract: The Office of the Chief Security Officer (OCSO) within Cybersecurity and Infrastructure Security Agency (CISA) submits the following information collection request (ICR) to the Office of Management and Budget (OMB) for review and clearance. CISA previously published this information collection request (ICR) in the Federal Register on September 10, 2026 for a 60-day public comment period. No comments were received by CISA. The purpose of this notice is to allow additional 30-days for public comments.\n\n[2026-22520] Notice — Small Business Administration\nTitle: Data Collection Available for Public Comments\nAction: 60-day notice and request for comments\nAbstract: The Small Business Administration (SBA) intends to request approval from the Office of Management and Budget (OMB) for the collection of information described below. The Paperwork Reduction Act (PRA) requires Federal agencies to publish a notice in the Federal Register concerning each proposed collection of information before submission to OMB, and to allow 60 days for public comment in response to the notice. This notice complies with that requirement.\n\n[2026-22581] Proposed Rule — Federal Trade Commission\nTitle: Petition for Rulemaking of New Hope Now\nAction: Receipt of petition; request for comment.\nAbstract: Please take notice that the Federal Trade Commission (\"Commission\") received a petition for rulemaking from New Hope Now and has published that petition online at https://www.regulations.gov. The Commission invites written comments concerning the petition. Publication of this petition is pursuant to the Commission's Rules of Practice and Procedure and does not affect the legal status of the petition or its final disposition.\n\n[2026-22598] Notice — Commerce Department\nTitle: Bureau of Industry and Security\nAbstract: (none)\n\n[2026-22685] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to Iran\nAbstract: (none)\n\n[2026-22686] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to the Proliferation of Weapons of Mass Destruction\nAbstract: (none)\n\n[2026-22687] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to the Situation in Nicaragua\nAbstract: (none)\n\n[2026-22688] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to the Threat From Securities Investments That Finance Certain Companies of the People's Republic of China\nAbstract: (none)\n\n[2026-22645] Notice — Consumer Financial Protection Bureau\nTitle: Fair Lending Report of the Consumer Financial Protection Bureau\nAction: Fair Lending Report of the Consumer Financial Protection Bureau.\nAbstract: The Consumer Financial Protection Bureau (CFPB or Bureau) is issuing its Fair Lending Report of the Consumer Financial Protection Bureau (Fair Lending Report) to Congress. This report describes our fair lending activities in rulemaking; supervision and enforcement; interagency coordination; and stakeholder engagement for calendar year 2025.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22248",
+            "relevant": false,
+            "reason": "Individual State Dept sanctions designations under PAIPA; matter only via the general screening program, not individually.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22257",
+            "relevant": false,
+            "reason": "NARA records schedules for federal agencies; imposes nothing on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22356",
+            "relevant": false,
+            "reason": "SSA Privacy Act system of records notice binds SSA, not private fintechs.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22374",
+            "relevant": false,
+            "reason": "SEC SRO filing to list a crypto index ETF on NYSE Arca; excluded SEC/SRO matter, no duty on a custodial wallet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22379",
+            "relevant": false,
+            "reason": "FTC closed Sunshine Act meeting notice; no obligation created.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22440",
+            "relevant": false,
+            "reason": "DoD information collection for USD(P&R); unrelated to Ledgerly's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22469",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Texas; no payment-related requirement.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22470",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Florida; no impact on Ledgerly's compliance duties.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22471",
+            "relevant": false,
+            "reason": "State Dept determination on assistance for Syria; not a sanctions rule change requiring action by Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22472",
+            "relevant": false,
+            "reason": "State Dept determination on assistance for Yemen; no screening or compliance change.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22474",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Florida; irrelevant to money transmission or crypto.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22489",
+            "relevant": false,
+            "reason": "DHS/CISA clearance program information collection; unrelated to Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22520",
+            "relevant": false,
+            "reason": "SBA 60-day paperwork notice; no new duty on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22581",
+            "relevant": false,
+            "reason": "FTC receipt of a rulemaking petition from New Hope Now; no proposed rule and nothing stated tying it to payment apps.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22598",
+            "relevant": false,
+            "reason": "BIS notice with no abstract or detail indicating any payments, sanctions screening or crypto obligation; export control matter.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22685",
+            "relevant": true,
+            "reason": "Continuation of the Iran national emergency keeps IEEPA-based OFAC sanctions in force, which Ledgerly must screen customers, remittance counterparties and crypto addresses against.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-22686",
+            "relevant": true,
+            "reason": "Continuation of the WMD proliferation national emergency maintains OFAC blocking authorities that Ledgerly's screening program must continue to enforce.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-22687",
+            "relevant": true,
+            "reason": "Continuation of the Nicaragua national emergency maintains OFAC sanctions that apply to Ledgerly's remittance and wallet screening.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-22688",
+            "relevant": false,
+            "reason": "Emergency covers securities investments in Chinese military-industrial companies (NS-CMIC); targets securities investment, not payment or wallet services Ledgerly offers.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22645",
+            "relevant": false,
+            "reason": "CFPB fair lending report to Congress is retrospective and about lending; Ledgerly does no lending and the report creates no duty.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22687",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1402,
+      "costUsd": 0.003588,
+      "inputTokens": 1424,
+      "outputTokens": 74,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-11-27",
+            "kind": "effective",
+            "quote": "For this reason, the national emergency declared on November 27, 2018, must continue in effect beyond November 27, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22686",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1689,
+      "costUsd": 0.003896,
+      "inputTokens": 1438,
+      "outputTokens": 102,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-11-14",
+            "kind": "effective",
+            "quote": "For this reason, the national emergency declared in Executive Order 12938 with respect to the proliferation of weapons of mass destruction and the means of delivering such weapons must continue beyond November 14, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22685",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1733,
+      "costUsd": 0.004124,
+      "inputTokens": 1597,
+      "outputTokens": 93,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-11-14",
+            "kind": "effective",
+            "quote": "For this reason, the national emergency declared on November 14, 1979, and the measures adopted on that date to deal with that emergency, must continue in effect beyond November 14, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2868,
+      "costUsd": 0.004962,
+      "inputTokens": 1331,
+      "outputTokens": 230,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n[2026-22685] Presidential Document: Continuation of the National Emergency With Respect to Iran\nTier: Medium (notice with effective deadline in 8 days)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Continuation of the Iran national emergency keeps IEEPA-based OFAC sanctions in force, which Ledgerly must screen customers, remittance counterparties and crypto addresses against.\n\n[2026-22686] Presidential Document: Continuation of the National Emergency With Respect to the Proliferation of Weapons of Mass Destruction\nTier: Medium (notice with effective deadline in 8 days)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Continuation of the WMD proliferation national emergency maintains OFAC blocking authorities that Ledgerly's screening program must continue to enforce.\n\n[2026-22687] Presidential Document: Continuation of the National Emergency With Respect to the Situation in Nicaragua\nTier: Medium (notice with effective deadline in 21 days)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Continuation of the Nicaragua national emergency maintains OFAC sanctions that apply to Ledgerly's remittance and wallet screening.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-22685",
+            "action": "Confirm the sanctions screening program still blocks Iran-linked customers, remittance partners and crypto wallet addresses, since the national emergency behind those sanctions remains in force."
+          },
+          {
+            "document_number": "2026-22686",
+            "action": "Verify screening still blocks people and entities tied to weapons proliferation, because the extended national emergency keeps those US blocking powers active for our payments and wallets."
+          },
+          {
+            "document_number": "2026-22687",
+            "action": "Check that remittance and crypto wallet screening still covers Nicaragua-related sanctions targets, since the continued national emergency keeps those restrictions in effect for our transfers."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.060167874,
+  "totalMs": 32622,
+  "scanned": 466,
+  "decisions": [
+    {
+      "document_number": "2026-22246",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22247",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22248",
+      "relevant": false,
+      "jevProbability": 0.67,
+      "llm": {
+        "document_number": "2026-22248",
+        "relevant": false,
+        "reason": "Individual State Dept sanctions designations under PAIPA; matter only via the general screening program, not individually.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22250",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22251",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22256",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22257",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22257",
+        "relevant": false,
+        "reason": "NARA records schedules for federal agencies; imposes nothing on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22258",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22259",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22260",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22261",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22262",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22263",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22264",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22265",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22266",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22267",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22268",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22270",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22271",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22272",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22273",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22274",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22275",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22276",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22277",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22278",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22279",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22280",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22281",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22282",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22283",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22284",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22285",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22286",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22287",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22288",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22289",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22290",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22291",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22293",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22294",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22295",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22296",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22297",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22298",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22299",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22300",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22301",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22302",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22303",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22304",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22305",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22306",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22307",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22308",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22309",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22310",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22311",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22312",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22313",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22314",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22315",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22317",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22318",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22319",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22320",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22321",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22322",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22323",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22324",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22325",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22326",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22327",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22328",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22329",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22330",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22331",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22332",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22333",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22334",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22335",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22336",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22337",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22338",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22339",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22340",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22341",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22342",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22343",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22344",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22345",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22346",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22347",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22348",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22349",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22350",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22351",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22352",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22353",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22385",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22386",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22355",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22356",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22356",
+        "relevant": false,
+        "reason": "SSA Privacy Act system of records notice binds SSA, not private fintechs.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22357",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22358",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22359",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22360",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22361",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22362",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22363",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22364",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22365",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22366",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22367",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22368",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22369",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22370",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22371",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22372",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22373",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22374",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22374",
+        "relevant": false,
+        "reason": "SEC SRO filing to list a crypto index ETF on NYSE Arca; excluded SEC/SRO matter, no duty on a custodial wallet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22375",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22376",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22377",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22378",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22379",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22379",
+        "relevant": false,
+        "reason": "FTC closed Sunshine Act meeting notice; no obligation created.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22380",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22381",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22382",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22383",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22384",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22387",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22388",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22389",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22390",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22391",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22392",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22393",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22394",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22395",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22396",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22397",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22398",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22399",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22400",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22401",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22402",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22403",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22404",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22406",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22407",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22408",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22409",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22410",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22411",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22412",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22413",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22414",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22415",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22416",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22417",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22418",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22420",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22421",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22422",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22423",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22424",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22425",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22426",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22427",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22428",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22429",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22430",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22431",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22432",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22434",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22435",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22436",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22437",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22441",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22443",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-20310",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22438",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22439",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22440",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22440",
+        "relevant": false,
+        "reason": "DoD information collection for USD(P&R); unrelated to Ledgerly's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22442",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22445",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22446",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22448",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22449",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22450",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22451",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22452",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22453",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22454",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22455",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22456",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22457",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22458",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22459",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22460",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22461",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22462",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22463",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22464",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22465",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22466",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22467",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22468",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22469",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-22469",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Texas; no payment-related requirement.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22470",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22470",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Florida; no impact on Ledgerly's compliance duties.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22471",
+      "relevant": false,
+      "jevProbability": 0.5,
+      "llm": {
+        "document_number": "2026-22471",
+        "relevant": false,
+        "reason": "State Dept determination on assistance for Syria; not a sanctions rule change requiring action by Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22472",
+      "relevant": false,
+      "jevProbability": 0.42,
+      "llm": {
+        "document_number": "2026-22472",
+        "relevant": false,
+        "reason": "State Dept determination on assistance for Yemen; no screening or compliance change.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22473",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22474",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22474",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Florida; irrelevant to money transmission or crypto.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22475",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22476",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22478",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22481",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22482",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22483",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22484",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22485",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22486",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22487",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22488",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22489",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22489",
+        "relevant": false,
+        "reason": "DHS/CISA clearance program information collection; unrelated to Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22490",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22491",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22492",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22493",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22494",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22495",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22496",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22497",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22498",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22499",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22500",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22501",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22502",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22503",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22505",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22506",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22507",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22508",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22509",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22510",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22511",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22512",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22513",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22514",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22515",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22516",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22518",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22519",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22520",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22520",
+        "relevant": false,
+        "reason": "SBA 60-day paperwork notice; no new duty on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22521",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22522",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22523",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22524",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22525",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22526",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22527",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22528",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22529",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22530",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22531",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22532",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22533",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22534",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22535",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22536",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22537",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22538",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22540",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22541",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22542",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22543",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22544",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22545",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22546",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22547",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22548",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22549",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22550",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22551",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22552",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22553",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22554",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22555",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22556",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22557",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22558",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22559",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22560",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22561",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22562",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22563",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22564",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22565",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22566",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22567",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22568",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22569",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22570",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22571",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22572",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22573",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22574",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22576",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22577",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22578",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22579",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22580",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22581",
+      "relevant": false,
+      "jevProbability": 0.4,
+      "llm": {
+        "document_number": "2026-22581",
+        "relevant": false,
+        "reason": "FTC receipt of a rulemaking petition from New Hope Now; no proposed rule and nothing stated tying it to payment apps.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22582",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22583",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22584",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22585",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22586",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22587",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22588",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22589",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22590",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22591",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22592",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22593",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22594",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22595",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22596",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22597",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22598",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-22598",
+        "relevant": false,
+        "reason": "BIS notice with no abstract or detail indicating any payments, sanctions screening or crypto obligation; export control matter.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22599",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22600",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22601",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22602",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22603",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22604",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22605",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22606",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22607",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22608",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22609",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22610",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22611",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22612",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22613",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22614",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22615",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22616",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22617",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22618",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22619",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22620",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22621",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22622",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22623",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22624",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22625",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22626",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22627",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22628",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22629",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22630",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22631",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22632",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22633",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22634",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22635",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22636",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22637",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22638",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22639",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22640",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22641",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22642",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22643",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22644",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22647",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22649",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22650",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22685",
+      "relevant": true,
+      "jevProbability": 0.69,
+      "llm": {
+        "document_number": "2026-22685",
+        "relevant": true,
+        "reason": "Continuation of the Iran national emergency keeps IEEPA-based OFAC sanctions in force, which Ledgerly must screen customers, remittance counterparties and crypto addresses against.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22686",
+      "relevant": true,
+      "jevProbability": 0.49,
+      "llm": {
+        "document_number": "2026-22686",
+        "relevant": true,
+        "reason": "Continuation of the WMD proliferation national emergency maintains OFAC blocking authorities that Ledgerly's screening program must continue to enforce.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22687",
+      "relevant": true,
+      "jevProbability": 0.51,
+      "llm": {
+        "document_number": "2026-22687",
+        "relevant": true,
+        "reason": "Continuation of the Nicaragua national emergency maintains OFAC sanctions that apply to Ledgerly's remittance and wallet screening.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22688",
+      "relevant": false,
+      "jevProbability": 0.24,
+      "llm": {
+        "document_number": "2026-22688",
+        "relevant": false,
+        "reason": "Emergency covers securities investments in Chinese military-industrial companies (NS-CMIC); targets securities investment, not payment or wallet services Ledgerly offers.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22645",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-22645",
+        "relevant": false,
+        "reason": "CFPB fair lending report to Congress is retrospective and about lending; Ledgerly does no lending and the report creates no duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22646",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22648",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22651",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22652",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22653",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22654",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22655",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22656",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22657",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22658",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22659",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22660",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22661",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22662",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22663",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22664",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22665",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22666",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22667",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22668",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22669",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22670",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22671",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22672",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22673",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22674",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22675",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22675",
+        "relevant": false,
+        "reason": "IRS paperwork renewal on taxpayer refund statements; no new 1099-K/1099-DA reporting duty for Ledgerly's payment or crypto wallet business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22676",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22677",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22678",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22679",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22680",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22681",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22682",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22684",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22689",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22690",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22691",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22692",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22693",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22694",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22695",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22696",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22697",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22698",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22699",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22700",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22701",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22702",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22703",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22704",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22705",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22705",
+        "relevant": false,
+        "reason": "CISA emergency communications information collection extension; not aimed at fintech or payment providers and creates no new duty for Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22706",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22707",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22708",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22709",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22710",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22711",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22712",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22713",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22714",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22716",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22717",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22717",
+        "relevant": false,
+        "reason": "DEA drug scheduling listing for 3-CMC; already controlled as a positional isomer, so it adds no AML, sanctions or payments obligation for Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22718",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22719",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22720",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22721",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22722",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22723",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22724",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22725",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22726",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22728",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22734",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22735",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22739",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22741",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22787",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22789",
+      "relevant": false,
+      "jevProbability": 0.05
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-22685",
+      "title": "Continuation of the National Emergency With Respect to Iran",
+      "type": "Presidential Document",
+      "agencies": [
+        "Executive Office of the President"
+      ],
+      "tier": "Medium",
+      "tierReason": "notice with effective deadline in 8 days",
+      "deadline": {
+        "date": "2026-11-14",
+        "kind": "effective",
+        "source": "extracted",
+        "quote": "For this reason, the national emergency declared on November 14, 1979, and the measures adopted on that date to deal with that emergency, must continue in effect beyond November 14, 2026.",
+        "verified": true,
+        "verifyNote": "quote found verbatim in primary source"
+      },
+      "deadlines": [
+        {
+          "date": "2026-11-14",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "For this reason, the national emergency declared on November 14, 1979, and the measures adopted on that date to deal with that emergency, must continue in effect beyond November 14, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Continuation of the Iran national emergency keeps IEEPA-based OFAC sanctions in force, which Ledgerly must screen customers, remittance counterparties and crypto addresses against.",
+      "action": "Confirm the sanctions screening program still blocks Iran-linked customers, remittance partners and crypto wallet addresses, since the national emergency behind those sanctions remains in force.",
+      "citation": "91 FR 69947",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/05/2026-22685/continuation-of-the-national-emergency-with-respect-to-iran",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-22686",
+      "title": "Continuation of the National Emergency With Respect to the Proliferation of Weapons of Mass Destruction",
+      "type": "Presidential Document",
+      "agencies": [
+        "Executive Office of the President"
+      ],
+      "tier": "Medium",
+      "tierReason": "notice with effective deadline in 8 days",
+      "deadline": {
+        "date": "2026-11-14",
+        "kind": "effective",
+        "source": "extracted",
+        "quote": "For this reason, the national emergency declared in Executive Order 12938 with respect to the proliferation of weapons of mass destruction and the means of delivering such weapons must continue beyond November 14, 2026.",
+        "verified": true,
+        "verifyNote": "quote found verbatim in primary source"
+      },
+      "deadlines": [
+        {
+          "date": "2026-11-14",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "For this reason, the national emergency declared in Executive Order 12938 with respect to the proliferation of weapons of mass destruction and the means of delivering such weapons must continue beyond November 14, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Continuation of the WMD proliferation national emergency maintains OFAC blocking authorities that Ledgerly's screening program must continue to enforce.",
+      "action": "Verify screening still blocks people and entities tied to weapons proliferation, because the extended national emergency keeps those US blocking powers active for our payments and wallets.",
+      "citation": "91 FR 69949",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/05/2026-22686/continuation-of-the-national-emergency-with-respect-to-the-proliferation-of-weapons-of-mass",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-22687",
+      "title": "Continuation of the National Emergency With Respect to the Situation in Nicaragua",
+      "type": "Presidential Document",
+      "agencies": [
+        "Executive Office of the President"
+      ],
+      "tier": "Medium",
+      "tierReason": "notice with effective deadline in 21 days",
+      "deadline": {
+        "date": "2026-11-27",
+        "kind": "effective",
+        "source": "extracted",
+        "quote": "For this reason, the national emergency declared on November 27, 2018, must continue in effect beyond November 27, 2026.",
+        "verified": true,
+        "verifyNote": "quote found verbatim in primary source"
+      },
+      "deadlines": [
+        {
+          "date": "2026-11-27",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "For this reason, the national emergency declared on November 27, 2018, must continue in effect beyond November 27, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Continuation of the Nicaragua national emergency maintains OFAC sanctions that apply to Ledgerly's remittance and wallet screening.",
+      "action": "Check that remittance and crypto wallet screening still covers Nicaragua-related sanctions targets, since the continued national emergency keeps those restrictions in effect for our transfers.",
+      "citation": "91 FR 69951",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/05/2026-22687/continuation-of-the-national-emergency-with-respect-to-the-situation-in-nicaragua",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — Ledgerly Inc.\nWindow 2026-11-02 → 2026-11-06 · as of 2026-11-06 · 3 items\n\n## Medium (3)\n\n- **Continuation of the National Emergency With Respect to Iran** [Federal Register]\n  - Confirm the sanctions screening program still blocks Iran-linked customers, remittance partners and crypto wallet addresses, since the national emergency behind those sanctions remains in force.\n  - Deadline: 2026-11-14 (effective, quoted ✓) · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 69947 ✓ · https://www.federalregister.gov/documents/2026/11/05/2026-22685/continuation-of-the-national-emergency-with-respect-to-iran\n- **Continuation of the National Emergency With Respect to the Proliferation of Weapons of Mass Destruction** [Federal Register]\n  - Verify screening still blocks people and entities tied to weapons proliferation, because the extended national emergency keeps those US blocking powers active for our payments and wallets.\n  - Deadline: 2026-11-14 (effective, quoted ✓) · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 69949 ✓ · https://www.federalregister.gov/documents/2026/11/05/2026-22686/continuation-of-the-national-emergency-with-respect-to-the-proliferation-of-weapons-of-mass\n- **Continuation of the National Emergency With Respect to the Situation in Nicaragua** [Federal Register]\n  - Check that remittance and crypto wallet screening still covers Nicaragua-related sanctions targets, since the continued national emergency keeps those restrictions in effect for our transfers.\n  - Deadline: 2026-11-27 (effective, quoted ✓) · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 69951 ✓ · https://www.federalregister.gov/documents/2026/11/05/2026-22687/continuation-of-the-national-emergency-with-respect-to-the-situation-in-nicaragua\n"
+}

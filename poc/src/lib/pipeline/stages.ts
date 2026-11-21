@@ -1,12 +1,12 @@
 import pLimit from "p-limit";
 import { z } from "zod";
 import { gw } from "../gateway";
-import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
+import { agencyNames, getDoc, getRawTextWithSource, listWindow } from "../fr";
 import { pipelineCfg } from "../config";
 import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
 import { assignTier } from "../tier";
 import type { ActionItem, CompanyProfile, Deadline, FilterDecision, FrDoc } from "../types";
-import { parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
+import { DATE_RE, parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
 import type { RunCtx } from "./context";
 
 // ───────────────────────────── Scan ─────────────────────────────
@@ -67,7 +67,7 @@ export async function filterJev(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
       await Promise.all(
         docs.map((d) =>
           limit(async () => {
-            const r = await ctx.jev(jevState(profile, d), question);
+            const r = await ctx.jev(jevState(profile, d), question, d.document_number);
             out.set(d.document_number, r.p);
           }),
         ),
@@ -151,6 +151,7 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
             const doc = await getDoc(scanned.document_number);
             if (!doc) {
               dropped.push({ document_number: scanned.document_number, why: "re-fetch failed: not found on federalregister.gov" });
+              ctx.trace.emit("verify.doc", { document_number: scanned.document_number, refetched: false, outcome: "dropped", why: "re-fetch failed" });
               return null;
             }
             const deadlines: Deadline[] = [];
@@ -163,7 +164,8 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
             fieldCheck(doc.effective_on, scanned.effective_on, "effective");
 
             // 2. Dates that only live in prose (compliance dates, missing fields): model extracts with a quote, code verifies the quote.
-            const raw = await getRawText(doc);
+            const { text: raw, source: textSource } = await getRawTextWithSource(doc);
+            const skippedDuplicates: { date: string; kind: string; quote: string }[] = [];
             const source = `${doc.dates ?? ""}\n${raw}`;
             const snippet = `${doc.dates ?? ""}\n\n${raw.slice(0, pipelineCfg().verify.snippetChars)}`;
             if (snippet.trim().length > 20) {
@@ -175,17 +177,35 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
                 logPrompt: false,
               });
               for (const e of ex.deadlines) {
-                if (deadlines.some((d) => d.date === e.date && d.kind === e.kind)) continue;
+                if (deadlines.some((d) => d.date === e.date && d.kind === e.kind)) {
+                  skippedDuplicates.push(e);
+                  continue;
+                }
                 const v = verifyQuotedDate(source, e.quote, e.date);
                 deadlines.push({ date: e.date, kind: e.kind, source: "extracted", quote: e.quote, verified: v.ok, verifyNote: v.ok ? "quote found verbatim in primary source" : v.why });
               }
             }
 
+            const citationVerified = !!doc.citation && doc.citation === scanned.citation;
+            ctx.trace.emit("verify.doc", {
+              document_number: doc.document_number,
+              refetched: true,
+              fields: { comments_close_on: doc.comments_close_on, effective_on: doc.effective_on, citation: doc.citation },
+              textSource,
+              textChars: raw.length,
+              fieldChecks: deadlines.filter((d) => d.source === "fr_field"),
+              extracted: deadlines.filter((d) => d.source === "extracted"),
+              extractedDuplicatesOfFields: skippedDuplicates,
+              citationVerified,
+            });
+
             // 3. Tier: pure code.
             const t = assignTier({ type: doc.type, deadlines, asOf: ctx.run.config.asOf, rules: tierRules });
+            ctx.trace.emit("tier.assign", { document_number: doc.document_number, docType: doc.type, tier: t.tier, reason: t.reason, deadline: t.deadline, rules: tierRules, asOf: ctx.run.config.asOf });
             const dec = decisions.get(doc.document_number);
             const areas = dec?.llm?.areas ?? [];
             const owner = areas.length ? profile.areas[areas[0]]?.owner ?? profile.generalCounsel : profile.generalCounsel;
+            ctx.trace.emit("owner.assign", { document_number: doc.document_number, areas, owner, rule: areas.length ? `first area "${areas[0]}" → its owner` : "no area → general counsel" });
             return {
               document_number: doc.document_number,
               title: doc.title,
@@ -200,7 +220,7 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
               reason: dec?.llm?.reason ?? (dec?.jevProbability !== undefined ? `Jev p=${dec.jevProbability.toFixed(2)} (no LLM reason)` : ""),
               action: "",
               citation: doc.citation,
-              citationVerified: !!doc.citation && doc.citation === scanned.citation,
+              citationVerified,
               url: doc.html_url,
               sourceTag: "[Federal Register]",
             };
@@ -232,9 +252,13 @@ export async function writeActions(ctx: RunCtx, profile: CompanyProfile, items: 
       });
       const byNum = new Map(r.actions.map((a) => [a.document_number, a.action]));
       // Guardrail: the LLM text must not smuggle in dates. Strip any that slipped through.
-      const DATE_RE = /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}, \d{4}\b|\b\d{1,2}\/\d{1,2}\/\d{4}\b|\b\d{4}-\d{2}-\d{2}\b/g;
       return items
-        .map((i) => ({ ...i, action: (byNum.get(i.document_number) ?? "Review.").replace(DATE_RE, "[date — see deadline]") }))
+        .map((i) => {
+          const raw = byNum.get(i.document_number) ?? "Review.";
+          const final = raw.replace(DATE_RE, "[date — see deadline]");
+          ctx.trace.emit("action.write", { document_number: i.document_number, raw, final, stripped: raw !== final, missingFromModel: !byNum.has(i.document_number) });
+          return { ...i, action: final };
+        })
         .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier] || (a.deadline?.date ?? "9").localeCompare(b.deadline?.date ?? "9"));
     },
     (r) => ({ outCount: r.length }),

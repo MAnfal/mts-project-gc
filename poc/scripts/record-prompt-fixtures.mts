@@ -6,8 +6,10 @@ import fs from "node:fs";
 import { arenaRuns } from "../src/lib/arena";
 
 const runs = (await arenaRuns(process.argv[2])).filter((r) => r.status === "done");
+// The prompt tests rebuild prompts for Brightside, week of Nov 9–13, so record from those runs (first repeat).
+const EVALSET = "brightside_2026-11-09_2026-11-13";
 const pick = (cell: string) => {
-  const r = runs.find((x) => x.config.cell === cell);
+  const r = runs.find((x) => x.config.cell === cell && x.config.evalset === EVALSET && !x.config.repeatIndex);
   if (!r) throw new Error(`arena has no finished run for ${cell}`);
   return r;
 };
@@ -16,8 +18,8 @@ const call = (r: (typeof runs)[number], stage: string) => {
   if (!c?.prompt) throw new Error(`${r.id} has no logged prompt for ${stage}`);
   return c.prompt;
 };
-const base = pick("baseline:anthropic/claude-sonnet-5.5");
-const llm = pick("llm:anthropic/claude-sonnet-5.5");
+const base = pick("baseline-sonnet");
+const llm = pick("llm-sonnet");
 const actions = call(llm, "output-actions");
 const items = (llm.items ?? [])
   .map(({ document_number, type, title, tier, tierReason, owner, reason }) => ({ document_number, type, title, tier, tierReason, owner, reason }))

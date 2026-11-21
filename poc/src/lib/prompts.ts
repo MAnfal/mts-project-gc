@@ -35,14 +35,20 @@ export const actionsPrompt = (p: CompanyProfile, items: Pick<ActionItem, "docume
 export const webLeadsSystem = () => prompt("webLeadsSystem");
 export const webLeadsPrompt = (p: CompanyProfile, windowStart: string, windowEnd: string) => prompt("webLeadsPrompt", { profile: profileBrief(p), windowStart, windowEnd });
 
+/** The tier rules in words, generated from config/pipeline.yaml so the baseline is told exactly what the code applies. */
+export function tierRulesText(asOf: string) {
+  const t = pipelineCfg().tiering;
+  const types = t.criticalDocTypes.map((x) => `${x.toLowerCase()}`).join(" or ");
+  return `Critical if it is a ${types} with a deadline less than ${t.criticalWindowDays} days after ${asOf}, or a final rule that took effect within the ${t.recentlyEffectiveDays} days before ${asOf}; otherwise High for final rules, Medium for proposed rules and for notices with a deadline, Low for anything else`;
+}
+
 export const baselineTask = (p: CompanyProfile, cfg: { windowStart: string; windowEnd: string; asOf: string }) =>
   prompt("baselineTask", {
     profile: profileBrief(p),
     areasWithOwners: bullets(Object.entries(p.areas).map(([k, v]) => `${k}: ${v.description} → ${v.owner.name}`)),
     windowStart: cfg.windowStart,
     windowEnd: cfg.windowEnd,
-    asOf: cfg.asOf,
-    criticalWindowDays: pipelineCfg().tiering.criticalWindowDays,
+    tierRules: tierRulesText(cfg.asOf),
   });
 export const baselineFormat = (task: string, research: string) => prompt("baselineFormat", { task, research });
 

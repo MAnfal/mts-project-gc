@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
-import { configHash, getCompany, pipelineCfg } from "../config";
+import { configHash, experiment, getCompany, pipelineCfg, prompts, setups, withPromptSet } from "../config";
 import { baselineFormat, baselineTask } from "../prompts";
 import { saveRun } from "../store";
 import { searchKind, searchTools } from "../models";
@@ -17,27 +17,40 @@ export function newRun(config: RunConfig): RunRecord {
 export async function execute(run: RunRecord): Promise<RunRecord> {
   const ctx = new RunCtx(run);
   const t0 = Date.now();
+  // Everything the run depends on, resolved, so the trace alone can explain the run.
+  ctx.trace.emit("run.start", {
+    config: run.config,
+    configHash: run.configHash,
+    profile: run.config.customProfile ?? (() => { try { return getCompany(run.config.profileId); } catch { return null; } })(),
+    promptSet: run.config.promptSet ?? null,
+    prompts: await withPromptSet(run.config.promptSet, async () => prompts()),
+    pipeline: pipelineCfg(),
+    setup: setups().setups.find((s) => s.id === run.config.cell) ?? null,
+    jevModel: experiment().jevModel,
+  });
   try {
     await ctx.init();
     await saveRun(run);
-    if (run.config.mode === "baseline") await baseline(ctx);
-    else await pipeline(ctx);
+    await withPromptSet(run.config.promptSet, () => (run.config.mode === "baseline" ? baseline(ctx) : pipeline(ctx)));
     run.status = "done";
   } catch (e) {
     run.status = "error";
     run.error = (e as Error).message;
   }
   run.totalMs = Date.now() - t0;
+  ctx.trace.emit("run.end", { status: run.status, error: run.error, totalCostUsd: run.totalCostUsd, totalMs: run.totalMs, scanned: run.scanned, items: run.items?.length ?? 0, dropped: run.dropped ?? [], itemsFinal: run.items ?? [] });
+  await ctx.trace.flush();
   await saveRun(run);
   return run;
 }
 
 async function pipeline(ctx: RunCtx) {
   const cfg = ctx.run.config;
-  const profile = getCompany(cfg.profileId);
+  const profile = cfg.customProfile ?? getCompany(cfg.profileId);
 
   const docs = await scan(ctx);
   ctx.run.scanned = docs.length;
+  ctx.trace.emit("scan.result", { count: docs.length, documents: docs.map((d) => ({ document_number: d.document_number, type: d.type, title: d.title })) });
   if (cfg.webLeads) ctx.run.webLeads = await webLeads(ctx, profile, docs);
 
   const decisions = new Map<string, FilterDecision>(docs.map((d) => [d.document_number, { document_number: d.document_number, relevant: false }]));
@@ -57,6 +70,16 @@ async function pipeline(ctx: RunCtx) {
     }
   }
   ctx.run.decisions = [...decisions.values()];
+  const sentToLlm = new Set(toLlm.map((d) => d.document_number));
+  for (const d of ctx.run.decisions)
+    ctx.trace.emit("filter.decision", {
+      document_number: d.document_number,
+      jevProbability: d.jevProbability ?? null,
+      jevThreshold: cfg.filter === "llm" ? null : cfg.jevThreshold,
+      passedJev: cfg.filter === "llm" ? null : sentToLlm.has(d.document_number),
+      llm: d.llm ?? null,
+      relevant: d.relevant,
+    });
 
   const relevantDocs = docs.filter((d) => decisions.get(d.document_number)!.relevant);
   const { items, dropped } = await verifyAndTier(ctx, profile, relevantDocs, decisions);
@@ -87,7 +110,7 @@ const baselineSchema = z.object({
 
 async function baseline(ctx: RunCtx) {
   const cfg = ctx.run.config;
-  const profile = getCompany(cfg.profileId);
+  const profile = cfg.customProfile ?? getCompany(cfg.profileId);
   const prompt = baselineTask(profile, cfg);
 
   // Two steps for every model: research freely with web search, then put the answer in our format.
@@ -118,17 +141,21 @@ async function baseline(ctx: RunCtx) {
     async () => {
       for (const c of out.items) {
         const num = c.document_number?.trim() || parseDocNumberFromUrl(c.url);
+        const drop = (document_number: string, why: string) => {
+          dropped.push({ document_number, why });
+          ctx.trace.emit("baseline.resolve", { claim: c, document_number, outcome: "dropped", why });
+        };
         if (!num) {
-          dropped.push({ document_number: c.title, why: "no Federal Register document number" });
+          drop(c.title, "no Federal Register document number");
           continue;
         }
         const doc = await getDoc(num);
         if (!doc) {
-          dropped.push({ document_number: num, why: "document number does not exist on federalregister.gov" });
+          drop(num, "document number does not exist on federalregister.gov");
           continue;
         }
         if (!windowDocs.has(num)) {
-          dropped.push({ document_number: num, why: `published ${doc.publication_date}, outside window` });
+          drop(num, `published ${doc.publication_date}, outside window`);
           continue;
         }
         const deadlines: Deadline[] = [];
@@ -140,6 +167,13 @@ async function baseline(ctx: RunCtx) {
           deadlines.push({ date: c.deadline, kind: c.deadline_kind ?? "other", source: "extracted", verified: fieldHit || textHit, verifyNote: fieldHit ? "matches FR field" : textHit ? "date appears in source text" : "date not found in primary source" });
         }
         const areaKey = Object.keys(profile.areas).find((k) => c.owner_area.toLowerCase().includes(k)) ?? null;
+        ctx.trace.emit("baseline.resolve", {
+          claim: c,
+          document_number: num,
+          outcome: "kept",
+          date: deadlines[0] ? { claimed: deadlines[0].date, verified: deadlines[0].verified, note: deadlines[0].verifyNote } : null,
+          owner: { claimedArea: c.owner_area, matchedArea: areaKey },
+        });
         items.push({
           document_number: num,
           title: doc.title,

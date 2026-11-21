@@ -17,9 +17,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <header className="border-b border-border px-4 py-2 flex items-center gap-6 text-sm">
           <span className="font-semibold">Reg Monitor · POC</span>
           <nav className="flex gap-4">
-            <Link href="/">Arena</Link>
-            <Link href="/runs">Single runs (debug)</Link>
-            <Link href="/label">Labels</Link>
+            <Link href="/try">Try it</Link>
+            <Link href="/">Evals (interviewer)</Link>
           </nav>
           <span className="ml-auto font-mono text-xs text-muted-foreground">
             spend ${spent.toFixed(2)} / ${budgetUsd()}

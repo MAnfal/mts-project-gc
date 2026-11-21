@@ -47,3 +47,6 @@ export function parseDocNumberFromUrl(url: string): string | null {
     return null;
   }
 }
+
+/** Dates in prose ("December 10, 2026", "Dec. 10, 2026", "12/10/2026", "2026-12-10"). Action text must not contain any. */
+export const DATE_RE = /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}, \d{4}\b|\b\d{1,2}\/\d{1,2}\/\d{4}\b|\b\d{4}-\d{2}-\d{2}\b/g;

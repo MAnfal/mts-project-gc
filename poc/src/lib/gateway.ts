@@ -17,3 +17,14 @@ export function gatewayCost(providerMetadata: unknown): number {
   const c = Number(g?.cost ?? 0);
   return Number.isFinite(c) ? c : 0;
 }
+
+// ── Model resolution (one seam, so tests can run the real pipeline with fake models at no cost) ──
+type LM = ReturnType<typeof gw>;
+type DM = ReturnType<typeof gw.decisionModel>;
+let resolvers: { language: (id: string) => LM; decision: (id: string) => DM } = { language: (id) => gw(id), decision: (id) => gw.decisionModel(id) };
+export const languageModel = (id: string) => resolvers.language(id);
+export const decisionModel = (id: string) => resolvers.decision(id);
+/** Tests only: swap in mock models (ai/test). */
+export function setModelsForTests(r: { language: (id: string) => unknown; decision: (id: string) => unknown }) {
+  resolvers = r as typeof resolvers;
+}

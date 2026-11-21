@@ -83,13 +83,50 @@ export async function getDoc(documentNumber: string, useCache = false): Promise<
 }
 
 /** Full plain text of the document (immutable once published, so cached). Truncated for prompt use by callers. */
+/** federalregister.gov answers automated full-text requests with a "Request Access" captcha page. */
+export const isBlockPage = (html: string) => /Request Access|captcha/i.test(html.slice(0, 5000));
+
+/** The same GPO text, served by govinfo.gov without a captcha. */
+export const govinfoUrl = (doc: Pick<FrDoc, "document_number" | "publication_date">) =>
+  `https://www.govinfo.gov/content/pkg/FR-${doc.publication_date}/html/${doc.document_number}.htm`;
+
+async function fetchText(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { headers: { "user-agent": "reg-monitor-poc" } });
+    if (!res.ok) return null;
+    const html = await res.text();
+    if (!html.trim() || isBlockPage(html)) return null;
+    return html.replace(/<[^>]+>/g, " ");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Full plain text of a document: govinfo first, the Federal Register's raw text as fallback. A block page or a
+ * failure returns "" and is NOT cached, so a later run retries instead of reading junk forever.
+ */
 export async function getRawText(doc: FrDoc): Promise<string> {
-  if (!doc.raw_text_url) return "";
-  return cached(`text-${doc.document_number}.json`, async () => {
-    const res = await fetch(doc.raw_text_url!);
-    if (!res.ok) return "";
-    return (await res.text()).replace(/<[^>]+>/g, " ");
-  }, true);
+  return (await getRawTextWithSource(doc)).text;
+}
+
+/** Same as getRawText, plus where the text came from (for the execution trace). */
+export async function getRawTextWithSource(doc: FrDoc): Promise<{ text: string; source: "cache" | "govinfo" | "federalregister" | "none" }> {
+  const file = path.join(CACHE, `text-${doc.document_number}.json`);
+  try {
+    const hit = JSON.parse(await fs.readFile(file, "utf8")) as string;
+    if (hit && !isBlockPage(hit)) return { text: hit, source: "cache" };
+  } catch {}
+  let source: "govinfo" | "federalregister" = "govinfo";
+  let text = await fetchText(govinfoUrl(doc));
+  if (!text && doc.raw_text_url) {
+    text = await fetchText(doc.raw_text_url);
+    source = "federalregister";
+  }
+  if (!text) return { text: "", source: "none" };
+  await fs.mkdir(CACHE, { recursive: true });
+  await fs.writeFile(file, JSON.stringify(text));
+  return { text, source };
 }
 
 export const agencyNames = (d: FrDoc) => d.agencies.map((a) => a.name ?? a.raw_name ?? a.slug ?? "?");

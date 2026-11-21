@@ -9,8 +9,17 @@ import { gw } from "./gateway";
 
 export const arenaModels = () => setups().models;
 
-const HELPER_LABELS: Record<string, string> = { "anthropic/claude-haiku-5.5": "Haiku 5.5" };
-export const modelLabel = (id: string) => arenaModels().find((m) => m.id === id)?.label ?? HELPER_LABELS[id] ?? id;
+/** "anthropic/claude-opus-5.5" → "Opus 5.5", "openai/gpt-6.2-sol" → "GPT-6.2 Sol" (labels from setups.yaml win). */
+function prettify(id: string) {
+  const name = id.split("/").pop() ?? id;
+  return name
+    .replace(/^claude-/, "")
+    .split("-")
+    .map((w) => (/^gpt$/i.test(w) ? "GPT" : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ")
+    .replace(/^GPT (\S+)/, "GPT-$1");
+}
+export const modelLabel = (id: string) => arenaModels().find((m) => m.id === id)?.label ?? prettify(id);
 
 const searchOf = (model: string) => arenaModels().find((m) => m.id === model)?.search ?? "exa";
 

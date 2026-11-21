@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { frozenWeek, getCompany, render, validateAll } from "../src/lib/config";
+import { frozenWeek, getCompany, pipelineCfg, render, validateAll } from "../src/lib/config";
 import { actionsPrompt, baselineTask, filterPrompt } from "../src/lib/prompts";
 import { assignTier } from "../src/lib/tier";
 import type { ActionItem, RunConfig } from "../src/lib/types";
@@ -77,31 +77,42 @@ describe("arena configs built from setups.yaml match what the 2026-11-21 arena r
 });
 
 describe("tier rules are passed in, not read from an editable file", () => {
+  const R = { criticalWindowDays: 90, recentlyEffectiveDays: 30, criticalDocTypes: ["Rule", "Proposed Rule"] as ("Rule" | "Proposed Rule" | "Notice")[] };
+  const deadlines = [{ date: "2026-12-13", kind: "comment" as const, source: "fr_field" as const, verified: true }];
+
   it("the window comes from the argument", () => {
-    const deadlines = [{ date: "2026-12-13", kind: "comment" as const, source: "fr_field" as const, verified: true }];
-    expect(assignTier({ type: "Proposed Rule", deadlines, asOf: "2026-11-13", rules: { criticalWindowDays: 90, recentlyEffectiveDays: 30 } }).tier).toBe("Critical");
-    expect(assignTier({ type: "Proposed Rule", deadlines, asOf: "2026-11-13", rules: { criticalWindowDays: 20, recentlyEffectiveDays: 30 } }).tier).toBe("Medium");
+    expect(assignTier({ type: "Proposed Rule", deadlines, asOf: "2026-11-13", rules: R }).tier).toBe("Critical");
+    expect(assignTier({ type: "Proposed Rule", deadlines, asOf: "2026-11-13", rules: { ...R, criticalWindowDays: 20 } }).tier).toBe("Medium");
+  });
+
+  it("which doc types can be Critical is a config switch (notices capped at Medium unless listed)", () => {
+    expect(assignTier({ type: "Notice", deadlines, asOf: "2026-11-13", rules: R }).tier).toBe("Medium");
+    expect(assignTier({ type: "Notice", deadlines, asOf: "2026-11-13", rules: { ...R, criticalDocTypes: ["Rule", "Proposed Rule", "Notice"] } }).tier).toBe("Critical");
+  });
+
+  it("pipeline.yaml carries the switch", () => {
+    expect(pipelineCfg().tiering.criticalDocTypes).toEqual(["Rule", "Proposed Rule"]);
   });
 });
 
-describe("frozen answer keys", () => {
+describe("pinConfig (a suite freezes its config at start)", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.resetModules();
   });
 
-  it("saveLabels refuses to overwrite a key with provenance, but writes a draft key", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cfg-"));
-    fs.mkdirSync(path.join(dir, "evalsets/keys"), { recursive: true });
-    const base = { profileId: "acme", windowStart: "2026-01-05", windowEnd: "2026-01-09", relevant: ["X"], reviewedAgencies: [], notes: {}, updatedAt: "" };
-    fs.writeFileSync(path.join(dir, "evalsets/keys/acme_2026-01-05_2026-01-09.json"), JSON.stringify({ ...base, provenance: "frozen" }));
+  it("after pinning, edits on disk are ignored until unpinned", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pin-"));
+    fs.cpSync(path.resolve(__dirname, "../config"), dir, { recursive: true });
     vi.stubEnv("POC_CONFIG_DIR", dir);
     vi.resetModules();
-    const { saveLabels, loadLabels } = await import("../src/lib/store");
-    await expect(saveLabels({ ...base, relevant: [] })).rejects.toThrow(/frozen/);
-    expect((await loadLabels("acme", "2026-01-05", "2026-01-09"))?.relevant).toEqual(["X"]);
-
-    await saveLabels({ ...base, profileId: "draft" });
-    expect((await loadLabels("draft", "2026-01-05", "2026-01-09"))?.relevant).toEqual(["X"]);
+    const cfg = await import("../src/lib/config");
+    cfg.pinConfig();
+    const before = cfg.experiment().budgetUsd;
+    const file = path.join(dir, "experiment.yaml");
+    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace(/^budgetUsd: .*$/m, "budgetUsd: 1234\nnotAKey: [broken"));
+    expect(cfg.experiment().budgetUsd).toBe(before);
+    cfg.unpinConfig();
+    expect(() => cfg.experiment()).toThrow();
   });
 });

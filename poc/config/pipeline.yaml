@@ -1,7 +1,14 @@
 # Pipeline knobs. Tiering is deterministic code driven by these numbers.
 
 tiering:
+  # RFC: a deadline under this many days is Critical.
   criticalWindowDays: 90
+  # Only these doc types can be Critical. A Notice with a deadline (e.g. "comment on this paperwork form") → Medium.
+  # Add Notice to make it Critical too.
+  criticalDocTypes:
+    - Rule
+    - Proposed Rule
+  # A rule already in effect for fewer than this many days → Critical (you may be out of compliance); older → High.
   recentlyEffectiveDays: 30
 filter:
   jevConcurrency: 16

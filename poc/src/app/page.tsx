@@ -1,59 +1,50 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import ArenaForm from "@/components/ArenaForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { listArenas, methods } from "@/lib/arena";
-import { companies, evalsets, experiment, frozenWeek, getCompany, loadKey } from "@/lib/config";
-import { arenaModels } from "@/lib/models";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { listArenas, suiteCells } from "@/lib/arena";
+import { evalsets, experiment, frozenWeek, getCompany, loadKey } from "@/lib/config";
 import { budgetUsd, spentUsd } from "@/lib/store";
 
+/** Interviewer landing page: the pre-computed eval suite first; launching a new (paid) one is secondary. */
 export default async function Home() {
   await connection();
   const [arenas, spent] = await Promise.all([listArenas(), spentUsd()]);
-  const sets = evalsets().map((e) => {
-    const c = getCompany(e.company);
-    return {
-      id: e.id,
-      label: `${c.name} · ${e.windowStart} → ${e.windowEnd}`,
-      companyId: c.id,
-      summary: c.summary,
-      windowStart: e.windowStart,
-      windowEnd: e.windowEnd,
-      docs: frozenWeek(e.windowStart, e.windowEnd)?.length ?? 0,
-      keyed: loadKey(e.company, e.windowStart, e.windowEnd)?.relevant.length ?? null,
-    };
-  });
-  const names = Object.fromEntries(companies().map((c) => [c.id, c.name]));
+  const latest = arenas.find((a) => !a.running) ?? arenas[0];
+  const sets = evalsets().map((e) => ({
+    id: e.id,
+    label: `${getCompany(e.company).name} · ${e.windowStart.slice(5)}–${e.windowEnd.slice(5)}`,
+    split: e.split,
+    docs: frozenWeek(e.windowStart, e.windowEnd)?.length ?? 0,
+    keyed: loadKey(e.company, e.windowStart, e.windowEnd)?.relevant.length ?? null,
+  }));
   return (
     <div className="flex flex-col gap-6">
+      {latest ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Eval results</CardTitle>
+            <CardDescription>Pre-computed: opens instantly, nothing re-runs.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center gap-4">
+            <Link href={`/arena/${latest.id}`} className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium">
+              Open the scoreboard →
+            </Link>
+            <span className="text-sm text-muted-foreground">
+              {latest.runs} runs · ${latest.costUsd.toFixed(2)} · {new Date(latest.createdAt).toLocaleString()}
+            </span>
+          </CardContent>
+        </Card>
+      ) : (
+        <p className="text-sm text-muted-foreground">No eval suite yet.</p>
+      )}
       <ArenaForm
         evalsets={sets}
-        defaultEvalset={experiment().arena.defaultEvalset}
+        setups={suiteCells().map((c) => ({ id: c.key, label: c.label, model: c.model, estUsd: c.estUsd }))}
         repeatOptions={experiment().arena.repeatOptions}
-        models={arenaModels().map((m) => ({ id: m.id, label: m.label, vendor: m.vendor }))}
-        methods={methods().map((m) => ({ id: m.id, label: m.label, estUsd: m.estUsd }))}
         spent={spent}
         budget={budgetUsd()}
       />
-      <Card>
-        <CardHeader>
-          <CardTitle>Past arenas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!arenas.length && <p className="text-sm text-muted-foreground">None yet.</p>}
-          <ul className="divide-y text-sm">
-            {arenas.map((a) => (
-              <li key={a.id} className="py-2 flex items-center gap-3">
-                <Link className="underline" href={`/arena/${a.id}`}>{names[a.profileId] ?? a.profileId}</Link>
-                <span className="text-muted-foreground">{a.windowStart} → {a.windowEnd}</span>
-                <span className="text-muted-foreground">{a.runs} runs{a.running ? ` · ${a.running} running` : ""}</span>
-                <span className="ml-auto font-mono text-xs">${a.costUsd.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground">{new Date(a.createdAt).toLocaleString()}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
     </div>
   );
 }

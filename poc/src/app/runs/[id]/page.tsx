@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import AutoRefresh from "@/components/AutoRefresh";
 import { listWindow } from "@/lib/fr";
-import { loadLabels, loadRun } from "@/lib/store";
+import { loadKey } from "@/lib/config";
+import { loadRun } from "@/lib/store";
 import type { ActionItem, Tier } from "@/lib/types";
 
 const TIER_STYLE: Record<Tier, string> = {
@@ -50,7 +51,7 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
   const run = await loadRun(id);
   if (!run) notFound();
   const c = run.config;
-  const labels = await loadLabels(c.profileId, c.windowStart, c.windowEnd);
+  const labels = loadKey(c.profileId, c.windowStart, c.windowEnd);
   const truth = labels ? new Set(labels.relevant) : null;
   const docs = new Map((await listWindow(c.windowStart, c.windowEnd)).map((d) => [d.document_number, d]));
   const decisions = [...(run.decisions ?? [])].sort((a, b) => (b.jevProbability ?? (b.llm?.relevant ? 1 : 0)) - (a.jevProbability ?? (a.llm?.relevant ? 1 : 0)));
