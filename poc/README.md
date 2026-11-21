@@ -54,27 +54,27 @@ Pages: `/` start an eval · `/arena/<id>` interviewer dashboard · `/progress` i
 4. `scripts/iteration.mts data/iterations/<NN>/spec.yaml`: refuses without step 1's evidence (written before the
    suite) and targets. Decide on dev; a gap counts only if it exceeds the control's A/A swing between identical suites.
 
-## Findings (2026-11-22, after iterations 00–05)
+## Findings (2026-11-22, after iterations 00–06)
 
 **Eval set:** 3 everyday companies (food, pharmacy, airline) × 4 frozen weeks = 12 company-weeks; 2 weeks are dev
 (we look and tune), 2 are held-out test (scored, never analysed). Keys: two blind drafts (Opus + Sonnet) per
 company-week, reconciled by a third blind agent: 20 should-flag rules, 157 traps. Grading: code vs the key (subset
 logic: key flags found = right, traps flagged = wrong, anything else is reported but not penalised), deterministic
-trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wording. Total spend $101 of $120.
+trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wording. Total spend $125 of $130.
 
-**Live setup `jev-sonnet-strict` vs the RFC targets** (72 runs pooled over two identical suites):
+**Live setup `jev-sonnet-strict-passages` vs the RFC targets** (69 runs pooled over two identical suites):
 
 | Target | Result | |
 |---|---|---|
-| Recall ≥ 90% | 89.2% (dev 90.9%, test 87.0%) | just short |
-| Precision ≥ 80% | 78.7% (dev 87.0%, test 70.1%) | short on held-out |
-| Dates and citations verified | 100% dates (107/107), 100% trace checks | ✅ |
-| Tier identical across 3 runs | 100% right (107/107) | ✅ |
-| Relevance agrees across 3 runs ≥ 90% | 95.6% of keyed docs (pooled across suites); 89.5% on real flags alone | ✅ (borderline on flags) |
-| Beats single-prompt baseline | recall 89% vs 63%, dates 100% vs 79%, 4× cheaper ($0.13 vs $0.52/run); held-out precision tied (70% vs 71%). Cross-suite: the baseline's old-week runs are from the first suite | ✅ mostly |
+| Recall ≥ 90% | 89.8% (dev 91.2%, test 88.2%) | just short |
+| Precision ≥ 80% | 81.5% (dev 91.2%, test 72.6%) | ✅ overall, short on held-out |
+| Dates and citations verified | 100% dates (97/97), 100% trace checks | ✅ |
+| Tier identical across 3 runs | 100% right (97/97) | ✅ |
+| Relevance agrees across 3 runs ≥ 90% | 94.6% of keyed docs (pooled); 82.5% on real flags alone | ✅ (weaker on flags) |
+| Beats single-prompt baseline | recall 90% vs 63%, precision 82% vs 69%, dates 100% vs 79%, $0.20 vs $0.52/run. Cross-suite: the baseline's old-week runs are from the first suite | ✅ |
 
-Flags outside the key (not penalised under subset grading) ran at about 0.3 per run, mostly docs the key reviewers
-called 50/50.
+The previous live setup (`strict`) in the same two suites: recall 86.3%, precision 78.9%, $0.12/run. Flags outside
+the key (not penalised under subset grading) ran at about 0.3 per run, mostly docs the key reviewers called 50/50.
 
 **What the iterations showed** (`/progress`, `data/iterations/`):
 - **02, the strict filter prompt (kept):** listing what does NOT count cut false flags sharply. It's the only prompt
@@ -84,6 +84,10 @@ called 50/50.
 - **04, a 3-pass majority vote on the filter:** steadier on dev, no held-out gain, 2.2× cost. Not kept.
 - **05, strict-v3 (exclusions from error analysis):** no measurable effect. The targeted docs were flagged identically
   by the unchanged control in the same suite.
+- **06, Jev-picked passages (promoted):** for Jev's top 20 docs, Jev scores ~1,200-char passages of the full text
+  and the filter also reads the best 3. The power-bank rule (2026-21922), missed in every earlier run, was found
+  9 of 9 times. Test misses fell 5.3 → 3.1 and trap hits 10.6 → 8.7 per 18 runs (pooled, replicated). Trade-off:
+  it sometimes drops the DEA quota rules (3 of 8 dev runs) when passages say the duty sits with manufacturers.
 - **The noise band is wide.** The unchanged control swings 3 recall cases and 4 trap hits on the test weeks between
   two identical suites, and its old-week test recall was 14, 9, 12 and 15 of 15 across four suites. So single-suite
   gaps of that size are inconclusive. The decision rule now requires a gap
@@ -108,9 +112,10 @@ they rank 10–20.
   date failures the grader didn't count. Fixed: both share one date check (`dateCorrect`).
 - *Possible key bias:* keys were drafted by Claude models; the only non-Claude setup ranked lowest on recall.
 
-**Next, for the real build:**
-- Give the LLM filter more than the abstract for Jev's top ~20. The power-bank limits of 2026-21922 sit deep in the
-  full text, and Jev already ranks every real flag in its top 20, so the cost stays flat.
+**Next, for the real build** (evidence for iteration 07 is ready in `data/iterations/07-next/`):
+- Keep indirect supply/demand rules when passages describe duties on other parties (the DEA quota drops).
+- Judges read rubrics too literally (e.g. fail an informational action for not saying "nothing is required"):
+  loosen the "covers" instruction for informational items.
 - Grow the eval set before tuning further: 20 real flags can't resolve gains smaller than ~3 cases.
 - Rewrite the held-out rubrics at gist level with a blind agent, so judge pass is comparable across weeks.
 

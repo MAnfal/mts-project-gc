@@ -2,7 +2,7 @@ id: 06-passages
 title: >-
   Jev re-ranks passages inside its top 20 docs; the LLM filter reads the best ones, not just the abstract
 date: "2026-11-22"
-suite: SUITE_PLACEHOLDER
+suite: arena-2026-11-21-22-52-l92
 setup: jev-sonnet-strict-passages
 comparedTo: jev-sonnet-strict
 targets:
@@ -36,4 +36,19 @@ plan: >-
   and decide on pooled runs: promote only if test recall and test trap hits are no worse than the control beyond the
   band. Band = the largest swing of the unchanged control across all its identical-config suites, new ones included.
 decision: >-
-  PENDING
+  Promoted: jev-sonnet-strict-passages becomes the live setup (experiment.yaml userView.setup). Rule from the plan:
+  promote if test recall and test trap hits are no worse than the control beyond the band. Pooled over suite 1 and
+  the unchanged replicate (per 18 runs): test misses 5.3 (control) vs 3.1 (passages), test trap hits 10.6 vs 8.7;
+  dev misses 3.0 vs 2.6, dev trap hits 3.5 vs 2.6. Both test metrics are better, but each overall gap is inside the
+  control's A/A band (test misses swing 4.4, test trap hits 4.0 across its four identical-config suites), so the
+  overall gain is not proven; the targeted gain is: 2026-21922 flagged 0/6 by the control in these suites (and in
+  every earlier suite) vs 9/9 with passages, including the dev gate. Trade-off found: with passages the filter
+  sometimes drops the DEA quota rules 2026-22842 and 2026-22843 (3 of 8 dev runs each; the control keeps them), likely
+  because the passages state the duties fall on manufacturers. Cost per run $0.126 -> ~$0.23.
+notes: >-
+  Replicate suite: arena-2026-11-21-23-16-du8 (unchanged). Dev gate: arena-2026-11-21-22-48-27v (6 runs). The
+  iteration record's metrics are computed on suite 1 only; the pooled numbers above are the decision basis. Five runs
+  across the two suites failed on Gateway outages ("Service temporarily unavailable"), so per-18-run rates are used.
+  Control A/A per suite (dev trap hits / test trap hits / test misses per 18 runs): 64r 5/8/5.0, jq4 4/12/2.0,
+  l92 4/11.6/4.2, du8 3/9.5/6.4. Passage picks for 21922 contain the power-bank limits (trace event filter.passages).
+  Next target: indirect supply rules dropped when passages describe duties on other parties (the quota rules).

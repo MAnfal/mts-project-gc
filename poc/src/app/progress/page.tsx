@@ -174,7 +174,7 @@ export default async function ProgressPage() {
         <CardHeader>
           <CardTitle>Precision and recall per iteration</CardTitle>
           <CardDescription>
-            Dashed lines are the RFC targets. Each point is that iteration&apos;s <b>candidate</b>, not the live setup (only 02 was promoted).
+            Dashed lines are the RFC targets. Each point is that iteration&apos;s <b>candidate</b>, not the live setup (02 and 06 were promoted).
             The eval set doubles from 6 to 12 company-weeks at 04, so points before and after 04 aren&apos;t directly comparable. Gaps
             smaller than the unchanged control&apos;s own swing between identical suites (≈3 recall cases, ≈4 trap hits on test) are noise.
           </CardDescription>

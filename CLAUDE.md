@@ -63,7 +63,7 @@ the copy a session happens to read first wins.
 
 - **POC eval loop matured** 2026-11-22: 12 frozen company-weeks (dev/test split), subset precision grading,
 per-step scores, and an evidence gate. Every iteration needs a dev-only error analysis (incl. judge
-feedback) first, and a gap counts only beyond the control's A/A swing. Iterations 00–05 and findings are in
+feedback) first, and a gap counts only beyond the control's A/A swing. Iterations 00–06 (06 promoted: Jev-picked passages) and findings are in
 `poc/README.md` and `poc/data/iterations/`.
 
 - **Knowledge layer added** 2026-09-19: `.claude/resources/bibles/` holds the engineering  

@@ -1,0 +1,2886 @@
+{
+  "id": "2026-11-21T22-52-25-366Z_pipeline_a92c",
+  "createdAt": "2026-11-21T22:52:25.366Z",
+  "config": {
+    "profileId": "skyhop",
+    "windowStart": "2026-11-09",
+    "windowEnd": "2026-11-13",
+    "asOf": "2026-11-13",
+    "mode": "pipeline",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "promptSet": "strict",
+    "filterExcerpts": {
+      "topN": 20,
+      "chunkChars": 1200,
+      "perDoc": 3,
+      "maxChunks": 300
+    },
+    "group": "arena-2026-11-21-22-52-l92:jev-sonnet-strict-passages",
+    "arena": "arena-2026-11-21-22-52-l92",
+    "cell": "jev-sonnet-strict-passages",
+    "evalset": "skyhop_2026-11-09_2026-11-13",
+    "repeatIndex": 1
+  },
+  "configHash": "5f1346a284",
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 0,
+      "costUsd": 0,
+      "outCount": 448
+    },
+    {
+      "name": "filter:jev",
+      "ms": 14933,
+      "costUsd": 0.013863989999999998,
+      "inCount": 448,
+      "outCount": 44,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:passages",
+      "ms": 17872,
+      "costUsd": 0.011903052000000027,
+      "inCount": 20,
+      "outCount": 20,
+      "note": "top 20 by Jev · 3 passages each"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 15226,
+      "costUsd": 0.110562,
+      "inCount": 44,
+      "outCount": 0,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 0,
+      "costUsd": 0,
+      "inCount": 0,
+      "outCount": 0,
+      "note": "0 unverified dates dropped from tiering"
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#2",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 3310,
+      "costUsd": 0.006952,
+      "inputTokens": 1961,
+      "outputTokens": 303,
+      "prompt": "Company: SkyHop Airlines\n\nUS regional airline (~3,500 employees) flying short domestic routes from hubs in Denver and Salt Lake City. Fleet is 60 Embraer E175 jets and 25 Airbus A320-family jets (A319 and A320). Sells tickets online and at airports, charges bag fees, and runs its own maintenance hangar. Does not fly Boeing aircraft, Airbus A220/A350, or helicopters; no cargo-only flights, no international routes.\n\nRules that APPLY:\n- FAA airworthiness directives for Embraer E175 (ERJ 170 family) or Airbus A319/A320, and their engines\n- FAA rules for airline operations, pilots, crew rest and drug/alcohol testing\n- DOT consumer rules for airline passengers (refunds, fees, accessibility)\n- Airspace or airport rules at Denver or Salt Lake City, and airport fees charged to passengers\n- TSA security rules for airlines\n\nRules that DO NOT apply:\n- Airworthiness directives for aircraft models we do not fly (Boeing, A220, A350, business jets, small planes, helicopters)\n- Airspace changes at airports we do not serve\n- Commercial space launches, drones, air-traffic-control equipment\n- Banking, food, pharmacy, energy\n\n=== DOCUMENTS (4) ===\n\n[2026-23139] Notice — Environmental Protection Agency\nTitle: Environmental Impact Statements; Notice of Availability\nAbstract: (none)\n\n[2026-23161] Notice — Homeland Security Department; Federal Emergency Management Agency\nTitle: Changes in Flood Hazard Determinations\nAction: Notice.\nAbstract: New or modified Base (1-percent annual chance) Flood Elevations (BFEs), base flood depths, Special Flood Hazard Area (SFHA) boundaries or zone designations, and/or regulatory floodways (hereinafter referred to as flood hazard determinations) as shown on the indicated Letter of Map Revision (LOMR) for each of the communities listed in the table below are finalized. Each LOMR revises the Flood Insurance Rate Maps (FIRMs), and in some cases the Flood Insurance Study (FIS) reports, currently in effect for the listed communities.\n\n[2026-23196] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D\nAction: Publication of web general licenses.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing two general licenses (GLs) issued pursuant to the Russian Harmful Foreign Activities Sanctions Regulations: GLs 55F and 115D, each of which was previously made available on OFAC's website.\n\n[2026-23197] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of Iran-Related Web General Licenses EE and FF\nAction: Publication of web general licenses.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing two Iran-related general licenses (GLs): GLs EE and FF, which were made available on OFAC's website at the time of issuance.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-23139",
+            "relevant": false,
+            "reason": "EPA notice of availability of environmental impact statements; no aviation requirement for SkyHop's fleet, hubs, or operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23161",
+            "relevant": false,
+            "reason": "FEMA flood hazard map changes for listed communities; imposes nothing on airline operations, maintenance, or passengers.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23196",
+            "relevant": false,
+            "reason": "OFAC Russia sanctions general licenses; SkyHop flies only domestic routes with no Russia dealings, so no new duty arises.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23197",
+            "relevant": false,
+            "reason": "OFAC Iran-related general licenses; SkyHop has no international routes or Iran business, so nothing changes for it.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 10470,
+      "costUsd": 0.046382,
+      "inputTokens": 16711,
+      "outputTokens": 1296,
+      "prompt": "Company: SkyHop Airlines\n\nUS regional airline (~3,500 employees) flying short domestic routes from hubs in Denver and Salt Lake City. Fleet is 60 Embraer E175 jets and 25 Airbus A320-family jets (A319 and A320). Sells tickets online and at airports, charges bag fees, and runs its own maintenance hangar. Does not fly Boeing aircraft, Airbus A220/A350, or helicopters; no cargo-only flights, no international routes.\n\nRules that APPLY:\n- FAA airworthiness directives for Embraer E175 (ERJ 170 family) or Airbus A319/A320, and their engines\n- FAA rules for airline operations, pilots, crew rest and drug/alcohol testing\n- DOT consumer rules for airline passengers (refunds, fees, accessibility)\n- Airspace or airport rules at Denver or Salt Lake City, and airport fees charged to passengers\n- TSA security rules for airlines\n\nRules that DO NOT apply:\n- Airworthiness directives for aircraft models we do not fly (Boeing, A220, A350, business jets, small planes, helicopters)\n- Airspace changes at airports we do not serve\n- Commercial space launches, drones, air-traffic-control equipment\n- Banking, food, pharmacy, energy\n\n=== DOCUMENTS (20) ===\n\n[2026-22731] Notice — General Services Administration\nTitle: Information Collection; General Services Administration Acquisition Regulation; Implementation of Information Technology Security Requirements\nAction: Notice; request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 and OMB regulations, GSA invites the public to comment on an extension concerning the implementation of information technology security requirements. GSA invites comments on: whether the proposed collection of information is necessary, including whether the information will have practical utility; the accuracy of the estimate of the burden of the proposed information collection; ways to enhance the quality, utility, and clarity of the information to be collected; and ways to minimize the burden of the information collection on respondents, including the use of automated collection techniques or other forms of information technology. OMB has approved this information collection for use through March 31, 2027. GSA proposes that OMB extend its approval for use for three additional years beyond the current expiration date.\n\n[2026-22761] Rule — Labor Department; Office of the Secretary\nTitle: Rules of Practice and Procedure for Administrative Hearings Before the Office of Administrative Law Judges\nAction: Final rule.\nAbstract: This action finalizes the Department of Labor's (DOL or Department) proposal to require electronic filing (e-filing) in proceedings before the Office of Administrative Law Judges (OALJ), published on January 11, 2021. The Department has reviewed the comments received in response to the proposal and is now implementing the rule as described in the proposed rule of January 11, 2021, with appropriate exceptions for good cause shown and self-represented parties.\n\n[2026-22766] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 215 (Monday, November 9, 2026) [Federal Register Volume 91, Number 215 (Monday, November 9, 2026)] [Notices] [Pages 70987-70989] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22766] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List [[Page 70988]] (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on November 4, 2026. See Supplementary Information for relevant dates. FOR\"\n- \"FURTHER INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On November 4, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. Individuals 1. DHIMAN, Ashwani Kumar, Chandigarh, India; DOB 01 Mar 1980; nationality India; Gender Male; Secondary sanctions risk: See Section 2 of E.O. 13902; Registration Number 08188219 (India) (individual) [IRAN- EO13902] (Linked To: ARYAVART SHIP MANAGEMENT PRIVATE LIMITED). Designated pursuant to section 1(a)(iv) of Executive Order 13902 of January 10, 2020, ``Imposing Sanctions With Respect to Additional Sectors of Iran,'' 85 FR 2003, 3 CFR, 2020 Comp., p. 299 (E.O. 13902), for having acted or purported to act for or on behalf of,\"\n- \"[IRAN-EO13902] (Linked To: SHAHID, Jaspreet Preeti). Designated pursuant to section 1(a)(iv) of E.O. 13902 for being owned or controlled by, or having acted or purported to act for or on behalf of, directly or indirectly, JASPREET PREETI SHAHID, a person whose property and interests in property are blocked pursuant to E.O. 13902. 10. FUGO GROUND SERVICES INC (Latin: FUGO YER H[Idot]ZMETLER[Idot] ANON[Idot]M [Scedil][Idot]RKET[Idot]) (a.k.a. FUGO AVIATION), Gayrettepe Mh. Vefabey Sk. No: 16 Inner Door No: 4, Besiktas, Istanbul, Turkey; website https://www.fugoaviation.com ; Secondary sanctions risk: See Section 2 of E.O. 13902; Organization Established Date 28 Nov 2019; Tax ID No. 3881357595 (Turkey); Chamber of Commerce Number 1210423 (Turkey); Registration Number 220631-5 (Turkey); Central Registration System Number 0388135759500001 (Turkey) [IRAN-EO13902]. Designated pursuant to section 1(a)(i) of E.O. 13902 for operating in the aviation sector of the Iranian economy. (Authority: E.O. 13902.) Bradley T. Smith, Director, Office of Foreign Assets Control. [FR Doc. 2026-22766 Filed 11-6-26; 8:45 am] BILLING CODE 4810-AL-P\"\n\n[2026-22774] Rule — Transportation Department; Federal Aviation Administration\nTitle: Airworthiness Directives; Rolls-Royce Deutschland Ltd & Co KG Engines\nAction: Final rule.\nAbstract: The FAA is adopting a new airworthiness directive (AD) for all Rolls-Royce Deutschland Ltd & Co KG (RRD) Model BR700-725A1-12 engines. This AD was prompted by the manufacturer revising the airworthiness limitations section (ALS) of the existing time limits manual (TLM) to introduce new or more restrictive airworthiness limitations and associated thresholds and intervals for life-limited parts. This AD requires revising the ALS of the operator's existing approved engine maintenance or inspection program, as applicable, to incorporate new or more restrictive instructions and associated thresholds and intervals for life-limited parts. The FAA is issuing this AD to address the unsafe condition on these products.\n\n[2026-22777] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Notice of Applications for New Special Permits\nAction: List of applications for special permits.\nAbstract: In accordance with the procedures governing the application for, and the processing of, special permits from the Department of Transportation's Hazardous Material Regulations, notice is hereby given that the Office of Hazardous Materials Safety has received the application described herein.\n\n[2026-22778] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Notice of Applications for Modification to Special Permits\nAction: List of applications for modification of special permits.\nAbstract: In accordance with the procedures governing the application for, and the processing of, special permits from the Department of Transportation's Hazardous Material Regulations, notice is hereby given that the Office of Hazardous Materials Safety has received the application described herein.\n\n[2026-22779] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Notice of Actions on Special Permits\nAction: Notice of actions on special permit applications.\nAbstract: In accordance with the procedures governing the application for, and the processing of, special permits from the Department of Transportation's Hazardous Material Regulations, notice is hereby given that the Office of Hazardous Materials Safety has granted or denied the application described herein.\n\n[2026-22793] Rule — Commerce Department; Industry and Security Bureau\nTitle: Extension of the Suspension of Expansion of End-User Controls for Affiliates of Certain Listed Entities\nAction: Final rule; stay.\nAbstract: The Bureau of Industry and Security (BIS) is extending the suspension of the interim final rule (IFR), \"Expansion of End-User Controls to Cover Affiliates of Certain Listed Entities.\" The suspension was set to end November 9, 2026. This final rule extends the suspension through January 10, 2027.\n\n[2026-22802] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing updates to the identifying information of one or more entries currently included on one or more of OFAC's sanctions lists.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 215 (Monday, November 9, 2026) [Federal Register Volume 91, Number 215 (Monday, November 9, 2026)] [Notices] [Page 70987] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22802] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Actions AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing updates to the identifying information of one or more entries currently included on one or more of OFAC's sanctions lists. DATES: See Supplementary Information for relevant dates. FOR FURTHER INFORMATION CONTACT: OFAC: Associate Director for the Office of Sanctions Support and Operations, 202-622-6943; Associate Director for Global Targeting, 202-622-2420; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability\"\n- \"OFAC's sanctions lists and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Action On November 4, 2026, OFAC updated the following names to apply secondary sanctions information to names associated with the IRAN- EO13902 program. The updated names and relevant sanctions authorities are available at the below URL: https://ofac.treasury.gov/recent-actions/20261104_33 . (Authority: 31 CFR chapter V.) Bradley T. Smith, Director, Office of Foreign Assets Control. [FR Doc. 2026-22802 Filed 11-6-26; 8:45 am] BILLING CODE 4810-AL-P\"\n\n[2026-22814] Notice — Transportation Department; Office of the Secretary\nTitle: Agency Information Collection Activities: Requests for Comments; Clearance of a Renewed Approval of Information Collection(s): Procedures for Transportation Workplace Drug and Alcohol Testing Programs (ICR 2105-0529)\nAction: Notice and request for comments.\nAbstract: The Department of Transportation (DOT) invites public comments about our intention to request Office of Management and Budget (OMB) approval to renew the information collection approved under OMB Control No. 2105-0529, Procedures for Transportation Drug and Alcohol Testing Program. The information to be collected will be used to document tests conducted and actions taken to ensure safety in the workplace or is otherwise necessary to collect under the Omnibus Transportation Employee Testing Act of 1991, which requires DOT to implement a drug and alcohol testing program in various transportation-related industries. DOT is required to publish this notice in the Federal Register in accordance with the Paperwork Reduction Act of 1995.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 215 (Monday, November 9, 2026) [Federal Register Volume 91, Number 215 (Monday, November 9, 2026)] [Notices] [Pages 70985-70987] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22814] ----------------------------------------------------------------------- DEPARTMENT OF TRANSPORTATION Office of the Secretary [Docket No. DOT-OST-2026-4192] Agency Information Collection Activities: Requests for Comments; Clearance of a Renewed Approval of Information Collection(s): Procedures for Transportation Workplace Drug and Alcohol Testing Programs (ICR 2105-0529) AGENCY: Office of the Secretary (OST), DOT. ACTION: Notice and request for comments. ----------------------------------------------------------------------- SUMMARY: The Department of Transportation (DOT) invites public comments about our intention to request Office of Management and Budget (OMB) approval to renew the information collection approved under OMB Control No. 2105-0529, Procedures for Transportation Drug and Alcohol Testing Program. The information to be collected will be used to document tests conducted and actions taken to ensure\"\n- \"safety in the workplace or is otherwise necessary to collect under the Omnibus Transportation Employee Testing Act of 1991, which requires DOT to implement a drug and alcohol testing program in various transportation-related industries. DOT is required to publish this notice in the Federal Register in accordance with the Paperwork Reduction Act of 1995. DATES: Comments to this notice must be received by January 8, 2027. ADDRESSES: You may submit comments by any of the following methods: Federal eRulemaking Portal: Go to http://www.regulations.gov and follow the online instructions for submitting comments. Mail: Dockets Operations, U.S. Department of Transportation, 1200 New Jersey Ave. SE, West Building, W58-213, Washington, DC 20590-0001; Hand Delivery: West Building, W58-213, 1200 New Jersey Ave. SE, between 9 a.m. and 5 p.m., Monday through Friday, except Federal holidays. The telephone number is 202-366-9826; Instructions: You must include the agency name and docket number [DOT-OST-2026-4192] of this notice at the beginning of your comment. Note that all comments received will be posted without change to http://www.regulations.gov including any personal information provided.\"\n- \"1,934,832 Urine Collector (Qualification and 5,000 5,000 4 333 15,518 Refresher) Training Documentation (40.33(b) & (e)]..................................... Urine Collector Error Correction Training 5,000 39,770 4 2,651 123,537 Documentation [40.33(f)]................... Oral Fluid Collector (Qualification and 5,000 5,000 4 333 15,518 Refresher) Training Documentation (40.35(b) & (e)]..................................... Oral Fluid Collector Error Correction 5,000 2,993 4 199 9,273 Training Documentation [40.35(f)].......... Laboratory Reports to DOT Regarding Unlisted .............. ........... 30 ........ .............. Adulterant [40.87(e)]...................... Semi-Annual Laboratory Reports to Employers 14 365,951 4 24,396 1,136,854 [40.111(a)]................................ Semi-Annual Laboratory Reports to DOT 14 336 4 22 1,025 [40.111(d)]................................ Medical Review Officer (MRO) (Qualifications 1,000 1,000 4 67 3,122 and Continuing Education) Training Documentation [40.121(c) & (d)]............ MRO Review of Negative Results Documentation 1,708 345,636 4 23,042 1,073,757 [[40.127(b)(2)(ii)]........................ MRO Failure to Contact Donor\"\n\n[2026-22840] Notice — Defense Department; Office of the Secretary\nTitle: Notice of Removal of Designated Chinese Military Company\nAction: Notice of removal of a company from the 1260H List of Chinese military companies operating in the United States.\nAbstract: The Deputy Secretary of War has decided to delist the entity listed in the SUPPLEMENTARY INFORMATION section of this notice from the list of Chinese military companies operating in the United States, without prejudice to relisting the company on additional or supplementary grounds.\n\n[2026-22842] Notice — Justice Department; Drug Enforcement Administration\nTitle: Adjustment to the 2026 Aggregate Production Quota for d,l-Amphetamine, d-Amphetamine (for Sale), Hydromorphone and Methylphenidate (for Sale) Pursuant to 21 U.S.C. 826(h)\nAction: Final order.\nAbstract: The Drug Enforcement Administration (DEA) is adjusting the 2026 aggregate production quota for the schedule II controlled substances d,l-amphetamine, d-amphetamine (for sale), hydromorphone, and methylphenidate (for sale). In making this determination, DEA has considered the factors set forth in 21 CFR 1303.13(b) in accordance with 21 U.S.C. 826(a) and is expediting publication of this determination to comply with the timeframes specified in 21 U.S.C. 826(h)(1).\nKey passages from the full text (selected for this company):\n- \"increased 173 percent for d,l-amphetamine and 32 percent for d-amphetamine (for sale) in 2026 when compared to 2025, respectively. DEA has determined that it is necessary to increase the 2026 d,l-amphetamine and d-amphetamine (for sale) APQs to allow for the maintenance of reserve stocks and increased product development needs after considering all estimated consumption data and projected product development needs. Analysis for the Adjustment to the 2026 Hydromorphone Aggregate Production Quota On July 24, 2026, DEA received a request from a DEA registered manufacturer of the schedule II controlled substance hydromorphone for an increase to its 2026 individual manufacturing quota pertaining to hydromorphone. DEA reviewed the FDA drug shortage list and found multiple manufacturers reported a domestic shortage of hydromorphone hydrochloride injectable products. The manufacturers cited ``demand increase for the drug or delay of manufacturing'' as the reasons identified for the domestic shortages. Pursuant to this request, DEA began its review under the timeframe specified by 21 U.S.C. 826(h)(1). DEA reviewed the most recent domestic usage data from IQVIA, as well as data provided by\"\n- \"provides that, ``[a]fter consideration of any comments or objections . . . the Administrator shall issue and publish in the Federal Register his final order determining the APQ for the basic class of controlled substance.'' The statutory timeframe applicable to actions taken under 21 U.S.C. 826(h) was enacted by Congress after DEA established its regulations in 21 CFR 1303.13. DEA has determined that it is not possible to increase the APQ within the Congressionally-mandated 30-day period while also complying with the procedures that DEA previously laid out in 21 CFR 1303.13. Therefore, the Administrator has determined that, in order to comply with the 30-day timeframe in 21 U.S.C. 826(h), this final order must be published without opportunity for comment and made effective immediately. Determination of 2026 d,l-Amphetamine, d-Amphetamine (for Sale), Hydromorphone, and Methylphenidate (for Sale) Aggregate Production Quota In determining the adjustment of the 2026 d,l-amphetamine, d- amphetamine (for sale), hydromorphone, and methylphenidate (for sale) APQs, DEA has taken into consideration the factors set forth in 21 CFR 1303.13(b) in accordance with 21 U.S.C. 826(a) as well as\"\n- \"legal effect of this document upon publication in the Federal Register. Heather Achbach, Federal Register Liaison Officer, Drug Enforcement Administration. [FR Doc. 2026-22842 Filed 11-9-26; 8:45 am] BILLING CODE 4410-09-P\"\n\n[2026-22843] Notice — Justice Department; Drug Enforcement Administration\nTitle: Proposed Aggregate Production Quotas for Schedule I and II Controlled Substances and Assessment of Annual Needs for the List I Chemicals Ephedrine, Pseudoephedrine, and Phenylpropanolamine for 2027\nAction: Notice with request for comments.\nAbstract: The Drug Enforcement Administration (DEA) proposes to establish the 2027 aggregate production quotas for controlled substances in schedules I and II of the Controlled Substances Act (CSA) and the assessment of annual needs for the list I chemicals ephedrine, pseudoephedrine, and phenylpropanolamine.\nKey passages from the full text (selected for this company):\n- \"accordance with 21 CFR 1303.11(c) and 1315.11(d). Electronic comments must be submitted, and written comments must be postmarked, on or before December 10, 2026. Commenters should be aware that the electronic Federal Docket Management System will not accept comments after 11:59 p.m. Eastern Time on the last day of the comment period. Based on comments received in response to this notice, the Administrator may hold a public hearing on one or more issues raised. In the event the Administrator decides in his sole discretion to hold such a hearing, the Administrator will publish a notice of any such hearing in the Federal Register. After consideration of any comments or objections, or after a hearing, if one is held, the Administrator will publish in the Federal Register a final order establishing the 2027 aggregate production quotas for schedule I and II controlled substances, and an assessment of annual needs for the list I chemicals ephedrine, pseudoephedrine, and phenylpropanolamine. ADDRESSES: To ensure proper handling of comments, please reference ``Docket No. DEA-1730P'' on all correspondence, including any attachments. DEA encourages that all comments be submitted\"\n- \"electronically through the Federal eRulemaking Portal, which provides the ability to type short comments directly into the comment field on the web page or attach a file for lengthier comments. Please go to www.regulations.gov and follow the online instructions at that site for submitting comments. Upon completion of your submission, you will receive a Comment Tracking Number for your comment. Please be aware that submitted comments are not instantaneously available for public view on www.Regulations.gov. If you have received a Comment Tracking Number, your comment has been successfully submitted, and there is no need to resubmit the same comment. Paper comments that duplicate electronic submissions are not necessary and are discouraged. Should you wish to mail a paper comment in lieu of an electronic comment, it should be sent via regular or express mail to: Drug Enforcement Administration, Attention: DEA Federal Register Representative/DPW, 8701 Morrissette Drive, Springfield, Virginia 22152. FOR FURTHER INFORMATION CONTACT: Heather E. Achbach, Regulatory Drafting and Policy Support Section, Diversion Control Division, Drug Enforcement Administration; Mailing Address: 8701\"\n- \"with requirements of the Office of the Federal Register, the undersigned DEA Federal Register Liaison Officer has been authorized to sign and submit the document in electronic format for publication, as an official document of DEA. This administrative process in no way alters the legal effect of this document upon publication in the Federal Register. Heather Achbach, Federal Register Liaison Officer, Drug Enforcement Administration. [FR Doc. 2026-22843 Filed 11-9-26; 8:45 am] BILLING CODE P\"\n\n[2026-22857] Notice — Homeland Security Department; Federal Emergency Management Agency\nTitle: Agency Information Collection Activities: Submission for OMB Review, Comment Request; Homeland Security Exercise and Evaluation Program (HSEEP) Documentation\nAction: 30-Day notice of extension and request for comments.\nAbstract: The Federal Emergency Management Agency (FEMA) will submit the information collection abstracted below to the Office of Management and Budget for review and clearance in accordance with the requirements of the Paperwork Reduction Act of 1995. FEMA invites the general public to take this opportunity to comment on an extension of a currently approved information collection. In accordance with the requirements of the Paperwork Reduction Act of 1995, this notice seeks comments concerning the After Action Report/Improvement Plans, Integrated Preparedness Plans, and Support Request Forms to the National Exercise Program which are used to validate current preparedness capabilities and support future national exercise efforts.\n\n[2026-22861] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the name of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 216 (Tuesday, November 10, 2026) [Federal Register Volume 91, Number 216 (Tuesday, November 10, 2026)] [Notices] [Pages 72624-72630] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22861] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the name of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on November 5, 2026. See SUPPLEMENTARY INFORMATION for relevant dates. FOR FURTHER\"\n- \"INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On November 5, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. BILLING CODE 4810-AL-P Individuals [[Page 72625]] [GRAPHIC] [TIFF OMITTED] TN10NO26.067 [[Page 72626]] [GRAPHIC] [TIFF OMITTED] TN10NO26.068 BILLING CODE 4810-AL-C Designated pursuant to section 1(a)(ii)(B) of E.O. 13581, as amended, for having materially assisted, sponsored, or provided financial, material, or technological support for, or goods or services to or in support of, PRINCE GROUP TRANSNATIONAL CRIMINAL ORGANIZATION, a person whose property and interests in property are blocked pursuant to E.O. 13581, as amended. 5. CHUI, Kok Wa,\"\n- \"interests in property are blocked pursuant to E.O. 13581, as amended. 39. SUN SPEED HOLDINGS LIMITED, Virgin Islands, British; Organization Established Date 08 Jun 2015; Company Number 1877249 (Virgin Islands, British) [TCO] (Linked To: QIU, Yong). Designated pursuant to section 1(a)(ii)(C) of E.O. 13581, as amended, for being owned or controlled by, or having acted or purported to act for or on behalf of, directly or indirectly, QIU YONG, a person whose property and interests in property are blocked pursuant to E.O. 13581, as amended. 40. VICTORY FLORA LIMITED, Virgin Islands, British; Organization Established Date 22 Nov 2018; Company Number 1999147 (Virgin Islands, British) [TCO] (Linked To: QIU, Yong). Designated pursuant to section 1(a)(ii)(C) of E.O. 13581, as amended, for being owned or controlled by, or having acted or purported to act for or on behalf of, directly or indirectly, QIU YONG, a person whose property and interests in property are blocked pursuant to E.O. 13581, as amended. 41. WIN APPLAUSE LIMITED, Virgin Islands, British; Organization Established Date 03 Jul 2020; Company Number 2039220 (Virgin Islands, British) [TCO] (Linked To: QIU, Yong). Designated\"\n\n[2026-22862] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 216 (Tuesday, November 10, 2026) [Federal Register Volume 91, Number 216 (Tuesday, November 10, 2026)] [Notices] [Pages 72621-72624] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22862] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on October 28, 2026. See Supplementary Information for relevant dates. FOR FURTHER\"\n- \"INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Sanctions Compliance, 202-622-2490 or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions [[Page 72622]] programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On October 28, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. Individuals BILLING CODE 4810-AL-P [GRAPHIC] [TIFF OMITTED] TN10NO26.079 [[Page 72623]] [GRAPHIC] [TIFF OMITTED] TN10NO26.080 BILLING CODE 4810-AL-C 5. HAN, Yu Song (a.k.a. HAN, Yu-so'ng), Russia; DOB 20 May 2000; POB Pyongyang, North Korea; nationality Korea, North; Gender Male; Secondary sanctions risk: North Korea Sanctions Regulations, sections 510.201 and 510.210; Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions: North Korea Sanctions Regulations section 510.214; Passport 845349261 (Korea, North) issued 01 Sep 2025 expires 30 Sep 2030\"\n- \"Kyong Ju (a.k.a. KIM, Kyo'ng-chu), Russia; DOB 02 Jan 2001; POB Pyongyang, North Korea; nationality Korea, North; Gender Male; Secondary sanctions risk: North Korea Sanctions Regulations, sections 510.201 and 510.210; Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions: North Korea Sanctions Regulations section 510.214; Passport 845349260 (Korea, North) issued 01 Sep 2025 expires 01 Sep 2030 (individual) [DPRK3] (Linked To: FIRST FINANCIAL AND TECHNICAL DEVELOPMENT CENTER). Designated pursuant to section 2(a)(vii) of E.O. 13722 for having materially assisted, sponsored, or provided financial, material, or technological support for, or goods or services to or in support of, FIRST FINANCIAL AND TECHNICAL DEVELOPMENT CENTER, a person whose property and interests in property are blocked pursuant to E.O. 13722. 9. RI, Thae Chol (a.k.a. RI, T'ae-ch'o'l), Russia; DOB 24 Feb 1999; POB Pyongyang, North Korea; nationality Korea, North; Gender Male; Secondary sanctions risk: North Korea Sanctions Regulations, sections 510.201 and 510.210; Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions: North Korea Sanctions Regulations\"\n\n[2026-22864] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons and vessels that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. The vessels placed on the SDN List have been identified as property in which a blocked person has an interest.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 216 (Tuesday, November 10, 2026) [Federal Register Volume 91, Number 216 (Tuesday, November 10, 2026)] [Notices] [Pages 72614-72621] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22864] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons and vessels that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. The vessels placed on the SDN\"\n- \"List have been identified as property in which a blocked person has an interest. DATES: This action was issued on April 15, 2026. See Supplementary Information for relevant dates. FOR FURTHER INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Action On April 15, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. Entities BILLING CODE 4810-AL-P [[Page 72615]] [GRAPHIC] [TIFF OMITTED] TN10NO26.072 [[Page 72616]] [GRAPHIC] [TIFF OMITTED] TN10NO26.073 [[Page 72617]] [GRAPHIC] [TIFF OMITTED] TN10NO26.074 [[Page 72618]] [GRAPHIC] [TIFF OMITTED] TN10NO26.075 [[Page 72619]] [GRAPHIC] [TIFF OMITTED] TN10NO26.076 [[Page 72620]] [GRAPHIC] [TIFF OMITTED] TN10NO26.077 [[Page 72621]]\"\n- \"[GRAPHIC] [TIFF OMITTED] TN10NO26.078 Bradley T. Smith, Director, Office of Foreign Assets Control. [FR Doc. 2026-22864 Filed 11-9-26; 8:45 am] BILLING CODE 4810-AL-C\"\n\n[2026-22888] Rule — Environmental Protection Agency\nTitle: Modification of Significant New Uses of Certain Chemical Substances (23-1.M)\nAction: Final rule.\nAbstract: EPA is amending significant new use rules (SNURs) issued under section 5(a)(2) of the Toxic Substances Control Act (TSCA) for certain chemical substances identified herein, which were the subject of premanufacture notices (PMNs) and significant new use notices (SNUNs). This action amends the SNURs by allowing certain new uses reported in the SNUNs or PMNs without additional notification requirements, modifying the significant new use notification requirements based on the actions and determinations for the SNUN or PMN submissions or based on the examination of new test data or other information, and making technical amendments to several SNURs. EPA is issuing these amendments based on review of new and existing data for the chemical substances.\n\n[2026-22891] Rule — National Labor Relations Board\nTitle: Rules and Regulations, Series 8\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 216 (Tuesday, November 10, 2026) [Federal Register Volume 91, Number 216 (Tuesday, November 10, 2026)] [Rules and Regulations] [Pages 72419-72420] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-22891] ======================================================================= ----------------------------------------------------------------------- NATIONAL LABOR RELATIONS BOARD 29 CFR Part 102 Rules and Regulations, Series 8 CFR Correction This rule is being published by the Office of the Federal Register to correct an editorial or technical error that appeared in the most recent annual revision of the Code of Federal Regulations. 0 In Title 29 of the Code of Federal Regulations, Parts 100 to 499, revised as [[Page 72420]] of July 1, 2026, revise Sec. 102.101, and reinstate Sec. Sec. 102.102 and 102.103 to read as follows: Sec. 102.101 Response to petition; service of response. Any party served with such petition may, within 14 days after service thereof, respond to the petition, admitting or denying its allegations. The response must be filed with the Board in Washington, DC. The response must\"\n- \"simultaneously be served on all other parties to the proceeding, and a statement of service must be filed in accordance with the provisions of Sec. 102.5(h). [82 FR 11767, Feb. 24, 2017] Sec. 102.102 Intervention. Any person desiring to intervene must file a motion for intervention, stating the grounds upon which such person claims to have an interest in the petition. The motion must be filed with the Board in Washington, DC. [82 FR 11767, Feb. 24, 2017] Sec. 102.103 Proceedings before the Board; briefs; advisory opinions. The Board will thereupon proceed, upon the petition, responses, and submission of briefs, to determine whether, on the facts before it, the commerce operations of the employer involved are such that the Board would or would not assert jurisdiction. Such determination will be in the form of an advisory opinion and will be served on the parties. No briefs may be filed except upon special permission of the Board. [82 FR 11767, Feb. 24, 2017] [FR Doc. 2026-22891 Filed 11-9-26; 8:45 am] BILLING CODE 0099-10-P\"\n\n[2026-22903] Proposed Rule — Labor Department; Employment and Training Administration\nTitle: Unemployment Insurance Program National Minimum Weekly Work Search Requirements\nAction: Proposed rule, request for comment.\nAbstract: The U.S. Department of Labor (Department), through the Employment and Training Administration (ETA), is proposing to amend 20 CFR part 604 both to reflect a 2012 update in Federal law in which Congress, by amending section 303(a) of the Social Security Act (SSA), established a Federal work search requirement; and to establish a national minimum weekly work search requirement standard for the Federal-State unemployment compensation (UC) program. This proposed rule would mandate, among other things, that States require individuals claiming UC to complete at least five qualifying work search activities or, where applicable, meet State-adopted points-based system requirements amounting to five qualifying activities or satisfy equivalent labor force attachment criteria, each week for which UC is claimed; that individuals report their work search activities as part of their certification process prior to payment being issued; and that State law allow for certain qualifying work search activities beyond simply employer contacts. This action is necessary to reduce inconsistencies beyond those created by local labor markets in State- level requirements for individuals to actively seek work.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22731",
+            "relevant": false,
+            "reason": "GSA IT security information collection extension; no duty on an airline.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22761",
+            "relevant": false,
+            "reason": "DOL ALJ e-filing procedural rule; no airline operations or maintenance impact.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22766",
+            "relevant": false,
+            "reason": "OFAC SDN designations (Iran program, includes a Turkish ground services firm); SkyHop has no international routes or dealings with these parties, and the notice adds no new duty for it.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22774",
+            "relevant": false,
+            "reason": "AD covers Rolls-Royce Deutschland BR700-725A1-12 engines (Gulfstream/business jets); SkyHop's E175 and A319/A320 fleet does not use them.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22777",
+            "relevant": false,
+            "reason": "PHMSA special permit applications notice; grants individual permits and imposes no duty on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22778",
+            "relevant": false,
+            "reason": "PHMSA special permit modification applications; no new obligation for SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22779",
+            "relevant": false,
+            "reason": "PHMSA notice of actions on special permits for other applicants; imposes nothing on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22793",
+            "relevant": false,
+            "reason": "BIS export-control suspension extension for affiliates of listed entities; no impact on SkyHop's domestic operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22802",
+            "relevant": false,
+            "reason": "OFAC update to identifying information for Iran program entries; nothing for SkyHop to do.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22814",
+            "relevant": false,
+            "reason": "DOT drug/alcohol testing paperwork renewal (ICR) only requests comments; no new testing duty for SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22840",
+            "relevant": false,
+            "reason": "DoD removal of a company from the 1260H list; no effect on airline operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22842",
+            "relevant": false,
+            "reason": "DEA production quota adjustment for controlled substances; unrelated to airline business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22843",
+            "relevant": false,
+            "reason": "DEA proposed 2027 production quotas for controlled substances; not an airline matter.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22857",
+            "relevant": false,
+            "reason": "FEMA exercise program information collection extension; no duty on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22861",
+            "relevant": false,
+            "reason": "OFAC SDN designations (transnational criminal org); no airline-specific requirement.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22862",
+            "relevant": false,
+            "reason": "OFAC SDN designations (North Korea-linked individuals); no airline-specific requirement.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22864",
+            "relevant": false,
+            "reason": "OFAC SDN designations of entities and vessels; no effect on SkyHop's domestic flying.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22888",
+            "relevant": false,
+            "reason": "EPA TSCA chemical SNUR modification; unrelated to airline operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22891",
+            "relevant": false,
+            "reason": "NLRB CFR editorial correction on advisory opinion procedures; no effect on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22903",
+            "relevant": false,
+            "reason": "DOL proposed unemployment insurance work-search rule directed at states and claimants; no airline duty.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 15225,
+      "costUsd": 0.057228,
+      "inputTokens": 19149,
+      "outputTokens": 1893,
+      "prompt": "Company: SkyHop Airlines\n\nUS regional airline (~3,500 employees) flying short domestic routes from hubs in Denver and Salt Lake City. Fleet is 60 Embraer E175 jets and 25 Airbus A320-family jets (A319 and A320). Sells tickets online and at airports, charges bag fees, and runs its own maintenance hangar. Does not fly Boeing aircraft, Airbus A220/A350, or helicopters; no cargo-only flights, no international routes.\n\nRules that APPLY:\n- FAA airworthiness directives for Embraer E175 (ERJ 170 family) or Airbus A319/A320, and their engines\n- FAA rules for airline operations, pilots, crew rest and drug/alcohol testing\n- DOT consumer rules for airline passengers (refunds, fees, accessibility)\n- Airspace or airport rules at Denver or Salt Lake City, and airport fees charged to passengers\n- TSA security rules for airlines\n\nRules that DO NOT apply:\n- Airworthiness directives for aircraft models we do not fly (Boeing, A220, A350, business jets, small planes, helicopters)\n- Airspace changes at airports we do not serve\n- Commercial space launches, drones, air-traffic-control equipment\n- Banking, food, pharmacy, energy\n\n=== DOCUMENTS (20) ===\n\n[2026-22925] Notice — Trade Representative, Office of United States\nTitle: Notice of Product Exclusion Extensions: China's Acts, Policies, and Practices Related to Technology Transfer, Intellectual Property, and Innovation\nAction: Notice.\nAbstract: In prior notices, the U.S. Trade Representative (Trade Representative) modified the actions in the Section 301 investigation of China's acts, policies, and practices related to technology transfer, intellectual property, and innovation by excluding from additional duties certain products of China. While most exclusions have expired in prior years, certain exclusions remain in force. This notice announces the Trade Representative's determination to further extend all 178 current exclusions.\n\n[2026-22953] Rule — Transportation Department; Federal Aviation Administration\nTitle: Inspection Programs for Single-Engine Turbine-Powered Airplanes and Unmanned Aircraft; and Miscellaneous Maintenance-Related Updates\nAction: Final rule.\nAbstract: The final rule updates the maintenance inspection requirements for single-engine turbine-powered airplanes and unmanned aircraft. Aircraft owners and operators now have more inspection program options to choose from and more relaxed mechanical reliability reporting requirements. It also clarifies various maintenance-related regulations. This final rule relieves aircraft owners, operators, maintenance providers, and FAA of certain workload burdens by facilitating a more efficient workload for these individuals without compromising aviation safety.\n\n[2026-22962] Rule — Treasury Department; Financial Crimes Enforcement Network\nTitle: Imposition of Special Measure Prohibiting the Transmittal of Funds Involving MEXC Global\nAction: Order.\nAbstract: FinCEN is issuing notice of an order, pursuant to section 9714(a) of the Combating Russian Money Laundering Act (Pub. L. 116- 283), as amended by section 6106(b) of the National Defense Authorization Act for Fiscal Year 2022 (Pub. L. 117-81), finding that MEXC Global--including any of its subsidiaries, branches, and offices, as well as any successor entities, operating in any jurisdiction outside of the United States--is a financial institution operating outside of the United States of primary money laundering concern in connection with Russian illicit finance and prohibiting certain transmittals of funds involving MEXC Global.\n\n[2026-22954] Notice — Justice Department; Drug Enforcement Administration\nTitle: Traci B. Lujan, A.P.R.N.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"APRN, nor to handle controlled substances in Utah. Accordingly, Registrant may dispute the Agency's findings by filing a properly supported motion for reconsideration of findings of fact within fifteen calendar days of the date of this Order. Any such motion and response shall be filed and served by email to the other party and to the Office of the Administrator, Drug Enforcement Administration, at [email&#160;protected] . --------------------------------------------------------------------------- Discussion Pursuant to 21 U.S.C. 824(a)(3), the Attorney General is authorized to suspend or revoke a registration issued under 21 U.S.C. 823 ``upon a finding that the registrant . . . has had his State license or registration suspended . . . [or] revoked . . . by competent State authority and is no longer authorized by State law to engage in the . . . dispensing of controlled substances.'' With respect to a practitioner, DEA has also long held that the possession of authority to dispense controlled substances under the laws of the state in which a practitioner engages in professional practice is a fundamental condition for obtaining and maintaining a practitioner's registration. Gonzales\"\n- \"Second, in setting the requirements for obtaining a practitioner's registration, Congress directed that ``[t]he Attorney General shall register practitioners . . . if the applicant is authorized to dispense . . . controlled substances under the laws of the State in which he practices.'' 21 U.S.C. 823(g)(1). Because Congress has clearly mandated that a practitioner possess state authority in order to be deemed a practitioner under the CSA, DEA has held repeatedly that revocation of a practitioner's registration is the appropriate sanction whenever he is no longer authorized to dispense controlled substances under the laws of the state in which he practices. See, e.g., Elias Garcia Garcia, P.A., 90 FR 31242 (2025); Jason Weakley, R.N., A.P.R.N., 90 FR 10085 (2025); Khursheed Haider, M.D., 90 FR 21950 (2025). --------------------------------------------------------------------------- According to Utah statute, ``[e]very person who . . . distributes, prescribes, dispenses, [or] administers . . . any controlled substance in Schedules I through V within [the] state . . . shall obtain a license issued by the [Division of Professional Licensing].'' Utah Code Ann. Sec. 58-37-105(2)(a)(i)\"\n- \"by DEA Administrator Terrance C. Cole. That document with the original signature and date is maintained by DEA. For administrative purposes only, and in compliance with requirements of the Office of the Federal Register, the undersigned DEA Federal Register Liaison Officer has been authorized to sign and submit the document in electronic format for publication, as an official document of DEA. This administrative process in no way alters the legal effect of this document upon publication in the Federal Register. Heather Achbach, Federal Register Liaison Officer, Drug Enforcement Administration. [FR Doc. 2026-22954 Filed 11-10-26; 8:45 am] BILLING CODE 4410-09-P\"\n\n[2026-22955] Notice — Justice Department; Drug Enforcement Administration\nTitle: Troy R. Lehman, D.O.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"record and conducting the analysis as set forth in detail below, the Agency finds that Registrant is in default, finds that Registrant is without state authority, and finds that Registrant materially falsified his applications. Accordingly, the Agency grants the Government's RFAA and revokes Registrant's registration. I. Default Determination Under 21 CFR 1301.43, a registrant entitled to a hearing who fails to file a timely hearing request ``within 30 days after the date of receipt of the [OSC] . . . shall be deemed to have waived their right to a hearing and to be in default'' unless ``good cause'' is established for the failure. 21 CFR 1301.43(a), (c)(1). In the absence of a demonstration of good cause, a registrant who fails to timely file an answer also is ``deemed to have waived their right to a hearing and to be in default.'' 21 CFR 1301.43(c)(2). Unless excused, a default constitutes ``an admission of the factual allegations of the [OSC].'' 21 CFR 1301.43(e). The OSC notified Registrant of his right to file a written request for hearing, and that if he failed to file such a request, he would be deemed to have waived his right to a hearing and be in default. RFAAX 1, at 5\"\n- \"Question 3 on five renewal applications. B. Discussion A DEA registration may be denied, suspended, or revoked upon a finding that the applicant or registrant materially falsified any application filed pursuant to or required by the Controlled Substances Act (CSA). 21 U.S.C. 824(a)(1).\\8\\ To present a prima facie case for material falsification, the Government's record evidence must show (1) the submission of an application, (2) containing a false statement and/ or omitting information that the application requires, (3) when the submitter knew or should have known that the statement is false and/or that the omitted information existed and the application required its disclosure, and (4) the false statement and/or required but omitted information is material, that is, it ``connect[s] to at least one of [the section 823] factors that, according to the CSA, [the Administrator] `shall' consider'' when analyzing ``whether issuing a registration `would be inconsistent with the public interest.' '' Frank Joseph Stirlacci, M.D., 85 FR 45229, 45238 (2020) (citing 21 U.S.C. 823 and Kungys, 485 U.S. at 771). The Government must establish material falsification with record evidence that is\"\n- \"the public interest. Further, the public interest factors require the Administrator to consider the recommendation of state licensing boards, the applicant's experience in handling controlled substances, the applicant's compliance with state laws related to controlled substances, and other conduct which may threaten public safety. 21 U.S.C. 823(g)(1)(A), (B), (D), (E). Liability Question 3, in other words, is tethered to provisions which the Administrator is required by statute to consider when reviewing applications for registration. Stirlacci, 85 FR at 45238. Thus, a false answer to Liability Question 3 is material. By omitting the 2010 probation of his state license, Registrant ``deprived [DEA] of information potentially relevant to'' the analysis that the Administrator is statutorily mandated to conduct. Stirlacci, 85 FR at 45234-35; 21 U.S.C. 823(g)(1), 824(a). Thus, omission of this information directly affected the public interest analysis that DEA was required to make when it reviewed his registration application. 21 U.S.C. 823(g)(1), 824(a); Stirlacci, 85 FR at 45238. Stated differently, the omissions were material because they were ``predictably capable of affecting . . .\"\n\n[2026-22966] Notice — Justice Department\nTitle: Attorney General Memorandum on Implementing English as the Official Language; Request for Information\nAction: Notice; request for information.\nAbstract: This notice announces the Department of Justice's (\"Department\") issuance of a memorandum titled \"Guidance on Implementing English as the Official Language,\" consistent with Executive Order 14224, titled Designating English as the Official Language of the United States. The Department invites public comments on the memorandum.\nKey passages from the full text (selected for this company):\n- \"or any components thereof. --------------------------------------------------------------------------- II. English Is the Sole Official Language English is now the official language of the United States. Consequently, agencies should prioritize the English language over all other languages. After evaluating feedback from Department components and Federal agencies, the Department has identified opportunities where agencies should solely use English. For example, agencies should conduct official business, communicate with the public, develop forms and publications, administer programs, and provide services solely in English--unless, as explained further below, multilingual assistance is required by law or necessary to accomplish an agency's mission. The following is a non-exhaustive list of when agencies should solely use English: a. official correspondence; b. regulations, guidance documents, and policy statements; c. public notices and announcements; d. forms and applications; e. Websites and digital services; f. outreach and educational materials; g. internal agency communications and training materials; and h. super intelligence tools. Agencies should strive to operate solely in\"\n- \"English. For example, on August 17 of this year, the Department of Housing and Urban Development removed non-English languages from all departmental business and services. Feedback from Department of Justice components and Federal agencies revealed that websites and digital services are some of the quickest and most significant opportunities where an agency should prioritize English. In addition to the Department of Housing and Urban Development, the Departments of Homeland Security, Education, and Treasury have already begun removing materials from their website that were previously provided in languages other than English. The Department encourages other agencies to identify and remove non-English languages from their services. Moving forward, agencies should promptly identify and review all multilingual assistance programs. Agencies should then determine whether multilingual assistance is required by law or necessary to accomplish an agency's mission. If multilingual assistance is neither legally required nor necessary to accomplish the agency's mission, then the agency should eliminate assistance in favor of English-only operations. If multilingual assistance is legally\"\n- \"multilingual assistance may be necessary: a. national security activities; b. immigration enforcement activities; c. law enforcement and security operations; d. emergency preparedness and disaster response; e. communications related to public health, public safety, or emergencies; f. healthcare services; g. surveys and data collection; h. communications with foreign officials; i. court proceedings; and j. communications with crime victims or witnesses, or cooperating individuals. For example, the Department of Homeland Security reported that given the security mission of the Transportation Security Administration (TSA) and the large volume of international travelers who may have limited English proficiency, the TSA will continue to utilize an automated helpline that is available in several languages. However, when an agency determines that multilingual assistance is necessary to accomplish the agency's mission, as in this instance, the agency should provide that assistance only to the extent needed to accomplish its mission. C. How To Provide Multilingual Assistance When multilingual assistance is legally required or necessary to accomplish the agency's mission, an agency should\"\n\n[2026-22972] Notice — Committee for Purchase From People Who Are Blind or Severely Disabled\nTitle: Procurement List; Deletions\nAction: Deletions from the Procurement List.\nAbstract: This action deletes product(s) and service(s) from the Procurement List that were furnished by nonprofit agencies employing persons who are blind or have other severe disabilities.\n\n[2026-22973] Notice — Committee for Purchase From People Who Are Blind or Severely Disabled\nTitle: Procurement List; Proposed Additions and Deletions\nAction: Proposed Additions to and Deletions from the Procurement List.\nAbstract: The Committee is proposing to add service(s) to the Procurement List that will be furnished by nonprofit agencies employing persons who are blind or have other severe disabilities, and delete service(s) previously furnished by such agencies.\n\n[2026-23009] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 217 (Thursday, November 12, 2026) [Federal Register Volume 91, Number 217 (Thursday, November 12, 2026)] [Notices] [Pages 72957-72958] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-23009] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on November\"\n- \"6, 2026. See Supplementary Information for relevant dates. FOR FURTHER INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions [[Page 72958]] Compliance, 202-622-2490 or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On November 6, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. Entities 1. 1380079 BC LTD (a.k.a. AMIN EXCHANGE VANCOUVER; a.k.a. SARAFI AMIN), 104-1700 Marine Drive, North Vancouver, British Columbia V7P 2Z8, Canada; Montreal, Quebec, Canada; website aminexchange.ca; Secondary sanctions risk: See Section 2 of E.O. 13902; Organization Established Date 26 Sep 2022; Organization Type: Other monetary intermediation; Digital Currency Address--TRX TLyRLCNwBhaXkYak1bTFUYTj72crbgN5Vy; alt. Digital Currency Address--TRX\"\n- \"THauYJJEaFGLpEknoKnYmXmT5TCeQGKjDE; alt. Digital Currency Address--TRX TJT3JZKJWVHVkKRKSmWmg5UYHhAqBM7mfP; Business Registration Number 700268402 (Canada); Registration Number BC1380079 (Canada); MSB Registration Number M23258996 (Canada) [IRAN-EO13902]. Designated pursuant to Executive Order 13902 of January 10, 2020, ``Imposing Sanctions With Respect to Additional Sectors of Iran,'' 85 FR 2003, 3 CFR, 2020 Comp., p. 299 (E.O. 13902), for operating in the digital asset sector of the Iranian economy. 2. 2397639 ONTARIO LTD (a.k.a. FARAH EXCHANGE), 6039 Yonge St, North York, Ontario M2M 3W2, Canada; Secondary sanctions risk: See Section 2 of E.O. 13902; Organization Established Date 27 Nov 2013; Organization Type: Other monetary intermediation; Digital Currency Address--TRX TW5NEaaoPHXC1rt5PaYgG474gQ49oiZ2F5; Registration Number 2397639 (Canada); MSB Registration Number M19648033 (Canada) [IRAN- EO13902]. Designated pursuant to section 1(a)(i) of E.O. 13902 for operating in the digital asset sector of the Iranian economy. 3. B GALAXY INC (a.k.a. C EXCHANEG; a.k.a. CRYPTOYAL; a.k.a. ``C EXCHANGE''), 6118 Yonge Street, Unit B, North York, Ontario M2M 3W7, Canada; 3118 Yonge Street,\"\n\n[2026-23067] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Information Collection Activities\nAction: Notice and request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, PHMSA invites comments on two Office of Management and Budget (OMB) control numbers pertaining to hazardous materials transportation. PHMSA intends to request renewal and extension for these two control numbers from OMB.\n\n[2026-23072] Rule — Transportation Department; Federal Aviation Administration\nTitle: Standard Instrument Approach Procedures, and Takeoff Minimums and Obstacle Departure Procedures; Miscellaneous Amendments\nAction: Final rule.\nAbstract: This rule establishes, amends, suspends, or removes Standard Instrument Approach Procedures (SIAPS) and associated Takeoff Minimums and Obstacle Departure procedures (ODPs) for operations at certain airports. These regulatory actions are needed because of the adoption of new or revised criteria, or because of changes occurring in the National Airspace System, such as the commissioning of new navigational facilities, adding new obstacles, or changing air traffic requirements. These changes are designed to provide safe and efficient use of the navigable airspace and to promote safe flight operations under instrument flight rules at the affected airports.\nKey passages from the full text (selected for this company):\n- \"changing air traffic requirements. These changes are designed to provide safe and efficient use of the navigable airspace and to promote safe flight operations under instrument flight rules at the affected airports. DATES: This rule is effective November 12, 2026. The compliance date for each SIAP, associated Takeoff Minimums, and ODP is specified in the amendatory provisions. The incorporation by reference of certain publications listed in the regulations is approved by the Director of the Federal Register as of November 12, 2026. ADDRESSES: Availability of matters incorporated by reference in the amendment is as follows: For Examination 1. U.S. Department of Transportation, Docket Ops-M30. 1200 New Jersey Avenue SE, West Bldg., Ground Floor, Washington, DC 20590-0001. 2. The FAA Air Traffic Organization Service Area in which the affected airport is located; 3. The office of Aeronautical Information Services, 6500 South MacArthur Blvd., Oklahoma City, OK 73169 or, 4. The National Archives and Records Administration (NARA). For information on the availability of this material at NARA, visit www.archives.gov/federal-register/cfr/ibr-locations or email [email&#160;protected] .\"\n- \"on 8260-15A, and 8260-15C. The large number of SIAPs, Takeoff Minimums and ODPs, their complex nature, and the need for a special format make publication in the Federal Register expensive and impractical. Further, pilots do not use the regulatory text of the SIAPs, Takeoff Minimums or ODPs, but instead refer to their graphic depiction on charts printed by publishers of aeronautical materials. Thus, the advantages of incorporation by reference are realized and publication of the complete description of each SIAP, Takeoff Minimums and ODP listed on FAA form documents is unnecessary. This amendment provides the affected CFR sections and specifies the types of SIAPS, Takeoff Minimums and ODPs with their applicable effective [[Page 72775]] dates. This amendment also identifies the airport and its location, the procedure, and the amendment number. Availability and Summary of Material Incorporated by Reference The material incorporated by reference is publicly available as listed in the ADDRESSES section. The material incorporated by reference describes SIAPS, Takeoff Minimums and/or ODPs as identified in the amendatory language for part 97 of this final rule. The Rule This amendment to\"\n- \"14 CFR part 97 is effective upon publication of each separate SIAP, Takeoff Minimums and ODP as amended in the transmittal. Some SIAP and Takeoff Minimums and textual ODP amendments may have been issued previously by the FAA in a Flight Data Center (FDC) Notice to Airmen (NOTAM) as an emergency action of immediate flights safety relating directly to published aeronautical charts. The circumstances that created the need for some SIAP and Takeoff Minimums and ODP amendments may require making them effective in less than 30 days. For the remaining SIAPs and Takeoff Minimums and ODPs, an effective date at least 30 days after publication is provided. Further, the SIAPs and Takeoff Minimums and ODPs contained in this amendment are based on the criteria contained in the U.S. Standard for Terminal Instrument Procedures (TERPS). In developing these SIAPs and Takeoff Minimums and ODPs, the TERPS criteria were applied to the conditions existing or anticipated at the affected airports. Because of the close and immediate relationship between these SIAPs, Takeoff Minimums and ODPs, and safety in air commerce, I find that notice and public procedure under 5 U.S.C. 553(b) are impracticable and\"\n\n[2026-23073] Rule — Transportation Department; Federal Aviation Administration\nTitle: Standard Instrument Approach Procedures, and Takeoff Minimums and Obstacle Departure Procedures; Miscellaneous Amendments\nAction: Final rule.\nAbstract: This rule amends, suspends, or removes Standard Instrument Approach Procedures (SIAPs) and associated Takeoff Minimums and Obstacle Departure Procedures for operations at certain airports. These regulatory actions are needed because of the adoption of new or revised criteria, or because of changes occurring in the National Airspace System, such as the commissioning of new navigational facilities, adding new obstacles, or changing air traffic requirements. These changes are designed to provide for the safe and efficient use of the navigable airspace and to promote safe flight operations under instrument flight rules at the affected airports.\nKey passages from the full text (selected for this company):\n- \"SIAPs and Takeoff Minimums and ODPs are available online free of charge. Visit the National Flight Data Center online at nfdc.faa.gov to register. Additionally, individual SIAP and Takeoff Minimums and ODP copies may be obtained from the FAA Air Traffic Organization Service Area in which the affected airport is located. FOR FURTHER INFORMATION CONTACT: Rune Duke, Manager, Standards Section, Flight Procedures and Airspace Group, Aviation Safety, Federal Aviation Administration. Mailing Address: FAA Mike Monroney Aeronautical Center, Flight Procedures and Airspace Group, 6500 South MacArthur Blvd., STB Annex, Bldg. 26, Room 217, Oklahoma City, OK 73099. Telephone (405) 954-1139. SUPPLEMENTARY INFORMATION: This rule amends 14 CFR part 97 by amending the referenced SIAPs. The complete regulatory description of each SIAP is listed on the appropriate FAA Form 8260, as modified by the National Flight Data Center (NFDC)/Permanent Notice to Airmen (P-NOTAM), and is incorporated by reference under 5 U.S.C. 552(a), 1 CFR part 51, and 14 CFR 97.20. The large number of SIAPs, their complex nature, and the need for a special format make their verbatim publication in the Federal Register\"\n- \"Takeoff Minimums and ODP as modified by FDC permanent NOTAMs. The SIAPs and Takeoff Minimums and ODPs, as modified by FDC permanent NOTAM, and contained in this amendment are based on criteria contained in the U.S. Standard for Terminal Instrument Procedures (TERPS). In developing these changes to SIAPs and Takeoff Minimums and ODPs, the TERPS criteria were applied only to specific conditions existing at the affected airports. All SIAP amendments in this rule have been previously issued by the FAA in a FDC NOTAM as an emergency action of immediate flight safety relating directly to published aeronautical charts. The circumstances that created the need for these SIAP and Takeoff Minimums and ODP amendments require making them effective in less than 30 days. Because of the close and immediate relationship between these SIAPs, Takeoff Minimums and ODPs, and safety in air commerce, I find that notice and public procedure under 5 U.S.C. 553(b) are impracticable and contrary to the public interest and, where applicable, under 5 U.S.C. 553(d), good cause exists for making these SIAPs effective in less than 30 days. The FAA has determined that this regulation only involves an established\"\n- \"body of technical regulations for which frequent and routine amendments are necessary to keep them operationally current. It, therefore--(1) is not a ``significant regulatory action'' under Executive Order 12866; (2) is not a ``significant rule'' under DOT regulatory Policies and Procedures (44 FR 11034; February 26, 1979); and (3) does not warrant preparation of a regulatory evaluation as the anticipated impact is so minimal. For the same reason, the FAA certifies that this amendment will not have a significant economic impact on a substantial number of small entities under the criteria of the Regulatory Flexibility Act. [[Page 72774]] List of Subjects in 14 CFR Part 97 Air Traffic Control, Airports, Incorporation by reference, Navigation (Air). Issued in Washington, DC. November 6, 2026. Rune Duke, Manager, Standards Section, Flight Procedures and Airspace Group, Flight Technologies & Procedures Division, Federal Aviation Administration. Adoption of the Amendment Accordingly, pursuant to the authority delegated to me, 14 CFR part 97 is amended by amending Standard Instrument Approach Procedures and Takeoff Minimums and ODPs, effective at 0901 UTC on the dates specified, as\"\n\n[2026-23075] Rule — Justice Department; Drug Enforcement Administration\nTitle: Schedules of Controlled Substances: Placement of Oveporexton in Schedule IV\nAction: Interim final rule; request for comments.\nAbstract: On August 5, 2026, the United States Food and Drug Administration (FDA) approved a new drug application for Orzeyful (oveporexton) for the treatment of narcolepsy type 1 in adults. The Department of Health and Human Services (HHS) provided the Drug Enforcement Administration (DEA) with a scheduling recommendation to place oveporexton, chemically known as N-[(2S,3R)-2-[[3-(3,5- difluorophenyl)-2-fluorophenyl]methyl]-4,4-difluoro-1-(2-hydroxy-2- methylpropanoyl)pyrrolidin-3-yl]ethanesulfonamide, in schedule IV of the Controlled Substances Act (CSA). In accordance with the CSA, as amended by the Improving Regulatory Transparency for New Medical Therapies Act, DEA is hereby issuing an interim final rule placing oveporexton, including its salts, isomers and salts of isomers whenever the existence of such salts, isomers, and salts of isomers is possible, in schedule IV of the CSA.\nKey passages from the full text (selected for this company):\n- \"Washington, DC 20503. Please state that your comment refers to Docket No. DEA-1775. FOR FURTHER INFORMATION CONTACT: Dr. Terrence L. Boos, Drug & Chemical Evaluation Section, Diversion Control Division, Drug Enforcement Administration; Telephone: (571) 362-3249. SUPPLEMENTARY INFORMATION: In this interim final rule (IFR), Drug Enforcement Administration (DEA) is adding oveporexton to schedule IV of the Controlled Substances Act (CSA). Posting of Public Comments All comments received in response to this docket are considered part of the public record. DEA will make comments available for public inspection online at https://www.regulations.gov , unless reasonable cause is given. Such information includes personal or business identifying information (such as name, address, State or Federal identifiers, etc.) voluntarily submitted by the commenter. Commenters submitting comments which include personal identifying information (PII), confidential, or proprietary business information that the commenter does not want made publicly available should submit two copies of the comment. One copy must be marked ``CONTAINS CONFIDENTIAL INFORMATION'' and should clearly identify all PII or business\"\n- \"law enforcement in the United States. --------------------------------------------------------------------------- \\5\\ NFLIS-Drug represents an important resource in monitoring illicit drug trafficking, including the diversion of legally manufactured pharmaceuticals into illegal markets. NFLIS-Drug is a national forensic laboratory reporting system that systematically collects results from drug chemistry analyses conducted by Federal, State and local forensic laboratories in the United States. While NFLIS-Drug data is not direct evidence of abuse, it can lead to an inference that a drug has been diverted and abused. See Schedules of Controlled Substances: Placement of Carisoprodol Into Schedule IV, 76 FR 77330, 77332 (Dec. 12, 2011). NFLIS-Drug data was queried on August 20, 2026. --------------------------------------------------------------------------- Oveporexton is an OX2R-selective agonist with demonstrated CNS activity. There are currently no OX2R-selective agonists listed in the CSA. In nonclinical studies, oveporexton produces stimulant-like behavioral alterations in rodents and has weak reinforcing effects, as demonstrated by a rat self-administration study. In humans,\"\n- \"that oveporexton does not appear to produce substantial physical dependence. 8. Whether the Substance is an Immediate Precursor of a Substance Already Controlled under the CSA: Oveporexton is not an immediate precursor of any substance already controlled under the CSA, as defined by 21 U.S.C. 802(23). Conclusion: After considering the scientific and medical evaluation and scheduling recommendation provided by HHS, as well as DEA's own eight-factor analysis, DEA has determined that these facts and all relevant data constitute substantial evidence of potential for abuse of oveporexton. As such, DEA hereby schedules oveporexton as a controlled substance under the CSA. Determination of Appropriate Schedule The CSA lists the findings required to place a drug or other substance in any particular schedule (I, II, III, IV, or V).\\7\\ After consideration of the analysis and recommendation of the Assistant Secretary for Health of HHS and review of all available data, the Administrator of DEA, pursuant to 21 U.S.C. 812(b)(4), finds that: --------------------------------------------------------------------------- \\7\\ 21 U.S.C. 812(b).\"\n\n[C1-2026-22802] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 217 (Thursday, November 12, 2026) [Federal Register Volume 91, Number 217 (Thursday, November 12, 2026)] [Notices] [Pages 72958-72959] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: C1-2026-22802] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Actions Correction Notice document 2026-22802, appearing on pages 70987, in the issue of Monday, November 9, 2026, [[Page 72959]] published in error and should not have appeared in the Federal Register. [FR Doc. C1-2026-22802 Filed 11-10-26; 8:45 am] BILLING CODE 0099-10-D\"\n\n[2026-23111] Notice — Transportation Department; Federal Aviation Administration\nTitle: Agency Information Collection Activities: Requests for Comments; Clearance of Renewed Approval of Information Collection: Noise Certification Standards for Subsonic Jet Airplanes and Subsonic Transport Category Large Airplanes\nAction: Notice and request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, FAA invites public comments about our intention to request the Office of Management and Budget (OMB) approval to renew an information collection. The collection involves the noise certification regulations of 14 CFR part 36 for aircraft. This includes information collection requirements for the noise certification of subsonic aircraft-jet airplanes and subsonic transport category large airplanes, small propeller driven airplanes and rotorcraft. The information collected are the results of noise certification tests that demonstrate compliance with 14 CFR part 36. The original information collection was implemented to show compliance in accordance with the Aircraft Noise Abatement Act of 1968; that statute is now part of the overall codification of the FAA's regulatory authority over aircraft noise in 49 U.S.C. 44715. The noise compliance report is used by the FAA in making a finding that the airplane is in noise compliance with the regulations. These compliance reports are required only once when an applicant wants to certificate an aircraft type. Without this data collection, the FAA would be unable to make the required noise \n\n[2026-23114] Notice — Health and Human Services Department; Centers for Disease Control and Prevention\nTitle: Order Under Sections 362 and 365 of the Public Health Service Act Continuing the Suspension of the Right To Introduce Certain Persons From Countries Where a Quarantinable Communicable Disease Exists\nAction: Notice with comment period.\nAbstract: The Centers for Disease Control and Prevention (CDC), a component of the Department of Health and Human Services (HHS), announces it is issuing an Order under Sections 362 and 365 of the Public Health Service Act, and associated implementing regulations, continuing the suspension of the right to introduce certain persons from countries where an outbreak of a quarantinable communicable disease exists. This Order was issued on November 10 and shall remain in effect through 4:59 p.m. Eastern Standard Time (EST) on Thursday, December 10, 2026. This Order may be amended or rescinded prior to that time at the discretion of the Director.\nKey passages from the full text (selected for this company):\n- \"measures such as early detection, rapid isolation, strong infection prevention measures (i.e., use of personal protective equipment [PPE]), and monitoring of contacts are critical to controlling outbreaks and reducing deaths. A clinical trial of monoclonal antibodies is presently underway in DRC.\\5\\ However, experts expect it will be several months before these therapeutics are potentially available for wider use. --------------------------------------------------------------------------- \\5\\ WHO, Patient enrolment begins in a scientific trial to identify the first effective treatments for Bundibugyo virus disease, https://www.who.int/news/item/02-07-2026-patient-enrolment-begins-in-a-scientific-trial-to-identify-the-first-effective-treatments-for-bundibugyo-virus-disease (last accessed November 6, 2026). --------------------------------------------------------------------------- B. Ongoing Bundibugyo Virus Disease Outbreak The ongoing outbreak of Ebola virus disease caused by the Bundibugyo virus in DRC continues to escalate in intensity and expand geographically. The outbreak is now the largest and deadliest Ebola outbreak in DRC's history, as well as the second largest Ebola\"\n- \"by the communicable disease ``is so increased by the introduction of persons . . . from such country . . . that a suspension of the right to introduce such persons . . . is required in the interest of public health''). As stated in the Final Rule for 42 CFR 71.40, CDC ``may, in its discretion, consider a wide array of facts and circumstances when determining what is required in the interest of public health in a particular situation . . . includ[ing] . . . [t]he overall number of cases of disease; any large increase in the number of cases over a short period of time; the geographic distribution of cases; any sustained (generational) transmission; the method of disease transmission; morbidity and mortality associated with the disease; the effectiveness of contact tracing; the adequacy of state and local health care systems; and the effectiveness of state and local public health systems and control measures.'' \\28\\ --------------------------------------------------------------------------- \\28\\ Id. at 56444. --------------------------------------------------------------------------- As stated in 42 CFR 71.40, this Order does not apply to U.S. citizens, U.S. nationals, members of the\"\n- \"Therefore, do not include any information in your comment or supporting materials that you consider confidential or inappropriate for public disclosure. If you include your name, contact information, or other information that identifies you in the body of your comments, that information will be on public display. CDC will review all submissions and may choose to redact, or withhold, submissions containing private or proprietary information such as Social Security numbers, medical information, inappropriate language, or duplicate/near duplicate examples of a mass-mail campaign. Do not submit comments by email. CDC does not accept comment by email. Authority The authority for this order is Sections 362 and 365 of the Public Health Service Act (42 U.S.C. 265, 268), as amended. Brian Christine, Assistant Secretary for Health (ASH) and Head of the United States Public Health Service (USPHS) Commissioned Corps Department of Health and Human Services. [FR Doc. 2026-23114 Filed 11-12-26; 8:45 am] BILLING CODE 4163-18-P\"\n\n[2026-23116] Proposed Rule — Transportation Department; Federal Aviation Administration\nTitle: Airworthiness Directives; General Electric Company Engines\nAction: Notice of proposed rulemaking (NPRM).\nAbstract: The FAA proposes to adopt a new airworthiness directive (AD) for certain General Electric Company (GE) Model GE Passport 20-17BB1A, GE Passport 20-18BB1A, GE Passport 20-19BB1A, and GE Passport 20-19BB1B engines. This proposed AD was prompted by an engine in-flight shutdown (IFSD) due to an engine fire caused by fuel leakage within the engine core compartment. This proposed AD would require replacement of a certain start bleed valve (SBV) fuel tube with a redesigned SBV fuel tube. The FAA is proposing this AD to address the unsafe condition on these products.\n\n[2026-23118] Proposed Rule — Transportation Department; Federal Aviation Administration\nTitle: Airworthiness Directives; Pratt & Whitney Canada Corp. Engines\nAction: Notice of proposed rulemaking (NPRM).\nAbstract: The FAA proposes to adopt a new airworthiness directive (AD) for all Pratt & Whitney Canada Corp. (P&WC) Model PW814GA and PW815GA engines. This proposed AD was prompted by the manufacturer revising the airworthiness limitations section (ALS) of the existing airworthiness limitations manual (ALM) to introduce new or more restrictive airworthiness limitations and associated thresholds and intervals for life-limited parts. This proposed AD would require updating the ALS of the existing ALM or instructions for continued airworthiness (ICA) and the existing approved maintenance or inspection program, as applicable, to incorporate new or more restrictive instructions and associated thresholds and intervals for life-limited parts. The FAA is proposing this AD to address the unsafe condition on these products.\nKey passages from the full text (selected for this company):\n- \"proposed AD would require updating the ALS of the existing ALM or instructions for continued airworthiness (ICA) and the existing approved maintenance or inspection program, as applicable, to incorporate new or more restrictive instructions and associated thresholds and intervals for life-limited parts. The FAA is proposing this AD to address the unsafe condition on these products. DATES: The FAA must receive comments on this NPRM by December 28, 2026. ADDRESSES: You may send comments, using the procedures found in 14 CFR 11.43 and 11.45, by any of the following methods: Federal eRulemaking Portal: Go to regulations.gov . Follow the instructions for submitting comments. Fax: (202) 493-2251. Mail: U.S. Department of Transportation, Docket Operations, M-30, West Building Ground Floor, Room W12-140, 1200 New Jersey Avenue SE, Washington, DC 20590. Hand Delivery: Deliver to Mail address above between 9 a.m. and 5 p.m., Monday through Friday, except Federal holidays. AD Docket: You may examine the AD docket at regulations.gov under Docket No. FAA-2026-13811; or in person at Docket Operations between 9 a.m. and 5 p.m., Monday through Friday, except Federal holidays. The AD docket\"\n- \"contains this NPRM, the mandatory continuing airworthiness information (MCAI), any comments received, and other information. The street address for Docket Operations is listed above. Material Incorporated by Reference: For Transport Canada material identified in this AD, contact Transport Canada, Transport Canada National Aircraft Certification, 159 Cleopatra Drive, Nepean, Ontario, K1A 0N5, Canada; phone: (888) 663-3639; email: [email&#160;protected] . You may find the Transport Canada material on the Transport Canada website at tc.canada.ca/en/aviation. You may view this material at the FAA, Airworthiness Products Section, Operational Safety Branch, 1200 District Avenue, Burlington, MA 01803. For information on the availability of this material at the FAA, call (817) 222-5110. FOR FURTHER INFORMATION CONTACT: Barbara Caufield, Aviation Safety Engineer, FAA, 2200 South 216th Street, Des Moines, WA 98198; phone: (781) 238-7146; email: [email&#160;protected] . SUPPLEMENTARY INFORMATION: Comments Invited The FAA invites you to send any written relevant data, views, or arguments about this proposal. Send your comments using a method listed under ADDRESSES. Include ``Docket No.\"\n- \"---------------------------------------------------------------------------------------------------------------- Revise the ALS........................ 1 work-hour x $85 per $0 $85 $28,305 hour = $85. ---------------------------------------------------------------------------------------------------------------- Authority for This Rulemaking Title 49 of the United States Code specifies the FAA's authority to issue rules on aviation safety. Subtitle I, section 106, describes the authority of the FAA Administrator. Subtitle VII: Aviation Programs, describes in more detail the scope of the Agency's authority. The FAA is issuing this rulemaking under the authority described in Subtitle VII, Part A, Subpart III, Section 44701: General requirements. Under that section, Congress charges the FAA with promoting safe flight of civil aircraft in air commerce by prescribing regulations for practices, methods, and procedures the Administrator finds necessary for safety in air commerce. This regulation is within the scope of that authority because it addresses an unsafe condition that is likely to exist or develop on products identified in this rulemaking action. Regulatory Findings The FAA\"\n\n[2026-23121] Rule — Environmental Protection Agency\nTitle: Air Plan Approval; Utah; Update to Materials Incorporated by Reference\nAction: Final rule; notification of administrative change.\nAbstract: The U.S. Environmental Protection Agency (EPA) is updating the materials that are incorporated by reference (IBR) into the Utah State Implementation Plan (SIP). The regulations affected by this update have been previously submitted by Utah and approved by the EPA. In this final rule, the EPA is also notifying the public of corrections and clarifying changes in the Code of Federal Regulations (CFR) tables that identify material IBR into the Utah SIP. This update affects the materials that are available for public inspection at the National Archives and Records Administration (NARA) and the EPA Regional Office.\n\n[2026-23125] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Toxic Substances Control Act (TSCA) Section 8(a)(7) Reporting and Recordkeeping Requirements for Perfluoroalkyl and Polyfluoroalkyl Substances (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Toxic Substances Control Act (TSCA) Section 8(a)(7) Reporting and Recordkeeping Requirements for Perfluoroalkyl and Polyfluoroalkyl Substances (EPA ICR Number 2682.04, OMB Control Number 2070-0217) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through November 30, 2026. Public comments were previously requested via the Federal Register on November 13, 2025 during a 60-day comment period. This notice allows for an additional 30 days for public comments.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 218 (Friday, November 13, 2026) [Federal Register Volume 91, Number 218 (Friday, November 13, 2026)] [Notices] [Page 73228] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-23125] [[Page 73228]] ======================================================================= ----------------------------------------------------------------------- ENVIRONMENTAL PROTECTION AGENCY [EPA-HQ-OPPT-2020-0549; FRL-13702-01-OFA] Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Toxic Substances Control Act (TSCA) Section 8(a)(7) Reporting and Recordkeeping Requirements for Perfluoroalkyl and Polyfluoroalkyl Substances (Renewal) AGENCY: Environmental Protection Agency (EPA). ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Toxic Substances Control Act (TSCA) Section 8(a)(7) Reporting and Recordkeeping Requirements for Perfluoroalkyl and Polyfluoroalkyl Substances (EPA ICR Number 2682.04, OMB\"\n- \"Control Number 2070-0217) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through November 30, 2026. Public comments were previously requested via the Federal Register on November 13, 2025 during a 60-day comment period. This notice allows for an additional 30 days for public comments. DATES: Comments may be submitted on or before December 14, 2026. ADDRESSES: Submit your comments, referencing Docket ID Number EPA-HQ- OPPT-2020-0549, to EPA online using www.regulations.gov (our preferred method), by email to docket.epa.gov , or by mail to: EPA Docket Center, Environmental Protection Agency, Mail Code 2821T, 1200 Pennsylvania Ave NW, Washington, DC 20460. EPA's policy is that all comments received will be included in the public docket without change including any personal information provided, unless the comment includes profanity, threats, information claimed to be Confidential Business Information (CBI) or other information whose disclosure is restricted by statute. Submit written comments and recommendations to OMB for the proposed information\"\n- \"The docket can be viewed online at www.regulations.gov or in person at the EPA Docket Center, WJC West, Room 3334, 1301 Constitution Ave. NW, Washington, DC. The telephone number for the Docket Center is 202-566-1744. For additional information about EPA's public docket, visit https://www.epa.gov/dockets . Abstract: EPA is requiring reporting and recordkeeping requirements for Perfluoroalkyl and Polyfluoroalkyl Substances (PFAS) under the Toxic Substances Control Act (TSCA) as amended by the Fiscal Year 2020 National Defense Authorization Act (NDAA). As mandated by the amendment, EPA will require certain persons that manufacture (including import) or have manufactured these chemical substances in any year since January 1, 2011, to electronically report to EPA certain information. This is a one-time reporting event to provide greater transparency on the uses and risks associated with PFAS and is mandated by the NDAA. While EPA is currently proposing an extension to the existing ICR, the reporting requirements that were identified in the published proposed rule, once finalized, will be submitted as a separate ICR action EPA intends to use information collected to assist in chemical\"",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22925",
+            "relevant": false,
+            "reason": "USTR China Section 301 tariff exclusion extensions; no SkyHop duty, and no link to its aircraft or operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22953",
+            "relevant": false,
+            "reason": "Inspection rules for single-engine turbine airplanes and unmanned aircraft; SkyHop flies only E175 and A319/A320 jets.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22962",
+            "relevant": false,
+            "reason": "FinCEN special measure on MEXC Global, a crypto exchange; no effect on airline operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22954",
+            "relevant": false,
+            "reason": "DEA registration revocation for a single Utah APRN; creates nothing for SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22955",
+            "relevant": false,
+            "reason": "DEA registration revocation for a single physician; creates nothing for SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22966",
+            "relevant": false,
+            "reason": "DOJ guidance on English-only federal agency communications; imposes nothing on SkyHop or its customers.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22972",
+            "relevant": false,
+            "reason": "Procurement List deletions (Committee for Purchase from People Who Are Blind or Severely Disabled); unrelated to airline business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22973",
+            "relevant": false,
+            "reason": "Proposed Procurement List additions and deletions; unrelated to SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23009",
+            "relevant": false,
+            "reason": "OFAC SDN designations of Canadian crypto exchanges under Iran sanctions; no SkyHop business line affected.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23067",
+            "relevant": false,
+            "reason": "PHMSA hazmat paperwork renewal notice; no new duty for SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23072",
+            "relevant": false,
+            "reason": "Miscellaneous SIAP amendments; the text shown names no Denver or Salt Lake City procedures, so no identified SkyHop impact.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23073",
+            "relevant": false,
+            "reason": "Miscellaneous SIAP amendments; the text shown names no Denver or Salt Lake City procedures, so no identified SkyHop impact.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23075",
+            "relevant": false,
+            "reason": "DEA scheduling of oveporexton, a narcolepsy drug; no airline impact.",
+            "areas": []
+          },
+          {
+            "document_number": "C1-2026-22802",
+            "relevant": false,
+            "reason": "Correction withdrawing an OFAC notice published in error; no effect on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23111",
+            "relevant": false,
+            "reason": "Paperwork renewal on noise certification of new aircraft types; SkyHop is an operator, not a type-certificate applicant, so no new duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23114",
+            "relevant": false,
+            "reason": "CDC Ebola order on entry of persons from affected countries; SkyHop flies only domestic routes with no international service.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23116",
+            "relevant": false,
+            "reason": "Proposed AD for GE Passport engines, which power business jets; SkyHop's fleet does not use them.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23118",
+            "relevant": false,
+            "reason": "Proposed AD for P&WC PW814GA/PW815GA engines, which power business jets; not on SkyHop's E175 or A319/A320 aircraft.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23121",
+            "relevant": false,
+            "reason": "EPA administrative update to Utah SIP incorporation by reference; imposes no new requirement on SkyHop.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23125",
+            "relevant": false,
+            "reason": "EPA TSCA PFAS reporting paperwork renewal; applies to chemical manufacturers and importers, not SkyHop.",
+            "areas": []
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.136329042,
+  "totalMs": 49136,
+  "scanned": 448,
+  "decisions": [
+    {
+      "document_number": "2026-22729",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22730",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22731",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22731",
+        "relevant": false,
+        "reason": "GSA IT security information collection extension; no duty on an airline.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22733",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22736",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22738",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22740",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22743",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22744",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22745",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22746",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22749",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22750",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22751",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22752",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22753",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22754",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22755",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22756",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22757",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22758",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22759",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22760",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22761",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22761",
+        "relevant": false,
+        "reason": "DOL ALJ e-filing procedural rule; no airline operations or maintenance impact.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22762",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22763",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22764",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22765",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22766",
+      "relevant": false,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-22766",
+        "relevant": false,
+        "reason": "OFAC SDN designations (Iran program, includes a Turkish ground services firm); SkyHop has no international routes or dealings with these parties, and the notice adds no new duty for it.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22767",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22768",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22769",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22770",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22771",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22772",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22773",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22774",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-22774",
+        "relevant": false,
+        "reason": "AD covers Rolls-Royce Deutschland BR700-725A1-12 engines (Gulfstream/business jets); SkyHop's E175 and A319/A320 fleet does not use them.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22775",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22776",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22777",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22777",
+        "relevant": false,
+        "reason": "PHMSA special permit applications notice; grants individual permits and imposes no duty on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22778",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22778",
+        "relevant": false,
+        "reason": "PHMSA special permit modification applications; no new obligation for SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22779",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22779",
+        "relevant": false,
+        "reason": "PHMSA notice of actions on special permits for other applicants; imposes nothing on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22780",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22781",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22782",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22783",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22784",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22785",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22786",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22788",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22790",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22791",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22792",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22793",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22793",
+        "relevant": false,
+        "reason": "BIS export-control suspension extension for affiliates of listed entities; no impact on SkyHop's domestic operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22794",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22795",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22796",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22797",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22798",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22799",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22800",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22801",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22802",
+      "relevant": false,
+      "jevProbability": 0.39,
+      "llm": {
+        "document_number": "2026-22802",
+        "relevant": false,
+        "reason": "OFAC update to identifying information for Iran program entries; nothing for SkyHop to do.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22803",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22804",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22805",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22806",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22807",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22808",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22809",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22810",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22811",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22813",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22814",
+      "relevant": false,
+      "jevProbability": 0.74,
+      "llm": {
+        "document_number": "2026-22814",
+        "relevant": false,
+        "reason": "DOT drug/alcohol testing paperwork renewal (ICR) only requests comments; no new testing duty for SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22815",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22816",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22817",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22818",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22819",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22820",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22821",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22823",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22824",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22825",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22826",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22827",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22828",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22829",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22830",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22831",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22832",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22833",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22834",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22835",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22836",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22837",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-19414",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "C1-2026-21857",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22812",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22838",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22839",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22840",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22840",
+        "relevant": false,
+        "reason": "DoD removal of a company from the 1260H list; no effect on airline operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22842",
+      "relevant": false,
+      "jevProbability": 0.19,
+      "llm": {
+        "document_number": "2026-22842",
+        "relevant": false,
+        "reason": "DEA production quota adjustment for controlled substances; unrelated to airline business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22843",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-22843",
+        "relevant": false,
+        "reason": "DEA proposed 2027 production quotas for controlled substances; not an airline matter.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22844",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22845",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22846",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22847",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22848",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22849",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22850",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22851",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22852",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22853",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22854",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22855",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22856",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22857",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22857",
+        "relevant": false,
+        "reason": "FEMA exercise program information collection extension; no duty on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22858",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22859",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22860",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22861",
+      "relevant": false,
+      "jevProbability": 0.59,
+      "llm": {
+        "document_number": "2026-22861",
+        "relevant": false,
+        "reason": "OFAC SDN designations (transnational criminal org); no airline-specific requirement.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22862",
+      "relevant": false,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-22862",
+        "relevant": false,
+        "reason": "OFAC SDN designations (North Korea-linked individuals); no airline-specific requirement.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22863",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22864",
+      "relevant": false,
+      "jevProbability": 0.46,
+      "llm": {
+        "document_number": "2026-22864",
+        "relevant": false,
+        "reason": "OFAC SDN designations of entities and vessels; no effect on SkyHop's domestic flying.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22865",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22866",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22867",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22868",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22869",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22870",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22871",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22872",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22873",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22874",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22875",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22876",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22877",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22878",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22879",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22880",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22881",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22882",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22883",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22884",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22885",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22886",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22887",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22888",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22888",
+        "relevant": false,
+        "reason": "EPA TSCA chemical SNUR modification; unrelated to airline operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22889",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22890",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22891",
+      "relevant": false,
+      "jevProbability": 0.46,
+      "llm": {
+        "document_number": "2026-22891",
+        "relevant": false,
+        "reason": "NLRB CFR editorial correction on advisory opinion procedures; no effect on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22892",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22893",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22894",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22895",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22896",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22897",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22898",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22899",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22900",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22901",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22902",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22903",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22903",
+        "relevant": false,
+        "reason": "DOL proposed unemployment insurance work-search rule directed at states and claimants; no airline duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22904",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22905",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22906",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22907",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22908",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22909",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22910",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22911",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22912",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22913",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22914",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22915",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22917",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22918",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22919",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22920",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22921",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22923",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22924",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22925",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22925",
+        "relevant": false,
+        "reason": "USTR China Section 301 tariff exclusion extensions; no SkyHop duty, and no link to its aircraft or operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22926",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22927",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22928",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22929",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22930",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22931",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22932",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22933",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22934",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22935",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22936",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22937",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22938",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22939",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22940",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22941",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22942",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22943",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22944",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22951",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22953",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22953",
+        "relevant": false,
+        "reason": "Inspection rules for single-engine turbine airplanes and unmanned aircraft; SkyHop flies only E175 and A319/A320 jets.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22962",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-22962",
+        "relevant": false,
+        "reason": "FinCEN special measure on MEXC Global, a crypto exchange; no effect on airline operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22945",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22946",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22947",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22949",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22950",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22954",
+      "relevant": false,
+      "jevProbability": 0.28,
+      "llm": {
+        "document_number": "2026-22954",
+        "relevant": false,
+        "reason": "DEA registration revocation for a single Utah APRN; creates nothing for SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22955",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-22955",
+        "relevant": false,
+        "reason": "DEA registration revocation for a single physician; creates nothing for SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22956",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22957",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22958",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22959",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22960",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22961",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22963",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22964",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22965",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22966",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-22966",
+        "relevant": false,
+        "reason": "DOJ guidance on English-only federal agency communications; imposes nothing on SkyHop or its customers.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22967",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22968",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22969",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22970",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22971",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22972",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-22972",
+        "relevant": false,
+        "reason": "Procurement List deletions (Committee for Purchase from People Who Are Blind or Severely Disabled); unrelated to airline business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22973",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-22973",
+        "relevant": false,
+        "reason": "Proposed Procurement List additions and deletions; unrelated to SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22974",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22975",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22976",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22977",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22978",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22979",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22980",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22981",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22982",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22983",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22984",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22985",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22986",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22987",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22988",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22989",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22990",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22991",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22993",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22994",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22995",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22996",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22998",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22999",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23000",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23001",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23002",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23003",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23004",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23005",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23006",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23007",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23008",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23009",
+      "relevant": false,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-23009",
+        "relevant": false,
+        "reason": "OFAC SDN designations of Canadian crypto exchanges under Iran sanctions; no SkyHop business line affected.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23010",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23011",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23013",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23014",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23015",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23016",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23017",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23018",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23019",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23020",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23021",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23022",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23023",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23024",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23025",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23026",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23027",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23028",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23029",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23030",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23031",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23032",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23033",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23034",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23035",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23036",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23037",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23038",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23040",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23041",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23042",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23043",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23044",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23045",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23046",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23047",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23048",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23049",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23050",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23051",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23052",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23053",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23054",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23055",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23056",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23057",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23058",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23059",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23060",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23061",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23062",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23063",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23064",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23065",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23066",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23067",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-23067",
+        "relevant": false,
+        "reason": "PHMSA hazmat paperwork renewal notice; no new duty for SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23068",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23072",
+      "relevant": false,
+      "jevProbability": 0.76,
+      "llm": {
+        "document_number": "2026-23072",
+        "relevant": false,
+        "reason": "Miscellaneous SIAP amendments; the text shown names no Denver or Salt Lake City procedures, so no identified SkyHop impact.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23073",
+      "relevant": false,
+      "jevProbability": 0.72,
+      "llm": {
+        "document_number": "2026-23073",
+        "relevant": false,
+        "reason": "Miscellaneous SIAP amendments; the text shown names no Denver or Salt Lake City procedures, so no identified SkyHop impact.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23074",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23075",
+      "relevant": false,
+      "jevProbability": 0.5,
+      "llm": {
+        "document_number": "2026-23075",
+        "relevant": false,
+        "reason": "DEA scheduling of oveporexton, a narcolepsy drug; no airline impact.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23077",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23080",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23113",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "C1-2026-21030",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-22802",
+      "relevant": false,
+      "jevProbability": 0.34,
+      "llm": {
+        "document_number": "C1-2026-22802",
+        "relevant": false,
+        "reason": "Correction withdrawing an OFAC notice published in error; no effect on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23069",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23070",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23071",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23078",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23079",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23081",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23082",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23083",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23085",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23086",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23087",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23088",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23089",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23090",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23091",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23092",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23093",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23094",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23095",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23096",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23097",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23098",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23099",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23100",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23101",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23102",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23103",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23104",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23105",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23106",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23107",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23108",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23109",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23110",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23111",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-23111",
+        "relevant": false,
+        "reason": "Paperwork renewal on noise certification of new aircraft types; SkyHop is an operator, not a type-certificate applicant, so no new duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23112",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23114",
+      "relevant": false,
+      "jevProbability": 0.19,
+      "llm": {
+        "document_number": "2026-23114",
+        "relevant": false,
+        "reason": "CDC Ebola order on entry of persons from affected countries; SkyHop flies only domestic routes with no international service.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23115",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23116",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-23116",
+        "relevant": false,
+        "reason": "Proposed AD for GE Passport engines, which power business jets; SkyHop's fleet does not use them.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23117",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23118",
+      "relevant": false,
+      "jevProbability": 0.27,
+      "llm": {
+        "document_number": "2026-23118",
+        "relevant": false,
+        "reason": "Proposed AD for P&WC PW814GA/PW815GA engines, which power business jets; not on SkyHop's E175 or A319/A320 aircraft.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23119",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23120",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23121",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-23121",
+        "relevant": false,
+        "reason": "EPA administrative update to Utah SIP incorporation by reference; imposes no new requirement on SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23122",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23123",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23124",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23125",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-23125",
+        "relevant": false,
+        "reason": "EPA TSCA PFAS reporting paperwork renewal; applies to chemical manufacturers and importers, not SkyHop.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23126",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23127",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23128",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23129",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23130",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23131",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23132",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23133",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23134",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23135",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23136",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23137",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23138",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23139",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-23139",
+        "relevant": false,
+        "reason": "EPA notice of availability of environmental impact statements; no aviation requirement for SkyHop's fleet, hubs, or operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23141",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23142",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23143",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23144",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23145",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23146",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23147",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23148",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23149",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23150",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23151",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23152",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23153",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23154",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23155",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23158",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23160",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23161",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-23161",
+        "relevant": false,
+        "reason": "FEMA flood hazard map changes for listed communities; imposes nothing on airline operations, maintenance, or passengers.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23162",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23163",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23164",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23165",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23166",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23167",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23168",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23169",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23170",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23171",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23172",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23173",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23174",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23175",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23176",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23177",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23178",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23179",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23180",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23181",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23182",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23183",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23184",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23185",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23186",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23187",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23188",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23189",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23190",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23191",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23192",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23193",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23194",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23195",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23196",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-23196",
+        "relevant": false,
+        "reason": "OFAC Russia sanctions general licenses; SkyHop flies only domestic routes with no Russia dealings, so no new duty arises.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23197",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-23197",
+        "relevant": false,
+        "reason": "OFAC Iran-related general licenses; SkyHop has no international routes or Iran business, so nothing changes for it.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23198",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23233",
+      "relevant": false,
+      "jevProbability": 0.09
+    }
+  ],
+  "dropped": [],
+  "items": [],
+  "markdown": "# Regulatory triage — SkyHop Airlines\nWindow 2026-11-09 → 2026-11-13 · as of 2026-11-13 · 0 items\n"
+}

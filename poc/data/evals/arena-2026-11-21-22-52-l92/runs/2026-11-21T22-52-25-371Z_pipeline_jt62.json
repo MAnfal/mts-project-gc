@@ -1,0 +1,3319 @@
+{
+  "id": "2026-11-21T22-52-25-371Z_pipeline_jt62",
+  "createdAt": "2026-11-21T22:52:25.371Z",
+  "config": {
+    "profileId": "cornercare",
+    "windowStart": "2026-10-19",
+    "windowEnd": "2026-10-23",
+    "asOf": "2026-10-23",
+    "mode": "pipeline",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "promptSet": "strict",
+    "filterExcerpts": {
+      "topN": 20,
+      "chunkChars": 1200,
+      "perDoc": 3,
+      "maxChunks": 300
+    },
+    "group": "arena-2026-11-21-22-52-l92:jev-sonnet-strict-passages",
+    "arena": "arena-2026-11-21-22-52-l92",
+    "cell": "jev-sonnet-strict-passages",
+    "evalset": "cornercare_2026-10-19_2026-10-23",
+    "repeatIndex": 1
+  },
+  "configHash": "5f1346a284",
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 0,
+      "costUsd": 0,
+      "outCount": 469
+    },
+    {
+      "name": "filter:jev",
+      "ms": 14113,
+      "costUsd": 0.013521312000000006,
+      "inCount": 469,
+      "outCount": 60,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:passages",
+      "ms": 24776,
+      "costUsd": 0.01876555800000001,
+      "inCount": 20,
+      "outCount": 20,
+      "note": "top 20 by Jev · 3 passages each"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 9426,
+      "costUsd": 0.12084199999999998,
+      "inCount": 60,
+      "outCount": 1,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 3110,
+      "costUsd": 0.009386000000000005,
+      "inCount": 1,
+      "outCount": 1,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 1700,
+      "costUsd": 0.0030940000000000134,
+      "outCount": 1
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#2",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 9216,
+      "costUsd": 0.033786,
+      "inputTokens": 9833,
+      "outputTokens": 1412,
+      "prompt": "Company: CornerCare Pharmacy\n\nUS drugstore chain with 300 neighborhood pharmacies in the Midwest (~6,000 employees). Fills prescriptions (including controlled painkillers and ADHD medicines), gives flu and COVID shots, and sells over-the-counter medicines, vitamins, snacks and household goods. Most prescriptions are paid by Medicare, Medicaid or private insurance. No hospitals or clinics, does not make any drugs, no mail-order.\n\nRules that APPLY:\n- DEA rules for pharmacies that dispense controlled substances (registration, opioids, telehealth prescribing)\n- FDA rules on over-the-counter drugs, drug labeling, drug shortages and recalls that reach pharmacy shelves\n- Medicare Part D and Medicaid payment and pharmacy rules (CMS)\n- CDC vaccine recommendations that change what pharmacists may give\n- Patient privacy (HIPAA) and pharmacy recordkeeping\n- Workplace and labor rules for retail stores\n\nRules that DO NOT apply:\n- Approval, manufacturing or inspection rules aimed only at drug or device manufacturers\n- Hospital, nursing-home, physician-payment or clinical-lab rules\n- Research grants, clinical trials, NIH funding notices\n- Banking, securities, aviation, energy, farming\n\n=== DOCUMENTS (20) ===\n\n[2026-21585] Notice — Committee for Purchase From People Who Are Blind or Severely Disabled\nTitle: Procurement List; Proposed Deletions\nAction: Proposed deletions from the Procurement List.\nAbstract: The Committee is proposing to delete products from the Procurement List that were furnished by nonprofit agencies employing persons who are blind or have other severe disabilities.\n\n[2026-21586] Notice — Committee for Purchase From People Who Are Blind or Severely Disabled\nTitle: Procurement List; Deletions\nAction: Deletions from the Procurement List.\nAbstract: This action deletes service(s) from the Procurement List that were furnished by nonprofit agencies employing persons who are blind or have other severe disabilities.\n\n[2026-21600] Rule — Homeland Security Department; U.S. Customs and Border Protection\nTitle: Indefinite Suspension of the De Minimis Exemption for Mail Shipments and New Postal Informal Entry Process; Delayed Compliance Extension\nAction: Final rule; extension of compliance date.\nAbstract: This document announces that U.S. Customs and Border Protection (CBP) will extend the compliance date for the regulatory provisions mandating the formal entry of merchandise arriving through the international postal network that is subject to partner government agency requirements, subject to duties under Chapter 98 or Chapter 99 of the Harmonized Tariff Schedule of the United States (HTSUS), or for which duty-free treatment is claimed under Chapter 98 of the HTSUS or pursuant to a Free Trade Agreement, which were published in the Federal Register on June 24, 2026. We believe the public will benefit from more time to prepare for compliance with these changes.\n\n[2026-21610] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; The National Oil and Hazardous Substances Pollution Contingency Plan Regulation, Subpart J (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), The National Oil and Hazardous Substances Pollution Contingency Plan Regulation, Subpart J (Renewal) (EPA ICR Number 1664.15, OMB Control Number 2050-0141) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described below. This is a proposed extension of the ICR, which is currently approved through May 31, 2027. This notice allows for 60 days for public comments.\n\n[2026-21629] Notice — Commerce Department; Census Bureau\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Annual Business Survey\nAction: Notice of Information Collection, request for comment.\nAbstract: The Department of Commerce, in accordance with the Paperwork Reduction Act (PRA) of 1995, invites the general public and other Federal agencies to comment on proposed, and continuing information collections, which helps us assess the impact of our information collection requirements and minimize the public's reporting burden. The purpose of this notice is to allow for 60 days of public comment on the proposed revision to the Annual Business Survey prior to the submission of this information collection request (ICR) to OMB for approval.\n\n[2026-21666] Presidential Document — Executive Office of the President\nTitle: Advancing Women's Health To Improve Outcomes in All Phases of Life\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 203 (Thursday, October 22, 2026) [Federal Register Volume 91, Number 203 (Thursday, October 22, 2026)] [Presidential Documents] [Pages 66779-66782] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21666] [[Page 66777]] Vol. 91 Thursday, No. 203 October 22, 2026 Part II The President ----------------------------------------------------------------------- Executive Order 14437--Advancing Women's Health To Improve Outcomes in All Phases of Life \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 203 / Thursday, October 22, 2026 / Presidential Documents\u0000\u0000 \u0000___________________________________________________________________ \u0000Title 3-- \u0000The President [[Page 66779]] Executive Order 14437 of October 19, 2026 Advancing Women's Health To Improve Outcomes in All Phases of Life By the authority vested in me as President by the Constitution and the laws of the United States of America, it is hereby ordered: Section 1. Purpose and Policy. My Administration is committed to advancing women's health and ensuring that medical research, diagnosis, prevention, and treatment reflect the highest\"\n- \"House Women's Health Task Force (Task Force) co-chaired by the Secretary of Health and Human Services and the Assistant to the President and Chief of Staff. (b) In addition to the Co-Chairs, the Task Force shall include the following officials: (i) the Secretary of War; (ii) the Secretary of Agriculture; (iii) the Secretary of Labor; (iv) the Secretary of Education; (v) the Secretary of Veterans Affairs; (vi) the Administrator of the Environmental Protection Agency; (vii) the Commissioner of Food and Drugs; (viii) the Director of the Centers for Disease Control and Prevention; (ix) the Director of the National Institutes of Health; (x) the Director of the Advanced Research Projects Agency for Health; (xi) the Administrator of the Centers for Medicare and Medicaid Services; and (xii) other members of my Administration invited to participate, at the discretion of the Co-Chairs. (c) The Co-Chairs may hold public hearings, meetings, roundtables, and similar events, as appropriate, and may receive expert input from leaders in women's health, technology, academia, the private sector, philanthropy, and other relevant subject matter areas to inform coordinated action with measurable\"\n- \"results. (d) The Department of Health and Human Services shall provide funding for the administrative costs of the Task Force. Sec. 4. Task Force Functions. (a) The Task Force shall ensure that the Federal Government pursues a comprehensive approach to women's health that recognizes evolving health needs from infancy, childhood, and adolescence through pregnancy, midlife, menopause, and aging, and supports necessary policy and regulatory reforms to ensure timely and stage-specific prevention, diagnosis, treatment, and care for women. To achieve those goals, the Task Force shall focus on: (i) advancing the science of women's health through strengthening research and initiatives across the Federal Government to improve prevention, early detection, diagnosis, treatment, and long-term health outcomes for women and girls, including through acceleration of the development of new therapies and cures; (ii) accelerating proven, measurable, and evidence-based strategies to increase innovation, translation, adoption, and implementation of women's [[Page 66781]] health research into policies, evidence-based medicine, and best clinical practices, including through updated clinical education\"\n\n[2026-21639] Notice — Small Business Administration\nTitle: Reporting and Recordkeeping Requirements Under Office of Management and Budget Review\nAction: 30-Day notice; request for comments.\nAbstract: The Small Business Administration (SBA) will submit the information collection described below to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, as amended, on or after the date of publication of this notice. SBA is publishing this notice to allow all interested members of the public an additional 30 days to provide comments on the collection of information.\n\n[2026-21658] Proposed Rule — Agriculture Department; Food and Nutrition Administration\nTitle: Supplemental Nutrition Assistance Program: Electronic Benefits Transfer Card Security Measures\nAction: Proposed rule.\nAbstract: The Food and Nutrition Administration (FNA or the Agency), an agency of the U.S. Department of Agriculture (USDA or the Department), is issuing a rule proposing changes to Supplemental Nutrition Assistance Program (SNAP, the Program) regulations to modernize Electronic Benefit Transfer (EBT) technology and align EBT with consumer payment processing industry standards, improving both Program integrity and convenience for SNAP clients. These proposed changes will protect SNAP benefits from thieves and ensure benefits are accessible by approved households.\n\n[2026-21669] Proposed Rule — Health and Human Services Department; Food and Drug Administration\nTitle: Hazard Analysis and Risk-Based Preventive Controls for Human Food; Draft Guidance for Industry; Availability\nAction: Notification of availability.\nAbstract: The Food and Drug Administration (FDA, the Agency, or we) is announcing the availability of one additional draft chapter of a multichapter draft guidance for industry titled \"Hazard Analysis and Risk-Based Preventive Controls for Human Food.\" This multichapter draft guidance, when finalized, will explain FDA's current thinking on how to comply with the requirements for hazard analysis and risk-based preventive controls under FDA's regulation titled \"Current Good Manufacturing Practice, Hazard Analysis, and Risk-Based Preventive Controls for Human Food.\" The newly available draft chapter is titled \"Chapter 12: Control of Chemical Hazards.\" This draft guidance is not final nor is it in effect at this time.\n\n[2026-21671] Notice — Health and Human Services Department; Substance Abuse and Mental Health Services Administration\nTitle: HHS Approval of Entities That Certify Medical Review Officers\nAction: Notice.\nAbstract: This notice publishes a list of HHS approved Medical Review Officers (MROs) certification entities. The most recent HHS Mandatory Guidelines for Federal Workplace Drug Testing Programs (Mandatory Guidelines), effective on October 10, 2023, (Oral Fluid) and February 1, 2024, (Urine), address the role and qualifications of MROs and HHS approval of entities that certify MROs.\n\n[2026-21672] Notice — Health and Human Services Department; Health Resources and Services Administration\nTitle: National Vaccine Injury Compensation Program; List of Petitions Received\nAction: Notice.\nAbstract: HRSA is publishing this notice of petitions received under the National Vaccine Injury Compensation Program (the Program), as required by the Public Health Service (PHS) Act, as amended. While the Secretary of HHS is named as the respondent in all proceedings brought by the filing of petitions for compensation under the Program, the United States Court of Federal Claims is charged by statute with responsibility for considering and acting upon the petitions.\nKey passages from the full text (selected for this company):\n- \"CONTACT: For information about requirements for filing petitions, and the Program in general, contact Lisa L. Reyes, Clerk of Court, United States Court of Federal Claims, 717 Madison Place NW, Washington, DC 20005, (202) 357-6400. For information on HRSA's role in the Program, contact the Director, Division of Injury Compensation Programs, 5600 Fishers Lane, Room 14W-17, Rockville, Maryland 20857; 1-800-338-2382, or visit our website at: https://www.hrsa.gov/vaccine-compensation . SUPPLEMENTARY INFORMATION: The Program provides a system of no-fault compensation for certain individuals who have been injured by specified childhood vaccines. Subtitle 2 of Title XXI of the PHS Act, 42 U.S.C. 300aa-10 et seq., provides that those seeking compensation are to file a petition with the United States Court of Federal Claims and to serve a copy of the petition to the Secretary of HHS, who is named as the respondent in each proceeding. The Secretary has delegated this responsibility under the Program to HRSA. The Court is directed by statute to appoint special masters who take evidence, conduct hearings as appropriate, and make initial decisions as to eligibility for, and amount of,\"\n- \"the person or attorney filing the claim), and case number. In cases where the Court has redacted the name of a petitioner and/or the case number, the list reflects such redaction. Section 2112(b)(2) also provides that the special master ``shall afford all interested persons an opportunity to submit relevant, written information'' relating to the following: 1. The existence of evidence ``that there is not a preponderance of the evidence that the illness, disability, injury, condition, or death described in the petition is due to factors unrelated to the administration of the vaccine described in the petition,'' and 2. Any allegation in a petition that the petitioner either: a. ``[S]ustained, or had significantly aggravated, any illness, disability, injury, or condition not set forth in the Vaccine Injury Table but which was caused by'' one of the vaccines referred to in the Table, or b. ``[S]ustained, or had significantly aggravated, any illness, disability, injury, or condition set forth in the Vaccine Injury Table the first symptom or manifestation of the onset or significant aggravation of which did not occur within the time period set forth in the Table but which was caused by a\"\n- \"vaccine'' referred to in the Table. In accordance with Section 2112(b)(2), all interested persons may submit written information relevant to the issues described above in the case of the petitions listed below. Any person choosing to do so should file an original and three copies of the information with the Clerk of the United States Court of Federal Claims at the address listed above (under the heading FOR FURTHER INFORMATION CONTACT), with a copy to HRSA addressed to Director, Division of Injury Compensation Programs, Health Systems Bureau, 5600 Fishers Lane, 14W-17, Rockville, Maryland 20857. The Court's caption (Petitioner's Name v. Secretary of HHS) and the docket number assigned to the petition should be used as the caption for the written submission. Chapter 35 of Title 44, United States Code, related to paperwork reduction, does not apply to information required for purposes of carrying out the Program. Thomas J. Engels, Administrator. List of Petitions Filed 1. Jill Lewis, Jacksonville, Florida, Court of Federal Claims No: 26-1277V 2. Eileen Squires, East Greenbush, New York, Court of Federal Claims No: 26-1278V 3. Alexander Zhu, Los Angeles, California, Court of Federal\"\n\n[2026-21673] Notice — Health and Human Services Department; Health Resources and Services Administration\nTitle: Agency Information Collection Activities: Submission to OMB for Review and Approval; Public Comment Request: National Practitioner Data Bank for Adverse Information on Physicians and Other Health Care Practitioners-45 CFR Part 60 Regulations and Forms, OMB No. 0906-0081-Revision\nAction: Notice.\nAbstract: In compliance with the Paperwork Reduction Act of 1995, HRSA submitted an Information Collection Request (ICR) to the Office of Management and Budget (OMB) for review and approval. Comments submitted during the first public review of this ICR will be provided to OMB. OMB will accept further comments from the public during the review and approval period. OMB may act on HRSA's ICR only after the 30-day comment period for this notice has closed.\n\n[2026-21679] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Questions and Answers Regarding Mandatory Cosmetics Recalls; Guidance for Industry; Availability\nAction: Notice of availability.\nAbstract: The Food and Drug Administration (FDA or Agency) is announcing the availability of a final guidance entitled \"Questions and Answers Regarding Mandatory Cosmetics Recalls: Guidance for Industry.\" The guidance document provides answers to common questions that might arise about FDA's mandatory recall authority for cosmetics. It is intended to inform regulated industry about the Agency's current thinking on implementation of certain aspects, including the criteria, process, and expectations, for mandatory recalls of cosmetic products. The guidance announced in this notice finalizes the draft guidance of the same title published on December 18, 2025.\n\n[2026-21681] Notice — Homeland Security Department; U.S. Immigration and Customs Enforcement\nTitle: Agency Information Collection Activities: Allegation of Counterfeiting and Intellectual Policy, ICE Form 73-048, OMB 1653-0053\nAction: 60-Day Notice and request for comments.\nAbstract: The Department of Homeland Security will submit the following Information Collection Request (ICR) to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995.\n\n[2026-21685] Notice — Justice Department; Education Department\nTitle: Clarification on Department of Justice and Department of Education Guidance Documents Regarding Federal Nondiscrimination Laws\nAction: Notice; clarification.\nAbstract: The U.S. Department of Justice (DOJ) and U.S. Department of Education (ED) (the Departments) are issuing this document to clarify that seven guidance documents issued jointly by the Departments are not enforceable. In addition, the Departments plan to revisit these guidance documents in light of the Supreme Court's decision in Loper Bright Enters. v. Raimondo, 603 U.S. 369, 400 (2024), to assess whether they are consistent with the single best meaning of the relevant statutory text. The Departments will not rely upon these guidance documents in their enforcement of federal civil rights laws, including Titles IV and VI of the Civil Rights Act of 1964 (Title IV and Title VI), 42 U.S.C. 2000c et seq. and 2000d et seq., the Equal Educational Opportunities Act of 1974 (EEOA), 20 U.S.C. 1701-1720, the Americans with Disabilities Act of 1990 (ADA), 42 U.S.C. 12101 et seq., and Section 504 of the Rehabilitation Act of 1973 (Section 504), 29 U.S.C. 794.\n\n[2026-21701] Notice — State Department\nTitle: Notice of Department of State Action\nAction: Notice of Department of State Sanctions Actions Pursuant to the Executive Order Imposing Sanctions on the International Criminal Court.\nAbstract: The Department of State is publishing the names of one or more persons that have been placed on the Department of the Treasury's List of Specially Designated Nationals and Blocked Persons (SDN List) administered by the Office of Foreign Assets Control (OFAC).\n\n[2026-21712] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Submission for Office of Management and Budget Review; Comment Request; Accreditation Scheme for Conformity Assessment Program\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA) is announcing that a proposed collection of information has been submitted to the Office of Management and Budget (OMB) for review and clearance under the Paperwork Reduction Act of 1995.\n\n[2026-21713] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Product Jurisdiction and Combination Products\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA or Agency) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the notice. This notice solicits comments on information collection associated with product jurisdiction and combination product regulations.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 204 (Friday, October 23, 2026) [Federal Register Volume 91, Number 204 (Friday, October 23, 2026)] [Notices] [Pages 66852-66854] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21713] ----------------------------------------------------------------------- DEPARTMENT OF HEALTH AND HUMAN SERVICES Food and Drug Administration [Docket No. FDA-2026-N-11261] Agency Information Collection Activities; Proposed Collection; Comment Request; Product Jurisdiction and Combination Products AGENCY: Food and Drug Administration, HHS. [[Page 66853]] ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The Food and Drug Administration (FDA or Agency) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the\"\n- \"information, your or anyone else's Social Security number, or confidential business information, such as a manufacturing process. Please note that if you include your name, contact information, or other information that identifies you in the body of your comments, that information will be posted on https://www.regulations.gov . If you want to submit a comment with confidential information that you do not wish to be made available to the public, submit the comment as a written/paper submission and in the manner detailed (see ``Written/Paper Submissions'' and ``Instructions''). Written/Paper Submissions Submit written/paper submissions as follows: Mail/Hand Delivery/Courier (for written/paper submissions): Dockets Management Staff (HFA-305), Food and Drug Administration, 5630 Fishers Lane, Rm. 1061, Rockville, MD 20852. For written/paper comments submitted to the Dockets Management Staff, FDA will post your comment, as well as any attachments, except for information submitted, marked and identified, as confidential, if submitted as detailed in ``Instructions.'' Instructions: All submissions received must include the Docket No. FDA-2026-N-11261 for ``Product Jurisdiction and\"\n- \"each collection of information they conduct or sponsor. ``Collection of information'' is defined in 44 U.S.C. 3502(3) and 5 CFR 1320.3(c) and includes Agency requests or requirements that members of the public submit reports, keep records, or provide information to a third party. Section 3506(c)(2)(A) of the PRA (44 U.S.C. 3506(c)(2)(A)) requires Federal Agencies to provide a 60-day notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, before submitting the collection to OMB for approval. To comply with this requirement, FDA is publishing notice of the proposed collection of information set forth in this document. With respect to the following collection of information, FDA invites comments on these topics: (1) whether the proposed collection of information is necessary for the proper performance of FDA's functions, including whether the information will have practical utility; (2) the accuracy of FDA's estimate of the burden of the proposed collection of information, including the validity of the methodology and assumptions used; (3) ways to enhance the quality, utility, and\"\n\n[2026-21714] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Export Certificates for FDA Regulated Products\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA or Agency) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the notice. This notice solicits comments on export certificates for FDA regulated products.\n\n[2026-21715] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; U.S. Information Returns and Related Forms, Schedules, Attachments, and Published Guidance\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury will submit the following information collection request to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, on or after the date of publication of this notice. The public is invited to submit comments on this request.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21585",
+            "relevant": false,
+            "reason": "Procurement List deletions for federal purchasing from nonprofit agencies; imposes nothing on a retail pharmacy chain.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21586",
+            "relevant": false,
+            "reason": "Procurement List deletions for federal contracting; no effect on CornerCare's pharmacy or retail operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21600",
+            "relevant": false,
+            "reason": "CBP postal de minimis compliance date extension for international mail imports; CornerCare has no mail-order or international postal imports.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21610",
+            "relevant": false,
+            "reason": "EPA oil and hazardous substances ICR renewal; unrelated to pharmacy operations and creates no new duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21629",
+            "relevant": false,
+            "reason": "Census Annual Business Survey information collection; no new duty on CornerCare identified.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21666",
+            "relevant": false,
+            "reason": "Executive order creating a women's health task force and research focus; imposes no specific requirements on pharmacies.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21639",
+            "relevant": false,
+            "reason": "SBA paperwork collection notice; unrelated to pharmacy operations and no new duty on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21658",
+            "relevant": false,
+            "reason": "USDA proposed SNAP EBT card security rule; relates to SNAP benefit cards at retailers, not pharmacy dispensing, and CornerCare's mention is only tangential as a grocery-item seller; no clear new duty on it.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21669",
+            "relevant": false,
+            "reason": "Draft FDA guidance on human food manufacturing preventive controls; aimed at food manufacturers, not a drugstore retailer.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21671",
+            "relevant": false,
+            "reason": "HHS list of approved MRO certification entities for federal workplace drug testing; no duty on pharmacy chain.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21672",
+            "relevant": false,
+            "reason": "List of vaccine injury petitions received; informational and imposes no pharmacy duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21673",
+            "relevant": false,
+            "reason": "National Practitioner Data Bank information collection for physicians and health care practitioners/entities; not a pharmacy requirement.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21679",
+            "relevant": false,
+            "reason": "FDA guidance on mandatory cosmetics recalls; cosmetics are not drug products, and the guidance is aimed at industry, so it creates no clear new duty for CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21681",
+            "relevant": false,
+            "reason": "ICE counterfeiting allegation form ICR; no effect on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21685",
+            "relevant": false,
+            "reason": "DOJ/ED clarification on education civil rights guidance; not applicable to a pharmacy retailer.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21701",
+            "relevant": false,
+            "reason": "State Department sanctions designations related to the ICC; no impact on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21712",
+            "relevant": false,
+            "reason": "FDA conformity assessment accreditation ICR; aimed at device-related accreditation bodies, not pharmacies.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21713",
+            "relevant": false,
+            "reason": "FDA product jurisdiction and combination products ICR; applies to manufacturers/sponsors, not a dispensing pharmacy.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21714",
+            "relevant": false,
+            "reason": "FDA export certificates ICR; relevant to exporters/manufacturers, not CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21715",
+            "relevant": false,
+            "reason": "Treasury/IRS information returns ICR; routine paperwork notice with no new duty for CornerCare.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 9372,
+      "costUsd": 0.05413,
+      "inputTokens": 20375,
+      "outputTokens": 1338,
+      "prompt": "Company: CornerCare Pharmacy\n\nUS drugstore chain with 300 neighborhood pharmacies in the Midwest (~6,000 employees). Fills prescriptions (including controlled painkillers and ADHD medicines), gives flu and COVID shots, and sells over-the-counter medicines, vitamins, snacks and household goods. Most prescriptions are paid by Medicare, Medicaid or private insurance. No hospitals or clinics, does not make any drugs, no mail-order.\n\nRules that APPLY:\n- DEA rules for pharmacies that dispense controlled substances (registration, opioids, telehealth prescribing)\n- FDA rules on over-the-counter drugs, drug labeling, drug shortages and recalls that reach pharmacy shelves\n- Medicare Part D and Medicaid payment and pharmacy rules (CMS)\n- CDC vaccine recommendations that change what pharmacists may give\n- Patient privacy (HIPAA) and pharmacy recordkeeping\n- Workplace and labor rules for retail stores\n\nRules that DO NOT apply:\n- Approval, manufacturing or inspection rules aimed only at drug or device manufacturers\n- Hospital, nursing-home, physician-payment or clinical-lab rules\n- Research grants, clinical trials, NIH funding notices\n- Banking, securities, aviation, energy, farming\n\n=== DOCUMENTS (20) ===\n\n[2026-21410] Notice — Justice Department; Drug Enforcement Administration\nTitle: Youmna Abdulhadi, M.D.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"The fact that a registrant allows her registration to expire during the pendency of an OSC does not impact the Agency's jurisdiction or prerogative under the Controlled Substances Act (CSA) to adjudicate the OSC to finality. Jeffrey D. Olsen, M.D., 84 FR 68474, 68476-68479 (2019). --------------------------------------------------------------------------- The OSC notified Registrant of her right to file a written request for hearing, and that if she failed to file such a request, she would be deemed to have waived her right to a hearing and be in default. Id. at 2 (citing 21 CFR 1301.43). Here, Registrant did not request a hearing, and the Agency finds her to be in default. RFAA, at 3.\\2\\ ``A default, [[Page 66364]] unless excused, shall be deemed to constitute a waiver of the registrant's/applicant's right to a hearing and an admission of the factual allegations of the [OSC].'' 21 CFR 1301.43(e). --------------------------------------------------------------------------- \\2\\ Based on the Government's submissions in its RFAA dated June 23, 2026, the Agency finds that service of the OSC on Registrant was adequate. The included declaration from a DEA Diversion Investigator (DI)\"\n- \"Oregon, 546 U.S. 243, 270 (2006) (``The Attorney General can register a physician to dispense controlled substances `if the applicant is authorized to dispense . . . controlled substances under the laws of the State in which he practices.' . . . The very definition of a `practitioner' eligible to prescribe includes physicians `licensed, registered, or otherwise permitted, by the United States or the jurisdiction in which he practices' to dispense controlled substances. 802(21).''). The Agency has applied these principles consistently. See, e.g., James L. Hooper, M.D., 76 FR 71371, 71372 (2011), pet. for rev. denied, 481 F. App'x 826 (4th Cir. 2012); Frederick Marsh Blanton, M.D., 43 FR 27616, 27617 (1978).\\5\\ --------------------------------------------------------------------------- \\5\\ This rule derives from the text of two provisions of the CSA. First, Congress defined the term ``practitioner'' to mean ``a physician . . . or other person licensed, registered, or otherwise permitted, by . . . the jurisdiction in which he practices . . . , to distribute, dispense, . . . [or] administer . . . a controlled substance in the course of professional practice.'' 21 U.S.C. 802(21).\"\n- \"Second, in setting the requirements for obtaining a practitioner's registration, Congress directed that ``[t]he Attorney General shall register practitioners . . . if the applicant is authorized to dispense . . . controlled substances under the laws of the State in which he practices.'' 21 U.S.C. 823(g)(1). Because Congress has clearly mandated that a practitioner possess state authority in order to be deemed a practitioner under the CSA, DEA has held repeatedly that revocation of a practitioner's registration is the appropriate sanction whenever he is no longer authorized to dispense controlled substances under the laws of the state in which he practices. See, e.g., James L. Hooper, M.D., 76 FR at 71371-72; Sheran Arden Yeates, M.D., 71 FR 39130, 39131 (2006); Dominick A. Ricci, M.D., 58 FR 51104, 51105 (1993); Bobby Watts, M.D., 53 FR 11919, 11920 (1988); Frederick Marsh Blanton, M.D., 43 FR at 27617. --------------------------------------------------------------------------- According to California statute, ``dispense'' means ``to deliver a controlled substance to an ultimate user or research subject by or pursuant to the lawful order of a practitioner, including the\"\n\n[2026-21413] Notice — Justice Department; Drug Enforcement Administration\nTitle: Jefferson Burroughs, M.D.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"the requirements for obtaining a practitioner's registration, Congress directed that ``[t]he Attorney General shall register practitioners . . . if the applicant is authorized to dispense . . . controlled substances under the laws of the State in which he practices.'' 21 U.S.C. 823(g)(1). Because Congress has clearly mandated that a practitioner possess state authority in order to be deemed a practitioner under the CSA, DEA has held repeatedly that revocation of a practitioner's registration is the appropriate sanction whenever he is no longer authorized to dispense controlled substances under the laws of the state in which he practices. See, e.g., Elias Garcia Garcia, P.A., 90 FR 31242 (2025); Jason Weakley, R.N., A.P.R.N., 90 FR 10085 (2025); Khursheed Haider, M.D., 90 FR 21950 (2025). --------------------------------------------------------------------------- According to Ohio statute, ``[n]o person shall knowingly obtain, possess, or use a controlled substance or a controlled substance analog,'' except pursuant to a ``prescription issued by a licensed health professional authorized to prescribe drugs if the prescription was issued for a legitimate medical purpose.'' Ohio Rev.\"\n- \"Code Sec. Sec. 2925.11(A), (B)(1)(d) (2025). Further, a ```[l]icensed health professional authorized to prescribe drugs' or `prescriber' means an individual who is authorized by law to prescribe drugs or dangerous drugs or drug therapy related devices in the course of the individual's professional practice.'' Id. Sec. 4729.01(I) (2026).\\6\\ The Ohio statute further defines an authorized prescriber as ``[a] physician authorized under Chapter 4731. of the Revised Code to practice medicine and surgery, osteopathic medicine and surgery, or podiatric medicine and surgery.'' Id. Sec. 4729.01(I)(5) (2026). Additionally, Ohio law permits ``[a] licensed health professional authorized to prescribe drugs, if acting in the course of [[Page 66361]] professional practice, in accordance with the laws regulating the professional's practice'' to prescribe or administer schedule II, III, IV, and V controlled substances to patients. Id. Sec. 3719.06(A)(1)(a)-(b) (2025). --------------------------------------------------------------------------- \\6\\ Section 4729.01 of the Ohio Revised Code was updated on October 9, 2026, but does not change any of the material parts or alter the Agency's decision in\"\n- \"2026. Signing Authority This document of the Drug Enforcement Administration was signed on October 14, 2026, by DEA Administrator Terrance C. Cole. That document with the original signature and date is maintained by DEA. For administrative purposes only, and in compliance with requirements of the Office of the Federal Register, the undersigned DEA Federal Register Liaison Officer has been authorized to sign and submit the document in electronic format for publication, as an official document of DEA. This administrative process in no way alters the legal effect of this document upon publication in the Federal Register. Heather Achbach, Federal Register Liaison Officer, Drug Enforcement Administration. [FR Doc. 2026-21413 Filed 10-19-26; 8:45 am] BILLING CODE 4410-09-P\"\n\n[2026-21414] Notice — Justice Department; Drug Enforcement Administration\nTitle: Jan Pijanowski, M.D.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"of two provisions of the Controlled Substances Act (CSA). First, Congress defined the term ``practitioner'' to mean ``a physician . . . or other person licensed, registered, or otherwise permitted, by . . . the jurisdiction in which he practices . . . , to distribute, dispense, . . . [or] administer . . . a controlled substance in the course of professional practice.'' 21 U.S.C. 802(21). Second, in setting the requirements for obtaining a practitioner's registration, Congress directed that ``[t]he Attorney General shall register practitioners . . . if the applicant is authorized to dispense . . . controlled substances under the laws of the State in which he practices.'' 21 U.S.C. 823(g)(1). Because Congress has clearly mandated that a practitioner possess state authority in order to be deemed a practitioner under the CSA, DEA has held repeatedly that revocation of a practitioner's registration is the appropriate sanction whenever he is no longer authorized to dispense controlled substances under the laws of the state in which he practices. See, e.g., Elias Garcia Garcia, P.A., 90 FR 31242 (2025); Jason Weakley, R.N., A.P.R.N., 90 FR 10085 (2025); Khursheed Haider, M.D., 90 FR 21950\"\n- \"(2025). --------------------------------------------------------------------------- According to Ohio statute, ``[n]o person shall knowingly obtain, possess, or use a controlled substance or a controlled substance analog,'' except pursuant to a ``prescription issued by a licensed health professional authorized to prescribe drugs if the prescription was issued for a legitimate medical purpose.'' Ohio Rev. Code Sec. 2925.11(A), (B)(1)(d) (2025). Further, a `` `[l]icensed health professional authorized to prescribe drugs or `prescriber' means an individual who is authorized by law to prescribe drugs or dangerous drugs or drug therapy related devices in the course of the individual's professional practice.'' Id. Sec. 4729.01(I). The Ohio statute further defines an authorized prescriber as ``[a] physician authorized under Chapter 4731. of the Revised Code to practice medicine and surgery, osteopathic medicine and surgery, or podiatric medicine and surgery.'' Id. 4729.01(I)(5). Additionally, Ohio law permits ``[a] licensed health professional authorized to prescribe drugs, if acting in the course of professional practice, in accordance with the laws regulating the professional's\"\n- \"19, 2026. Signing Authority This document of the Drug Enforcement Administration was signed on October 14, 2026, by DEA Administrator Terrance C. Cole. That document with the original signature and date is maintained by DEA. For administrative purposes only, and in compliance with requirements of the Office of the Federal Register, the undersigned DEA Federal Register Liaison Officer has been authorized to sign and submit the document in electronic format for publication, as an official document of DEA. This administrative process in no way alters the legal effect of this document upon publication in the Federal Register. Heather Achbach, Federal Register Liaison Officer, Drug Enforcement Administration. [FR Doc. 2026-21414 Filed 10-19-26; 8:45 am] BILLING CODE 4410-09-P\"\n\n[2026-21415] Notice — Justice Department; Drug Enforcement Administration\nTitle: Peter Michael Wills, D.D.S.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"fact that a registrant allows his registration to expire during the pendency of an OSC does not impact the Agency's jurisdiction or prerogative under the Controlled Substances Act (CSA) to adjudicate the OSC to finality. Jeffrey D. Olsen, M.D., 84 FR 68474, 68476-79 (2019). --------------------------------------------------------------------------- The OSC notified Registrant of his right to file a written request for hearing, and that if he failed to file such a request, he would be deemed to have waived his right to a hearing and be in default. Id. at 2 (citing 21 CFR 1301.43). Here, Registrant did not request a hearing, and the Agency finds him to be in default. RFAA, at 2.\\2\\ ``A default, unless excused, shall be deemed to constitute a waiver of the registrant's/applicant's right to a hearing and an admission of the factual allegations of the [OSC].'' 21 CFR 1301.43(e). --------------------------------------------------------------------------- \\2\\ Based on the Government's submissions in its RFAA dated May 21, 2026, the Agency finds that service of the OSC on Registrant was adequate. The included declaration from a DEA Diversion Investigator (DI) indicates that on or about\"\n- \"practices.' . . . The very definition of a `practitioner' eligible to prescribe includes physicians `licensed, registered, or otherwise permitted, by the United States or the jurisdiction in [[Page 66362]] which he practices' to dispense controlled substances. 802(21).'').\\5\\ The Agency has applied these principles consistently. See, e.g., Craig Cohen, DPM, 91 FR 57922 (2026); Thomas Earley, D.D.S., 91 FR 55624 (2026); Henry-Norbert O. Ndekwe, M.D., 90 FR 15990 (2025). --------------------------------------------------------------------------- \\5\\ This rule derives from the text of two provisions of the Controlled Substances Act (CSA). First, Congress defined the term ``practitioner'' to mean ``a physician . . . or other person licensed, registered, or otherwise permitted, by . . . the jurisdiction in which he practices . . . , to distribute, dispense, . . . [or] administer . . . a controlled substance in the course of professional practice.'' 21 U.S.C. 802(21). Second, in setting the requirements for obtaining a practitioner's registration, Congress directed that ``[t]he Attorney General shall register practitioners . . . if the applicant is authorized to dispense . . . controlled\"\n- \"substances under the laws of the State in which he practices.'' 21 U.S.C. 823(g)(1). Because Congress has clearly mandated that a practitioner possess state authority in order to be deemed a practitioner under the CSA, DEA has held repeatedly that revocation of a practitioner's registration is the appropriate sanction whenever he is no longer authorized to dispense controlled substances under the laws of the state in which he practices. See, e.g., Elias Garcia Garcia, P.A., 90 FR 31242 (2025); Jason Weakley, R.N., A.P.R.N., 90 FR 10085 (2025); Khursheed Haider, M.D., 90 FR 21950 (2025). --------------------------------------------------------------------------- According to Ohio statute, ``[n]o person shall knowingly obtain, possess, or use a controlled substance or a controlled substance analog,'' except pursuant to a ``prescription issued by a licensed health professional authorized to prescribe drugs if the prescription was issued for a legitimate medical purpose.'' Ohio Rev. Code Sec. 2925.11(A), (B)(1)(d) (2025). Further, a ```[l]icensed health professional authorized to prescribe drugs' or `prescriber' means an individual who is authorized by law to prescribe drugs or\"\n\n[2026-21416] Notice — Health and Human Services Department; Agency for Toxic Substances and Disease Registry\nTitle: Agency Forms Undergoing Paperwork Reduction Act Review\nAbstract: (none)\n\n[2026-21417] Notice — Health and Human Services Department; Centers for Disease Control and Prevention\nTitle: Agency Forms Undergoing Paperwork Reduction Act Review\nAbstract: (none)\n\n[2026-21420] Proposed Rule — Health and Human Services Department; Centers for Medicare & Medicaid Services\nTitle: Medicare Program; Implementation of Sections 6219, 6220, and 6224 of the Consolidated Appropriations Act, 2026\nAction: Proposed rule.\nAbstract: This proposed rule would implement section 6219 (Adjustments to Medicare Part D Cost-Sharing Reductions for Low-Income Individuals), section 6220 (Requiring Enhanced and Accurate Lists of (REAL) Health Providers Act), and section 6224 (Modernizing and Ensuring Pharmacy Benefit Manager Accountability) of the Consolidated Appropriations Act, 2026.\nKey passages from the full text (selected for this company):\n- \"the plan sponsor paid to the pharmacy for the drug dispensed. The new requirements, finalized in the final rule, ``Medicare Program; Contract Year 2023 Policy and Technical Changes to the Medicare Advantage and Medicare Prescription Drug Benefit Programs,'' restructured the financial relationship between plan sponsors, PBMs, and pharmacies by mandating transparency for all pharmacy price concessions at the point of sale. The new requirements changed the definition of the negotiated price for a covered Part D drug at 42 CFR 423.100 to include all pharmacy price concessions at the point of sale, and not just those that could be reasonably determined at the point of sale. Beginning in 2024, a patient's cost share is based on the lowest possible reimbursement that a pharmacy could receive for that drug. CMS has noted a significant decrease in plan-reported pharmacy price concessions. Pharmacy direct and indirect remuneration (DIR) changed from a positive amount in CY 2023 (meaning Part D plan sponsors and PBMs recouped more from pharmacies in price concessions than they paid to pharmacies in bonus payments) to a negative amount in CY 2024 (meaning Part D plan sponsors and PBMs recouped\"\n- \"dispensing fees, reimbursement, or payments directly protected by statute. Likewise, the rule of construction being codified at proposed Sec. 423.2810(i)(2) would limit the application of the remuneration restrictions at section 1860D-12(h)(1)(A) of the Act in those particular circumstances in which the application of the remuneration restrictions would not be consistent with an applicable regulation, program instruction or guidance that establishes requirements for pharmacy payment, reimbursement or dispensing fees without modification to such regulation, program instruction or guidance. We believe this approach will appropriately restrict remuneration to PBMs and their affiliates, while continuing to allow pharmacies, including pharmacies affiliated with a PBM, to receive and retain without modification those particular payments, reimbursement and dispensing fees where such remuneration is expressly permitted under applicable regulation, program instruction or guidance. We offer two examples of specific circumstances where the rule of construction is implicated. First, a pharmacy, including a pharmacy affiliated with a PBM, may receive and retain reimbursement from a Part D plan\"\n- \"average cost, per dosage unit, to the entity to acquire the drug, from all sources from which such entity acquired the drug during such plan year, both in aggregate and by dispensing channel. Average National Average Drug Acquisition Cost (NADAC): the sum of the products of each NADAC in effect for such drug during such plan year and the quotient of the number of days in which such NADAC was in effect divided by the number of days any NADAC was in effect during such year. Average pharmacy reimbursement amount paid by the plan for the drug means the average of the amount paid by the plan per 30-day supply of the drug, across all fills of the drug during such plan year. Average wholesale acquisition cost means the sum of the products of each wholesale acquisition cost (WAC) in effect for such drug during such plan year and the quotient of the number of days in which such WAC was in effect divided by the number of days any WAC was in effect during such year. Average wholesale price (AWP) means the sum of the products of each AWP in effect for such drug during such plan year and the quotient of the number of days in which such AWP was in effect divided by the number of days any AWP was\"\n\n[2026-21423] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons whose property and interests in property have been unblocked and who have been removed from the SDN List.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Pages 66402-66403] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21423] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Actions AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons whose property and interests in property have been unblocked and who have been removed from the SDN List. DATES: See SUPPLEMENTARY INFORMATION for relevant dates. FOR FURTHER INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490 or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional\"\n- \"information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions A. On September 3, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following person is unblocked and they have been removed from the SDN List. 1. DULAC CAPITAL LTD (a.k.a. AK DYULAK KEPITAL LTD PREDSTAVITELSTVO; a.k.a. PREDSTAVITELSTVO AKTSIONERNOGO OBSHCHESTVA DYULAK KEPITAL LTD SHVEITSARIYA V G MOSCOW; a.k.a. PREDSTAVITELSTVO AKTSIONERNOGO OBSHCHESTVA DYULAK KEPITAL LTD SHVEITSARIYA V G SANKT PETERBURGE), Arosastrasse 7, Zurich 8008, Switzerland; Pr-kt Morskoi pom. 12-N, Saint Petersburg 197110, Russia; Pr-kt Leningradskii, Moscow 125167, Russia; Secondary sanctions risk: See Section 11 of Executive Order 14024.; Organization Established Date 14 Dec 2007; Tax ID No. 113974567 (Switzerland); alt. Tax ID No. 9909354395 (Russia); Identification Number SRWNNB.99999.SL.756 (Switzerland); Legal Entity Number 529900E3569EJW938341; Registration Number CH-020.3.031.775-0 (Switzerland) [RUSSIA-EO14024]. B. On September 16, 2026, OFAC determined that the property and interests in property subject to U.S.\"\n- \"Col. Centro, Culiacan, Sinaloa, Mexico; Calle Benito Juarez 302 A altos S/N, Col. Centro, Culiacan, Sinaloa, Mexico; Alvaro Obregon y Cerro de Montelargo Local 74M, 75M, 76M, 7 Colinas de San Miguel, Culiacan 80228, Mexico; Ave Alvaro Obregon No. 1800, 74M, Col. Colinas de San Miguel, Culiacan, Sinaloa 80228, Mexico; Cll Jose Diego Valadez Rios 16, Plaza Patraca PB-24, Proyecto Urbano Tres Rios, Culiacan Rosales, Culiacan 80000, Mexico; Cll Jose Diego Valadez Rios 16, Plaza Patraca PB-16, Proyecto Urbano Tres Rios, Culiacan Rosales, Culiacan 80000, Mexico; Cll Jose Diego Valadez Rios 16, Plaza Patraca PB-39, Proyecto Urbano Tres Rios, Culiacan Rosales, Culiacan 80000, Mexico; Cll Jose Diego Valadez Rios No. 1676, Col. Proyecto Urbano Tres Rios, Culiacan, Sinaloa 80000, Mexico; Cll Jose Diego Valadez Rios No. 1676, 16, Col. Proyecto Urbano Tres Rios, Culiacan, Sinaloa 80000, Mexico; Avenida Jose Maria Morelos 302 Pte, Local 3, Col. Sector Culiacan Centro, Culiacan, Sinaloa 80000, Mexico; R.F.C. PAT040318GF7 (Mexico) [SDNTK]. F. On September 30, 2026, OFAC determined that the following vessel is unblocked and has been removed from the SDN List. 1. MARAYA (f.k.a. MED PATRON)\"\n\n[2026-21445] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Pages 66393-66395] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21445] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on October 13,\"\n- \"2026. See SUPPLEMENTARY INFORMATION for relevant dates. FOR FURTHER INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490 or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On October 13, 2026, OFAC determined that one or more persons identified below meet one or more of the criteria for the imposition of sanctions set forth in section 1(a)-(c) of Executive Order 14059 of December 15, 2021, ``Imposing Sanctions on Foreign Persons Involved in the Global Illicit Drug Trade,'' 86 FR 71549 (E.O. 14059). OFAC has selected to impose blocking sanctions pursuant to section 2(a)(i) of E.O. 14059 on the persons identified below. OFAC further determined that one or more persons identified below meet one or more of the criteria for sanctions pursuant to Executive Order 13224 of September 23, 2001, ``Blocking Property and Prohibiting Transactions With Persons Who\"\n- \"pursuant to E.O. 13224, as amended. 2. GARZA GARCIA, Gamaliel, Anahuac, Nuevo Leon, Mexico; DOB 23 Oct 1974; POB Nuevo Leon, Mexico; nationality Mexico; Gender Male; Secondary sanctions risk: section 1(b) of Executive Order 13224, as amended by Executive Order 13886; C.U.R.P. GAGG741023HNLRRM06 (Mexico) (individual) [SDGT] [ILLICIT-DRUGS-EO14059] (Linked To: CARTEL DEL NORESTE). Sanctioned pursuant to section 1(b)(i) of E.O. 14059 for having provided, or attempted to provide, financial, material, or technological support of, or goods or services in support of, Cartel del Noreste, a sanctioned person pursuant to E.O. 14059. Designated pursuant to section 1(a)(iii)(C) of E.O. 13224, as amended, for having materially assisted, sponsored, or provided financial, material, or technological support for, or goods or services to or in support of, Cartel del Noreste, a person whose property and interests in property are blocked pursuant to E.O. 13224, as amended. 3. GARZA ELIAS, Gamaliel, Anahuac, Nuevo Leon, Mexico; DOB 10 Jul 1997; POB Nuevo Laredo, Tamaulipas, Mexico; nationality Mexico; Gender Male; Secondary sanctions risk: section 1(b) of Executive Order 13224, as amended by Executive\"\n\n[2026-21453] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: New Dietary Ingredient (NDI) Notifications and Related Issues; Identity and Safety Information About the NDI: Guidance for Industry; Availability\nAction: Notice of availability.\nAbstract: The Food and Drug Administration (FDA or we) is announcing the availability of a final guidance for industry entitled \"New Dietary Ingredient (NDI) Notifications and Related Issues; Identity and Safety Information About the NDI: Guidance for Industry.\" The guidance focuses on frequently asked questions about the new dietary ingredient notification (NDIN) submissions. This guidance is intended to help provide recommendations to manufacturers and distributors of NDIs and dietary supplements containing an NDI regarding the identity and safety information that should be included in an NDIN.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Pages 66336-66337] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21453] [[Page 66336]] ----------------------------------------------------------------------- DEPARTMENT OF HEALTH AND HUMAN SERVICES Food and Drug Administration [Docket No. FDA-2025-D-6501] New Dietary Ingredient (NDI) Notifications and Related Issues; Identity and Safety Information About the NDI: Guidance for Industry; Availability AGENCY: Food and Drug Administration, HHS. ACTION: Notice of availability. ----------------------------------------------------------------------- SUMMARY: The Food and Drug Administration (FDA or we) is announcing the availability of a final guidance for industry entitled ``New Dietary Ingredient (NDI) Notifications and Related Issues; Identity and Safety Information About the NDI: Guidance for Industry.'' The guidance focuses on frequently asked questions about the new dietary ingredient notification (NDIN) submissions. This guidance is intended to help provide recommendations to\"\n- \"https://www.regulations.gov . If you want to submit a comment with confidential information that you do not wish to be made available to the public, submit the comment as a written/paper submission and in the manner detailed (see ``Written/Paper Submissions'' and ``Instructions''). Written/Paper Submissions Submit written/paper submissions as follows: Mail/Hand Delivery/Courier (for written/paper submissions): Dockets Management Staff (HFA-305), Food and Drug Administration, 5630 Fishers Lane, Rm. 1061, Rockville, MD 20852. For written/paper comments submitted to the Dockets Management Staff, FDA will post your comment, as well as any attachments, except for information submitted, marked and identified, as confidential, if submitted as detailed in ``Instructions.'' Instructions: All submissions received must include the Docket No. FDA-2025-D-6501 for ``New Dietary Ingredient (NDI) Notifications and Related Issues; Safety Information About the NDI: Guidance for Industry.'' Received comments will be placed in the docket and, except for those submitted as ``Confidential Submissions,'' publicly viewable at https://www.regulations.gov or at the Dockets Management Staff between 9 a.m.\"\n- \"dockets, see 80 FR 56469, September 18, 2015, or access the information at: https://www.govinfo.gov/content/pkg/FR-2015-09-18/pdf/2015-23389.pdf . Docket: For access to the docket to read background documents or the electronic and written/paper comments received, go to https://www.regulations.gov and insert the docket number, found in brackets in the heading of this document, into the ``Search'' box and follow the prompts and/or go to the Dockets Management Staff, 5630 Fishers Lane, Rm. 1061, Rockville, MD 20852, 240-402-7500. You may submit comments on any guidance at any time (see 21 CFR 10.115(g)(5)). Submit written requests for single copies of the guidance to the Office of Dietary Supplement Programs, Office of Food Chemical Safety, Dietary Supplements, and Innovation, Human Foods Program, Food and Drug Administration, 5001 Campus Dr., College Park, MD 20740. Send two self- addressed adhesive labels to assist that office in processing your request. See the SUPPLEMENTARY INFORMATION section for electronic access to the guidance. FOR FURTHER INFORMATION CONTACT: Gerie Voss, Office of Dietary Supplement Programs, Office of Food Chemical Safety, Dietary Supplements, and\"\n\n[2026-21469] Notice — Small Business Administration\nTitle: Presidential Declaration of a Major Disaster for Public Assistance Only for the State of Utah\nAction: Notice.\nAbstract: This is notice of the Presidential declaration of a major disaster for Public Assistance Only for the state of Utah (FEMA-4948- DR), dated October 7, 2026. Incident: Cottonwood Fire, Flooding, and Mudslides.\n\n[2026-21486] Notice — Health and Human Services Department; Substance Abuse and Mental Health Services Administration\nTitle: Agency Information Collection Activities: Proposed Collection; Public Comment Request; Information Collection Request Title: SAMHSA Data Security Requirements for Accessing Confidential Data (OMB No. 0930-0396)\nAction: Notice.\nAbstract: Substance Abuse and Mental Health Services (SAMHSA), within the Department of Health and Human Services, has submitted the following information collection requirement to the Office of Management and Budget (OMB) for review and clearance under the Paperwork Reduction Act of 1995. This is the first notice for public comment. SAMHSA will forward the proposed Data Security Requirements for Accessing Confidential Data information collection to the OMB for clearance simultaneously with the publication of the second notice, following the expiration of this first notice. The full submission may be found at: http://www.reginfo.gov/public/do/PRAMain.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 202 (Wednesday, October 21, 2026) [Federal Register Volume 91, Number 202 (Wednesday, October 21, 2026)] [Notices] [Pages 66572-66573] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21486] ----------------------------------------------------------------------- DEPARTMENT OF HEALTH AND HUMAN SERVICES Substance Abuse and Mental Health Services Agency Information Collection Activities: Proposed Collection; Public Comment Request; Information Collection Request Title: SAMHSA Data Security Requirements for Accessing Confidential Data (OMB No. 0930-0396) AGENCY: Substance Abuse and Mental Health Services Administration; Center for Behavioral Health Statistics and Quality. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: Substance Abuse and Mental Health Services (SAMHSA), within the Department of Health and Human Services, has submitted the following information collection requirement to the Office of Management and Budget (OMB) for review and clearance under the Paperwork Reduction Act of 1995. This is the first notice for public comment. SAMHSA will\"\n- \"forward the proposed Data Security Requirements for Accessing Confidential Data information collection to the OMB for clearance simultaneously with the publication of the second notice, following the expiration of this first notice. The full submission may be found at: http://www.reginfo.gov/public/do/PRAMain . DATES: Written comments should be received by November 20, 2026. ADDRESSES: Written comments and recommendations for the proposed information collection should be sent within 30 days of publication of this notice to www.reginfo.gov/public/do/PRAMain . Find this particular information collection by selecting ``Currently under 30-day Review-- Open for Public Comments'' or by using the search function. FOR FURTHER INFORMATION CONTACT: SAMHSA Reports Clearance Officer, Room 15E-57A, 5600 Fishers Lane, Rockville, MD 20857 OR email to [email&#160;protected] . SUPPLEMENTARY INFORMATION: SAMHSA within the Department of Health and Human Services has submitted the following information collection requirement to OMB for review and [[Page 66573]] clearance under the Paperwork Reduction Act of 1995. This is the second notice for public comment; the first was published in the Federal\"\n- \"Register at 91 FR 52312 and no comments were received. SAMHSA is forwarding the proposed Data Security Requirements for Accessing Confidential Data information collection to the OMB for clearance simultaneously with the publication of this second notice. The full submission may be found at: http://www.reginfo.gov/public/do/PRAMain . Comments: Comments regarding (a) whether the collection of information is necessary for the proper performance of the functions of SAMHSA, including whether the information will have practical utility; (b) the accuracy of SAMHSA's estimate of the burden of the proposed collection of information; (c) ways to enhance the quality, use, and clarity of the information to be collected, including through the use of automated collection techniques or other forms of information technology; (d) ways to minimize the burden of the collection of information on those who are to respond, including through the use of appropriate automated or other forms of information technology. Proposed Information Collection: Data Security Requirements for Accessing Confidential Data (OMB Control Number: 0930-0396)--Extension Title III of the Foundations for Evidence-Based\"\n\n[2026-21491] Notice — Health and Human Services Department; Centers for Medicare & Medicaid Services\nTitle: Privacy Act of 1974; Matching Program\nAction: Notice of a new matching program.\nAbstract: In accordance with subsection (e)(12) of the Privacy Act of 1974, as amended, the Department of Health and Human Services (HHS), Centers for Medicare & Medicaid Services (CMS), is providing notice of a computer matching program between CMS and the Department of Veterans Affairs (VA), Veterans Health Administration (VHA). The purpose of the matching program is to identify beneficiaries enrolled in both Medicare and VHA health care and to identify medical claims for which both agencies made payment for the same health care services. Under this agreement, the VHA will provide CMS with a finder file on a recurring basis, of all Veteran beneficiaries enrolled in VHA health care that CMS will use to identify dually enrolled beneficiaries. CMS and VHA will use the results of the matching program to recover duplicate payments, improve payment accuracy, and identify potential fraud, waste, and abuse.\nKey passages from the full text (selected for this company):\n- \"care and to identify medical claims for which both agencies made payment for the same health care services. Under this agreement, the VHA will provide CMS with a finder file on a recurring basis, of all Veteran beneficiaries enrolled in VHA health care that CMS will use to identify dually enrolled beneficiaries. CMS and VHA will use the results of the matching program to recover duplicate payments, improve payment accuracy, and identify potential fraud, waste, and abuse. DATES: The deadline for comments on this notice is November 20, 2026. The matching program will commence not sooner than 30 days after publication of this notice, provided no comments are received that warrant a change to this notice. The matching program will remain in effect for 18 months from its effective date, unless one of the parties to the agreement advises the other by written request to terminate or modify the agreement. The agreement is subject to renewal by the HHS Data Integrity Board for 12 additional months if the matching program will be conducted without any change and each party to the agreement certifies that the program has been conducted in compliance with the agreement: ADDRESSES: Interested\"\n- \"parties may submit written comments on this notice, by mail or email, to the CMS Privacy Officer, Division of Security, Privacy Policy & Oversight, Information Security & Privacy Group, Office of Information Technology, Centers for Medicare & Medicaid Services, Location: N1-14-56, 7500 Security Blvd., Baltimore, MD 21244-1850, to [email&#160;protected] . FOR FURTHER INFORMATION CONTACT: If you have questions about the matching program, you may contact Richard Mazur, Government Technical Lead, Division of Medicare Secondary Payer Operations, Office of Financial Management, Centers for Medicare & Medicaid Services, CMS, at (410) 786-1418 or by email: [email&#160;protected] . SUPPLEMENTARY INFORMATION: The Privacy Act of 1974, as amended (5 U.S.C. 552a) provides certain protections for individuals applying for and receiving federal benefits. The law governs the use of computer matching by federal agencies when records in a system of records (meaning, federal agency records about individuals retrieved by name or other personal identifier) are matched with records of other federal or non-federal agencies. The Privacy Act requires agencies involved in a matching program to: 1. Enter into\"\n- \"(e.g., Revenue Codes) e. Billing Provider Identification Fields (e.g., Name, National Provider Identification number). f. Additional Relevant Provider Identification Fields (e.g., Rendering Provider, Attending Provider) g. Procedure Codes and Modifiers h. Diagnosis Codes and Qualifiers i. Payment Identification Fields (e.g., Date, Amount, Units) System(s) of Records The data used in this matching program will be disclosed from the following systems of records, based on the routine uses identified: CMS Common Working File (CWF), System No. 09-70-0526 Medicare Beneficiary Database (MBD), System No. 09-70-0536 Integrated Data Repository (IDR), System No. 09-70-0571 National Claims History (NCH), System No. 09-70-0558 Department of Veterans Affairs Enrollment and Eligibility Records--VA (147VA10) Non-VA Care (Fee) Records--VA (23VA10NB3) [FR Doc. 2026-21491 Filed 10-20-26; 8:45 am] BILLING CODE 4120-03-P\"\n\n[2026-21500] Notice — Justice Department\nTitle: Agency Information Collection Activities; Proposed eCollection eComments Requested; Extension of a Previously Approved Collection; Title-Lawful Access Data Collection (LADC)\nAction: 30-Day notice.\nAbstract: The Criminal Justice Information Services (CJIS) Division, FBI, DOJ, will be submitting the following information collection request to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act of 1995. The proposed information collection was previously published in the Federal Register on September 19, 2026, allowing a 60-day comment period.\n\n[2026-21510] Proposed Rule — Federal Trade Commission\nTitle: Petition for Rulemaking of Jason Plotzker\nAction: Receipt of petition; request for comment.\nAbstract: Please take notice that the Federal Trade Commission (\"Commission\") received a petition for rulemaking from Jason Plotzker and has published that petition online at https://www.regulations.gov. The Commission invites written comments concerning the petition. Publication of this petition is pursuant to the Commission's Rules of Practice and Procedure and does not affect the legal status of the petition or its final disposition.\n\n[2026-21516] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Regulatory Considerations for Prescription Drug Use-Related Software; Guidance for Industry; Availability\nAction: Notice of availability.\nAbstract: The Food and Drug Administration (FDA or Agency) is announcing the availability of a final guidance for industry titled \"Regulatory Considerations for Prescription Drug Use-Related Software.\" This final guidance describes FDA's application of its drug labeling authorities to certain software outputs that are disseminated by or on behalf of a drug sponsor for use with a prescription drug product or a prescription drug-led, drug-device combination product that is assigned to the Center for Drug Evaluation and Research or the Center for Biologics Evaluation and Research as the lead center. This guidance finalizes the draft guidance of the same title issued on September 19, 2023.\nKey passages from the full text (selected for this company):\n- \"Center for Drug Evaluation and Research or the Center for Biologics Evaluation and Research as the lead center. This guidance finalizes the draft guidance of the same title issued on September 19, 2023. DATES: The announcement of the guidance is published in the Federal Register on October 21, 2026. ADDRESSES: You may submit either electronic or written comments on Agency guidances at any time as follows: Electronic Submissions Submit electronic comments in the following way: Federal eRulemaking Portal: https://www.regulations.gov . Follow the instructions for submitting comments. Comments submitted electronically, including attachments, to https://www.regulations.gov will be posted to the docket unchanged. Because your comment will be made public, you are solely responsible for ensuring that your comment does not include any confidential information that you or a third party may not wish to be posted, such as medical information, your or anyone else's Social Security number, or confidential business information, such as a manufacturing process. Please note that if you include your name, contact information, or other information that identifies you in the body of your comments,\"\n- \"that information will be posted on https://www.regulations.gov . If you want to submit a comment with confidential information that you do not wish to be made available to the public, submit the comment as a written/paper submission and in the manner detailed (see ``Written/Paper Submissions'' and ``Instructions''). Written/Paper Submissions Submit written/paper submissions as follows: Mail/Hand Delivery/Courier (for written/paper submissions): Dockets Management Staff (HFA-305), Food and Drug Administration, 5630 Fishers Lane, Rm. 1061, Rockville, MD 20852. For written/paper comments submitted to the Dockets Management [[Page 66562]] Staff, FDA will post your comment, as well as any attachments, except for information submitted, marked and identified, as confidential, if submitted as detailed in ``Instructions.'' Instructions: All submissions received must include the Docket No. FDA-2023-D-2482 for ``Regulatory Considerations for Prescription Drug Use-Related Software.'' Received comments will be placed in the docket and, except for those submitted as ``Confidential Submissions,'' publicly viewable at https://www.regulations.gov or at the Dockets Management Staff between 9 a.m.\"\n- \"of whether the software is regulated as a device \\1\\ under the Federal Food, Drug, and Cosmetic Act (FD&C Act). A software function is a distinct purpose of the prescription drug use-related software, and end-user output is any material (content) that the prescription drug use-related software presents to the end user (e.g., a patient, caregiver, or health care practitioner). As discussed in this final guidance, FDA considers end- user output to be a type of prescription drug labeling. --------------------------------------------------------------------------- \\1\\ Under section 201(h)(1) of the Federal Food, Drug, and Cosmetic Act, ``the term `device' (except when used in paragraph (n) of this section and in sections 301(i), 403(f), 502(c), and 602(c)) means an instrument, apparatus, implement, machine, contrivance, implant, in vitro reagent, or other similar or related article, including any component, part, or accessory, which is--(A) recognized in the official National Formulary, or the United States Pharmacopeia, or any supplement to them, (B) intended for use in the diagnosis of disease or other conditions, or in the cure, mitigation, treatment, or prevention of disease, in\"\n\n[2026-21524] Notice — Health and Human Services Department\nTitle: No Adjustment to HHS Civil Monetary Penalty Amounts for 2026\nAction: Notice.\nAbstract: The Department of Health and Human Services (HHS or the Department) is notifying the public that there will be no Civil Monetary Penalty (CMP) inflation adjustment for 2026 in accordance with the April 17, 2026, guidance from the Office of Management and Budget (OMB). HHS will continue to use the 2025 civil monetary penalty levels because there will be no cost-of-living adjustment for 2026.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 202 (Wednesday, October 21, 2026) [Federal Register Volume 91, Number 202 (Wednesday, October 21, 2026)] [Notices] [Pages 66566-66567] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21524] ----------------------------------------------------------------------- DEPARTMENT OF HEALTH AND HUMAN SERVICES No Adjustment to HHS Civil Monetary Penalty Amounts for 2026 AGENCY: Office of the Assistant Secretary for Financial Resources, Department of Health and Human Services. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The Department of Health and Human Services (HHS or the Department) is notifying the public that there will be no Civil Monetary Penalty (CMP) inflation adjustment for 2026 in accordance with the April 17, 2026, guidance from the Office of Management and Budget (OMB). HHS [[Page 66567]] will continue to use the 2025 civil monetary penalty levels because there will be no cost-of-living adjustment for 2026. FOR FURTHER INFORMATION CONTACT: Jennifer Johnson, Deputy Assistant Secretary, Office of Acquisitions, Office of the Assistant\"\n- \"Secretary for Financial Resources, Room 536-H, Hubert Humphrey Building, 200 Independence Avenue SW, Washington, DC 20201; (771) 215-0133. SUPPLEMENTARY INFORMATION: I. Background The Federal Civil Penalties Inflation Adjustment Act Improvements Act of 2015 (section 701 of Pub. L. 114-74) amended the Federal Civil Penalties Inflation Adjustment Act of 1990 (Pub. L. 101-410, 104 Stat. 890 (1990)), which is intended to improve the effectiveness of CMPs and to maintain the deterrent effect of such penalties requires agencies to adjust the CMPs for inflation annually. HHS lists the CMP authorities and the amounts administered by its Divisions in tabular form in 45 CFR 102.3, which was issued in an interim final rule published in the September 6, 2016, Federal Register (81 FR 61538). Annual adjustments were subsequently published on February 3, 2017 (82 FR 9175), October 11, 2018 (83 FR 51369), November 5, 2019 (84 FR 59549), January 17, 2020 (85 FR 2869), November 15, 2021 (86 FR 62928), March 17, 2022 (87 FR 15100), October 6, 2023 (88 FR 69531), August 8, 2024 (89 FR 64815), and January 28, 2026 (91 FR 3665). II. Calculation of 2025 Fiscal Year Penalties The annual inflation\"\n- \"monetary penalties for the 2026 calendar year under the 2015 Act. On April 17, 2026, OMB issued Memorandum M-26-11 informing agencies of the cancellation of the inflation adjustment for 2026. As a result, HHS will continue using the maximum civil monetary penalties as adjusted for inflation by the 2025 adjustment for all penalties imposed after January 15, 2025. Gustav Chiarello, Assistant Secretary for Financial Resources, Department of Health and Human Services. [FR Doc. 2026-21524 Filed 10-20-26; 8:45 am] BILLING CODE P\"\n\n[2026-21599] Presidential Document — Executive Office of the President\nTitle: Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026\nAbstract: (none)\n\n[2026-21566] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the State of New York\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the state of New York dated October 19, 2026. Incident: Severe Storms and Flooding.\n\n[2026-21578] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Fraud.gov Tip Intake and Referral Form\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collection listed below, in accordance with the Paperwork Reduction Act of 1995.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21410",
+            "relevant": false,
+            "reason": "DEA enforcement order against an individual California physician's registration; creates no new duty for CornerCare's pharmacies.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21413",
+            "relevant": false,
+            "reason": "DEA order revoking an individual Ohio physician's registration; no new requirement for pharmacy registrants.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21414",
+            "relevant": false,
+            "reason": "DEA order against an individual Ohio physician; adjudication of one registrant, nothing imposed on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21415",
+            "relevant": false,
+            "reason": "DEA order concerning a dentist's registration; no change to pharmacy obligations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21416",
+            "relevant": false,
+            "reason": "ATSDR paperwork reduction notice; no new duty for a pharmacy chain.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21417",
+            "relevant": false,
+            "reason": "CDC paperwork reduction notice; no new duty for pharmacies and no vaccine recommendation change.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21420",
+            "relevant": true,
+            "reason": "CMS proposed rule implementing Part D PBM accountability, pharmacy payment/remuneration rules and Part D cost-sharing changes; directly affects Part D reimbursement to CornerCare pharmacies.",
+            "areas": [
+              "payers"
+            ]
+          },
+          {
+            "document_number": "2026-21423",
+            "relevant": false,
+            "reason": "OFAC delisting notice for unrelated persons; imposes nothing on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21445",
+            "relevant": false,
+            "reason": "OFAC cartel-related designations of foreign persons; no pharmacy-specific duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21453",
+            "relevant": false,
+            "reason": "FDA guidance on NDI notifications for dietary supplement manufacturers and distributors; CornerCare only retails vitamins and submits no NDINs.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21469",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Utah; outside the Midwest footprint and imposes nothing.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21486",
+            "relevant": false,
+            "reason": "SAMHSA information collection on data security for accessing its confidential data; does not apply to pharmacy operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21491",
+            "relevant": false,
+            "reason": "CMS-VA computer matching program between agencies; imposes no duty on pharmacies.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21500",
+            "relevant": false,
+            "reason": "DOJ/FBI information collection extension on lawful access data; not applicable to pharmacy operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21510",
+            "relevant": false,
+            "reason": "FTC receipt of a rulemaking petition for comment; creates no obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21516",
+            "relevant": false,
+            "reason": "FDA guidance on drug-sponsor software outputs as labeling; aimed at drug sponsors, not pharmacies.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21524",
+            "relevant": false,
+            "reason": "HHS notice of no CMP inflation adjustment for 2026; no change to penalty levels.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21599",
+            "relevant": false,
+            "reason": "Presidential document implementing Russia/Iran sanctions act; no relevance to pharmacy operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21566",
+            "relevant": false,
+            "reason": "SBA disaster declaration for New York; outside the Midwest footprint and imposes nothing.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21578",
+            "relevant": false,
+            "reason": "Treasury fraud.gov tip form information collection; no duty for CornerCare.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 9425,
+      "costUsd": 0.032926,
+      "inputTokens": 9678,
+      "outputTokens": 1357,
+      "prompt": "Company: CornerCare Pharmacy\n\nUS drugstore chain with 300 neighborhood pharmacies in the Midwest (~6,000 employees). Fills prescriptions (including controlled painkillers and ADHD medicines), gives flu and COVID shots, and sells over-the-counter medicines, vitamins, snacks and household goods. Most prescriptions are paid by Medicare, Medicaid or private insurance. No hospitals or clinics, does not make any drugs, no mail-order.\n\nRules that APPLY:\n- DEA rules for pharmacies that dispense controlled substances (registration, opioids, telehealth prescribing)\n- FDA rules on over-the-counter drugs, drug labeling, drug shortages and recalls that reach pharmacy shelves\n- Medicare Part D and Medicaid payment and pharmacy rules (CMS)\n- CDC vaccine recommendations that change what pharmacists may give\n- Patient privacy (HIPAA) and pharmacy recordkeeping\n- Workplace and labor rules for retail stores\n\nRules that DO NOT apply:\n- Approval, manufacturing or inspection rules aimed only at drug or device manufacturers\n- Hospital, nursing-home, physician-payment or clinical-lab rules\n- Research grants, clinical trials, NIH funding notices\n- Banking, securities, aviation, energy, farming\n\n=== DOCUMENTS (20) ===\n\n[2026-21256] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the State of Colorado\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the state of Colorado dated October 14, 2026. Incident: Aspen Acres Fire.\n\n[2026-21258] Notice — Justice Department; Drug Enforcement Administration\nTitle: Muhamad Aly Rifai, M.D.; Decision and Order\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"compliance with the CSA, Congress empowered the Agency \\4\\ to deny, suspend, or revoke a registration if it would be inconsistent with the public interest. 21 U.S.C. 823(g)(1); 21 [[Page 66157]] U.S.C. 824(a)(4); Gonzales v. Oregon, 546 U.S. 243, 251 (2006). --------------------------------------------------------------------------- \\4\\ The CSA delegates this power to the Attorney General, who has delegated it to the Administrator of the DEA (the Agency) by 28 CFR 0.100. --------------------------------------------------------------------------- The Attorney General ``may deny, suspend, or revoke [a] registration if . . . the [registrant's] registration would be `inconsistent with the public interest.' '' Gonzales v. Oregon, 546 U.S. at 251 (quoting 21 U.S.C. 824(a)(4)). The Attorney General's ``discretion in exercising [the authority to register and deregister practitioners] is spelled out in very broad terms.'' Id. at 292 (Scalia, J., dissenting); see also Neumann's Pharmacy, L.L.C. v. Drug Enf't Admin., 167 F.4th 320, 323 (5th Cir. 2026) (``DEA unquestionably has broad authority to deregister pharmacies and substantial discretion to shape policy within statutory bounds.''). In\"\n- \"the prescribing or administering of a controlled substance and the packaging, labeling or compounding necessary to prepare the substance for such delivery.'' 21 U.S.C. 802(10). This definition encompasses, among other things, practitioners who prescribe controlled substances and pharmacies who fill controlled substance prescriptions. Id. The term ``controlled substance'' simply means ``a drug or other substance . . . included in schedule I, II, III, IV, or V . . . .'' 21 U.S.C. 802(6). Thus, the phrase ``experience in dispensing'' means the direct participation in the act of delivering, prescribing, dispensing, or administrating a controlled substance to an ultimate user. The phrase ``experience in dispensing'' must be considered within the context of DEA's broad mandate under 21 U.S.C. 824(a) to deregister practitioners who ``ha[ve] committed such acts as would render [their] registration . . . inconsistent with the public interest.'' 21 U.S.C. 824(a)(4). In other words, in determining what type [[Page 66162]] of conduct is relevant under Factor B, DEA's primary focus is to determine whether a registrant's ``experience in dispensing'' is ``inconsistent with the public interest''\"\n- \"Id. In the context of a practitioner, this would require the Agency to evaluate whether he or she has dispensed controlled substances in a manner that is improper, illegal, or inconsistent with the public interest; for example, by issuing prescriptions without conducting a proper examination or developing a supported diagnosis; ignoring patient indications of abuse, diversion, or improper use; issuing a prescription in a manner that is inconsistent with state law or the state's standards of practice; or issuing prescriptions for controlled substances in a way that creates a risk of diversion.\\17\\ --------------------------------------------------------------------------- \\17\\ Analysis of whether a prescription is illegally filled, distributed, prescribed, or possessed also fit within Factor D, ``Compliance with applicable State, Federal, or local laws relating to controlled substances.'' 21 U.S.C. 823(g)(1)(D). --------------------------------------------------------------------------- Of course, the Agency is not only concerned with acts of intentional diversion \\18\\ but also with acts of ``[c]areless or negligent handling of controlled substances[, which] creates the opportunity\"\n\n[2026-21291] Notice — Commerce Department; International Trade Administration\nTitle: Citric Acid and Certain Citrate Salts From Colombia: Preliminary Results of Antidumping Duty Administrative Review; 2024-2025\nAbstract: The U.S. Department of Commerce (Commerce) preliminarily determines that Sucroal S.A. (Sucroal) made sales of subject merchandise at less than normal value (NV) during the period of review (POR), July 1, 2024, through June 30, 2025. Interested parties are invited to comment on these preliminary results of review.\n\n[2026-21306] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Notice of Applications for New Special Permits\nAction: List of applications for special permits.\nAbstract: In accordance with the procedures governing the application for, and the processing of, special permits from the Department of Transportation's Hazardous Material Regulations, notice is hereby given that the Office of Hazardous Materials Safety has received the application described herein.\n\n[2026-21308] Notice — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Notice of Actions on Special Permits\nAction: Notice of actions on special permit applications.\nAbstract: In accordance with the procedures governing the application for, and the processing of, special permits from the Department of Transportation's Hazardous Material Regulations, notice is hereby given that the Office of Hazardous Materials Safety has granted or denied the application described herein.\n\n[2026-21345] Notice — Labor Department; Labor-Management Standards Office\nTitle: Proposed New Information Collection; OLMS Public Submission Portal\nAction: Notice; request for comments.\nAbstract: In compliance with the Paperwork Reduction Act of 1995 (PRA), the Department of Labor (Department) is planning to submit an information collection request (ICR), concerning the Office of Labor- Management Standards (OLMS) Public Submission Portal, to the Office of Management and Budget (OMB) for review and approval. The Department is soliciting public comments on specific aspects of this ICR.\n\n[2026-21348] Rule — Consumer Product Safety Commission\nTitle: Interpretation of “Flammable Liquid Fuels” With Respect to Fuel Additives\nAction: Final rule; interpretation.\nAbstract: The Consumer Product Safety Commission (CPSC) is issuing an interpretive rule that interprets the phrase \"flammable liquid fuels\" as used in the Portable Fuel Container Safety Act of 2020 (PFCSA). Consistent with the plain language of the statute, the Commission interprets this phrase not to include fuel additives that are intended to be added to flammable liquid fuels for the sole purpose of improving engine performance, cleaning engine components, extending engine life, stabilizing fuel, preventing weather effects from fuel, or some similar purpose unrelated to creating heat or power.\n\n[2026-21353] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: Halo Pharmaceutical Inc.\nAction: Notice of application.\nAbstract: Halo Pharmaceutical Inc. has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21354] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: DMS Pharmaceutical Group\nAction: Notice of application.\nAbstract: DMS Pharmaceutical Group has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21355] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: Groff Health Inc.\nAction: Notice of application.\nAbstract: Groff Health Inc. has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Notices] [Page 66152] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21355] [[Page 66152]] ----------------------------------------------------------------------- DEPARTMENT OF JUSTICE Drug Enforcement Administration [Docket No. DEA-1781] Importer of Controlled Substances Application: Groff Health Inc. AGENCY: Drug Enforcement Administration, Justice. ACTION: Notice of application. ----------------------------------------------------------------------- SUMMARY: Groff Health Inc. has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information. DATES: Registered bulk manufacturers of the affected basic class(es), and applicants, therefore, may submit electronic comments on, or objections to the issuance of the proposed registration on or before November 18, 2026. Such persons may also file a written request for a hearing on the application on or before November 18, 2026. ADDRESSES: The Drug\"\n- \"Enforcement Administration requires that all comments be submitted electronically through the Federal eRulemaking Portal, which provides the ability to type short comments directly into the comment field on the web page or attach a file for lengthier comments. Please go to https://www.regulations.gov and follow the online instructions at that site for submitting comments. Upon submission of your comment, you will receive a Comment Tracking Number. Please be aware that submitted comments are not instantaneously available for public view on https://www.regulations.gov . If you have received a Comment Tracking Number, your comment has been successfully submitted and there is no need to resubmit the same comment. All requests for a hearing must be sent to: (1) Drug Enforcement Administration, Attn: Hearing Clerk/OALJ, 8701 Morrissette Drive, Springfield, Virginia 22152; and (2) Drug Enforcement Administration, Attn: DEA Federal Register Representative/DPW, 8701 Morrissette Drive, Springfield, Virginia 22152. All requests for a hearing should also be sent to: Drug Enforcement Administration, Attn: Administrator, 8701 Morrissette Drive, Springfield, Virginia 22152. SUPPLEMENTARY\"\n- \"finished dosage forms for commercial sale. Justin Wood, Deputy Assistant Administrator. [FR Doc. 2026-21355 Filed 10-16-26; 8:45 am] BILLING CODE P\"\n\n[2026-21358] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: National Center for Natural Products Research\nAction: Notice of application.\nAbstract: National Center for Natural Products Research has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21359] Notice — Justice Department; Drug Enforcement Administration\nTitle: Bulk Manufacturer of Controlled Substances Application: National Center for Natural Products Research University of Mississippi/NCNPR\nAction: Notice of application.\nAbstract: National Center for Natural Products Research University of Mississippi/NCNPR has applied to be registered as a bulk manufacturer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21360] Notice — Justice Department; Drug Enforcement Administration\nTitle: Bulk Manufacturer of Controlled Substances Application: Scottsdale Research Institute\nAction: Notice of application.\nAbstract: Scottsdale Research Institute has applied to be registered as a bulk manufacturer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21367] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: Groff NA Hemplex LLC\nAction: Notice of application.\nAbstract: Groff NA Hemplex LLC has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to SUPPLEMENTARY INFORMATION listed below for further drug information.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Notices] [Pages 66155-66156] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21367] ----------------------------------------------------------------------- DEPARTMENT OF JUSTICE Drug Enforcement Administration [Docket No. DEA-1790] Importer of Controlled Substances Application: Groff NA Hemplex LLC AGENCY: Drug Enforcement Administration, Justice. ACTION: Notice of application. ----------------------------------------------------------------------- SUMMARY: Groff NA Hemplex LLC has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to SUPPLEMENTARY INFORMATION listed below for further drug information. DATES: Registered bulk manufacturers of the affected basic class(es), and applicants, therefore, may submit electronic comments on or objections to the issuance of the proposed registration on or before November 18, 2026. Such persons may also file a written request for a hearing on the application on or before November 18, 2026. ADDRESSES: The Drug\"\n- \"Enforcement Administration requires that all comments be submitted electronically through the Federal eRulemaking Portal, which provides the ability to type short comments directly into the comment field on the web page or attach a file for lengthier comments. Please go to https://www.regulations.gov and follow the online instructions at that site for submitting comments. Upon submission of your comment, you will receive a Comment Tracking Number. Please be aware that submitted comments are not instantaneously available for public view on https://www.regulations.gov . If you have received a Comment Tracking Number, your comment has been successfully submitted and there is no need to resubmit the same comment. All [[Page 66156]] requests for a hearing must be sent to: (1) Drug Enforcement Administration, Attn: Hearing Clerk/OALJ, 8701 Morrissette Drive, Springfield, Virginia 22152; and (2) Drug Enforcement Administration, Attn: DEA Federal Register Representative/DPW, 8701 Morrissette Drive, Springfield, Virginia 22152. All requests for a hearing should also be sent to: Drug Enforcement Administration, Attn: Administrator, 8701 Morrissette Drive, Springfield, Virginia 22152.\"\n- \"Administration-approved or non-approved finished dosage forms for commercial sale. Justin Wood, Deputy Assistant Administrator. [FR Doc. 2026-21367 Filed 10-16-26; 8:45 am] BILLING CODE 4410-09-P\"\n\n[2026-21368] Notice — Justice Department; Drug Enforcement Administration\nTitle: Bulk Manufacturer of Controlled Substances Application: Groff Health Inc\nAction: Notice of application.\nAbstract: Groff Health Inc has applied to be registered as a bulk manufacturer of basic class(es) of controlled substance(s). Refer to SUPPLEMENTARY INFORMATION listed below for further drug information.\n\n[2026-21369] Notice — Justice Department; Drug Enforcement Administration\nTitle: Bulk Manufacturer of Controlled Substances Application: Janssen Pharmaceuticals, Inc.\nAction: Notice of application.\nAbstract: Janssen Pharmaceuticals, Inc. has applied to be registered as a bulk manufacturer of basic class(es) of controlled substance(s). Refer to SUPPLEMENTARY INFORMATION listed below for further drug information.\n\n[2026-21370] Notice — Justice Department; Drug Enforcement Administration\nTitle: Importer of Controlled Substances Application: Organic Standards Solutions International, LLC\nAction: Notice of application.\nAbstract: Organic Standards Solutions International, LLC has applied to be registered as an importer of basic class(es) of controlled substance(s). Refer to Supplementary Information listed below for further drug information.\n\n[2026-21430] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Presidential Documents] [Page 66277] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21430] [[Page 66275]] Vol. 91 Monday, No. 200 October 19, 2026 Part III The President ----------------------------------------------------------------------- Notice of October 15, 2026--Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia Notice of October 15, 2026--Continuation of the National Emergency With Respect to Sudan Notice of October 15, 2026--Continuation of the National Emergency With Respect to the Democratic Republic of the Congo \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 200 / Monday, October 19, 2026 / Presidential Documents\u0000\u0000 \u0000___________________________________________________________________ \u0000Title 3-- \u0000The President [[Page 66277]] Notice of October 15, 2026 Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia On October 21, 1995, by Executive Order 12978,\"\n- \"the President declared a national emergency pursuant to the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.) to deal with the unusual and extraordinary threat to the national security, foreign policy, and economy of the United States constituted by the actions of significant narcotics traffickers centered in Colombia and the extreme level of violence, corruption, and harm such actions cause in the United States and abroad. The actions of significant narcotics traffickers centered in Colombia continue to pose an unusual and extraordinary threat to the national security, foreign policy, and economy of the United States and cause an extreme level of violence, corruption, and harm in the United States and abroad. For this reason, the national emergency declared in Executive Order 12978 of October 21, 1995, must continue in effect beyond October 21, 2026. Therefore, in accordance with section 202(d) of the National Emergencies Act (50 U.S.C. 1622(d)), I am continuing for 1 year the national emergency with respect to significant narcotics traffickers centered in Colombia declared in Executive Order 12978. This notice shall be published in the Federal Register and\"\n- \"transmitted to the Congress. (Presidential Sig.) THE WHITE HOUSE, October 15, 2026. [FR Doc. 2026-21430 Filed 10-16-26; 11:15 am] Billing code 3395-F4-P\"\n\n[2026-21398] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Pages 66395-66402] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21398] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on October 15, 2026. See SUPPLEMENTARY INFORMATION for relevant dates. FOR FURTHER\"\n- \"INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On October 15, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. BILLING CODE 4810-AL-P [[Page 66396]] [GRAPHIC] [TIFF OMITTED] TN20OC26.028 [[Page 66397]] [GRAPHIC] [TIFF OMITTED] TN20OC26.029 [[Page 66398]] [GRAPHIC] [TIFF OMITTED] TN20OC26.030 [[Page 66399]] [GRAPHIC] [TIFF OMITTED] TN20OC26.031 [[Page 66400]] [GRAPHIC] [TIFF OMITTED] TN20OC26.032 [[Page 66401]] [GRAPHIC] [TIFF OMITTED] TN20OC26.033 [[Page 66402]] [GRAPHIC] [TIFF OMITTED] TN20OC26.034 (Authority: E.O. 13902.) Bradley T. Smith, Director, Office of Foreign Assets Control. [FR Doc. 2026-21398 Filed 10-19-26; 8:45 am] BILLING CODE 4810-AL-C\"\n\n[2026-21400] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; Application for Extension of Time To Furnish Recipient Statements\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury will submit the following information collection requests to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, on or after the date of publication of this notice. The public is invited to submit comments on these requests.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21256",
+            "relevant": false,
+            "reason": "SBA disaster declaration for a Colorado fire; CornerCare operates in the Midwest and nothing is imposed on it.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21258",
+            "relevant": false,
+            "reason": "DEA decision against one individual physician's registration; it creates no new duty for CornerCare, though it restates general public-interest standards.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21291",
+            "relevant": false,
+            "reason": "Antidumping review of citric acid from Colombia; a trade matter that does not affect pharmacy operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21306",
+            "relevant": false,
+            "reason": "PHMSA special permit applications for hazmat shipping; no duty for CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21308",
+            "relevant": false,
+            "reason": "PHMSA actions on specific special permits; no obligation for a pharmacy chain.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21345",
+            "relevant": false,
+            "reason": "DOL OLMS information collection for a public submission portal; a paperwork notice with no duty for CornerCare's retail workforce.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21348",
+            "relevant": false,
+            "reason": "CPSC interpretation of fuel additives under the Portable Fuel Container Safety Act; CornerCare is not a fuel product or container business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21353",
+            "relevant": false,
+            "reason": "DEA importer registration application by another company; it creates no duty for a dispensing pharmacy.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21354",
+            "relevant": false,
+            "reason": "DEA importer registration application by another company; it creates no duty for a dispensing pharmacy.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21355",
+            "relevant": false,
+            "reason": "DEA importer application by Groff Health; comment rights are limited to bulk manufacturers and applicants, and CornerCare is neither.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21358",
+            "relevant": false,
+            "reason": "DEA importer application by a research center; it creates no duty for CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21359",
+            "relevant": false,
+            "reason": "DEA bulk manufacturer application; manufacturer registration only, with no effect on pharmacy dispensing.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21360",
+            "relevant": false,
+            "reason": "DEA bulk manufacturer application by a research institute; it creates no duty for CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21367",
+            "relevant": false,
+            "reason": "DEA importer application by Groff NA Hemplex; comment rights are limited to bulk manufacturers and applicants, and CornerCare is neither.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21368",
+            "relevant": false,
+            "reason": "DEA bulk manufacturer application; manufacturer registration only, with no pharmacy duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21369",
+            "relevant": false,
+            "reason": "DEA bulk manufacturer application by Janssen; it is aimed at manufacturers and imposes nothing on CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21370",
+            "relevant": false,
+            "reason": "DEA importer application by another company; it creates no duty for CornerCare.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21430",
+            "relevant": false,
+            "reason": "Continuation of a national emergency over Colombian narcotics traffickers; a sanctions-related notice that imposes no new pharmacy duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21398",
+            "relevant": false,
+            "reason": "OFAC SDN list designations; a general sanctions notice with no specific link to pharmacy operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21400",
+            "relevant": false,
+            "reason": "Treasury information collection on extensions of time to furnish recipient statements; a paperwork renewal that adds no new duty.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-21420",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2372,
+      "costUsd": 0.009386,
+      "inputTokens": 3248,
+      "outputTokens": 289,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-12-15",
+            "kind": "comment",
+            "quote": "To be assured consideration, comments must be received at one of the addresses provided below, no later than 5 p.m. Eastern Standard Time on December 15, 2026."
+          },
+          {
+            "date": "2027-10-01",
+            "kind": "compliance",
+            "quote": "We note that, as with previous rules, any new marketing and communications policies in this rule are proposed to be applicable for all contract year 2028 marketing and communications, beginning October 1, 2027."
+          },
+          {
+            "date": "2028-01-01",
+            "kind": "effective",
+            "quote": "CMS is proposing to implement section 6219 of the CAA that would reduce the generic drug copayment from $1 to $0 for full-benefit dual eligible individuals at or below 100 percent of the Federal Poverty Level, effective for plan years starting January 1, 2028."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1700,
+      "costUsd": 0.003094,
+      "inputTokens": 1067,
+      "outputTokens": 96,
+      "prompt": "Company: CornerCare Pharmacy\n\nUS drugstore chain with 300 neighborhood pharmacies in the Midwest (~6,000 employees). Fills prescriptions (including controlled painkillers and ADHD medicines), gives flu and COVID shots, and sells over-the-counter medicines, vitamins, snacks and household goods. Most prescriptions are paid by Medicare, Medicaid or private insurance. No hospitals or clinics, does not make any drugs, no mail-order.\n\nRules that APPLY:\n- DEA rules for pharmacies that dispense controlled substances (registration, opioids, telehealth prescribing)\n- FDA rules on over-the-counter drugs, drug labeling, drug shortages and recalls that reach pharmacy shelves\n- Medicare Part D and Medicaid payment and pharmacy rules (CMS)\n- CDC vaccine recommendations that change what pharmacists may give\n- Patient privacy (HIPAA) and pharmacy recordkeeping\n- Workplace and labor rules for retail stores\n\nRules that DO NOT apply:\n- Approval, manufacturing or inspection rules aimed only at drug or device manufacturers\n- Hospital, nursing-home, physician-payment or clinical-lab rules\n- Research grants, clinical trials, NIH funding notices\n- Banking, securities, aviation, energy, farming\n\n[2026-21420] Proposed Rule: Medicare Program; Implementation of Sections 6219, 6220, and 6224 of the Consolidated Appropriations Act, 2026\nTier: Critical (comment deadline in 53 days (< 90))\nOwner: Lucia Moreno (Reimbursement)\nWhy relevant: CMS proposed rule implementing Part D PBM accountability, pharmacy payment/remuneration rules and Part D cost-sharing changes; directly affects Part D reimbursement to CornerCare pharmacies.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-21420",
+            "action": "Lucia Moreno should review the proposed Medicare drug plan rules on pharmacy benefit manager accountability and pharmacy payments, and submit comments, since they could change CornerCare's reimbursement."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.16560887000000002,
+  "totalMs": 54358,
+  "scanned": 469,
+  "decisions": [
+    {
+      "document_number": "2026-21237",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21238",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21241",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21242",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21243",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21244",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21245",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21246",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21247",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21248",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21249",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21251",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21252",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21254",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21255",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21256",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21256",
+        "relevant": false,
+        "reason": "SBA disaster declaration for a Colorado fire; CornerCare operates in the Midwest and nothing is imposed on it.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21257",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21258",
+      "relevant": false,
+      "jevProbability": 0.51,
+      "llm": {
+        "document_number": "2026-21258",
+        "relevant": false,
+        "reason": "DEA decision against one individual physician's registration; it creates no new duty for CornerCare, though it restates general public-interest standards.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21259",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21260",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21262",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21263",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21264",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21265",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21266",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21267",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21268",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21269",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21270",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21271",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21272",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21273",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21274",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21275",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21276",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21277",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21278",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21279",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21280",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21281",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21282",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21283",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21284",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21285",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21286",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21287",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21288",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21289",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21290",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21291",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21291",
+        "relevant": false,
+        "reason": "Antidumping review of citric acid from Colombia; a trade matter that does not affect pharmacy operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21292",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21293",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21294",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21295",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21296",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21297",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21298",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21299",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21300",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21301",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21302",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21303",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21304",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21305",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21306",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21306",
+        "relevant": false,
+        "reason": "PHMSA special permit applications for hazmat shipping; no duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21307",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21308",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21308",
+        "relevant": false,
+        "reason": "PHMSA actions on specific special permits; no obligation for a pharmacy chain.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21310",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21311",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21312",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21313",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21314",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21315",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21316",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21317",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21318",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21319",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21320",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21321",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21322",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21323",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21324",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21325",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21326",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21327",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21328",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21329",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21330",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21331",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21332",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21333",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21334",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21335",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21336",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21337",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21338",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21339",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21340",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21341",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21342",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21343",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21344",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21345",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21345",
+        "relevant": false,
+        "reason": "DOL OLMS information collection for a public submission portal; a paperwork notice with no duty for CornerCare's retail workforce.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21346",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21347",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21348",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21348",
+        "relevant": false,
+        "reason": "CPSC interpretation of fuel additives under the Portable Fuel Container Safety Act; CornerCare is not a fuel product or container business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21349",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21350",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21351",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21352",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21353",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21353",
+        "relevant": false,
+        "reason": "DEA importer registration application by another company; it creates no duty for a dispensing pharmacy.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21354",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-21354",
+        "relevant": false,
+        "reason": "DEA importer registration application by another company; it creates no duty for a dispensing pharmacy.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21355",
+      "relevant": false,
+      "jevProbability": 0.24,
+      "llm": {
+        "document_number": "2026-21355",
+        "relevant": false,
+        "reason": "DEA importer application by Groff Health; comment rights are limited to bulk manufacturers and applicants, and CornerCare is neither.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21357",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21358",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21358",
+        "relevant": false,
+        "reason": "DEA importer application by a research center; it creates no duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21359",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21359",
+        "relevant": false,
+        "reason": "DEA bulk manufacturer application; manufacturer registration only, with no effect on pharmacy dispensing.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21360",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21360",
+        "relevant": false,
+        "reason": "DEA bulk manufacturer application by a research institute; it creates no duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21361",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21362",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21363",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21364",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21365",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21366",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21367",
+      "relevant": false,
+      "jevProbability": 0.26,
+      "llm": {
+        "document_number": "2026-21367",
+        "relevant": false,
+        "reason": "DEA importer application by Groff NA Hemplex; comment rights are limited to bulk manufacturers and applicants, and CornerCare is neither.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21368",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21368",
+        "relevant": false,
+        "reason": "DEA bulk manufacturer application; manufacturer registration only, with no pharmacy duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21369",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21369",
+        "relevant": false,
+        "reason": "DEA bulk manufacturer application by Janssen; it is aimed at manufacturers and imposes nothing on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21370",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21370",
+        "relevant": false,
+        "reason": "DEA importer application by another company; it creates no duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21371",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21372",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21373",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21374",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21375",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21376",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21377",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21378",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21379",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21380",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21381",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21383",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21384",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21387",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21399",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21430",
+      "relevant": false,
+      "jevProbability": 0.31,
+      "llm": {
+        "document_number": "2026-21430",
+        "relevant": false,
+        "reason": "Continuation of a national emergency over Colombian narcotics traffickers; a sanctions-related notice that imposes no new pharmacy duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21431",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21432",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "C1-2026-12067",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21382",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21385",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21386",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21388",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21389",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21390",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21391",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21392",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21393",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21394",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21395",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21396",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21397",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21398",
+      "relevant": false,
+      "jevProbability": 0.56,
+      "llm": {
+        "document_number": "2026-21398",
+        "relevant": false,
+        "reason": "OFAC SDN list designations; a general sanctions notice with no specific link to pharmacy operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21400",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21400",
+        "relevant": false,
+        "reason": "Treasury information collection on extensions of time to furnish recipient statements; a paperwork renewal that adds no new duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21401",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21402",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21403",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21404",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21405",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21406",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21407",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21408",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21409",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21410",
+      "relevant": false,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-21410",
+        "relevant": false,
+        "reason": "DEA enforcement order against an individual California physician's registration; creates no new duty for CornerCare's pharmacies.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21411",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21412",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21413",
+      "relevant": false,
+      "jevProbability": 0.6,
+      "llm": {
+        "document_number": "2026-21413",
+        "relevant": false,
+        "reason": "DEA order revoking an individual Ohio physician's registration; no new requirement for pharmacy registrants.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21414",
+      "relevant": false,
+      "jevProbability": 0.52,
+      "llm": {
+        "document_number": "2026-21414",
+        "relevant": false,
+        "reason": "DEA order against an individual Ohio physician; adjudication of one registrant, nothing imposed on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21415",
+      "relevant": false,
+      "jevProbability": 0.37,
+      "llm": {
+        "document_number": "2026-21415",
+        "relevant": false,
+        "reason": "DEA order concerning a dentist's registration; no change to pharmacy obligations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21416",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21416",
+        "relevant": false,
+        "reason": "ATSDR paperwork reduction notice; no new duty for a pharmacy chain.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21417",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21417",
+        "relevant": false,
+        "reason": "CDC paperwork reduction notice; no new duty for pharmacies and no vaccine recommendation change.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21418",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21419",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21420",
+      "relevant": true,
+      "jevProbability": 0.89,
+      "llm": {
+        "document_number": "2026-21420",
+        "relevant": true,
+        "reason": "CMS proposed rule implementing Part D PBM accountability, pharmacy payment/remuneration rules and Part D cost-sharing changes; directly affects Part D reimbursement to CornerCare pharmacies.",
+        "areas": [
+          "payers"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-21421",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21422",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21423",
+      "relevant": false,
+      "jevProbability": 0.33,
+      "llm": {
+        "document_number": "2026-21423",
+        "relevant": false,
+        "reason": "OFAC delisting notice for unrelated persons; imposes nothing on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21424",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21425",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21426",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21427",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21429",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21433",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21434",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21435",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21436",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21437",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21438",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21439",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21440",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21441",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21442",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21443",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21444",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21445",
+      "relevant": false,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-21445",
+        "relevant": false,
+        "reason": "OFAC cartel-related designations of foreign persons; no pharmacy-specific duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21446",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21447",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21448",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21449",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21450",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21451",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21452",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21453",
+      "relevant": false,
+      "jevProbability": 0.49,
+      "llm": {
+        "document_number": "2026-21453",
+        "relevant": false,
+        "reason": "FDA guidance on NDI notifications for dietary supplement manufacturers and distributors; CornerCare only retails vitamins and submits no NDINs.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21454",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21455",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21456",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21457",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21458",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21459",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21460",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21461",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21462",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21463",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21464",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21465",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21466",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21467",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21468",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21469",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21469",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Utah; outside the Midwest footprint and imposes nothing.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21474",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "C1-2026-20360",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21470",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21471",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21472",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21473",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21475",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21476",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21477",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21478",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21479",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21480",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21481",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21482",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21483",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21484",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21485",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21486",
+      "relevant": false,
+      "jevProbability": 0.29,
+      "llm": {
+        "document_number": "2026-21486",
+        "relevant": false,
+        "reason": "SAMHSA information collection on data security for accessing its confidential data; does not apply to pharmacy operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21487",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21488",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21489",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21490",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21491",
+      "relevant": false,
+      "jevProbability": 0.31,
+      "llm": {
+        "document_number": "2026-21491",
+        "relevant": false,
+        "reason": "CMS-VA computer matching program between agencies; imposes no duty on pharmacies.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21492",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21493",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21494",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21495",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21496",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21497",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21498",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21499",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21500",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21500",
+        "relevant": false,
+        "reason": "DOJ/FBI information collection extension on lawful access data; not applicable to pharmacy operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21501",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21502",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21504",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21505",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21506",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21507",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21508",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21509",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21510",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21510",
+        "relevant": false,
+        "reason": "FTC receipt of a rulemaking petition for comment; creates no obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21511",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21512",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21513",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21514",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21515",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21516",
+      "relevant": false,
+      "jevProbability": 0.26,
+      "llm": {
+        "document_number": "2026-21516",
+        "relevant": false,
+        "reason": "FDA guidance on drug-sponsor software outputs as labeling; aimed at drug sponsors, not pharmacies.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21517",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21518",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21519",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21520",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21521",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21522",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21523",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21524",
+      "relevant": false,
+      "jevProbability": 0.35,
+      "llm": {
+        "document_number": "2026-21524",
+        "relevant": false,
+        "reason": "HHS notice of no CMP inflation adjustment for 2026; no change to penalty levels.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21525",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21526",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21527",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21528",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21529",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21556",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21568",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21599",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21599",
+        "relevant": false,
+        "reason": "Presidential document implementing Russia/Iran sanctions act; no relevance to pharmacy operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "C1-2026-14614",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "C1-2026-20311",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21530",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21531",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21532",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21533",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21534",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21535",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21536",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21537",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21538",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21539",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21540",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21541",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21542",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21543",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21544",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21545",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21546",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21547",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21548",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21549",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21550",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21551",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21552",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21553",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21554",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21555",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21557",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21558",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21559",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21560",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21561",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21562",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21563",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21564",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21565",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21566",
+      "relevant": false,
+      "jevProbability": 0.24,
+      "llm": {
+        "document_number": "2026-21566",
+        "relevant": false,
+        "reason": "SBA disaster declaration for New York; outside the Midwest footprint and imposes nothing.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21567",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21570",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21571",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21572",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21573",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21574",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21575",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21576",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21577",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21578",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21578",
+        "relevant": false,
+        "reason": "Treasury fraud.gov tip form information collection; no duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21579",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21581",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21583",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21585",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21585",
+        "relevant": false,
+        "reason": "Procurement List deletions for federal purchasing from nonprofit agencies; imposes nothing on a retail pharmacy chain.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21586",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21586",
+        "relevant": false,
+        "reason": "Procurement List deletions for federal contracting; no effect on CornerCare's pharmacy or retail operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21587",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21588",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21589",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21590",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21591",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21592",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21593",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21594",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21595",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21596",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21597",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21598",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21600",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-21600",
+        "relevant": false,
+        "reason": "CBP postal de minimis compliance date extension for international mail imports; CornerCare has no mail-order or international postal imports.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21601",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21602",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21603",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21604",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21605",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21606",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21607",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21608",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21609",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21610",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21610",
+        "relevant": false,
+        "reason": "EPA oil and hazardous substances ICR renewal; unrelated to pharmacy operations and creates no new duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21611",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21612",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21613",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21614",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21615",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21616",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21617",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21618",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21619",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21620",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21621",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21622",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21623",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21624",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21625",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21626",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21627",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21628",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21629",
+      "relevant": false,
+      "jevProbability": 0.22,
+      "llm": {
+        "document_number": "2026-21629",
+        "relevant": false,
+        "reason": "Census Annual Business Survey information collection; no new duty on CornerCare identified.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21630",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21636",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21666",
+      "relevant": false,
+      "jevProbability": 0.48,
+      "llm": {
+        "document_number": "2026-21666",
+        "relevant": false,
+        "reason": "Executive order creating a women's health task force and research focus; imposes no specific requirements on pharmacies.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21631",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21632",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21633",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21634",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21635",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21637",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21638",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21639",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21639",
+        "relevant": false,
+        "reason": "SBA paperwork collection notice; unrelated to pharmacy operations and no new duty on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21640",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21641",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21642",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21643",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21644",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21645",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21646",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21647",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21649",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21650",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21651",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21652",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21653",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21654",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21655",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21656",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21657",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21658",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-21658",
+        "relevant": false,
+        "reason": "USDA proposed SNAP EBT card security rule; relates to SNAP benefit cards at retailers, not pharmacy dispensing, and CornerCare's mention is only tangential as a grocery-item seller; no clear new duty on it.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21659",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21660",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21661",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21662",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21663",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21664",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21667",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21668",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21669",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21669",
+        "relevant": false,
+        "reason": "Draft FDA guidance on human food manufacturing preventive controls; aimed at food manufacturers, not a drugstore retailer.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21670",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21671",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-21671",
+        "relevant": false,
+        "reason": "HHS list of approved MRO certification entities for federal workplace drug testing; no duty on pharmacy chain.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21672",
+      "relevant": false,
+      "jevProbability": 0.43,
+      "llm": {
+        "document_number": "2026-21672",
+        "relevant": false,
+        "reason": "List of vaccine injury petitions received; informational and imposes no pharmacy duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21673",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21673",
+        "relevant": false,
+        "reason": "National Practitioner Data Bank information collection for physicians and health care practitioners/entities; not a pharmacy requirement.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21674",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21675",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21676",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21677",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21678",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21679",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21679",
+        "relevant": false,
+        "reason": "FDA guidance on mandatory cosmetics recalls; cosmetics are not drug products, and the guidance is aimed at industry, so it creates no clear new duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21680",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21681",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21681",
+        "relevant": false,
+        "reason": "ICE counterfeiting allegation form ICR; no effect on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21682",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21683",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21684",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21685",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21685",
+        "relevant": false,
+        "reason": "DOJ/ED clarification on education civil rights guidance; not applicable to a pharmacy retailer.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21686",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21687",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21688",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21689",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21690",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21691",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21692",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21693",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21694",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21695",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21696",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21697",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21698",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21699",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21700",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21701",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21701",
+        "relevant": false,
+        "reason": "State Department sanctions designations related to the ICC; no impact on CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21702",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21703",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21704",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21705",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21706",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21707",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21708",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21710",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21711",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21712",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-21712",
+        "relevant": false,
+        "reason": "FDA conformity assessment accreditation ICR; aimed at device-related accreditation bodies, not pharmacies.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21713",
+      "relevant": false,
+      "jevProbability": 0.28,
+      "llm": {
+        "document_number": "2026-21713",
+        "relevant": false,
+        "reason": "FDA product jurisdiction and combination products ICR; applies to manufacturers/sponsors, not a dispensing pharmacy.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21714",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21714",
+        "relevant": false,
+        "reason": "FDA export certificates ICR; relevant to exporters/manufacturers, not CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21715",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21715",
+        "relevant": false,
+        "reason": "Treasury/IRS information returns ICR; routine paperwork notice with no new duty for CornerCare.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21729",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21730",
+      "relevant": false,
+      "jevProbability": 0.01
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-21420",
+      "title": "Medicare Program; Implementation of Sections 6219, 6220, and 6224 of the Consolidated Appropriations Act, 2026",
+      "type": "Proposed Rule",
+      "agencies": [
+        "Health and Human Services Department",
+        "Centers for Medicare & Medicaid Services"
+      ],
+      "tier": "Critical",
+      "tierReason": "comment deadline in 53 days (< 90)",
+      "deadline": {
+        "date": "2026-12-15",
+        "kind": "comment",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "datesShown": [
+        {
+          "date": "2026-12-15",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        },
+        {
+          "date": "2027-10-01",
+          "kind": "compliance",
+          "source": "extracted",
+          "quote": "We note that, as with previous rules, any new marketing and communications policies in this rule are proposed to be applicable for all contract year 2028 marketing and communications, beginning October 1, 2027.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        },
+        {
+          "date": "2028-01-01",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "CMS is proposing to implement section 6219 of the CAA that would reduce the generic drug copayment from $1 to $0 for full-benefit dual eligible individuals at or below 100 percent of the Federal Poverty Level, effective for plan years starting January 1, 2028.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "deadlines": [
+        {
+          "date": "2026-12-15",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        },
+        {
+          "date": "2027-10-01",
+          "kind": "compliance",
+          "source": "extracted",
+          "quote": "We note that, as with previous rules, any new marketing and communications policies in this rule are proposed to be applicable for all contract year 2028 marketing and communications, beginning October 1, 2027.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        },
+        {
+          "date": "2028-01-01",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "CMS is proposing to implement section 6219 of the CAA that would reduce the generic drug copayment from $1 to $0 for full-benefit dual eligible individuals at or below 100 percent of the Federal Poverty Level, effective for plan years starting January 1, 2028.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Lucia Moreno (Reimbursement)",
+        "email": "payers@cornercare.example"
+      },
+      "areas": [
+        "payers"
+      ],
+      "reason": "CMS proposed rule implementing Part D PBM accountability, pharmacy payment/remuneration rules and Part D cost-sharing changes; directly affects Part D reimbursement to CornerCare pharmacies.",
+      "action": "Lucia Moreno should review the proposed Medicare drug plan rules on pharmacy benefit manager accountability and pharmacy payments, and submit comments, since they could change CornerCare's reimbursement.",
+      "citation": "91 FR 66408",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/10/20/2026-21420/medicare-program-implementation-of-sections-6219-6220-and-6224-of-the-consolidated-appropriations",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — CornerCare Pharmacy\nWindow 2026-10-19 → 2026-10-23 · as of 2026-10-23 · 1 items\n\n## Critical (1)\n\n- **Medicare Program; Implementation of Sections 6219, 6220, and 6224 of the Consolidated Appropriations Act, 2026** [Federal Register]\n  - Lucia Moreno should review the proposed Medicare drug plan rules on pharmacy benefit manager accountability and pharmacy payments, and submit comments, since they could change CornerCare's reimbursement.\n  - Dates: comment 2026-12-15 ✓ · compliance 2027-10-01 ✓ · effective 2028-01-01 ✓ · Owner: Lucia Moreno (Reimbursement) · Areas: payers\n  - 91 FR 66408 ✓ · https://www.federalregister.gov/documents/2026/10/20/2026-21420/medicare-program-implementation-of-sections-6219-6220-and-6224-of-the-consolidated-appropriations\n"
+}
