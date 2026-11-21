@@ -46,8 +46,9 @@ export default function LabelBoard({ profileId, start, end }: { profileId: strin
 
   async function save() {
     const body: LabelSet = { profileId, windowStart: start, windowEnd: end, relevant: [...rel], reviewedAgencies: [...reviewed], notes, updatedAt: "" };
-    await fetch("/api/labels", { method: "POST", body: JSON.stringify(body) });
-    setSaved(new Date().toLocaleTimeString());
+    const res = await fetch("/api/labels", { method: "POST", body: JSON.stringify(body) });
+    // A frozen answer key refuses writes (409); say so instead of pretending it saved.
+    setSaved(res.ok ? `saved ${new Date().toLocaleTimeString()}` : `not saved: ${(await res.json()).error}`);
   }
 
   const toggle = <T,>(s: Set<T>, v: T) => {
@@ -63,7 +64,7 @@ export default function LabelBoard({ profileId, start, end }: { profileId: strin
         <b>{rel.size}</b> relevant · <b>{reviewed.size}</b>/{allGroups.size} agencies reviewed · {docs.length} docs
         <input className="inp" placeholder="search title/abstract/agency" value={q} onChange={(e) => setQ(e.target.value)} />
         <label className="flex items-center gap-1"><input type="checkbox" checked={hideReviewed} onChange={(e) => setHideReviewed(e.target.checked)} /> hide reviewed</label>
-        <span className="ml-auto text-muted-foreground text-xs">{saved && `saved ${saved}`}</span>
+        <span className="ml-auto text-muted-foreground text-xs">{saved}</span>
         <button className="btn" onClick={save}>Save labels</button>
       </div>
       {groups

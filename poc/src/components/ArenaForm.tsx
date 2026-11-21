@@ -5,66 +5,81 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 
+interface EvalsetOption {
+  id: string;
+  label: string;
+  companyId: string;
+  summary: string;
+  windowStart: string;
+  windowEnd: string;
+  docs: number;
+  keyed: number | null;
+}
+
 interface Props {
-  profiles: { id: string; name: string; summary: string; hasKey: boolean }[];
+  evalsets: EvalsetOption[];
+  defaultEvalset: string;
+  repeatOptions: number[];
   models: { id: string; label: string; vendor: string }[];
   methods: { id: string; label: string; estUsd: number }[];
   spent: number;
   budget: number;
 }
 
-const WEEK = { start: "2026-11-09", end: "2026-11-13" };
-
-export default function ArenaForm({ profiles, models, methods, spent, budget }: Props) {
+export default function ArenaForm({ evalsets, defaultEvalset, repeatOptions, models, methods, spent, budget }: Props) {
   const router = useRouter();
-  const [profileId, setProfileId] = useState(profiles.find((p) => p.id === "brightside")?.id ?? profiles[0].id);
+  const [setId, setSetId] = useState(evalsets.some((e) => e.id === defaultEvalset) ? defaultEvalset : evalsets[0]?.id);
   const [picked, setPicked] = useState<Set<string>>(new Set(methods.flatMap((m) => models.map((x) => `${m.id}:${x.id}`))));
-  const [repeat, setRepeat] = useState(1);
+  const [repeat, setRepeat] = useState(repeatOptions[0] ?? 1);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const est = useMemo(() => methods.reduce((a, m) => a + models.filter((x) => picked.has(`${m.id}:${x.id}`)).length * m.estUsd, 0) * repeat, [picked, repeat, methods, models]);
   const left = budget - spent;
-  const profile = profiles.find((p) => p.id === profileId)!;
+  const set = evalsets.find((e) => e.id === setId);
 
-  const toggle = (k: string) => setPicked((s) => {
-    const n = new Set(s);
-    if (n.has(k)) n.delete(k);
-    else n.add(k);
-    return n;
-  });
+  const toggle = (k: string) =>
+    setPicked((s) => {
+      const n = new Set(s);
+      if (n.has(k)) n.delete(k);
+      else n.add(k);
+      return n;
+    });
 
   async function go() {
+    if (!set) return;
     setBusy(true);
     setErr(null);
-    const res = await fetch("/api/arena", { method: "POST", body: JSON.stringify({ profileId, windowStart: WEEK.start, windowEnd: WEEK.end, cellKeys: [...picked], repeat }) });
+    const res = await fetch("/api/arena", { method: "POST", body: JSON.stringify({ profileId: set.companyId, windowStart: set.windowStart, windowEnd: set.windowEnd, cellKeys: [...picked], repeat }) });
     const j = await res.json();
     setBusy(false);
     if (!res.ok) return setErr(j.error);
     router.push(`/arena/${j.arena}`);
   }
 
+  if (!set) return <p className="text-sm">No eval sets in config/evalsets/manifest.yaml.</p>;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Start an arena</CardTitle>
-        <CardDescription>Every ticked box is one setup. They all read the same week of federal rules and get graded against the same answer key.</CardDescription>
+        <CardDescription>Every ticked box is one setup. They all read the same frozen week of federal rules and get graded against the same answer key. Setups, prompts and eval sets come from <code>poc/config/</code>.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Company</span>
-            <select className="h-9 rounded-md border bg-background px-2" value={profileId} onChange={(e) => setProfileId(e.target.value)}>
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}{p.hasKey ? "" : " (no answer key yet)"}</option>
+            <span className="text-muted-foreground">Eval set (company · week)</span>
+            <select className="h-9 rounded-md border bg-background px-2" value={setId} onChange={(e) => setSetId(e.target.value)}>
+              {evalsets.map((e) => (
+                <option key={e.id} value={e.id}>{e.label}</option>
               ))}
             </select>
-            <span className="text-xs text-muted-foreground">{profile.summary}</span>
+            <span className="text-xs text-muted-foreground">{set.summary}</span>
           </label>
           <div className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Week</span>
-            <div className="h-9 rounded-md border px-2 flex items-center">Nov 9 – 13, 2026 · 448 rules published</div>
-            <span className="text-xs text-muted-foreground">Fixed for now: one week, so every setup sees exactly the same input.</span>
+            <span className="text-muted-foreground">What it contains</span>
+            <div className="h-9 rounded-md border px-2 flex items-center">{set.docs} rules published · {set.keyed === null ? "no answer key yet" : `${set.keyed} that matter (answer key)`}</div>
+            <span className="text-xs text-muted-foreground">Frozen input, so every setup sees exactly the same documents.</span>
           </div>
         </div>
 
@@ -102,7 +117,7 @@ export default function ArenaForm({ profiles, models, methods, spent, budget }: 
           <label className="flex items-center gap-2">
             Repeat each
             <select className="h-8 rounded-md border bg-background px-2" value={repeat} onChange={(e) => setRepeat(Number(e.target.value))}>
-              {[1, 3, 5].map((n) => (
+              {repeatOptions.map((n) => (
                 <option key={n} value={n}>{n}×</option>
               ))}
             </select>

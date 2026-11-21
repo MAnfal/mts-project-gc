@@ -3,12 +3,12 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { gw, gatewayCost } from "../src/lib/gateway";
-import { ARENA_MODELS, searchTools } from "../src/lib/models";
+import { arenaModels, searchTools } from "../src/lib/models";
 
 const schema = z.object({ document_number: z.string().nullable(), url: z.string().nullable() });
 const only = process.argv[2];
 
-for (const m of ARENA_MODELS.filter((x) => !only || x.id === only)) {
+for (const m of arenaModels().filter((x) => !only || x.id === only)) {
   for (const withSearch of [false, true]) {
     const t0 = Date.now();
     try {

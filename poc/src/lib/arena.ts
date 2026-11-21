@@ -1,42 +1,40 @@
+import { experiment, setups } from "./config";
 import { judgeClarity } from "./judge";
-import { ARENA_MODELS, modelLabel } from "./models";
+import { modelLabel } from "./models";
 import { execute, newRun } from "./pipeline/run";
-import { BUDGET_USD, listRuns, saveRun, spentUsd } from "./store";
+import { budgetUsd, listRuns, saveRun, spentUsd } from "./store";
 import type { RunConfig, RunRecord } from "./types";
 
-/** An arena cell = one config. The facade is RunConfig; cells just name a point in the model × method grid. */
+/** An arena cell = one (model, method) pair from config/setups.yaml. Its RunConfig is what the code executes. */
 export interface Cell {
   key: string;
   label: string;
   model: string;
   method: "jev+llm" | "llm" | "baseline";
-  /** Rough $/run used for the pre-flight budget check (measured on Sonnet 5.5; reasoning models may differ). */
+  /** Rough $/run used for the pre-flight budget check. */
   estUsd: number;
 }
 
-export const METHODS: { id: Cell["method"]; label: string; estUsd: number }[] = [
-  { id: "jev+llm", label: "Pipeline · Jev filter → LLM", estUsd: 0.2 },
-  { id: "llm", label: "Pipeline · LLM filter only", estUsd: 0.4 },
-  { id: "baseline", label: "Baseline · 1 prompt + web search", estUsd: 0.6 },
-];
+export const methods = () => setups().methods;
 
-export const ALL_CELLS: Cell[] = METHODS.flatMap((m) =>
-  ARENA_MODELS.map((x) => ({ key: `${m.id}:${x.id}`, label: `${modelLabel(x.id)} · ${m.label}`, model: x.id, method: m.id, estUsd: m.estUsd })),
-);
+export const allCells = (): Cell[] =>
+  methods().flatMap((m) =>
+    setups().models.map((x) => ({ key: `${m.id}:${x.id}`, label: `${modelLabel(x.id)} · ${m.label}`, model: x.id, method: m.id, estUsd: m.estUsd })),
+  );
 
-export const cellByKey = (k: string) => ALL_CELLS.find((c) => c.key === k);
-
-export const JEV_THRESHOLD = 0.1;
-const CONCURRENCY = 4;
+export const cellByKey = (k: string) => allCells().find((c) => c.key === k);
 
 export function cellConfig(cell: Cell, base: { profileId: string; windowStart: string; windowEnd: string; asOf: string }, arena: string): RunConfig {
+  const m = methods().find((x) => x.id === cell.method)!;
+  // Baseline runs don't filter, but RunConfig carries filter fields; they inherit the Jev method's values.
+  const jev = methods().find((x) => x.id === "jev+llm");
   return {
     ...base,
-    mode: cell.method === "baseline" ? "baseline" : "pipeline",
+    mode: m.mode,
     model: cell.model,
-    filter: cell.method === "llm" ? "llm" : "jev+llm",
-    jevThreshold: JEV_THRESHOLD,
-    webLeads: false, // measured redundant for federal scope in the pilot (24 URLs → 0 new docs)
+    filter: m.filter ?? jev?.filter ?? "jev+llm",
+    jevThreshold: m.jevThreshold ?? jev?.jevThreshold ?? 0.1,
+    webLeads: m.webLeads ?? false,
     group: `${arena}:${cell.key}`,
     arena,
     cell: cell.key,
@@ -49,25 +47,27 @@ export function estimate(cells: Cell[], repeat: number) {
 
 /**
  * Creates every run up front (so the page shows all cells immediately), then executes in waves of
- * CONCURRENCY. Each run snapshots spend at start and can't see siblings, so the budget is re-checked
- * between waves using the worst-case estimate of the next wave.
+ * `experiment.arena.concurrency`. Each run snapshots spend at start and can't see siblings, so the budget is
+ * re-checked between waves using the worst-case estimate of the next wave.
  */
 export async function startArena(args: { profileId: string; windowStart: string; windowEnd: string; asOf: string; cellKeys: string[]; repeat: number }) {
   const cells = args.cellKeys.map(cellByKey).filter((c): c is Cell => !!c);
   const est = estimate(cells, args.repeat);
   const spent = await spentUsd();
-  if (spent + est > BUDGET_USD) throw new Error(`Estimated $${est.toFixed(2)} would exceed the budget ($${spent.toFixed(2)} of $${BUDGET_USD} spent)`);
+  const budget = budgetUsd();
+  if (spent + est > budget) throw new Error(`Estimated $${est.toFixed(2)} would exceed the budget ($${spent.toFixed(2)} of $${budget} spent)`);
 
   const arena = `arena-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}-${Math.random().toString(36).slice(2, 5)}`;
   const runs: { run: RunRecord; cell: Cell }[] = [];
   for (let i = 0; i < args.repeat; i++) for (const cell of cells) runs.push({ run: newRun(cellConfig(cell, args, arena)), cell });
   await Promise.all(runs.map((r) => saveRun(r.run)));
 
+  const concurrency = experiment().arena.concurrency;
   const go = async () => {
-    for (let i = 0; i < runs.length; i += CONCURRENCY) {
-      const wave = runs.slice(i, i + CONCURRENCY);
+    for (let i = 0; i < runs.length; i += concurrency) {
+      const wave = runs.slice(i, i + concurrency);
       const waveEst = wave.reduce((a, w) => a + w.cell.estUsd, 0);
-      if ((await spentUsd()) + waveEst > BUDGET_USD) {
+      if ((await spentUsd()) + waveEst > budgetUsd()) {
         for (const w of runs.slice(i)) {
           w.run.status = "error";
           w.run.error = "Skipped: budget cap would be exceeded";

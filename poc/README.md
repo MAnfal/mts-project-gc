@@ -25,7 +25,7 @@ EVAL_MODE=live pnpm evals  # execute fresh runs, then grade (spends money)
 pnpm evals:json && pnpm evals:ui   # vitest-evals report viewer
 ```
 
-Spend is capped at $15 total (`POC_BUDGET_USD`). It is the sum of every saved run's
+Spend is capped at $15 total (`config/experiment.yaml → budgetUsd`). It is the sum of every saved run's
 Gateway-reported cost, and runs refuse to start past it.
 
 ## Where things are
@@ -38,8 +38,8 @@ Gateway-reported cost, and runs refuse to start past it.
 | `src/lib/verify.ts` | quote-based date verification, FR URL → doc number (tested) |
 | `src/lib/score.ts` | recall/precision, consistency, Jev threshold sweep (tested) |
 | `evals/triage.eval.ts` | vitest-evals suite: 3 configs × code graders + LLM judge |
-| `data/runs/*.json` | every run: config, stages, full model transcript, items, cost |
-| `data/labels/*.json` | hand labels (ground truth) — written by the Label page |
+| `config/` | **everything the code executes**: setups, prompts, knobs, companies, eval sets (see `config/README.md`) |
+| `data/runs/*.json` | every run: config, config hash, stages, full model transcript, items, cost |
 
 ## Findings so far (week 2026-11-09 → 13, Ledgerly profile, Sonnet 5.5)
 

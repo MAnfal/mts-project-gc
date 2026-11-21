@@ -1,7 +1,8 @@
 import { generateText, Output, experimental_decide as decide, type ToolSet } from "ai";
 import type { z } from "zod";
 import { gw, gatewayCost } from "../gateway";
-import { BUDGET_USD, saveRun, spentUsd } from "../store";
+import { experiment } from "../config";
+import { budgetUsd, saveRun, spentUsd } from "../store";
 import type { LlmCallLog, RunRecord } from "../types";
 
 export class BudgetExceeded extends Error {}
@@ -14,12 +15,12 @@ export class RunCtx {
   async init() {
     // Excludes this run (not yet saved), so the guard below compares prior spend + this run's spend.
     this.spentAtStart = await spentUsd();
-    if (this.spentAtStart >= BUDGET_USD) throw new BudgetExceeded(`Budget exhausted: $${this.spentAtStart.toFixed(2)} of $${BUDGET_USD}`);
+    if (this.spentAtStart >= budgetUsd()) throw new BudgetExceeded(`Budget exhausted: $${this.spentAtStart.toFixed(2)} of $${budgetUsd()}`);
   }
 
   private guard() {
-    if (this.spentAtStart + this.run.totalCostUsd >= BUDGET_USD) {
-      throw new BudgetExceeded(`Budget cap $${BUDGET_USD} reached mid-run`);
+    if (this.spentAtStart + this.run.totalCostUsd >= budgetUsd()) {
+      throw new BudgetExceeded(`Budget cap $${budgetUsd()} reached mid-run`);
     }
   }
 
@@ -103,7 +104,7 @@ export class RunCtx {
     this.guard();
     const t0 = Date.now();
     const r = await decide({
-      model: gw.decisionModel("typesafe-ai/jev"),
+      model: gw.decisionModel(experiment().jevModel),
       state,
       questions: { relevant: { type: "boolean", instructions: question } },
       maxRetries: 3,

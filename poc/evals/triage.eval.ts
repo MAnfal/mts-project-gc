@@ -1,97 +1,100 @@
 /**
- * Experiment 2 — what our evals look like.
+ * Experiment 2 — what our evals look like. Everything it grades comes from poc/config/:
+ * eval sets (frozen week + answer key) × setups (models × methods), gates from experiment.yaml.
  *
  * Following Anthropic's "Demystifying evals for AI agents":
- *  - grade the OUTCOME with code where possible (recall/precision on FR document numbers,
- *    dates checked against the primary source),
+ *  - grade the OUTCOME with code where possible (recall/precision on FR document numbers, dates vs the key),
  *  - grade the TRANSCRIPT as a secondary signal (did it ground on federalregister.gov?),
- *  - use an LLM judge only where code can't (is the action item usable?).
+ *  - use an LLM judge only where code can't (is the action item clear?) — persisted on the run, not re-asked.
  *
- * EVAL_MODE=replay  → grade the latest saved run per case (free, regression-style).
- * EVAL_MODE=live    → execute fresh runs (spends money; capability-style). Default: replay.
+ * EVAL_MODE=replay → grade the latest finished run per (eval set, setup) (free). Default.
+ * EVAL_MODE=live   → execute fresh runs (spends money).
  */
-import { generateText, Output } from "ai";
 import { expect } from "vitest";
 import { createHarness, createJudge, describeEval } from "vitest-evals";
-import { z } from "zod";
-import { gw } from "../src/lib/gateway";
+import { allCells, cellConfig, type Cell } from "../src/lib/arena";
+import { evalsets, experiment, loadKey } from "../src/lib/config";
+import { judgeClarity } from "../src/lib/judge";
 import { execute, newRun } from "../src/lib/pipeline/run";
-import { scoreRun } from "../src/lib/score";
-import { listRuns, loadLabels } from "../src/lib/store";
-import type { RunConfig, RunRecord } from "../src/lib/types";
+import { datesAgainstKey, scoreRun } from "../src/lib/score";
+import { listRuns } from "../src/lib/store";
+import type { LabelSet, RunRecord } from "../src/lib/types";
 
-const WINDOW = { profileId: "ledgerly", windowStart: "2026-11-09", windowEnd: "2026-11-13", asOf: "2026-11-13" };
-const MODEL = process.env.EVAL_MODEL ?? "anthropic/claude-sonnet-5.5";
 const LIVE = process.env.EVAL_MODE === "live";
+const GATES = experiment().evals.gates;
 
-type CaseInput = { name: string; config: RunConfig };
+type EvalSet = ReturnType<typeof evalsets>[number];
+type CaseInput = { name: string; set: EvalSet; cell: Cell; key: LabelSet };
 type CaseOutput = {
   runId: string;
   recall: number;
   precision: number;
   tp: number;
   fp: number;
-  fn: number;
   missed: string[];
   extra: string[];
+  datesChecked: number;
+  datesCorrect: number;
   datesShown: number;
   datesVerified: number;
-  unresolved: number;
+  clarity: number | null;
   costUsd: number;
   seconds: number;
-  items: { document_number: string; tier: string; owner: string; action: string; reason: string; sourceTag: string }[];
   groundedOnFR: boolean;
 };
 
-const CASES: CaseInput[] = [
-  { name: "pipeline · jev@0.1 → llm", config: { ...WINDOW, mode: "pipeline", model: MODEL, filter: "jev+llm", jevThreshold: 0.1, webLeads: false } },
-  { name: "pipeline · llm on every doc", config: { ...WINDOW, mode: "pipeline", model: MODEL, filter: "llm", jevThreshold: 0, webLeads: false } },
-  { name: "baseline · one prompt + native search", config: { ...WINDOW, mode: "baseline", model: MODEL, filter: "llm", jevThreshold: 0, webLeads: false } },
-];
+/** Same company, same week, same setup — never grade one company's run against another's key. */
+const matches = (r: RunRecord, c: CaseInput) =>
+  r.status === "done" &&
+  r.config.profileId === c.set.company &&
+  r.config.windowStart === c.set.windowStart &&
+  r.config.windowEnd === c.set.windowEnd &&
+  (r.config.cell ? r.config.cell === c.cell.key : r.config.model === c.cell.model && (c.cell.method === "baseline" ? r.config.mode === "baseline" : r.config.mode === "pipeline" && r.config.filter === c.cell.method));
 
-const sameCfg = (a: RunConfig, b: RunConfig) =>
-  a.mode === b.mode && a.model === b.model && a.windowStart === b.windowStart && a.windowEnd === b.windowEnd &&
-  (a.mode === "baseline" || (a.filter === b.filter && (a.filter === "llm" || a.jevThreshold === b.jevThreshold)));
-
-async function getRun(cfg: RunConfig): Promise<RunRecord | null> {
-  if (LIVE) return execute(newRun(cfg));
-  return (await listRuns()).find((r) => r.status === "done" && sameCfg(r.config, cfg)) ?? null;
+async function getRun(c: CaseInput): Promise<RunRecord | null> {
+  if (LIVE) {
+    const r = await execute(newRun(cellConfig(c.cell, { profileId: c.set.company, windowStart: c.set.windowStart, windowEnd: c.set.windowEnd, asOf: c.set.asOf }, `eval-${Date.now().toString(36)}`)));
+    if (r.status === "done") r.judge = await judgeClarity(r);
+    return r;
+  }
+  return (await listRuns()).find((r) => matches(r, c)) ?? null;
 }
+
+const CASES: CaseInput[] = evalsets().flatMap((set) => {
+  const key = loadKey(set.company, set.windowStart, set.windowEnd);
+  return key ? allCells().map((cell) => ({ name: `${set.id} · ${cell.label}`, set, cell, key })) : [];
+});
 
 const harness = createHarness<CaseInput, CaseOutput>({
   name: "reg-monitor",
   run: async ({ input }) => {
-    const labels = await loadLabels(WINDOW.profileId, WINDOW.windowStart, WINDOW.windowEnd);
-    if (!labels?.relevant.length) throw new Error("No labels — label the week at /label first.");
-    const run = await getRun(input.config);
-    if (!run) throw new Error(`No saved run for "${input.name}" — run it from the UI or set EVAL_MODE=live.`);
-    const s = scoreRun(run, labels);
-    const items = (run.items ?? []).map((i) => ({ document_number: i.document_number, tier: i.tier, owner: i.owner.name, action: i.action, reason: i.reason, sourceTag: i.sourceTag }));
+    const run = await getRun(input);
+    if (!run) throw new Error(`No finished run for "${input.name}" — run an arena or set EVAL_MODE=live.`);
+    const s = scoreRun(run, input.key);
+    const d = datesAgainstKey(run, input.key);
     // Transcript check: pipeline grounds on the FR API by construction; baseline must have searched AND every kept item resolved to FR.
-    const searched = run.calls.some((c) => c.toolCalls?.some((t) => /search/i.test(t.name))) || run.config.mode === "pipeline";
+    const searched = run.config.mode === "pipeline" || run.calls.some((c) => c.toolCalls?.some((t) => /search/i.test(t.name)));
     const output: CaseOutput = {
       runId: run.id,
       recall: s.recall,
       precision: s.precision,
       tp: s.tp,
       fp: s.fp,
-      fn: s.fn,
       missed: s.missed,
       extra: s.extra,
+      datesChecked: d.checked,
+      datesCorrect: d.correct,
       datesShown: s.datesShown,
       datesVerified: s.datesVerified,
-      unresolved: s.unresolved,
-      costUsd: run.totalCostUsd,
+      clarity: run.judge?.clarity ?? null,
+      costUsd: run.totalCostUsd + (run.judge?.costUsd ?? 0),
       seconds: run.totalMs / 1000,
-      items,
       groundedOnFR: searched && run.stages.some((st) => st.name.startsWith("scan:federal-register") || st.name.includes("resolve")),
     };
     return {
       events: [
         { type: "message", role: "user", content: `${input.name} (${run.id})` },
-        ...run.calls.flatMap((c, k) => [
-          ...(c.toolCalls ?? []).map((t, j) => ({ type: "tool_call" as const, id: `${k}-${j}`, name: t.name, arguments: (t.input ?? {}) as Record<string, never> })),
-        ]),
+        ...run.calls.flatMap((c, k) => (c.toolCalls ?? []).map((t, j) => ({ type: "tool_call" as const, id: `${k}-${j}`, name: t.name, arguments: (t.input ?? {}) as Record<string, never> }))),
         { type: "message", role: "assistant", content: run.markdown ?? "" },
       ],
       output,
@@ -101,38 +104,27 @@ const harness = createHarness<CaseInput, CaseOutput>({
 });
 
 // ── Code graders ──
-const RecallJudge = createJudge<CaseInput, CaseOutput>("Recall ≥ 0.9", ({ output }) => ({ score: output.recall, metadata: { rationale: `tp ${output.tp} / fn ${output.fn}; missed ${output.missed.join(", ") || "none"}` } }));
-const PrecisionJudge = createJudge<CaseInput, CaseOutput>("Precision ≥ 0.8", ({ output }) => ({ score: output.precision, metadata: { rationale: `tp ${output.tp} / fp ${output.fp}; extra ${output.extra.join(", ") || "none"}` } }));
-const DatesJudge = createJudge<CaseInput, CaseOutput>("Dates verified = 100%", ({ output }) => ({
-  score: output.datesShown ? output.datesVerified / output.datesShown : 1,
-  metadata: { rationale: `${output.datesVerified}/${output.datesShown} shown deadlines match the Federal Register record` },
+const RecallJudge = createJudge<CaseInput, CaseOutput>(`Recall ≥ ${GATES.recall}`, ({ output }) => ({ score: output.recall, metadata: { rationale: `found ${output.tp}; missed ${output.missed.join(", ") || "none"}` } }));
+const PrecisionJudge = createJudge<CaseInput, CaseOutput>(`Precision ≥ ${GATES.precision}`, ({ output }) => ({ score: output.precision, metadata: { rationale: `extra ${output.extra.join(", ") || "none"}` } }));
+const DatesJudge = createJudge<CaseInput, CaseOutput>("Dates match the key", ({ output }) => ({
+  score: output.datesChecked ? output.datesCorrect / output.datesChecked : 1,
+  metadata: { rationale: `${output.datesCorrect}/${output.datesChecked} found rules show the key's deadline` },
 }));
-
-// ── Model grader (only where code can't): is each action item forwardable? ──
-const ActionQualityJudge = createJudge<CaseInput, CaseOutput>("Action items usable (LLM judge)", async ({ output }) => {
-  if (!output.items.length) return { score: 0, metadata: { rationale: "no items" } };
-  const r = await generateText({
-    model: gw("anthropic/claude-haiku-5.5"),
-    output: Output.object({ schema: z.object({ scores: z.array(z.object({ document_number: z.string(), score: z.number().min(0).max(1), why: z.string() })) }) }),
-    prompt: `You grade action items a GC would forward to an owner. Score each 0..1: 1 = names a concrete next step, the owner is plausible for the topic, and the reason is specific to the company; 0.5 = vague but not wrong; 0 = wrong owner, generic, or asserts facts not supported by the reason.\n\n${JSON.stringify(output.items, null, 1)}`,
-  });
-  const scores = r.output.scores;
-  const mean = scores.reduce((a, s) => a + s.score, 0) / (scores.length || 1);
-  return { score: mean, metadata: { rationale: scores.map((s) => `${s.document_number}: ${s.score} ${s.why}`).join(" | ") } };
-});
+// ── Model grader, persisted on the run when it finished ──
+const ClarityJudge = createJudge<CaseInput, CaseOutput>(`Clarity (${experiment().judgeModel})`, ({ output }) => ({ score: output.clarity ?? 0, metadata: { rationale: output.clarity === null ? "no judge score on run" : "" } }));
 
 describeEval(
-  "regulatory triage · ledgerly · week of 2026-11-09",
-  { harness, judges: [RecallJudge, PrecisionJudge, DatesJudge, ActionQualityJudge], judgeThreshold: null },
+  "regulatory triage · config/evalsets × config/setups",
+  { harness, judges: [RecallJudge, PrecisionJudge, DatesJudge, ClarityJudge], judgeThreshold: null },
   (it) => {
     it.for(CASES)("$name", async (c, { run }) => {
-      const result = await run(c);
-      const o = result.output;
-      console.log(`${c.name}: recall ${o.recall.toFixed(2)} precision ${o.precision.toFixed(2)} dates ${o.datesVerified}/${o.datesShown} unresolved ${o.unresolved} $${o.costUsd.toFixed(3)} ${o.seconds.toFixed(0)}s`);
-      // Hard gates from the RFC. Expected to FAIL for the baseline — that's the comparison.
-      expect.soft(o.recall, "recall").toBeGreaterThanOrEqual(0.9);
-      expect.soft(o.precision, "precision").toBeGreaterThanOrEqual(0.8);
-      expect.soft(o.datesVerified, "every shown date verified").toBe(o.datesShown);
+      const o = (await run(c)).output;
+      console.log(`${c.name}: recall ${o.recall.toFixed(2)} precision ${o.precision.toFixed(2)} dates ${o.datesCorrect}/${o.datesChecked} $${o.costUsd.toFixed(3)} ${o.seconds.toFixed(0)}s`);
+      // Hard gates from the RFC (config/experiment.yaml). Expected to fail for some setups — that's the comparison.
+      expect.soft(o.recall, "recall").toBeGreaterThanOrEqual(GATES.recall);
+      expect.soft(o.precision, "precision").toBeGreaterThanOrEqual(GATES.precision);
+      expect.soft(o.datesCorrect, "every found rule shows the key's deadline").toBe(o.datesChecked);
+      expect.soft(o.datesVerified, "every shown date verified against the source").toBe(o.datesShown);
       expect.soft(o.groundedOnFR, "grounded on federalregister.gov").toBe(true);
     });
   },

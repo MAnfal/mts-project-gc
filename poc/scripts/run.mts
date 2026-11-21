@@ -1,18 +1,22 @@
 // CLI: npx tsx scripts/run.mts --mode pipeline --filter jev+llm --runs 1
+// Defaults come from config/: the default eval set (experiment.yaml) and the Jev method (setups.yaml).
 import { parseArgs } from "node:util";
+import { evalsets, experiment, setups } from "../src/lib/config";
 import { execute, newRun } from "../src/lib/pipeline/run";
 import type { RunConfig } from "../src/lib/types";
 
+const def = evalsets().find((e) => e.id === experiment().arena.defaultEvalset)!;
+const jev = setups().methods.find((m) => m.id === "jev+llm");
 const { values: a } = parseArgs({
   options: {
     mode: { type: "string", default: "pipeline" },
-    profile: { type: "string", default: "ledgerly" },
-    start: { type: "string", default: "2026-11-09" },
-    end: { type: "string", default: "2026-11-13" },
+    profile: { type: "string", default: def.company },
+    start: { type: "string", default: def.windowStart },
+    end: { type: "string", default: def.windowEnd },
     asOf: { type: "string" },
-    model: { type: "string", default: "anthropic/claude-sonnet-5.5" },
+    model: { type: "string", default: setups().models[0].id },
     filter: { type: "string", default: "jev+llm" },
-    threshold: { type: "string", default: "0.3" },
+    threshold: { type: "string", default: String(jev?.jevThreshold ?? 0.1) },
     webLeads: { type: "boolean", default: false },
     runs: { type: "string", default: "1" },
     group: { type: "string" },

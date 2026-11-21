@@ -4,11 +4,10 @@ import AutoRefresh from "@/components/AutoRefresh";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ALL_CELLS, METHODS, arenaRuns, type Cell } from "@/lib/arena";
+import { allCells, arenaRuns, methods, type Cell } from "@/lib/arena";
+import { experiment, getCompany } from "@/lib/config";
 import { listWindow } from "@/lib/fr";
-import { JUDGE_MODEL } from "@/lib/judge";
 import { modelLabel, searchKind } from "@/lib/models";
-import { getProfile } from "@/lib/profiles";
 import { arenaTotals, summarizeCell, type CellSummary } from "@/lib/score";
 import { loadLabels } from "@/lib/store";
 import type { LabelSet, RunRecord } from "@/lib/types";
@@ -32,12 +31,13 @@ export default async function ArenaPage({ params }: PageProps<"/arena/[id]">) {
   const runs = await arenaRuns(id);
   if (!runs.length) return <p>Arena not found.</p>;
   const cfg = runs[0].config;
-  const profile = getProfile(cfg.profileId);
+  const profile = getCompany(cfg.profileId);
+  const judgeModel = experiment().judgeModel;
   const key = await loadLabels(cfg.profileId, cfg.windowStart, cfg.windowEnd);
   const keyed: LabelSet = key ?? { profileId: cfg.profileId, windowStart: cfg.windowStart, windowEnd: cfg.windowEnd, relevant: [], reviewedAgencies: [], notes: {}, updatedAt: "" };
   const docs = new Map((await listWindow(cfg.windowStart, cfg.windowEnd)).map((d) => [d.document_number, d]));
 
-  const cells = ALL_CELLS.filter((c) => runs.some((r) => r.config.cell === c.key));
+  const cells = allCells().filter((c) => runs.some((r) => r.config.cell === c.key));
   const runsOf = (c: Cell) => runs.filter((r) => r.config.cell === c.key);
   const rows = cells.map((c) => ({ cell: c, runs: runsOf(c), s: summarizeCell(runsOf(c), keyed) }));
   const totals = arenaTotals(rows.map((r) => r.s));
@@ -80,7 +80,7 @@ export default async function ArenaPage({ params }: PageProps<"/arena/[id]">) {
           <CardTitle>Scoreboard</CardTitle>
           <CardDescription>
             Graded against the answer key ({N} rules that matter{key?.provenance ? ` · ${key.provenance}` : ""}). Bold = best in column. Everything except
-            &ldquo;Clarity&rdquo; is checked by code; clarity is scored by {modelLabel(JUDGE_MODEL)} ({JUDGE_MODEL}).
+            &ldquo;Clarity&rdquo; is checked by code; clarity is scored by {modelLabel(judgeModel)} ({judgeModel}).
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -100,7 +100,7 @@ export default async function ArenaPage({ params }: PageProps<"/arena/[id]">) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {METHODS.map((m) => {
+              {methods().map((m) => {
                 const group = rows.map((r, i) => ({ ...r, i })).filter((r) => r.cell.method === m.id);
                 if (!group.length) return null;
                 return [
@@ -148,7 +148,7 @@ export default async function ArenaPage({ params }: PageProps<"/arena/[id]">) {
             </TableFooter>
           </Table>
           <p className="mt-3 text-xs text-muted-foreground">
-            Goal from the RFC: find ≥ 90% of the key, ≤ 20% extra, every date right, same answer every run. &ldquo;$ total&rdquo; includes the clarity judge.
+            Goal (config/experiment.yaml): find ≥ {Math.round(experiment().evals.gates.recall * 100)}% of the key, ≤ {Math.round((1 - experiment().evals.gates.precision) * 100)}% extra, every date right, same answer every run. &ldquo;$ total&rdquo; includes the clarity judge.
           </p>
         </CardContent>
       </Card>

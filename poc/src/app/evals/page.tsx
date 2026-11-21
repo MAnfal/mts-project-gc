@@ -1,3 +1,4 @@
+import { defaultEvalset } from "@/lib/config";
 import Link from "next/link";
 import { connection } from "next/server";
 import { listWindow } from "@/lib/fr";
@@ -11,9 +12,9 @@ const mark = (ok: boolean) => (ok ? <span className="text-green-700">✓</span> 
 export default async function EvalsPage({ searchParams }: PageProps<"/evals">) {
   await connection();
   const sp = await searchParams;
-  const profileId = (sp.profile as string) ?? "ledgerly";
-  const start = (sp.start as string) ?? "2026-11-09";
-  const end = (sp.end as string) ?? "2026-11-13";
+  const profileId = (sp.profile as string) ?? defaultEvalset().company;
+  const start = (sp.start as string) ?? defaultEvalset().windowStart;
+  const end = (sp.end as string) ?? defaultEvalset().windowEnd;
 
   const [labels, docs, all] = await Promise.all([loadLabels(profileId, start, end), listWindow(start, end), listRuns()]);
   const runs = all.filter((r) => r.status === "done" && r.config.profileId === profileId && r.config.windowStart === start && r.config.windowEnd === end);

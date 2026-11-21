@@ -1,11 +1,12 @@
-import { getProfile, profileBrief } from "@/lib/profiles";
+import { defaultEvalset, getCompany } from "@/lib/config";
+import { profileBrief } from "@/lib/prompts";
 import LabelBoard from "./LabelBoard";
 
 export default async function LabelPage({ searchParams }: PageProps<"/label">) {
   const sp = await searchParams;
-  const profileId = (sp.profile as string) ?? "ledgerly";
-  const start = (sp.start as string) ?? "2026-11-09";
-  const end = (sp.end as string) ?? "2026-11-13";
+  const profileId = (sp.profile as string) ?? defaultEvalset().company;
+  const start = (sp.start as string) ?? defaultEvalset().windowStart;
+  const end = (sp.end as string) ?? defaultEvalset().windowEnd;
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -14,7 +15,7 @@ export default async function LabelPage({ searchParams }: PageProps<"/label">) {
       </div>
       <details className="box p-3 text-sm">
         <summary className="font-medium">Company profile</summary>
-        <pre className="whitespace-pre-wrap text-xs mt-2">{profileBrief(getProfile(profileId))}</pre>
+        <pre className="whitespace-pre-wrap text-xs mt-2">{profileBrief(getCompany(profileId))}</pre>
       </details>
       <LabelBoard profileId={profileId} start={start} end={end} />
     </div>

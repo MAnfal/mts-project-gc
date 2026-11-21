@@ -3,8 +3,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { RunConfig } from "@/lib/types";
 
-const MODELS = ["anthropic/claude-sonnet-5.5", "anthropic/claude-haiku-5.5", "openai/gpt-6.1-terra", "google/gemini-3.5-flash"];
-
 function L({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
@@ -14,18 +12,18 @@ function L({ label, children }: { label: string; children: React.ReactNode }) {
   );
 }
 
-export default function RunForm({ profiles }: { profiles: { id: string; name: string }[] }) {
+export default function RunForm({ profiles, models, week }: { profiles: { id: string; name: string }[]; models: string[]; week: { profileId: string; windowStart: string; windowEnd: string; asOf: string } }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [repeat, setRepeat] = useState(1);
   const [cfg, setCfg] = useState<RunConfig>({
     mode: "pipeline",
-    profileId: profiles[0].id,
-    windowStart: "2026-11-09",
-    windowEnd: "2026-11-13",
-    asOf: "2026-11-13",
-    model: MODELS[0],
+    profileId: week.profileId,
+    windowStart: week.windowStart,
+    windowEnd: week.windowEnd,
+    asOf: week.asOf,
+    model: models[0],
     filter: "jev+llm",
     jevThreshold: 0.1,
     webLeads: false,
@@ -65,7 +63,7 @@ export default function RunForm({ profiles }: { profiles: { id: string; name: st
       </L>
       <L label="Model (all LLM stages)">
         <select className="inp" value={cfg.model} onChange={(e) => set("model", e.target.value)}>
-          {MODELS.map((m) => (
+          {models.map((m) => (
             <option key={m}>{m}</option>
           ))}
         </select>

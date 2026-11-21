@@ -2,20 +2,39 @@ import Link from "next/link";
 import { connection } from "next/server";
 import ArenaForm from "@/components/ArenaForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { METHODS, listArenas } from "@/lib/arena";
-import { ARENA_MODELS } from "@/lib/models";
-import { PROFILES } from "@/lib/profiles";
-import { BUDGET_USD, loadLabels, spentUsd } from "@/lib/store";
+import { listArenas, methods } from "@/lib/arena";
+import { companies, evalsets, experiment, frozenWeek, getCompany, loadKey } from "@/lib/config";
+import { arenaModels } from "@/lib/models";
+import { budgetUsd, spentUsd } from "@/lib/store";
 
 export default async function Home() {
   await connection();
   const [arenas, spent] = await Promise.all([listArenas(), spentUsd()]);
-  const profiles = await Promise.all(
-    PROFILES.map(async (p) => ({ id: p.id, name: p.name, summary: p.summary, hasKey: !!(await loadLabels(p.id, "2026-11-09", "2026-11-13")) })),
-  );
+  const sets = evalsets().map((e) => {
+    const c = getCompany(e.company);
+    return {
+      id: e.id,
+      label: `${c.name} · ${e.windowStart} → ${e.windowEnd}`,
+      companyId: c.id,
+      summary: c.summary,
+      windowStart: e.windowStart,
+      windowEnd: e.windowEnd,
+      docs: frozenWeek(e.windowStart, e.windowEnd)?.length ?? 0,
+      keyed: loadKey(e.company, e.windowStart, e.windowEnd)?.relevant.length ?? null,
+    };
+  });
+  const names = Object.fromEntries(companies().map((c) => [c.id, c.name]));
   return (
     <div className="flex flex-col gap-6">
-      <ArenaForm profiles={profiles} models={ARENA_MODELS.map((m) => ({ ...m }))} methods={METHODS} spent={spent} budget={BUDGET_USD} />
+      <ArenaForm
+        evalsets={sets}
+        defaultEvalset={experiment().arena.defaultEvalset}
+        repeatOptions={experiment().arena.repeatOptions}
+        models={arenaModels().map((m) => ({ id: m.id, label: m.label, vendor: m.vendor }))}
+        methods={methods().map((m) => ({ id: m.id, label: m.label, estUsd: m.estUsd }))}
+        spent={spent}
+        budget={budgetUsd()}
+      />
       <Card>
         <CardHeader>
           <CardTitle>Past arenas</CardTitle>
@@ -25,7 +44,7 @@ export default async function Home() {
           <ul className="divide-y text-sm">
             {arenas.map((a) => (
               <li key={a.id} className="py-2 flex items-center gap-3">
-                <Link className="underline" href={`/arena/${a.id}`}>{PROFILES.find((p) => p.id === a.profileId)?.name ?? a.profileId}</Link>
+                <Link className="underline" href={`/arena/${a.id}`}>{names[a.profileId] ?? a.profileId}</Link>
                 <span className="text-muted-foreground">{a.windowStart} → {a.windowEnd}</span>
                 <span className="text-muted-foreground">{a.runs} runs{a.running ? ` · ${a.running} running` : ""}</span>
                 <span className="ml-auto font-mono text-xs">${a.costUsd.toFixed(2)}</span>

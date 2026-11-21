@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
-import { getProfile, profileBrief } from "../profiles";
+import { configHash, getCompany, pipelineCfg } from "../config";
+import { baselineFormat, baselineTask } from "../prompts";
 import { saveRun } from "../store";
 import { searchKind, searchTools } from "../models";
 import type { ActionItem, Deadline, FilterDecision, RunConfig, RunRecord, Tier } from "../types";
@@ -10,7 +11,7 @@ import { filterJev, filterLlm, renderMarkdown, scan, verifyAndTier, webLeads, wr
 
 export function newRun(config: RunConfig): RunRecord {
   const id = `${new Date().toISOString().replace(/[:.]/g, "-")}_${config.mode}_${Math.random().toString(36).slice(2, 6)}`;
-  return { id, createdAt: new Date().toISOString(), config, status: "running", stages: [], calls: [], totalCostUsd: 0, totalMs: 0 };
+  return { id, createdAt: new Date().toISOString(), config, configHash: configHash(), status: "running", stages: [], calls: [], totalCostUsd: 0, totalMs: 0 };
 }
 
 export async function execute(run: RunRecord): Promise<RunRecord> {
@@ -33,7 +34,7 @@ export async function execute(run: RunRecord): Promise<RunRecord> {
 
 async function pipeline(ctx: RunCtx) {
   const cfg = ctx.run.config;
-  const profile = getProfile(cfg.profileId);
+  const profile = getCompany(cfg.profileId);
 
   const docs = await scan(ctx);
   ctx.run.scanned = docs.length;
@@ -86,21 +87,14 @@ const baselineSchema = z.object({
 
 async function baseline(ctx: RunCtx) {
   const cfg = ctx.run.config;
-  const profile = getProfile(cfg.profileId);
-  const prompt = `${profileBrief(profile)}
-
-Affected areas and owners:
-${Object.entries(profile.areas)
-  .map(([k, v]) => `- ${k}: ${v.description} → ${v.owner.name}`)
-  .join("\n")}
-
-Task: Find every US Federal Register document published between ${cfg.windowStart} and ${cfg.windowEnd} (inclusive) that affects this company. For each, give the Federal Register document number, title, federalregister.gov URL, the key deadline, a tier (Critical if a deadline is < 90 days from ${cfg.asOf}, otherwise High/Medium/Low by importance), the owner area, a one-line reason, and a one-line action. Only include items you found via search. Return an empty list if none.`;
+  const profile = getCompany(cfg.profileId);
+  const prompt = baselineTask(profile, cfg);
 
   // Two steps for every model: research freely with web search, then put the answer in our format.
   // (Some providers skip tool calls when structured output is requested in the same call — Kimi did in smoke tests.)
   const research = await ctx.stage(
     `baseline:search (${searchKind(cfg.model)})`,
-    () => ctx.agent("baseline:search", { model: cfg.model, prompt, tools: searchTools(cfg.model), maxSteps: 12 }),
+    () => ctx.agent("baseline:search", { model: cfg.model, prompt, tools: searchTools(cfg.model), maxSteps: pipelineCfg().baseline.searchMaxSteps }),
     (r) => ({ outCount: r.toolCalls.length, note: `${r.toolCalls.length} search calls` }),
   );
   const out = await ctx.stage(
@@ -108,7 +102,7 @@ Task: Find every US Federal Register document published between ${cfg.windowStar
     () =>
       ctx.object("baseline:format", {
         model: cfg.model,
-        prompt: `Convert your research below into the required list. Keep exactly the items and facts you found; do not add new ones.\n\nTask was:\n${prompt}\n\nYour research:\n${research.text}`,
+        prompt: baselineFormat(prompt, research.text),
         schema: baselineSchema,
       }),
     (r) => ({ outCount: r.items.length }),

@@ -2,7 +2,8 @@ import pLimit from "p-limit";
 import { z } from "zod";
 import { gw } from "../gateway";
 import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
-import { profileBrief } from "../profiles";
+import { pipelineCfg } from "../config";
+import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
 import { assignTier } from "../tier";
 import type { ActionItem, CompanyProfile, Deadline, FilterDecision, FrDoc } from "../types";
 import { parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
@@ -27,17 +28,17 @@ export async function webLeads(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc
     async () => {
       const r = await ctx.agent("web-leads", {
         model,
-        maxSteps: 4,
+        maxSteps: pipelineCfg().webLeads.maxSteps,
         tools: {
           exa_search: gw.tools.exaSearch({
-            numResults: 8,
+            numResults: pipelineCfg().webLeads.numResults,
             startPublishedDate: `${windowStart}T00:00:00Z`,
             endPublishedDate: `${windowEnd}T23:59:59Z`,
-            contents: { highlights: { maxCharacters: 300 } },
+            contents: { highlights: { maxCharacters: pipelineCfg().webLeads.highlightChars } },
           }),
         },
-        system: "You find leads on new US federal regulatory actions. Search, then list the URLs you found. Do not summarise law from memory.",
-        prompt: `${profileBrief(profile)}\n\nFind US federal regulatory developments (final rules, proposed rules, guidance, enforcement) published ${windowStart} to ${windowEnd} that could affect this company. Run at most 3 searches. Reply with the URLs only.`,
+        system: webLeadsSystem(),
+        prompt: webLeadsPrompt(profile, windowStart, windowEnd),
       });
       const urls = new Set<string>();
       for (const c of r.toolCalls) {
@@ -56,17 +57,9 @@ export async function webLeads(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc
 
 // ───────────────────────────── Filter ─────────────────────────────
 
-const docBlock = (d: FrDoc) =>
-  [`[${d.document_number}] ${d.type} — ${agencyNames(d).join("; ")}`, `Title: ${d.title}`, d.action ? `Action: ${d.action}` : "", `Abstract: ${(d.abstract ?? "(none)").slice(0, 1200)}`]
-    .filter(Boolean)
-    .join("\n");
-
-const JEV_QUESTION =
-  "Would the general counsel of this company need to know about this federal document because it could create, change or remove a compliance obligation or material legal risk for the company's actual business lines? Routine filings for other industries are not relevant.";
-
 export async function filterJev(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
-  const brief = profileBrief(profile);
-  const limit = pLimit(16);
+  const limit = pLimit(pipelineCfg().filter.jevConcurrency);
+  const question = jevQuestion();
   return ctx.stage(
     "filter:jev",
     async () => {
@@ -74,7 +67,7 @@ export async function filterJev(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
       await Promise.all(
         docs.map((d) =>
           limit(async () => {
-            const r = await ctx.jev(`${brief}\n\n--- DOCUMENT ---\n${docBlock(d)}`, JEV_QUESTION);
+            const r = await ctx.jev(jevState(profile, d), question);
             out.set(d.document_number, r.p);
           }),
         ),
@@ -97,13 +90,11 @@ export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
       }),
     ),
   });
-  const system = `You are an in-house regulatory analyst triaging the Federal Register for one company. Be precise: mark relevant only if the document could create, change or remove an obligation or material legal risk for the company's actual business lines. Return exactly one decision per document number given — no more, no fewer.\n\nAffected areas:\n${Object.entries(profile.areas)
-    .map(([k, v]) => `- ${k}: ${v.description}`)
-    .join("\n")}`;
-  const BATCH = 20;
+  const system = filterSystem(profile);
+  const BATCH = pipelineCfg().filter.llmBatchSize;
   const batches: FrDoc[][] = [];
   for (let i = 0; i < docs.length; i += BATCH) batches.push(docs.slice(i, i + BATCH));
-  const limit = pLimit(4);
+  const limit = pLimit(pipelineCfg().filter.llmConcurrency);
 
   return ctx.stage(
     "filter:llm",
@@ -117,7 +108,7 @@ export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
               const r = await ctx.object(`filter-llm#${bi}${attempt ? "-retry" : ""}`, {
                 model: ctx.run.config.model,
                 system,
-                prompt: `${profileBrief(profile)}\n\n=== DOCUMENTS (${pending.length}) ===\n\n${pending.map(docBlock).join("\n\n")}`,
+                prompt: filterPrompt(profile, pending),
                 schema,
               });
               const want = new Set(pending.map((d) => d.document_number));
@@ -147,7 +138,8 @@ const extractSchema = z.object({
 });
 
 export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], decisions: Map<string, FilterDecision>) {
-  const limit = pLimit(6);
+  const limit = pLimit(pipelineCfg().verify.concurrency);
+  const tierRules = pipelineCfg().tiering;
   const dropped: { document_number: string; why: string }[] = [];
   const items = await ctx.stage(
     "verify+tier",
@@ -173,12 +165,12 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
             // 2. Dates that only live in prose (compliance dates, missing fields): model extracts with a quote, code verifies the quote.
             const raw = await getRawText(doc);
             const source = `${doc.dates ?? ""}\n${raw}`;
-            const snippet = `${doc.dates ?? ""}\n\n${raw.slice(0, 7000)}`;
+            const snippet = `${doc.dates ?? ""}\n\n${raw.slice(0, pipelineCfg().verify.snippetChars)}`;
             if (snippet.trim().length > 20) {
               const ex = await ctx.object(`extract-dates:${doc.document_number}`, {
                 model: ctx.run.config.model,
-                system: "Extract every dated obligation or deadline (comment due, effective, compliance) stated in the text. Quote the sentence verbatim. If none, return an empty list.",
-                prompt: `Document ${doc.document_number}: ${doc.title}\n\n${snippet}`,
+                system: extractSystem(),
+                prompt: extractPrompt(doc, snippet),
                 schema: extractSchema,
                 logPrompt: false,
               });
@@ -190,7 +182,7 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
             }
 
             // 3. Tier: pure code.
-            const t = assignTier({ type: doc.type, deadlines, asOf: ctx.run.config.asOf });
+            const t = assignTier({ type: doc.type, deadlines, asOf: ctx.run.config.asOf, rules: tierRules });
             const dec = decisions.get(doc.document_number);
             const areas = dec?.llm?.areas ?? [];
             const owner = areas.length ? profile.areas[areas[0]]?.owner ?? profile.generalCounsel : profile.generalCounsel;
@@ -234,11 +226,8 @@ export async function writeActions(ctx: RunCtx, profile: CompanyProfile, items: 
     async () => {
       const r = await ctx.object("output-actions", {
         model: ctx.run.config.model,
-        system:
-          "Write one action item per document for a busy general counsel: an imperative sentence (≤ 25 words) saying what the owner should do and why, in plain English a non-lawyer understands — spell out acronyms, no regulatory jargon. Do NOT write any dates or citations — those are rendered separately from verified data.",
-        prompt: `${profileBrief(profile)}\n\n${items
-          .map((i) => `[${i.document_number}] ${i.type}: ${i.title}\nTier: ${i.tier} (${i.tierReason})\nOwner: ${i.owner.name}\nWhy relevant: ${i.reason}`)
-          .join("\n\n")}`,
+        system: actionsSystem(),
+        prompt: actionsPrompt(profile, items),
         schema,
       });
       const byNum = new Map(r.actions.map((a) => [a.document_number, a.action]));

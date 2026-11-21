@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BUDGET_USD, spentUsd } from "@/lib/store";
+import { budgetUsd, spentUsd } from "@/lib/store";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/label">Labels</Link>
           </nav>
           <span className="ml-auto font-mono text-xs text-muted-foreground">
-            spend ${spent.toFixed(2)} / ${BUDGET_USD}
+            spend ${spent.toFixed(2)} / ${budgetUsd()}
           </span>
         </header>
         <main className="px-4 py-4 max-w-6xl mx-auto">{children}</main>

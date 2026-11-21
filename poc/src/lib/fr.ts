@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { frozenWeek } from "./config";
 import type { FrDoc } from "./types";
 
 const API = "https://www.federalregister.gov/api/v1";
@@ -43,8 +44,13 @@ async function getJson(url: string) {
   return res.json();
 }
 
-/** Every document published in [start, end]. The scan is exhaustive on purpose: recall is measured against the whole week. */
+/**
+ * Every document published in [start, end]. The scan is exhaustive on purpose: recall is measured against the whole week.
+ * Eval-set weeks read the frozen input in config/evalsets/weeks/, so every run sees identical documents.
+ */
 export async function listWindow(start: string, end: string, useCache = true): Promise<FrDoc[]> {
+  const frozen = frozenWeek(start, end);
+  if (frozen) return frozen;
   return cached(`window-${start}-${end}.json`, async () => {
     const out: FrDoc[] = [];
     for (let page = 1; page < 50; page++) {

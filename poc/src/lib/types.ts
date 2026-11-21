@@ -126,6 +126,8 @@ export interface RunRecord {
   id: string;
   createdAt: string;
   config: RunConfig;
+  /** Hash of config/*.yaml when the run started (prompts, setups, pipeline knobs). Runs with different hashes aren't like-for-like. */
+  configHash?: string;
   status: "running" | "done" | "error";
   error?: string;
   stages: StageLog[];

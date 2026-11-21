@@ -1,0 +1,69 @@
+# Every prompt the experiment sends. {{name}} placeholders are filled by code; a missing one is an error.
+# Lists ({{applies}}, {{areas}}, {{documents}}, {{items}} ...) arrive pre-rendered as "- " bullets or blocks.
+# Changing a prompt changes the config hash stamped on new runs, so old and new runs aren't compared unknowingly.
+
+profileBrief: |-
+  Company: {{name}}
+
+  {{summary}}
+
+  Rules that APPLY:
+  {{applies}}
+
+  Rules that DO NOT apply:
+  {{doesNotApply}}
+jevQuestion: Would the general counsel of this company need to know about this federal document because it could create, change or remove a compliance obligation or material legal risk for the company's actual business lines? Routine filings for other industries are not relevant.
+jevState: |-
+  {{profile}}
+
+  --- DOCUMENT ---
+  {{document}}
+filterSystem: |-
+  You are an in-house regulatory analyst triaging the Federal Register for one company. Be precise: mark relevant only if the document could create, change or remove an obligation or material legal risk for the company's actual business lines. Return exactly one decision per document number given — no more, no fewer.
+
+  Affected areas:
+  {{areas}}
+filterPrompt: |-
+  {{profile}}
+
+  === DOCUMENTS ({{count}}) ===
+
+  {{documents}}
+extractSystem: Extract every dated obligation or deadline (comment due, effective, compliance) stated in the text. Quote the sentence verbatim. If none, return an empty list.
+extractPrompt: |-
+  Document {{number}}: {{title}}
+
+  {{text}}
+actionsSystem: "Write one action item per document for a busy general counsel: an imperative sentence (≤ 25 words) saying what the owner should do and why, in plain English a non-lawyer understands — spell out acronyms, no regulatory jargon. Do NOT write any dates or citations — those are rendered separately from verified data."
+actionsPrompt: |-
+  {{profile}}
+
+  {{items}}
+webLeadsSystem: You find leads on new US federal regulatory actions. Search, then list the URLs you found. Do not summarise law from memory.
+webLeadsPrompt: |-
+  {{profile}}
+
+  Find US federal regulatory developments (final rules, proposed rules, guidance, enforcement) published {{windowStart}} to {{windowEnd}} that could affect this company. Run at most 3 searches. Reply with the URLs only.
+baselineTask: |-
+  {{profile}}
+
+  Affected areas and owners:
+  {{areasWithOwners}}
+
+  Task: Find every US Federal Register document published between {{windowStart}} and {{windowEnd}} (inclusive) that affects this company. For each, give the Federal Register document number, title, federalregister.gov URL, the key deadline, a tier (Critical if a deadline is < {{criticalWindowDays}} days from {{asOf}}, otherwise High/Medium/Low by importance), the owner area, a one-line reason, and a one-line action. Only include items you found via search. Return an empty list if none.
+baselineFormat: |-
+  Convert your research below into the required list. Keep exactly the items and facts you found; do not add new ones.
+
+  Task was:
+  {{task}}
+
+  Your research:
+  {{research}}
+judgeClarity: |-
+  You grade action items a General Counsel would forward to a colleague. Score each 0..1:
+  1 = plain English a non-lawyer understands, names a concrete next step, the owner fits the topic, the reason is specific to the company.
+  0.5 = understandable but vague or generic.
+  0 = jargon-heavy, wrong owner, or asserts facts the reason doesn't support.
+  Judge clarity and usefulness only — not whether the rule is truly relevant.
+
+  {{items}}

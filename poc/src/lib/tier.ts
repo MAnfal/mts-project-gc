@@ -1,17 +1,21 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { Deadline, DocType, Tier } from "./types";
 
-export const CRITICAL_WINDOW_DAYS = 90;
-/** A final rule that took effect this recently is still an active fire drill. Older = catch-up publication. */
-export const RECENTLY_EFFECTIVE_DAYS = 30;
+/** From config/pipeline.yaml → tiering. Passed in so tests pin the numbers explicitly. */
+export interface TierRules {
+  /** Deadlines strictly under this many days are Critical (RFC: 90). */
+  criticalWindowDays: number;
+  /** A final rule that took effect this recently is still an active fire drill. Older = catch-up publication. */
+  recentlyEffectiveDays: number;
+}
 
 /**
  * Deterministic tiering. No model involved: same inputs → same tier, every run.
  *
  * Rules (RFC: "deadline < 90 days = Critical", sharpened by claude-for-legal's doc-type tiers):
  *  - Only verified deadlines count.
- *  - Rule / Proposed Rule with an upcoming deadline 0..89 days from `asOf` → Critical.
- *  - Final Rule that took effect within the last 30 days → Critical ("already in effect").
+ *  - Rule / Proposed Rule with an upcoming deadline under `criticalWindowDays` from `asOf` → Critical.
+ *  - Final Rule that took effect within the last `recentlyEffectiveDays` → Critical ("already in effect").
  *    Older effective dates (e.g. OFAC licenses published months after issuance) → High.
  *  - Notice with an upcoming deadline → Medium (PRA comment requests etc. are not emergencies).
  *  - Otherwise by type: Rule → High, Proposed Rule → Medium, Notice/Presidential → Low.
@@ -20,7 +24,9 @@ export function assignTier(input: {
   type: DocType;
   deadlines: Deadline[];
   asOf: string;
+  rules: TierRules;
 }): { tier: Tier; deadline: Deadline | null; reason: string } {
+  const { criticalWindowDays: CRITICAL_WINDOW_DAYS, recentlyEffectiveDays: RECENTLY_EFFECTIVE_DAYS } = input.rules;
   const asOf = parseISO(input.asOf);
   const verified = input.deadlines.filter((d) => d.verified);
   const days = (d: Deadline) => differenceInCalendarDays(parseISO(d.date), asOf);

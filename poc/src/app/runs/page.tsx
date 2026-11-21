@@ -1,7 +1,8 @@
 import { connection } from "next/server";
 import RunForm from "@/components/RunForm";
 import RunsTable from "@/components/RunsTable";
-import { PROFILES } from "@/lib/profiles";
+import { companies, defaultEvalset } from "@/lib/config";
+import { arenaModels } from "@/lib/models";
 import { listRuns } from "@/lib/store";
 
 export default async function RunsPage() {
@@ -12,7 +13,7 @@ export default async function RunsPage() {
       <section>
         <h1 className="text-lg font-semibold mb-1">Single run (debug)</h1>
         <p className="text-sm text-muted-foreground mb-3">Config → Scan (Federal Register API, optional Exa leads) → Filter (Jev / LLM) → Verify + Tier (code) → Output (LLM). Baseline = one prompt with the model&apos;s native web search.</p>
-        <RunForm profiles={PROFILES.map((p) => ({ id: p.id, name: p.name }))} />
+        <RunForm profiles={companies().map((p) => ({ id: p.id, name: p.name }))} models={arenaModels().map((m) => m.id)} week={{ profileId: defaultEvalset().company, windowStart: defaultEvalset().windowStart, windowEnd: defaultEvalset().windowEnd, asOf: defaultEvalset().asOf }} />
       </section>
       <section>
         <h2 className="font-semibold mb-2">Runs</h2>
