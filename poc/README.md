@@ -70,8 +70,11 @@ trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wo
 | Precision ≥ 80% | 78.7% (dev 87.0%, test 70.1%) | short on held-out |
 | Dates and citations verified | 100% dates (107/107), 100% trace checks | ✅ |
 | Tier identical across 3 runs | 100% right (107/107) | ✅ |
-| Relevance agrees across 3 runs ≥ 90% | 95.6% of keyed docs (pooled across suites) | ✅ |
-| Beats single-prompt baseline | recall 89% vs 63%, dates 100% vs 79%, 4× cheaper ($0.13 vs $0.52/run); held-out precision tied (70% vs 71%) | ✅ mostly |
+| Relevance agrees across 3 runs ≥ 90% | 95.6% of keyed docs (pooled across suites); 89.5% on real flags alone | ✅ (borderline on flags) |
+| Beats single-prompt baseline | recall 89% vs 63%, dates 100% vs 79%, 4× cheaper ($0.13 vs $0.52/run); held-out precision tied (70% vs 71%). Cross-suite: the baseline's old-week runs are from the first suite | ✅ mostly |
+
+Flags outside the key (not penalised under subset grading) ran at about 0.3 per run, mostly docs the key reviewers
+called 50/50.
 
 **What the iterations showed** (`/progress`, `data/iterations/`):
 - **02, the strict filter prompt (kept):** listing what does NOT count cut false flags sharply. It's the only prompt
@@ -82,7 +85,8 @@ trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wo
 - **05, strict-v3 (exclusions from error analysis):** no measurable effect. The targeted docs were flagged identically
   by the unchanged control in the same suite.
 - **The noise band is wide.** The unchanged control swings 3 recall cases and 4 trap hits on the test weeks between
-  two identical suites, so single-suite gaps of that size are inconclusive. The decision rule now requires a gap
+  two identical suites, and its old-week test recall was 14, 9, 12 and 15 of 15 across four suites. So single-suite
+  gaps of that size are inconclusive. The decision rule now requires a gap
   larger than the control's own A/A swing.
 
 **Per step** (dev): Jev keeps 100% of real flags and ranks every one in its top 20 (median 4th), so it's not the
@@ -98,7 +102,10 @@ they rank 10–20.
   frozen). Judge pass is not comparable across week groups.
 - *Held-out false alarms are real:* 19 of 20 are on high-confidence traps, so the test precision gap isn't key noise.
 - *Text bug:* govinfo text with a literal "<" lost up to 113 KB (11 of 169 keyed docs). Fixed. It never changed a
-  score (the filter reads abstracts; dates still verified), but would have mattered in production.
+  score: the filter reads abstracts, and the date extractor's input (first 7,000 chars) was identical before and
+  after for every damaged doc that reached it. It would have mattered in production.
+- *Error analysis disagreed with the grader on dates:* it still checked only the old headline date, so it reported
+  date failures the grader didn't count. Fixed: both share one date check (`dateCorrect`).
 - *Possible key bias:* keys were drafted by Claude models; the only non-Claude setup ranked lowest on recall.
 
 **Next, for the real build:**

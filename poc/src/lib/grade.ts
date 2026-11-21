@@ -1,5 +1,5 @@
 import { assignTier, type TierRules } from "./tier";
-import type { CompanyProfile, LabelSet, RunRecord } from "./types";
+import type { ActionItem, CompanyProfile, LabelSet, RunRecord } from "./types";
 
 /**
  * Eval v2 grading (code only — no model). Every key case is either a FLAG (should be found) or a TRAP
@@ -40,6 +40,14 @@ export function trapsOf(key: LabelSet) {
   return Object.fromEntries(Object.entries(key.borderlineRejected ?? {}).map(([n, t]) => [n, { trapType: "other" as const, reason: t.reason, confidence: t.confidence }]));
 }
 
+/** Dates a card showed: every verified date for new runs, the single headline date for runs before 2026-11-22. */
+export const datesShownOf = (it: ActionItem) => it.datesShown ?? (it.deadline ? [it.deadline] : []);
+/** Date check against the key (shared by the grader and the error analysis): any shown date is the key's or an accepted one. */
+export function dateCorrect(it: ActionItem, d: { deadline?: { date: string } | null; acceptDates?: string[] }): boolean {
+  if (!d.deadline) return true;
+  return datesShownOf(it).some((x) => [d.deadline!.date, ...(d.acceptDates ?? [])].includes(x.date));
+}
+
 export function gradeRun(run: RunRecord, key: LabelSet, profile: CompanyProfile, rules: TierRules): RunGrade {
   const flagged = new Map((run.items ?? []).map((i) => [i.document_number, i]));
   const traps = trapsOf(key);
@@ -57,9 +65,7 @@ export function gradeRun(run: RunRecord, key: LabelSet, profile: CompanyProfile,
     if (!it || !d) continue;
     if (d.deadline) {
       // Graded on what the card showed: every verified date for new runs, the single headline date for older runs.
-      const shown = it.datesShown ?? (it.deadline ? [it.deadline] : []);
-      const ok = shown.some((x) => [d.deadline!.date, ...(d.acceptDates ?? [])].includes(x.date));
-      checks.date = add(checks.date, ratio(ok ? 1 : 0, 1));
+      checks.date = add(checks.date, ratio(dateCorrect(it, d) ? 1 : 0, 1));
     }
     if (d.docType) {
       const expected = assignTier({

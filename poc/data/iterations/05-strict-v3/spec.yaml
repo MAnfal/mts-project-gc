@@ -29,11 +29,14 @@ decision: >-
   2026-22743 2/9 vs 2/9. The control already left the first two alone in this suite (its hits on them in 04's suite,
   1/9 and 2/9, were run-to-run noise), and the third is still flagged by both. Headline: dev recall 30/33 both,
   dev precision 88.2% -> 93.8% (trap hits 4 -> 2); test recall 25/27 -> 23/27, test precision 67.6% both
-  (12 -> 11 trap hits). All gaps are inside the A/A noise band measured on the unchanged control (see notes).
+  (12 -> 11 trap hits). The dev trap-hit gap (4 -> 2) is two docs the control flagged in 1 of 3 repeats, neither
+  targeted by this change (2026-22810, and 2026-21922 as a Brightside trap); the control's own dev trap hits on the
+  old dev week were 2, 4 and 3 across three identical-config suites. Test gaps are inside the control's A/A swing.
 notes: >-
   A/A noise band: jev-sonnet-strict ran with an identical effective configuration (run.start fingerprint 5dfb73af95)
   in 04's suite (arena-2026-11-21-21-23-64r) and this one. Its own swing: test recall 22/27 vs 25/27 (3 cases),
-  test trap hits 8 vs 12 (4), dev trap hits 5 vs 4. Decision rule from here on (amended 2026-11-22, before any
+  test trap hits 8 vs 12 (4), dev trap hits 5 vs 4; across all four suites its old-week test recall was 14, 9, 12
+  and 15 of 15. Decision rule from here on (amended 2026-11-22, before any
   further suite): a gap between candidate and control counts only if it exceeds the control's A/A swing on that
   metric; otherwise the result is "inconclusive" and the cheaper/simpler setup stays. Code note: src/lib/fr.ts
   (text-strip fix) was edited in the working tree after this suite ran and was not used by it.

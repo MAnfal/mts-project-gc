@@ -10,7 +10,7 @@ import { z } from "zod";
 import { arenaRuns } from "../src/lib/arena";
 import { evalsets, getCompany, loadKey, pipelineCfg } from "../src/lib/config";
 import { gatewayCost, languageModel } from "../src/lib/gateway";
-import { aggregateSteps, formatSteps, gradeRun, stepGrade, trapsOf } from "../src/lib/grade";
+import { aggregateSteps, dateCorrect, datesShownOf, formatSteps, gradeRun, stepGrade, trapsOf } from "../src/lib/grade";
 import { archiveSpend } from "../src/lib/store";
 import { readTrace } from "../src/lib/trace";
 import { checkTrace } from "../src/lib/trace-checks";
@@ -52,8 +52,9 @@ for (const run of runs) {
     const it = item(n);
     const d = key.details?.[n];
     if (!it || !d) continue;
-    if (d.deadline && !(it.deadline && [d.deadline.date, ...(d.acceptDates ?? [])].includes(it.deadline.date)))
-      failures.push({ ...base, signal: "fact", kind: "date-wrong", doc: n, bucket: it.deadline ? "date-differs" : "no-headline-date", detail: { expected: d.deadline, shown: it.deadline, allFound: it.deadlines.map((x) => `${x.kind} ${x.date}${x.verified ? "" : " (unverified)"}`), docType: d.docType, tier: it.tier } });
+    // Same date check as the grader (dates the card showed), so analysis and scores can't disagree.
+    if (!dateCorrect(it, d))
+      failures.push({ ...base, signal: "fact", kind: "date-wrong", doc: n, bucket: datesShownOf(it).length ? "date-differs" : "no-date-shown", detail: { expected: d.deadline, shown: datesShownOf(it), allFound: it.deadlines.map((x) => `${x.kind} ${x.date}${x.verified ? "" : " (unverified)"}`), docType: d.docType, tier: it.tier } });
   }
   // 3. Process (trace checks).
   for (const ch of checkTrace(trace as never).filter((x) => !x.pass)) failures.push({ ...base, signal: "trace", kind: ch.id, bucket: `trace:${ch.id}`, detail: { detail: ch.detail } });

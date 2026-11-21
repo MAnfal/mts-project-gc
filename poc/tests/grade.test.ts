@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gradeRun, passK, majority, aggregate, stepGrade, aggregateSteps } from "../src/lib/grade";
+import { gradeRun, passK, majority, aggregate, stepGrade, aggregateSteps, dateCorrect } from "../src/lib/grade";
 import type { ActionItem, CompanyProfile, LabelSet, RunRecord } from "../src/lib/types";
 
 const owner = (n: string) => ({ name: n, email: `${n}@x` });
@@ -186,5 +186,16 @@ describe("stepGrade (score each pipeline step against the key, from what the run
     expect(a.jev!.flagRanks).toEqual([1, 1, 5, 5]);
     expect(a.llm!.trapsRejected).toEqual({ correct: 0, total: 2 });
     expect(a.verify.dateVerified).toEqual({ correct: 2, total: 2 });
+  });
+});
+
+describe("dateCorrect (one date check shared by the grader and the error analysis)", () => {
+  const detail = key.details!.A; // deadline 2026-12-10, accepts 2027-01-11
+  it("passes when any date the card shows matches, even with no headline date (e.g. a Notice in Low tier)", () => {
+    expect(dateCorrect(item("A", { deadline: null, datesShown: [{ date: "2027-01-11", kind: "effective", source: "extracted", verified: true }] }), detail)).toBe(true);
+  });
+  it("older runs without datesShown fall back to the headline date", () => {
+    expect(dateCorrect(item("A", { deadline: { date: "2026-12-10", kind: "comment", source: "fr_field", verified: true } }), detail)).toBe(true);
+    expect(dateCorrect(item("A", { deadline: null }), detail)).toBe(false);
   });
 });
