@@ -1,0 +1,3091 @@
+{
+  "id": "2026-11-21T13-14-04-157Z_pipeline_a73e",
+  "createdAt": "2026-11-21T13:14:04.157Z",
+  "config": {
+    "mode": "pipeline",
+    "profileId": "ledgerly",
+    "windowStart": "2026-11-09",
+    "windowEnd": "2026-11-13",
+    "asOf": "2026-11-13",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "group": "jev01-x3"
+  },
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 2,
+      "costUsd": 0,
+      "outCount": 448
+    },
+    {
+      "name": "filter:jev",
+      "ms": 12936,
+      "costUsd": 0.013845174000000003,
+      "inCount": 448,
+      "outCount": 31,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 9694,
+      "costUsd": 0.039718,
+      "inCount": 31,
+      "outCount": 6,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 4494,
+      "costUsd": 0.03346400000000001,
+      "inCount": 6,
+      "outCount": 6,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 4623,
+      "costUsd": 0.008069999999999994,
+      "outCount": 6
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 6554,
+      "costUsd": 0.014944,
+      "inputTokens": 3167,
+      "outputTokens": 861,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (11) ===\n\n[2026-23019] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the State of Tennessee\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the state of Tennessee dated November 6, 2026. Incident: Severe Storms and Straight-Line Winds.\n\n[2026-23031] Notice — Commerce Department; National Institute of Standards and Technology\nTitle: National Cybersecurity Center of Excellence (NCCoE) Projects and Activities\nAction: Notice.\nAbstract: The National Institute of Standards and Technology (NIST) National Cybersecurity Center of Excellence (NCCoE) invites organizations to submit letters of interest to participate in NCCoE collaborative research projects through a standing consortia structure. This Federal Register Notice (FRN) notifies interested parties that NIST is establishing a single process through which organizations may express interest in participating in one or more NCCoE project consortia. Rather than issuing a separate FRN for each new NCCoE project, NIST is posting a single partnership announcement in the Federal Register and directing interested parties to SAM.gov for further information. New NCCoE collaborative research projects will be announced on SAM.gov. Additionally, NIST will maintain a publicly available list of active and forming NCCoE projects on the NCCoE website (https://www.nccoe.nist.gov/portfolio), where instructions for letters of interest will also be posted. Organizations may submit letters of interest to participate in one or more consortia on a rolling basis. Selected participants will collaborate with NIST through Cooperative Research and Development Agreements (CRADAs), and contrib\n\n[2026-23059] Notice — Justice Department\nTitle: Agency Information Collection Activities; Proposed eCollection eComments Requested; New Collection; Global Trade & Commerce Enforcement Section Lead Intake Form\nAction: 60-Day notice.\nAbstract: The National Fraud Enforcement Division (FRD), Department of Justice (DOJ), will be submitting the following information collection request to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act of 1995.\n\n[C1-2026-22802] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAbstract: (none)\n\n[2026-23070] Notice — Housing and Urban Development Department\nTitle: 60-Day Notice of Proposed Information Collection: Federal Labor Standards Payee Verification and Payment Processing\nAction: Notice.\nAbstract: HUD is seeking approval from the Office of Management and Budget (OMB) for the information collection described below. In accordance with the Paperwork Reduction Act, HUD is requesting comment from all interested parties on the proposed collection of information. The purpose of this notice is to allow for 60 days of public comment.\n\n[2026-23152] Notice — Consumer Financial Protection Bureau\nTitle: Agency Information Collection Activities: Comment Request\nAction: Notice and request for comment.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 (PRA), the Consumer Financial Protection Bureau (CFPB) is requesting to extend the Office of Management and Budget's (OMB's) approval for an existing information collection titled \"Generic Information Collection Plan for Foundational Research About Consumer Credit Markets and Household Financial Decision-Making\" approved under OMB Control Number 3170- 0082.\n\n[2026-23193] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of Iran-Related Web General License W\nAction: Publication of a web general license.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing an Iran-related general license (GL): GL W. This GL was previously made available on OFAC's website.\n\n[2026-23195] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of a Cuba Sanctions Regulations Web General License\nAction: Publication of a web general license.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing a general license (GL) issued in the Cuba Sanctions program: GL 1. This GL was previously made available on OFAC's website.\n\n[2026-23196] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D\nAction: Publication of web general licenses.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing two general licenses (GLs) issued pursuant to the Russian Harmful Foreign Activities Sanctions Regulations: GLs 55F and 115D, each of which was previously made available on OFAC's website.\n\n[2026-23197] Rule — Treasury Department; Foreign Assets Control Office\nTitle: Publication of Iran-Related Web General Licenses EE and FF\nAction: Publication of web general licenses.\nAbstract: The Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing two Iran-related general licenses (GLs): GLs EE and FF, which were made available on OFAC's website at the time of issuance.\n\n[2026-23233] Presidential Document — Executive Office of the President\nTitle: Presidential Determination Pursuant to Section 1245(d)(4)(B) and (C) of the National Defense Authorization Act for Fiscal Year 2012\nAbstract: (none)",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-23019",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Tennessee has no bearing on Ledgerly's payments, remittance or crypto obligations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23031",
+            "relevant": false,
+            "reason": "NIST NCCoE consortia invitation is voluntary research participation; creates no compliance obligation for Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23059",
+            "relevant": false,
+            "reason": "DOJ fraud enforcement lead intake form information collection; no new obligation on a money transmitter.",
+            "areas": []
+          },
+          {
+            "document_number": "C1-2026-22802",
+            "relevant": false,
+            "reason": "Individual OFAC designations notice; matters only through the existing screening program, which updates via SDN list feeds, with no new obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23070",
+            "relevant": false,
+            "reason": "HUD Davis-Bacon payee verification information collection is irrelevant to Ledgerly's business lines.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23152",
+            "relevant": false,
+            "reason": "CFPB PRA extension for consumer credit research; Ledgerly has no lending and no obligation arises.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23193",
+            "relevant": true,
+            "reason": "Iran-related GL W changes authorized activity under Iran sanctions; relevant to remittance/crypto screening and transaction handling for Iran-nexus exposure.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-23195",
+            "relevant": true,
+            "reason": "Cuba Sanctions Regulations GL 1 may alter permitted transactions; relevant to screening and cross-border remittance controls.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-23196",
+            "relevant": true,
+            "reason": "Russia GLs 55F and 115D alter authorized transactions under the Russian sanctions regulations; relevant to screening and remittance/crypto transaction controls.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-23197",
+            "relevant": true,
+            "reason": "Iran-related GLs EE and FF modify authorized activity; relevant to sanctions screening and remittance/crypto transaction handling.",
+            "areas": [
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-23233",
+            "relevant": false,
+            "reason": "Presidential determination under NDAA 1245(d) concerns Iranian oil purchase sanctions exceptions for countries; no direct change to Ledgerly's screening obligations.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 9693,
+      "costUsd": 0.024774,
+      "inputTokens": 5482,
+      "outputTokens": 1381,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (20) ===\n\n[2026-22766] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\n\n[2026-22793] Rule — Commerce Department; Industry and Security Bureau\nTitle: Extension of the Suspension of Expansion of End-User Controls for Affiliates of Certain Listed Entities\nAction: Final rule; stay.\nAbstract: The Bureau of Industry and Security (BIS) is extending the suspension of the interim final rule (IFR), \"Expansion of End-User Controls to Cover Affiliates of Certain Listed Entities.\" The suspension was set to end November 9, 2026. This final rule extends the suspension through January 10, 2027.\n\n[2026-22802] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing updates to the identifying information of one or more entries currently included on one or more of OFAC's sanctions lists.\n\n[2026-22806] Notice — Treasury Department; Internal Revenue Service\nTitle: Agency Information Collection Activities; Comment Request on Form 15254\nAction: Notice of information collection; request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, the IRS is inviting comments on the information collection request outlined in this notice.\n\n[2026-22809] Proposed Rule — Treasury Department; Financial Crimes Enforcement Network\nTitle: Threshold for the Requirement To Collect, Retain, and Transmit Information on Funds Transfers and Transmittals of Funds That Begin or End Outside the United States, and Clarification of the Requirement To Collect, Retain, and Transmit Information on Transactions Involving Convertible Virtual Currencies and Digital Assets With Legal Tender Status; Withdrawal\nAction: Proposed rule; withdrawal.\nAbstract: FinCEN and the Board (collectively, the \"Agencies\") are withdrawing the joint notice of proposed rulemaking (NPRM) published on October 27, 2020, that proposed modifying the threshold in the Agencies' rules implementing the Bank Secrecy Act (BSA) requiring financial institutions to collect and retain information on certain funds transfers and transmittals of funds. The NPRM would have reduced this threshold from $3,000 to $250 for funds transfers and transmittals of funds that begin or end outside the United States. FinCEN additionally proposed reducing from $3,000 to $250 the threshold in FinCEN's rule requiring financial institutions to transmit to other financial institutions in the payment chain information on funds transfers and transmittals of funds that begin or end outside the United States. The NPRM also would have clarified the meaning of \"money\" as used in the Agencies' rules to specify that the rules apply to domestic and cross-border transactions involving convertible virtual currency (CVC) and digital assets that have legal tender status to a recipient. The Agencies will not take further action on this NPRM.\n\n[2026-22840] Notice — Defense Department; Office of the Secretary\nTitle: Notice of Removal of Designated Chinese Military Company\nAction: Notice of removal of a company from the 1260H List of Chinese military companies operating in the United States.\nAbstract: The Deputy Secretary of War has decided to delist the entity listed in the SUPPLEMENTARY INFORMATION section of this notice from the list of Chinese military companies operating in the United States, without prejudice to relisting the company on additional or supplementary grounds.\n\n[2026-22856] Notice — U.S.-China Economic and Security Review Commission\nTitle: Notice of Open Public Event\nAction: Notice of open public event.\nAbstract: Notice is hereby given of the following open public event of the U.S.-China Economic and Security Review Commission. The Commission is mandated by Congress to monitor, investigate, and report to Congress annually on \"the national security implications of the bilateral trade and economic relationship between the United States and the People's Republic of China.\" Pursuant to this mandate, the Commission will hold a public release of its 2026 Annual Report to Congress in Washington, DC on November 18, 2026.\n\n[2026-22861] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the name of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\n\n[2026-22862] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\n\n[2026-22864] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons and vessels that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. The vessels placed on the SDN List have been identified as property in which a blocked person has an interest.\n\n[2026-22867] Notice — Trade Representative, Office of United States\nTitle: Notice of Modification of Section 301 Action: China's Targeting of the Maritime, Logistics, and Shipbuilding Sectors for Dominance\nAction: China's Targeting of the Maritime, Logistics, and Shipbuilding Sectors for Dominance\nAbstract: To allow for further discussion with China regarding the acts, policies, and practices at issue in this investigation, the U.S. Trade Representative (Trade Representative) is modifying the action taken in this investigation to further suspend that action for two months, until January 10, 2027.\n\n[2026-22891] Rule — National Labor Relations Board\nTitle: Rules and Regulations, Series 8\nAbstract: (none)\n\n[2026-22892] Notice — Treasury Department; Internal Revenue Service\nTitle: [Proposed Extension of Information Collection Request Submitted for Public Comment; Comment Request on Burden Related to the Qualified Intermediary (QI), Withholding Foreign Partnership (WP), and Withholding Foreign Trust (WT) Application and Account Management System\nAction: Notice of information collection; request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, the IRS is inviting comments on the information collection request outlined in this notice.\n\n[2026-22912] Notice — Justice Department; Antitrust Division\nTitle: Notice Pursuant to the National Cooperative Research and Production Act of 1993-Blockchain Security Standards Council, Inc.\nAbstract: (none)\n\n[2026-22925] Notice — Trade Representative, Office of United States\nTitle: Notice of Product Exclusion Extensions: China's Acts, Policies, and Practices Related to Technology Transfer, Intellectual Property, and Innovation\nAction: Notice.\nAbstract: In prior notices, the U.S. Trade Representative (Trade Representative) modified the actions in the Section 301 investigation of China's acts, policies, and practices related to technology transfer, intellectual property, and innovation by excluding from additional duties certain products of China. While most exclusions have expired in prior years, certain exclusions remain in force. This notice announces the Trade Representative's determination to further extend all 178 current exclusions.\n\n[2026-22962] Rule — Treasury Department; Financial Crimes Enforcement Network\nTitle: Imposition of Special Measure Prohibiting the Transmittal of Funds Involving MEXC Global\nAction: Order.\nAbstract: FinCEN is issuing notice of an order, pursuant to section 9714(a) of the Combating Russian Money Laundering Act (Pub. L. 116- 283), as amended by section 6106(b) of the National Defense Authorization Act for Fiscal Year 2022 (Pub. L. 117-81), finding that MEXC Global--including any of its subsidiaries, branches, and offices, as well as any successor entities, operating in any jurisdiction outside of the United States--is a financial institution operating outside of the United States of primary money laundering concern in connection with Russian illicit finance and prohibiting certain transmittals of funds involving MEXC Global.\n\n[2026-22954] Notice — Justice Department; Drug Enforcement Administration\nTitle: Traci B. Lujan, A.P.R.N.; Decision and Order\nAbstract: (none)\n\n[2026-22989] Notice — Treasury Department\nTitle: FY27 Social Impact Partnerships To Pay for Results Act Notice of Funding Opportunity\nAbstract: Provide an evaluation design plan summary by following the following guidelines. Limit this to 3 pages or fewer. The summary should provide information demonstrating that the proposed evaluation will be designed to determine whether the outcomes were achieved as a result of the intervention. The summary must address the following six topics: i. Outcome metrics and data sources. Identify the outcome metric or metrics that will be used to determine whether the project achieved its outcome goals. For each metric, identify the data source, data owner, expected outcome target or payment threshold, and why the metric is an independent, objective indicator of impact that is not subject to manipulation by the service provider, intermediary, investors, or other project partners. ii. Evaluation design and comparison group. Identify the proposed evaluation design, such as a randomized controlled trial, regression discontinuity design, difference-in-differences design, matched comparison design, or another rigorous methodology. Describe the treatment group, the control or comparison group, how each group will be formed, and the expected difference in services received by each group. Briefly ex\n\n[2026-23009] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\n\n[2026-23016] Notice — Small Business Administration\nTitle: Presidential Declaration of a Major Disaster for the State of Texas\nAction: Correction.\nAbstract: This is a correction to the notice of the Presidential declaration of a major disaster for the State of Texas (FEMA-4935-DR), dated October 30, 2026. Incident: Severe Storms, Straight-line Winds, Tornadoes, and Flooding.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22766",
+            "relevant": false,
+            "reason": "Routine individual SDN designation notice; handled via list-driven screening program, not an individual obligation change.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22793",
+            "relevant": false,
+            "reason": "BIS export control affiliates rule suspension extension; no bearing on payments, remittance or crypto wallet operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22802",
+            "relevant": false,
+            "reason": "OFAC list identifier updates only; absorbed via normal screening list refresh, no new obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22806",
+            "relevant": false,
+            "reason": "IRS Form 15254 information collection; not a payment platform or digital asset reporting form relevant to Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22809",
+            "relevant": true,
+            "reason": "FinCEN withdraws 2020 NPRM that would have cut the Travel Rule/recordkeeping threshold to $250 for cross-border transfers and covered CVC; Ledgerly's remittances and crypto sends stay at $3,000, removing a pending compliance risk.",
+            "areas": [
+              "aml-bsa",
+              "crypto"
+            ]
+          },
+          {
+            "document_number": "2026-22840",
+            "relevant": false,
+            "reason": "DoD 1260H list delisting of a Chinese military company; no direct obligation for Ledgerly's payment business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22856",
+            "relevant": false,
+            "reason": "USCC public event notice; informational only.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22861",
+            "relevant": false,
+            "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22862",
+            "relevant": false,
+            "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22864",
+            "relevant": false,
+            "reason": "Routine SDN designation of persons and vessels; no program change for Ledgerly beyond list screening.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22867",
+            "relevant": false,
+            "reason": "USTR Section 301 maritime/shipbuilding suspension; trade tariffs unrelated to Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22891",
+            "relevant": false,
+            "reason": "NLRB procedural rules; no relation to Ledgerly's payment business lines.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22892",
+            "relevant": false,
+            "reason": "IRS QI/WP/WT application information collection; applies to foreign intermediaries, not Ledgerly's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22912",
+            "relevant": false,
+            "reason": "DOJ antitrust NCRPA notice for Blockchain Security Standards Council; no obligations for Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22925",
+            "relevant": false,
+            "reason": "USTR Section 301 product exclusion extensions on goods; no impact on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22962",
+            "relevant": true,
+            "reason": "FinCEN section 9714 order prohibiting transmittals of funds involving MEXC Global, a crypto exchange; Ledgerly must block/screen transfers and counterparties linked to MEXC in its custodial wallet and remittance flows.",
+            "areas": [
+              "aml-bsa",
+              "crypto",
+              "sanctions"
+            ]
+          },
+          {
+            "document_number": "2026-22954",
+            "relevant": false,
+            "reason": "DEA decision and order on an individual practitioner registration; irrelevant.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22989",
+            "relevant": false,
+            "reason": "Treasury social impact funding opportunity; not applicable to Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23009",
+            "relevant": false,
+            "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-23016",
+            "relevant": false,
+            "reason": "SBA disaster declaration correction for Texas; no effect on Ledgerly's obligations.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22962",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1929,
+      "costUsd": 0.004144,
+      "inputTokens": 1487,
+      "outputTokens": 117,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-12-10",
+            "kind": "effective",
+            "quote": "This action is effective December 10, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22809",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2967,
+      "costUsd": 0.005542,
+      "inputTokens": 1616,
+      "outputTokens": 231,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-11-09",
+            "kind": "effective",
+            "quote": "FinCEN and the Board are withdrawing the NPRM published at 85 FR 68005 (October 27, 2020), as of November 9, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-23193",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2887,
+      "costUsd": 0.005612,
+      "inputTokens": 1496,
+      "outputTokens": 262,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-05-01",
+            "kind": "other",
+            "quote": "GL W was issued on May 1, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-23195",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2973,
+      "costUsd": 0.00546,
+      "inputTokens": 1505,
+      "outputTokens": 245,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-05-07",
+            "kind": "other",
+            "quote": "GL 1 was issued on May 7, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-23196",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 3452,
+      "costUsd": 0.006088,
+      "inputTokens": 1524,
+      "outputTokens": 304,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-06-11",
+            "kind": "other",
+            "quote": "GL 55F was issued on June 11, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-23197",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 3806,
+      "costUsd": 0.006618,
+      "inputTokens": 1504,
+      "outputTokens": 361,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-10-08",
+            "kind": "other",
+            "quote": "GL EE was issued on October 8, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 4623,
+      "costUsd": 0.00807,
+      "inputTokens": 1855,
+      "outputTokens": 436,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n[2026-22809] Proposed Rule: Threshold for the Requirement To Collect, Retain, and Transmit Information on Funds Transfers and Transmittals of Funds That Begin or End Outside the United States, and Clarification of the Requirement To Collect, Retain, and Transmit Information on Transactions Involving Convertible Virtual Currencies and Digital Assets With Legal Tender Status; Withdrawal\nTier: Medium (proposed rule, no open deadline)\nOwner: Priya Shah (BSA Officer)\nWhy relevant: FinCEN withdraws 2020 NPRM that would have cut the Travel Rule/recordkeeping threshold to $250 for cross-border transfers and covered CVC; Ledgerly's remittances and crypto sends stay at $3,000, removing a pending compliance risk.\n\n[2026-22962] Rule: Imposition of Special Measure Prohibiting the Transmittal of Funds Involving MEXC Global\nTier: Critical (effective deadline in 27 days (< 90))\nOwner: Priya Shah (BSA Officer)\nWhy relevant: FinCEN section 9714 order prohibiting transmittals of funds involving MEXC Global, a crypto exchange; Ledgerly must block/screen transfers and counterparties linked to MEXC in its custodial wallet and remittance flows.\n\n[2026-23193] Rule: Publication of Iran-Related Web General License W\nTier: High (final rule, no dated obligation found)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Iran-related GL W changes authorized activity under Iran sanctions; relevant to remittance/crypto screening and transaction handling for Iran-nexus exposure.\n\n[2026-23195] Rule: Publication of a Cuba Sanctions Regulations Web General License\nTier: High (final rule, no dated obligation found)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Cuba Sanctions Regulations GL 1 may alter permitted transactions; relevant to screening and cross-border remittance controls.\n\n[2026-23196] Rule: Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D\nTier: High (final rule, no dated obligation found)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Russia GLs 55F and 115D alter authorized transactions under the Russian sanctions regulations; relevant to screening and remittance/crypto transaction controls.\n\n[2026-23197] Rule: Publication of Iran-Related Web General Licenses EE and FF\nTier: High (final rule, no dated obligation found)\nOwner: Marcus Lee (Sanctions)\nWhy relevant: Iran-related GLs EE and FF modify authorized activity; relevant to sanctions screening and remittance/crypto transaction handling.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-22809",
+            "action": "Note the withdrawn proposal and keep the current $3,000 Travel Rule threshold; brief the BSA team so no system changes for a $250 limit proceed."
+          },
+          {
+            "document_number": "2026-22962",
+            "action": "Block transmittals and wallet activity involving MEXC Global, add its addresses and counterparties to screening, and confirm controls are live before the order takes effect."
+          },
+          {
+            "document_number": "2026-23193",
+            "action": "Review Iran-related General License W with Sanctions and update screening and escalation procedures, so any newly authorized Iran-nexus remittance or crypto activity is handled correctly."
+          },
+          {
+            "document_number": "2026-23195",
+            "action": "Assess the new Cuba general license and confirm remittance screening rules still block unauthorized Cuba-nexus transfers while permitting only clearly authorized activity."
+          },
+          {
+            "document_number": "2026-23196",
+            "action": "Review Russia general licenses 55F and 115D and adjust screening rules and exception handling so authorized transactions are processed and everything else stays blocked."
+          },
+          {
+            "document_number": "2026-23197",
+            "action": "Evaluate Iran-related general licenses EE and FF, then update screening logic and analyst guidance so permitted transactions are not wrongly blocked and prohibited ones are."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.095097174,
+  "totalMs": 31764,
+  "scanned": 448,
+  "decisions": [
+    {
+      "document_number": "2026-22729",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22730",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22731",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22733",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22736",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22738",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22740",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22743",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22744",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22745",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22746",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22749",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22750",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22751",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22752",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22753",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22754",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22755",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22756",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22757",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22758",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22759",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22760",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22761",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22762",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22763",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22764",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22765",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22766",
+      "relevant": false,
+      "jevProbability": 0.78,
+      "llm": {
+        "document_number": "2026-22766",
+        "relevant": false,
+        "reason": "Routine individual SDN designation notice; handled via list-driven screening program, not an individual obligation change.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22767",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22768",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22769",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22770",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22771",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22772",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22773",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22774",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22775",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22776",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22777",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22778",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22779",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22780",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22781",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22782",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22783",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22784",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22785",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22786",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22788",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22790",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22791",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22792",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22793",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22793",
+        "relevant": false,
+        "reason": "BIS export control affiliates rule suspension extension; no bearing on payments, remittance or crypto wallet operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22794",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22795",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22796",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22797",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22798",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22799",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22800",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22801",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22802",
+      "relevant": false,
+      "jevProbability": 0.72,
+      "llm": {
+        "document_number": "2026-22802",
+        "relevant": false,
+        "reason": "OFAC list identifier updates only; absorbed via normal screening list refresh, no new obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22803",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22804",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22805",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22806",
+      "relevant": false,
+      "jevProbability": 0.28,
+      "llm": {
+        "document_number": "2026-22806",
+        "relevant": false,
+        "reason": "IRS Form 15254 information collection; not a payment platform or digital asset reporting form relevant to Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22807",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22808",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22809",
+      "relevant": true,
+      "jevProbability": 0.69,
+      "llm": {
+        "document_number": "2026-22809",
+        "relevant": true,
+        "reason": "FinCEN withdraws 2020 NPRM that would have cut the Travel Rule/recordkeeping threshold to $250 for cross-border transfers and covered CVC; Ledgerly's remittances and crypto sends stay at $3,000, removing a pending compliance risk.",
+        "areas": [
+          "aml-bsa",
+          "crypto"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22810",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22811",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22813",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22814",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22815",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22816",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22817",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22818",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22819",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22820",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22821",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22823",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22824",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22825",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22826",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22827",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22828",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22829",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22830",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22831",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22832",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22833",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22834",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22835",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22836",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22837",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-19414",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "C1-2026-21857",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22812",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22838",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22839",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22840",
+      "relevant": false,
+      "jevProbability": 0.33,
+      "llm": {
+        "document_number": "2026-22840",
+        "relevant": false,
+        "reason": "DoD 1260H list delisting of a Chinese military company; no direct obligation for Ledgerly's payment business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22842",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22843",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22844",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22845",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22846",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22847",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22848",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22849",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22850",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22851",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22852",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22853",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22854",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22855",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22856",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-22856",
+        "relevant": false,
+        "reason": "USCC public event notice; informational only.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22857",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22858",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22859",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22860",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22861",
+      "relevant": false,
+      "jevProbability": 0.78,
+      "llm": {
+        "document_number": "2026-22861",
+        "relevant": false,
+        "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22862",
+      "relevant": false,
+      "jevProbability": 0.77,
+      "llm": {
+        "document_number": "2026-22862",
+        "relevant": false,
+        "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22863",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22864",
+      "relevant": false,
+      "jevProbability": 0.77,
+      "llm": {
+        "document_number": "2026-22864",
+        "relevant": false,
+        "reason": "Routine SDN designation of persons and vessels; no program change for Ledgerly beyond list screening.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22865",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22866",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22867",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22867",
+        "relevant": false,
+        "reason": "USTR Section 301 maritime/shipbuilding suspension; trade tariffs unrelated to Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22868",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22869",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22870",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22871",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22872",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22873",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22874",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22875",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22876",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22877",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22878",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22879",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22880",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22881",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22882",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22883",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22884",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22885",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22886",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22887",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22888",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22889",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22890",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22891",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22891",
+        "relevant": false,
+        "reason": "NLRB procedural rules; no relation to Ledgerly's payment business lines.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22892",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-22892",
+        "relevant": false,
+        "reason": "IRS QI/WP/WT application information collection; applies to foreign intermediaries, not Ledgerly's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22893",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22894",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22895",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22896",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22897",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22898",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22899",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22900",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22901",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22902",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22903",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22904",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22905",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22906",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22907",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22908",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22909",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22910",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22911",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22912",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22912",
+        "relevant": false,
+        "reason": "DOJ antitrust NCRPA notice for Blockchain Security Standards Council; no obligations for Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22913",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22914",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22915",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22917",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22918",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22919",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22920",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22921",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22923",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22924",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22925",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-22925",
+        "relevant": false,
+        "reason": "USTR Section 301 product exclusion extensions on goods; no impact on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22926",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22927",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22928",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22929",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22930",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22931",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22932",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22933",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22934",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22935",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22936",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22937",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22938",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22939",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22940",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22941",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22942",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22943",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22944",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22951",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22953",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22962",
+      "relevant": true,
+      "jevProbability": 0.9,
+      "llm": {
+        "document_number": "2026-22962",
+        "relevant": true,
+        "reason": "FinCEN section 9714 order prohibiting transmittals of funds involving MEXC Global, a crypto exchange; Ledgerly must block/screen transfers and counterparties linked to MEXC in its custodial wallet and remittance flows.",
+        "areas": [
+          "aml-bsa",
+          "crypto",
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22945",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22946",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22947",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22949",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22950",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22954",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22954",
+        "relevant": false,
+        "reason": "DEA decision and order on an individual practitioner registration; irrelevant.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22955",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22956",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22957",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22958",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22959",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22960",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22961",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22963",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22964",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22965",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22966",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22967",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22968",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22969",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22970",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22971",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22972",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22973",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22974",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22975",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22976",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22977",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22978",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22979",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22980",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22981",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22982",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22983",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22984",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22985",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22986",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22987",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22988",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22989",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22989",
+        "relevant": false,
+        "reason": "Treasury social impact funding opportunity; not applicable to Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22990",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22991",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22993",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22994",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22995",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22996",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22998",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22999",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23000",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23001",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23002",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23003",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23004",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23005",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23006",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23007",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23008",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23009",
+      "relevant": false,
+      "jevProbability": 0.79,
+      "llm": {
+        "document_number": "2026-23009",
+        "relevant": false,
+        "reason": "Routine individual SDN designation notice; handled via screening list updates.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23010",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23011",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23013",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23014",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23015",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23016",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-23016",
+        "relevant": false,
+        "reason": "SBA disaster declaration correction for Texas; no effect on Ledgerly's obligations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23017",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23018",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23019",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-23019",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Tennessee has no bearing on Ledgerly's payments, remittance or crypto obligations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23020",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23021",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23022",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23023",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23024",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23025",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23026",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23027",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23028",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23029",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23030",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23031",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-23031",
+        "relevant": false,
+        "reason": "NIST NCCoE consortia invitation is voluntary research participation; creates no compliance obligation for Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23032",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23033",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23034",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23035",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23036",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23037",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23038",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23040",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23041",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23042",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23043",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23044",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23045",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23046",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23047",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23048",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23049",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23050",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23051",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23052",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23053",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23054",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23055",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23056",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23057",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23058",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23059",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-23059",
+        "relevant": false,
+        "reason": "DOJ fraud enforcement lead intake form information collection; no new obligation on a money transmitter.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23060",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23061",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23062",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23063",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23064",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23065",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23066",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23067",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23068",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23072",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23073",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23074",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23075",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23077",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23080",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23113",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-21030",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-22802",
+      "relevant": false,
+      "jevProbability": 0.7,
+      "llm": {
+        "document_number": "C1-2026-22802",
+        "relevant": false,
+        "reason": "Individual OFAC designations notice; matters only through the existing screening program, which updates via SDN list feeds, with no new obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23069",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23070",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-23070",
+        "relevant": false,
+        "reason": "HUD Davis-Bacon payee verification information collection is irrelevant to Ledgerly's business lines.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23071",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23078",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23079",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23081",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23082",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23083",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23085",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23086",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23087",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23088",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23089",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23090",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23091",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23092",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23093",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23094",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23095",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23096",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23097",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23098",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23099",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23100",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23101",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23102",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23103",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23104",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23105",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23106",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23107",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23108",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23109",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23110",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23111",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23112",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23114",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23115",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23116",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23117",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23118",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23119",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23120",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23121",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23122",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23123",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23124",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23125",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23126",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23127",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23128",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23129",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23130",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23131",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23132",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23133",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23134",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23135",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23136",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23137",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23138",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23139",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23141",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23142",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23143",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23144",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23145",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23146",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23147",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23148",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23149",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23150",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23151",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23152",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-23152",
+        "relevant": false,
+        "reason": "CFPB PRA extension for consumer credit research; Ledgerly has no lending and no obligation arises.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-23153",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23154",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23155",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23158",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23160",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23161",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23162",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23163",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23164",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23165",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23166",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23167",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23168",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23169",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23170",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23171",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23172",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23173",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23174",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23175",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23176",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23177",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23178",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23179",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23180",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23181",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23182",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23183",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23184",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23185",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23186",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23187",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23188",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23189",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23190",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23191",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23192",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23193",
+      "relevant": true,
+      "jevProbability": 0.58,
+      "llm": {
+        "document_number": "2026-23193",
+        "relevant": true,
+        "reason": "Iran-related GL W changes authorized activity under Iran sanctions; relevant to remittance/crypto screening and transaction handling for Iran-nexus exposure.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-23194",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23195",
+      "relevant": true,
+      "jevProbability": 0.52,
+      "llm": {
+        "document_number": "2026-23195",
+        "relevant": true,
+        "reason": "Cuba Sanctions Regulations GL 1 may alter permitted transactions; relevant to screening and cross-border remittance controls.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-23196",
+      "relevant": true,
+      "jevProbability": 0.7,
+      "llm": {
+        "document_number": "2026-23196",
+        "relevant": true,
+        "reason": "Russia GLs 55F and 115D alter authorized transactions under the Russian sanctions regulations; relevant to screening and remittance/crypto transaction controls.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-23197",
+      "relevant": true,
+      "jevProbability": 0.62,
+      "llm": {
+        "document_number": "2026-23197",
+        "relevant": true,
+        "reason": "Iran-related GLs EE and FF modify authorized activity; relevant to sanctions screening and remittance/crypto transaction handling.",
+        "areas": [
+          "sanctions"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-23198",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23233",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-23233",
+        "relevant": false,
+        "reason": "Presidential determination under NDAA 1245(d) concerns Iranian oil purchase sanctions exceptions for countries; no direct change to Ledgerly's screening obligations.",
+        "areas": []
+      }
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-22962",
+      "title": "Imposition of Special Measure Prohibiting the Transmittal of Funds Involving MEXC Global",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Financial Crimes Enforcement Network"
+      ],
+      "tier": "Critical",
+      "tierReason": "effective deadline in 27 days (< 90)",
+      "deadline": {
+        "date": "2026-12-10",
+        "kind": "effective",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "deadlines": [
+        {
+          "date": "2026-12-10",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "owner": {
+        "name": "Priya Shah (BSA Officer)",
+        "email": "bsa@ledgerly.example"
+      },
+      "areas": [
+        "aml-bsa",
+        "crypto",
+        "sanctions"
+      ],
+      "reason": "FinCEN section 9714 order prohibiting transmittals of funds involving MEXC Global, a crypto exchange; Ledgerly must block/screen transfers and counterparties linked to MEXC in its custodial wallet and remittance flows.",
+      "action": "Block transmittals and wallet activity involving MEXC Global, add its addresses and counterparties to screening, and confirm controls are live before the order takes effect.",
+      "citation": "91 FR 72420",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22962/imposition-of-special-measure-prohibiting-the-transmittal-of-funds-involving-mexc-global",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-23193",
+      "title": "Publication of Iran-Related Web General License W",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Foreign Assets Control Office"
+      ],
+      "tier": "High",
+      "tierReason": "final rule, no dated obligation found",
+      "deadline": null,
+      "deadlines": [
+        {
+          "date": "2026-05-01",
+          "kind": "other",
+          "source": "extracted",
+          "quote": "GL W was issued on May 1, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Iran-related GL W changes authorized activity under Iran sanctions; relevant to remittance/crypto screening and transaction handling for Iran-nexus exposure.",
+      "action": "Review Iran-related General License W with Sanctions and update screening and escalation procedures, so any newly authorized Iran-nexus remittance or crypto activity is handled correctly.",
+      "citation": "91 FR 73142",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23193/publication-of-iran-related-web-general-license-w",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-23195",
+      "title": "Publication of a Cuba Sanctions Regulations Web General License",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Foreign Assets Control Office"
+      ],
+      "tier": "High",
+      "tierReason": "final rule, no dated obligation found",
+      "deadline": null,
+      "deadlines": [
+        {
+          "date": "2026-05-07",
+          "kind": "other",
+          "source": "extracted",
+          "quote": "GL 1 was issued on May 7, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Cuba Sanctions Regulations GL 1 may alter permitted transactions; relevant to screening and cross-border remittance controls.",
+      "action": "Assess the new Cuba general license and confirm remittance screening rules still block unauthorized Cuba-nexus transfers while permitting only clearly authorized activity.",
+      "citation": "91 FR 73139",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23195/publication-of-a-cuba-sanctions-regulations-web-general-license",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-23196",
+      "title": "Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Foreign Assets Control Office"
+      ],
+      "tier": "High",
+      "tierReason": "final rule, no dated obligation found",
+      "deadline": null,
+      "deadlines": [
+        {
+          "date": "2026-06-11",
+          "kind": "other",
+          "source": "extracted",
+          "quote": "GL 55F was issued on June 11, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Russia GLs 55F and 115D alter authorized transactions under the Russian sanctions regulations; relevant to screening and remittance/crypto transaction controls.",
+      "action": "Review Russia general licenses 55F and 115D and adjust screening rules and exception handling so authorized transactions are processed and everything else stays blocked.",
+      "citation": "91 FR 73140",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23196/publication-of-russian-harmful-foreign-activities-sanctions-regulations-web-general-licenses-55f-and",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-23197",
+      "title": "Publication of Iran-Related Web General Licenses EE and FF",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Foreign Assets Control Office"
+      ],
+      "tier": "High",
+      "tierReason": "final rule, no dated obligation found",
+      "deadline": null,
+      "deadlines": [
+        {
+          "date": "2026-10-08",
+          "kind": "other",
+          "source": "extracted",
+          "quote": "GL EE was issued on October 8, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Marcus Lee (Sanctions)",
+        "email": "sanctions@ledgerly.example"
+      },
+      "areas": [
+        "sanctions"
+      ],
+      "reason": "Iran-related GLs EE and FF modify authorized activity; relevant to sanctions screening and remittance/crypto transaction handling.",
+      "action": "Evaluate Iran-related general licenses EE and FF, then update screening logic and analyst guidance so permitted transactions are not wrongly blocked and prohibited ones are.",
+      "citation": "91 FR 73140",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23197/publication-of-iran-related-web-general-licenses-ee-and-ff",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-22809",
+      "title": "Threshold for the Requirement To Collect, Retain, and Transmit Information on Funds Transfers and Transmittals of Funds That Begin or End Outside the United States, and Clarification of the Requirement To Collect, Retain, and Transmit Information on Transactions Involving Convertible Virtual Currencies and Digital Assets With Legal Tender Status; Withdrawal",
+      "type": "Proposed Rule",
+      "agencies": [
+        "Treasury Department",
+        "Financial Crimes Enforcement Network"
+      ],
+      "tier": "Medium",
+      "tierReason": "proposed rule, no open deadline",
+      "deadline": null,
+      "deadlines": [
+        {
+          "date": "2026-11-09",
+          "kind": "effective",
+          "source": "extracted",
+          "quote": "FinCEN and the Board are withdrawing the NPRM published at 85 FR 68005 (October 27, 2020), as of November 9, 2026.",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Priya Shah (BSA Officer)",
+        "email": "bsa@ledgerly.example"
+      },
+      "areas": [
+        "aml-bsa",
+        "crypto"
+      ],
+      "reason": "FinCEN withdraws 2020 NPRM that would have cut the Travel Rule/recordkeeping threshold to $250 for cross-border transfers and covered CVC; Ledgerly's remittances and crypto sends stay at $3,000, removing a pending compliance risk.",
+      "action": "Note the withdrawn proposal and keep the current $3,000 Travel Rule threshold; brief the BSA team so no system changes for a $250 limit proceed.",
+      "citation": "91 FR 70824",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/09/2026-22809/threshold-for-the-requirement-to-collect-retain-and-transmit-information-on-funds-transfers-and",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — Ledgerly Inc.\nWindow 2026-11-09 → 2026-11-13 · as of 2026-11-13 · 6 items\n\n## Critical (1)\n\n- **Imposition of Special Measure Prohibiting the Transmittal of Funds Involving MEXC Global** [Federal Register]\n  - Block transmittals and wallet activity involving MEXC Global, add its addresses and counterparties to screening, and confirm controls are live before the order takes effect.\n  - Deadline: 2026-12-10 (effective, FR field ✓) · Owner: Priya Shah (BSA Officer) · Areas: aml-bsa, crypto, sanctions\n  - 91 FR 72420 ✓ · https://www.federalregister.gov/documents/2026/11/10/2026-22962/imposition-of-special-measure-prohibiting-the-transmittal-of-funds-involving-mexc-global\n\n## High (4)\n\n- **Publication of Iran-Related Web General License W** [Federal Register]\n  - Review Iran-related General License W with Sanctions and update screening and escalation procedures, so any newly authorized Iran-nexus remittance or crypto activity is handled correctly.\n  - Deadline: none found · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 73142 ✓ · https://www.federalregister.gov/documents/2026/11/13/2026-23193/publication-of-iran-related-web-general-license-w\n- **Publication of a Cuba Sanctions Regulations Web General License** [Federal Register]\n  - Assess the new Cuba general license and confirm remittance screening rules still block unauthorized Cuba-nexus transfers while permitting only clearly authorized activity.\n  - Deadline: none found · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 73139 ✓ · https://www.federalregister.gov/documents/2026/11/13/2026-23195/publication-of-a-cuba-sanctions-regulations-web-general-license\n- **Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D** [Federal Register]\n  - Review Russia general licenses 55F and 115D and adjust screening rules and exception handling so authorized transactions are processed and everything else stays blocked.\n  - Deadline: none found · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 73140 ✓ · https://www.federalregister.gov/documents/2026/11/13/2026-23196/publication-of-russian-harmful-foreign-activities-sanctions-regulations-web-general-licenses-55f-and\n- **Publication of Iran-Related Web General Licenses EE and FF** [Federal Register]\n  - Evaluate Iran-related general licenses EE and FF, then update screening logic and analyst guidance so permitted transactions are not wrongly blocked and prohibited ones are.\n  - Deadline: none found · Owner: Marcus Lee (Sanctions) · Areas: sanctions\n  - 91 FR 73140 ✓ · https://www.federalregister.gov/documents/2026/11/13/2026-23197/publication-of-iran-related-web-general-licenses-ee-and-ff\n\n## Medium (1)\n\n- **Threshold for the Requirement To Collect, Retain, and Transmit Information on Funds Transfers and Transmittals of Funds That Begin or End Outside the United States, and Clarification of the Requirement To Collect, Retain, and Transmit Information on Transactions Involving Convertible Virtual Currencies and Digital Assets With Legal Tender Status; Withdrawal** [Federal Register]\n  - Note the withdrawn proposal and keep the current $3,000 Travel Rule threshold; brief the BSA team so no system changes for a $250 limit proceed.\n  - Deadline: none found · Owner: Priya Shah (BSA Officer) · Areas: aml-bsa, crypto\n  - 91 FR 70824 ✓ · https://www.federalregister.gov/documents/2026/11/09/2026-22809/threshold-for-the-requirement-to-collect-retain-and-transmit-information-on-funds-transfers-and\n"
+}
