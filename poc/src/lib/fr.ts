@@ -96,7 +96,9 @@ async function fetchText(url: string): Promise<string | null> {
     if (!res.ok) return null;
     const html = await res.text();
     if (!html.trim() || isBlockPage(html)) return null;
-    return html.replace(/<[^>]+>/g, " ");
+    // Strip only real tags (<pre>, </pre>, <!-- … -->). govinfo leaves a literal "<" unescaped in the text
+    // ("<=7.3 percent"), and a bare /<[^>]+>/ deleted everything up to the next ">" (2026-11-22, up to 34 KB).
+    return html.replace(/<!--[\s\S]*?-->|<\/?[a-zA-Z][^<>]*>/g, " ");
   } catch {
     return null;
   }
@@ -112,7 +114,8 @@ export async function getRawText(doc: FrDoc): Promise<string> {
 
 /** Same as getRawText, plus where the text came from (for the execution trace). */
 export async function getRawTextWithSource(doc: FrDoc): Promise<{ text: string; source: "cache" | "govinfo" | "federalregister" | "none" }> {
-  const file = path.join(CACHE, `text-${doc.document_number}.json`);
+  // v2: texts cached before the tag-strip fix (2026-11-22) may be cut, so they're never read again.
+  const file = path.join(CACHE, `text-v2-${doc.document_number}.json`);
   try {
     const hit = JSON.parse(await fs.readFile(file, "utf8")) as string;
     if (hit && !isBlockPage(hit)) return { text: hit, source: "cache" };

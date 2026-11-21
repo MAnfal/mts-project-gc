@@ -13,6 +13,7 @@ decision: "Rejected; live setup stays jev-sonnet-strict (the filterVotes knob st
 notes: "Eval set grew from 6 to 12 company-weeks in this suite, so numbers are not comparable with 00-03 without the split. Old 6 weeks: strict dev 27/27 recall, 87.1% precision; test 12/15, 75.0%. vote3 dev 27/27, 93.1%; test 13/15, 65.0%. New 6 weeks: strict dev 3/6, 20.0% precision (1 trap hit, 11 extras); test 10/12, 71.4%. vote3 dev 3/6, 20.0% (0 trap hits, 12 extras); test 10/12, 66.7%. The new dev week's low precision is extras: 9 of 11 (strict) and 9 of 12 (vote3) are docs the key reconcilers dropped as genuinely 50/50 (22176, 22121, 22122), which the grader still counts as false alarms; a grader fix is proposed separately and was not applied here. The strict setup's old-week test recall was 14/15, 9/15 and now 12/15 across three suites: drift between suites persists. The \"flagged docs identical across 3 repeats\" figure is a dev diagnostic built after results came in; the suite's consistency metric is the pre-registered one. Baseline on the new weeks ran in a separate suite (arena-2026-11-21-21-45-cb0, dev recall 1/6, test 7/12), so baseline comparisons across all 12 weeks are cross-suite. Known pipeline bug found during this iteration, affecting both setups equally: govinfo text with a literal \"<\" loses text up to the next \">\" (src/lib/fr.ts tag strip); queued as iteration 05."
 process: "This change was chosen from consistency numbers alone; no error analysis (incl. judge feedback) was run before it. That gap is why the evidence gate now exists (scripts/iteration.mts + evidenceProblems): from iteration 05 on, an iteration can't be recorded without a dev-only error analysis of the previous suite and targets naming its failures."
 regradedSubset: "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50). Decision unchanged: dev precision is now 85.7% (strict) vs 93.8% (vote3), test still 73.3% vs 65.7% (test had no extras, so subset grading doesn't move it); the vote still fails 'holds on test'."
+amended: '2026-11-22, after iteration 05 measured an A/A noise band on the unchanged control (test recall swings 3 cases, test trap hits 4 between two identical suites): the test-leg drop here (8 -> 12 trap hits) is inside that band, so the honest verdict is "not kept on cost (2.2x per run); test result inconclusive", not "fails on test".'
 results:
   candidate:
     setup: jev-sonnet-strict-vote3
@@ -57,7 +58,7 @@ results:
     costPerRunUsd: 0.126
     secondsPerRun: 34
 code:
-  commit: b5af67f
+  commit: d714f36
   uncommittedSrcChanges: 1
 systemChanges:
   - filterVotes
@@ -65,4 +66,4 @@ configChangesSincePrevious:
   previous: 03-strict-v2
   files: []
 configHashAtRecord: e238bb82b4
-recordedAt: 2026-11-21T22:12:36.323Z
+recordedAt: 2026-11-21T22:23:22.216Z

@@ -1,0 +1,3832 @@
+{
+  "id": "2026-11-21T22-04-49-249Z_pipeline_k0fi",
+  "createdAt": "2026-11-21T22:04:49.249Z",
+  "config": {
+    "profileId": "brightside",
+    "windowStart": "2026-10-26",
+    "windowEnd": "2026-10-30",
+    "asOf": "2026-10-30",
+    "mode": "pipeline",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "promptSet": "strict",
+    "group": "arena-2026-11-21-22-04-jq4:jev-sonnet-strict",
+    "arena": "arena-2026-11-21-22-04-jq4",
+    "cell": "jev-sonnet-strict",
+    "evalset": "brightside_2026-10-26_2026-10-30",
+    "repeatIndex": 1
+  },
+  "configHash": "e238bb82b4",
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 0,
+      "costUsd": 0,
+      "outCount": 505
+    },
+    {
+      "name": "filter:jev",
+      "ms": 19030,
+      "costUsd": 0.014780010000000003,
+      "inCount": 505,
+      "outCount": 82,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 14886,
+      "costUsd": 0.115012,
+      "inCount": 82,
+      "outCount": 2,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 3105,
+      "costUsd": 0.01547599999999999,
+      "inCount": 2,
+      "outCount": 2,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 2626,
+      "costUsd": 0.004176000000000013,
+      "outCount": 2
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 9143,
+      "costUsd": 0.02489,
+      "inputTokens": 5795,
+      "outputTokens": 1330,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (20) ===\n\n[2026-21836] Notice — Equal Employment Opportunity Commission\nTitle: Agency Information Collection Activities: Extension Without Change of an Existing Collection; Comment Request\nAction: Notice.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 (PRA), the Equal Employment Opportunity Commission (EEOC or Commission) announces that it intends to submit to the Office of Management and Budget (OMB) a request for a three-year extension without change of the existing information collection described below. The Commission is seeking public comment on the proposed extension.\n\n[2026-21843] Notice — Environmental Protection Agency\nTitle: Official Release of the MOVES6 Motor Vehicle Emissions Model for SIPs and Transportation Conformity\nAction: Notice of availability.\nAbstract: The U.S. Environmental Protection Agency (EPA) is announcing the availability of the latest major release of the MOtor Vehicle Emission Simulator (MOVES) model, MOVES6. MOVES6 is the latest version of the EPA's state-of-the-science modeling tool for estimating emissions from cars, trucks, buses, and motorcycles based on the latest data and regulations. MOVES6 is available for use in State Implementation Plans (SIPs) and transportation conformity analyses. This notice starts a two-year grace period before MOVES6 will be required for use in transportation conformity determinations, both in new regional emissions analyses and in new hot-spot analyses.\n\n[2026-21858] Notice — Agriculture Department; Rural Business-Cooperative Service\nTitle: Notice of Funding Opportunity for the Strengthening Processing for US Ranchers (SPUR) Guaranteed Loan Program for Fiscal Year 2027 and Guarantee Fee Rates/Loan Guarantee Percentage and Fee for Issuance of Loan Note Guarantee Prior to Construction Completion\nAction: Notice.\nAbstract: The Rural Business-Cooperative Service (RBCS or Agency), an agency of the United States Department of Agriculture (USDA) Rural Development mission area (RD) announces the acceptance of guaranteed loan applications under the Strengthening Processing for US Ranchers (SPUR) Guaranteed Loan Program. This notice provides applicants with the Guarantee Fee rates, Loan Guarantee percentage, the Periodic Retention Fee, and Fee for Issuance of the Loan Note Guarantee Prior to Construction Completion for Fiscal Year (FY) 2027, to be used when applying for guaranteed loans under the SPUR Guaranteed Loan Program. Should the fees need to be adjusted, the Agency will publish a subsequent notice in the Federal Register. These guaranteed funds will be made available to eligible lenders to make loans to eligible borrowers seeking to support a range of activities to increase and diversify the processing capacity of American Meat, Poultry, and Seafood. USDA is also making funding available for technical assistance through providers who are experts in the fields of meat, poultry, and seafood processing, and business planning.\n\n[2026-21873] Notice — Energy Department; Federal Energy Regulatory Commission\nTitle: North American Electric Reliability Corporation; Notice of Staff Review of Enforcement Programs\nAbstract: (none)\n\n[2026-21889] Notice — Transportation Department; National Highway Traffic Safety Administration\nTitle: Notice of Intent To Establish a Negotiated Rulemaking Advisory Committee for Tire Safety; Request for Comments and Solicitation of Nominations for Membership\nAction: Notice of intent to establish a Negotiated Rulemaking Advisory Committee for Tire Safety; request for comments; solicitation of nominations for membership.\nAbstract: NHTSA announces its intent to form a Negotiated Rulemaking Advisory Committee for Tire Safety. The committee will advise the Secretary on tire safety matters through a negotiated rulemaking process. The committee will terminate when its stated objectives have been accomplished (i.e., the committee submits its recommendations to the Secretary) or upon the expiration of a period not to exceed two years, unless the charter is renewed by the Secretary. This notice seeks public comment on the proposed establishment of this committee and its proposed membership. This notice also requests nominations for membership on the committee.\n\n[2026-21906] Notice — Transportation Department; Federal Motor Carrier Safety Administration\nTitle: Commercial Driver's License: PAM Transport, Inc.; Application for Exemption\nAction: Notice of application for exemption; request for comments.\nAbstract: FMCSA requests public comment on PAM Transport Inc.'s (PAM) application for an exemption from the requirement that a holder of a commercial learner's permit (CLP) who has successfully passed the commercial driver's license (CDL) skills test but not yet been issued CDL credentials be accompanied by a CDL holder in the front seat, while the commercial motor vehicle (CMV) is driven by the CLP holder. PAM states that the CDL holder would remain in the CMV while the CLP holder is driving, but not necessarily in the passenger seat of the vehicle. FMCSA is required by statute to publish a notice explaining each exemption request. This notice does not indicate what decision FMCSA will ultimately reach on the request. After reviewing the application, safety analyses, and public comments submitted, FMCSA will grant or deny the exemption.\n\n[2026-21922] Proposed Rule — Transportation Department; Pipeline and Hazardous Materials Safety Administration\nTitle: Hazardous Materials: Harmonization With International Standards\nAction: Notice of proposed rulemaking (NPRM).\nAbstract: PHMSA proposes to update the Hazardous Materials Regulations to adopt certain international regulations and standards related to proper shipping names, hazard classes, packing groups, special provisions, packaging authorizations, air transport quantity limitations, and vessel stowage requirements. These proposed amendments are intended to maintain consistency with the latest international regulations and standards, to reduce costs to entities or individuals within the United States, and to lower the cost of regulations on the U.S. economy.\n\n[2026-21908] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Electronic Records; Electronic Signatures\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA, Agency, or we) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the notice. This notice solicits comments on information collection applicable to the electronic record signature provisions found in Agency regulations.\n\n[2026-21912] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Food and Drug Administration Rapid Response Surveys\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA or Agency) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the notice. This notice solicits comments on the use of rapid response surveys to obtain data on safety information that supports quick turnaround decision making about potential safety problems or risk management solutions.\n\n[2026-21913] Notice — Health and Human Services Department; Food and Drug Administration\nTitle: Agency Information Collection Activities; Submission for Office of Management and Budget Review; Comment Request; Color Additive Certification\nAction: Notice.\nAbstract: The Food and Drug Administration (FDA) is announcing that a proposed collection of information has been submitted to the Office of Management and Budget (OMB) for review and clearance under the Paperwork Reduction Act of 1995.\n\n[2026-21915] Notice — Postal Service\nTitle: Product Change-Priority Mail Express, Priority Mail, and USPS Ground Advantage Negotiated Service Agreements; Priority Mail and USPS Ground Advantage Negotiated Service Agreements\nAction: Notice.\nAbstract: The Postal Service gives notice of filing a request with the Postal Regulatory Commission to add a domestic shipping services contract to the list of Negotiated Service Agreements in the Mail Classification Schedule's Competitive Products List.\n\n[2026-21929] Notice — Commerce Department; International Trade Administration\nTitle: Van-Type Trailers and Subassemblies Thereof From the People's Republic of China: Antidumping Duty Order and Countervailing Duty Order\nAbstract: Based on affirmative final determinations by the U.S. Department of Commerce (Commerce) and the U.S. International Trade Commission (ITC), Commerce is issuing antidumping duty (AD) and countervailing duty (CVD) orders on van-type trailers and subassemblies thereof (van-type trailers) from the People's Republic of China (China).\n\n[2026-21941] Notice — Homeland Security Department; Federal Emergency Management Agency\nTitle: Agency Information Collection Activities: Submission for OMB Review, Comment Request; Application for Participation in the National Flood Insurance Program\nAction: 30-Day notice of extension and request for comments.\nAbstract: The Federal Emergency Management Agency (FEMA) will submit the information collection abstracted below to the Office of Management and Budget for review and clearance in accordance with the requirements of the Paperwork Reduction Act of 1995. FEMA invites the general public to take this opportunity to comment on an extension of a currently approved information collection. In accordance with the requirements of the Paperwork Reduction Act of 1995, this notice seeks comments concerning the collection of information under which communities submit information to FEMA for application and continued participation in the National Flood Insurance Program (NFIP).\n\n[2026-21944] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons and vessels that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. The vessels placed on the SDN List have been identified as property in which a blocked person has an interest.\n\n[2026-21956] Notice — Unified Carrier Registration Plan\nTitle: Sunshine Act Meetings\nAbstract: (none)\n\n[2026-21963] Rule — Environmental Protection Agency\nTitle: Voluntary Consensus Standards Update; Formaldehyde Emission Standards for Composite Wood Products\nAction: Final rule.\nAbstract: The Environmental Protection Agency (EPA) is publishing a final rule to update the incorporation by reference of several voluntary consensus standards in the Agency's formaldehyde standards for composite wood products regulations under the Toxic Substances Control Act (TSCA) due to the standards having been updated or superseded by the issuing organizations. These new standards primarily update test methods and product standards concerning composite wood products that use formaldehyde. EPA is also conforming these updated standards in the scope and definitional sections in the final rule and incorporating by reference a new small scale quality control chamber test method, similar to current methods already incorporated by reference. EPA is also removing one standard that was previously incorporated by reference to avoid redundancy, given that another identical, internationally recognized version of the standard is already incorporated by reference in this rule.\n\n[2026-21971] Notice — Postal Regulatory Commission\nTitle: New Postal Products\nAction: Notice.\nAbstract: The Commission is noticing a recent Postal Service filing for the Commission's consideration concerning a negotiated service agreement. This notice informs the public of the filing, invites public comment, and takes other administrative steps.\n\n[2026-21972] Notice — Agriculture Department; Farm Service Agency\nTitle: Information Collection Request; Transfer of Farm Records Between Counties\nAction: Notice; request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995, the Farm Service Agency (FSA) is requesting comments from all interested individuals and organizations on the revision of the following currently approved information collection request: Transfer of Records between Counties (0560-0253).\n\n[2026-21992] Notice — Agriculture Department\nTitle: Submission for OMB Review; Comment Request\nAbstract: (none)\n\n[2026-21993] Notice — Agriculture Department\nTitle: Submission for OMB Review; Comment Request\nAbstract: (none)",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21836",
+            "relevant": false,
+            "reason": "EEOC paperwork extension without change; creates no new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21843",
+            "relevant": false,
+            "reason": "EPA MOVES6 model is for SIP/transportation conformity by states; imposes nothing on a private delivery fleet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21858",
+            "relevant": false,
+            "reason": "SPUR loan program funds meat/poultry/seafood processing capacity for ranchers; Brightside is not an applicant and nothing it must do changes.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21873",
+            "relevant": false,
+            "reason": "FERC/NERC electric reliability enforcement review; unrelated to food manufacturing.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21889",
+            "relevant": false,
+            "reason": "NHTSA notice of intent to form tire safety committee and solicit nominations; creates no requirement on the fleet now.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21906",
+            "relevant": false,
+            "reason": "Exemption application by PAM Transport for CLP holder rules; applies to PAM only and Brightside's fleet is unaffected.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21922",
+            "relevant": true,
+            "reason": "PHMSA proposed hazmat rule changes could affect shipping names/packaging if Brightside's trucks carry regulated materials (e.g., plant chemicals, ammonia, CO2); proposal could change fleet compliance.",
+            "areas": [
+              "operations"
+            ]
+          },
+          {
+            "document_number": "2026-21908",
+            "relevant": false,
+            "reason": "FDA paperwork collection on electronic records/signatures; no new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21912",
+            "relevant": false,
+            "reason": "FDA rapid response surveys information collection; voluntary surveys, no new obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21913",
+            "relevant": false,
+            "reason": "Color additive certification information collection submitted to OMB; paperwork renewal creating no new duty, though it relates to dyes in candy.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21915",
+            "relevant": false,
+            "reason": "USPS negotiated shipping contract; Brightside uses its own trucks.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21929",
+            "relevant": false,
+            "reason": "AD/CVD orders on Chinese van-type trailers; Brightside runs delivery trucks, not trailer imports, and no indication it buys these.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21941",
+            "relevant": false,
+            "reason": "FEMA flood insurance community application collection; not applicable to Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21944",
+            "relevant": false,
+            "reason": "OFAC sanctions designations; no connection to Brightside's domestic business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21956",
+            "relevant": false,
+            "reason": "Unified Carrier Registration Plan meeting notice; meeting only.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21963",
+            "relevant": false,
+            "reason": "EPA formaldehyde standards for composite wood products; different industry.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21971",
+            "relevant": false,
+            "reason": "Postal Regulatory Commission negotiated service agreement notice; irrelevant.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21972",
+            "relevant": false,
+            "reason": "FSA farm records transfer between counties paperwork; affects farmers, not Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21992",
+            "relevant": false,
+            "reason": "Generic USDA OMB submission notice with no stated content; no identifiable new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21993",
+            "relevant": false,
+            "reason": "Generic USDA OMB submission notice with no stated content; no identifiable new duty for Brightside.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 10345,
+      "costUsd": 0.023852,
+      "inputTokens": 5281,
+      "outputTokens": 1329,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (20) ===\n\n[2026-21722] Notice — Agriculture Department; Agricultural Marketing Service\nTitle: National Organic Standards Board Call for Applications and Nominations\nAction: Notice; call for applications or nominations to the Board.\nAbstract: Through this notice, the U.S. Department of Agriculture (USDA) is announcing its call for applications and nominations to fill three vacancies on the National Organic Standards Board (Board): one individual who owns or operates an organic farming operation or employee of such individual; one individual who represents a public interest or consumer interest group; and one individual with expertise in the fields of toxicology, ecology, or biochemistry. Appointees will serve a 5-year term beginning in January 2027 and ending in January 2032. Additionally, USDA seeks applications or nominations for a pool of candidates that the Secretary of Agriculture can draw upon as replacement appointees if unexpected vacancies occur.\n\n[2026-21727] Notice — Agriculture Department; Office of the Secretary\nTitle: Civil Monetary Penalties Inflation Adjustments for 2026\nAction: Notice.\nAbstract: The United States Department of Agriculture (USDA) is issuing this notice to announce that civil monetary penalty (CMP) amounts assessed or enforced will not increase for calendar year 2026. USDA is generally required by statute to amend its regulations annually to adjust for inflation the civil monetary penalties assessed or enforced by its components. However, in accordance with guidance from the Office of Management and Budget (\"OMB\"), USDA will continue to use the 2025 civil monetary penalty levels because there will be no cost-of-living adjustment for 2026.\n\n[2026-21733] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. The vessels placed on the SDN List have been identified as property in which a blocked person has an interest.\n\n[2026-21742] Notice — Administrative Conference of the United States\nTitle: Processing Public Comments in Agency Rulemaking; Request for Comments\nAction: Notice; request for comments.\nAbstract: The Office of the Chairman of ACUS is requesting public input on federal agency approaches and processes for receiving, publicizing, and responding to comments related to rulemaking proceedings. ACUS is accepting written comments. Responses to this request may inform an ongoing ACUS project, Processing Public Comments in Agency Rulemaking, which, if warranted, may recommend best practices for agencies to use.\n\n[2026-21745] Notice — Agriculture Department; Animal and Plant Health Inspection Service\nTitle: Chronic Wasting Disease Herd Certification Program Standards\nAction: Notice of Availability.\nAbstract: We are advising the public that we are making available for review and comment a revised version of the Chronic Wasting Disease (CWD) Herd Certification Program Standards. The CWD Program Standards provide guidance on how to meet CWD Herd Certification Program and interstate movement requirements. We are taking this action to address concerns of State and industry participants regarding the existing standards.\n\n[2026-21752] Notice — Small Business Administration\nTitle: Data Collection Available for Public Comments\nAction: 60-Day notice and request for comments.\nAbstract: The Small Business Administration (SBA) intends to request approval from the Office of Management and Budget (OMB) for the collection of information described below. The Paperwork Reduction Act (PRA) requires federal agencies to publish a notice in the Federal Register concerning each proposed collection of information before submission to OMB, and to allow 60 days for public comment in response to the notice. This notice complies with that requirement.\n\n[2026-21757] Notice — Environmental Protection Agency\nTitle: Eastern Research Group; Access to Confidential Business Information\nAction: Notice.\nAbstract: This notice announces that information submitted to EPA's Office of Pollution Prevention and Toxics (OPPT) pursuant to the Toxic Substances Control Act (TSCA), including information that may be claimed as Confidential Business Information (CBI) by the submitter, will be transferred to or accessed by the Eastern Research Group (ERG), in accordance with the CBI regulations. The ERG has been awarded a contract to perform work in connection with TSCA and access to this information will enable ERG to fulfill the obligations of the contract.\n\n[2026-21766] Notice — Commerce Department; International Trade Administration\nTitle: Certain Amine Compounds From the People's Republic of China: Initiation of Less-Than-Fair-Value Investigation\nAbstract: (none)\n\n[2026-21774] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Notice to Account Holder for Garnishment of Accounts Containing Federal Benefit Payments\nAction: Notice of Information Collection; request for comment.\nAbstract: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collection listed below, in accordance with the Paperwork Reduction Act of 1995.\n\n[2026-21778] Notice — Commerce Department; International Trade Administration\nTitle: Certain Corrugated Die-Cut Cardboard Boxes From the Republic of Türkiye: Initiation of Countervailing Duty Investigation\nAbstract: (none)\n\n[2026-21782] Notice — Postal Regulatory Commission\nTitle: New Postal Products\nAction: Notice.\nAbstract: The Commission is noticing a recent Postal Service filing for the Commission's consideration concerning a negotiated service agreement. This notice informs the public of the filing, invites public comment, and takes other administrative steps.\n\n[2026-21783] Notice — Commerce Department; International Trade Administration\nTitle: Certain Corrugated Die-Cut Cardboard Boxes From the People's Republic of China, Malaysia, and the Republic of Türkiye: Initiation of Less-Than-Fair-Value Investigations\nAbstract: (none)\n\n[2026-21793] Notice — Commerce Department; International Trade Administration\nTitle: Carbazole Violet Pigment-23 From India: Final Results, and Rescission, in Part of Countervailing Duty Administrative Review; 2023\nAbstract: The U.S. Department of Commerce (Commerce) has conducted an administrative review of Navpad Pigments Private Limited (Navpad) regarding the countervailing duty order on carbazole violet pigment 23 (CVP-23) from India. The period of review (POR) is January 1, 2023, through December 31, 2023. In addition, Commerce is rescinding this review, in part, with respect to one company.\n\n[2026-21794] Proposed Rule — Transportation Department; National Highway Traffic Safety Administration\nTitle: Federal Motor Vehicle Safety Standards; Modernization of FMVSS No. 108 To Accommodate ADS-Equipped Vehicles\nAction: Notice of proposed rulemaking.\nAbstract: NHTSA is proposing to amend Federal Motor Vehicle Safety Standard (FMVSS) No. 108, \"Lamps, reflective devices, and associated equipment.\" The proposed updates to the standard are intended to remove unnecessary requirements and to provide design flexibility without impact on vehicle safety. The first two proposed changes would amend the test voltage specification for integral beam type headlamps and remove requirements that apply to vertical headlamp arrangements. Further proposed changes address vehicles equipped with Automated Driving Systems (ADS) that do not have manually operated driving controls. Those modifications would limit the application of certain requirements for manually operated turn signal, hazard warning signal, and beam switching controls to vehicles with manually operated driving controls. The changes are intended to address regulatory burdens and costs associated with equipment that does not fulfill the same purpose or provide safety benefits in an ADS-equipped vehicle without manually operated driving controls as in a vehicle with such controls. The changes would also narrow certain requirements for telltales to vehicles with manually operated driving controls \n\n[2026-21796] Notice — Social Security Administration\nTitle: Cost-of-Living Increase and Other Determinations for 2027\nAction: Notice.\nAbstract: Under title II of the Social Security Act (Act), there will be a 3.6 percent cost-of-living increase in Social Security benefits effective December 2026. In addition, the national average wage index for 2025 is $72,800.33. The cost-of-living increase and national average wage index affect other program parameters as described below.\n\n[2026-21798] Notice — Federal Trade Commission\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Extension\nAction: Notice.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 (PRA), the Federal Trade Commission (FTC or Commission) is seeking public comment on its proposal to extend for an additional three years the Office of Management and Budget clearance for its Fuel Rating Rule (the Rule). The current clearance expires on October 31, 2026.\n\n[2026-21812] Notice — Transportation Department; Federal Motor Carrier Safety Administration\nTitle: Parts and Accessories Necessary for Safe Operation; Application for an Exemption From R.B. Stewart Petroleum Products, Inc., USDOT # 1290158\nAction: Notice of application for exemption; request for comments.\nAbstract: FMCSA requests public comment on an application from R.B. Stewart Petroleum Products, Inc., USDOT No. 1290158, (R.B. Stewart) for an exemption from the requirement that lighting devices be steady burning. The exemption would allow the company to operate commercial motor vehicles (CMVs) equipped with a module manufactured by Intellistop, Inc. (Intellistop) which pulses the rear clearance, identification, and brake lamps from low-level lighting intensity to high-level lighting intensity 4 times in 2 seconds when the brakes are applied, and then return the lights to a steady-burning state while the brakes remain engaged. FMCSA requests public comment on the applicant's request for exemption.\n\n[2026-21819] Notice — Commerce Department; International Trade Administration\nTitle: Certain Small Vertical Shaft Engines Between 99cc and up to 225cc, and Parts Thereof From the People's Republic of China: Continuation of Antidumping and Countervailing Duty Orders\nAbstract: As a result of the determinations by the U.S. Department of Commerce (Commerce) and the U.S. International Trade Commission (ITC) that revocation of the antidumping duty (AD) and countervailing duty (CVD) orders on certain small vertical shaft engines between 99cc and 225cc, and parts thereof (small vertical engines) from the People's Republic of China (China) would likely lead to the continuation or recurrence of dumping, countervailable subsidies, and material injury to an industry in the United States, Commerce is publishing a notice of continuation of these AD and CVD orders.\n\n[2026-21822] Notice — Agriculture Department\nTitle: Submission for OMB Review; Comment Request\nAbstract: (none)\n\n[2026-21825] Notice — Equal Employment Opportunity Commission\nTitle: Sunshine Act Meetings\nAbstract: (none)",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21722",
+            "relevant": false,
+            "reason": "Call for National Organic Standards Board nominations; Brightside makes no organic products and the notice imposes no duty on it.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21727",
+            "relevant": false,
+            "reason": "USDA civil penalty amounts unchanged for 2026, so nothing new to pay or do.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21733",
+            "relevant": false,
+            "reason": "OFAC sanctions designations of persons and vessels; no sanctions exposure for a domestic food maker.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21742",
+            "relevant": false,
+            "reason": "ACUS request for comments on agency comment processing; creates no duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21745",
+            "relevant": false,
+            "reason": "CWD herd certification standards concern cervids, not Brightside's pork/beef sausages or crops.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21752",
+            "relevant": false,
+            "reason": "SBA paperwork collection notice; no new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21757",
+            "relevant": false,
+            "reason": "EPA TSCA CBI access notice for a contractor; imposes nothing on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21766",
+            "relevant": false,
+            "reason": "AD investigation on amine compounds from China; not an input Brightside buys.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21774",
+            "relevant": false,
+            "reason": "Treasury information collection on garnishment of benefit accounts; no impact on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21778",
+            "relevant": false,
+            "reason": "CVD investigation on Turkish corrugated die-cut boxes; the notice is an investigation initiation that imposes no duty on Brightside and does not clearly affect its packaging.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21782",
+            "relevant": false,
+            "reason": "Postal Service negotiated service agreement filing; not relevant to Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21783",
+            "relevant": false,
+            "reason": "LTFV investigations on corrugated boxes from China, Malaysia and Türkiye are only initiations with no duties yet imposed on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21793",
+            "relevant": false,
+            "reason": "CVD review on carbazole violet pigment 23 from India, an industrial pigment, not a food color additive Brightside uses.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21794",
+            "relevant": false,
+            "reason": "NHTSA FMVSS 108 lighting changes for ADS vehicles and headlamps; applies to vehicle manufacturers, not Brightside's delivery fleet operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21796",
+            "relevant": false,
+            "reason": "Social Security COLA and wage index notice; no SNAP or direct compliance duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21798",
+            "relevant": false,
+            "reason": "FTC Fuel Rating Rule paperwork extension; about fuel rating, not Brightside's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21812",
+            "relevant": false,
+            "reason": "Exemption application from a petroleum carrier regarding pulsing brake lamps; applies to that company, not Brightside's fleet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21819",
+            "relevant": false,
+            "reason": "AD/CVD order continuation on small vertical shaft engines from China; unrelated to food.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21822",
+            "relevant": false,
+            "reason": "Generic USDA OMB submission notice with no details showing any new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21825",
+            "relevant": false,
+            "reason": "EEOC Sunshine Act meeting notice; no new requirement.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#4",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 3150,
+      "costUsd": 0.00464,
+      "inputTokens": 1380,
+      "outputTokens": 188,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (2) ===\n\n[2026-22232] Notice — Surface Transportation Board\nTitle: Release of Waybill Data\nAbstract: (none)\n\n[2026-22253] Notice — Delaware River Basin Commission\nTitle: Notice of Public Hearing and Business Meeting November 4, 2026 and December 3, 2026\nAbstract: (none)",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22232",
+            "relevant": false,
+            "reason": "STB waybill data release concerns rail shipment data; Brightside uses its own truck fleet and the notice imposes no duty on it or its direct suppliers or customers.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22253",
+            "relevant": false,
+            "reason": "Delaware River Basin Commission hearing and business meeting notice; it is a meeting notice for a region where Brightside has no plants (Ohio and Georgia) and creates no obligation.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#2",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 13781,
+      "costUsd": 0.029134,
+      "inputTokens": 5782,
+      "outputTokens": 1757,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (20) ===\n\n[2026-21994] Notice — Agriculture Department\nTitle: Submission for OMB Review; Comment Request\nAbstract: (none)\n\n[2026-22006] Notice — Labor Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; Employee Polygraph Protection Act\nAction: Notice of availability; request for comments.\nAbstract: The Department of Labor (DOL) is submitting this Wage and Hour Division (WHD)-sponsored information collection request (ICR) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act of 1995 (PRA). Public comments on the ICR are invited.\n\n[2026-22051] Presidential Document — Executive Office of the President\nTitle: Decreasing Housing Costs for the American People\nAbstract: (none)\n\n[2026-22052] Presidential Document — Executive Office of the President\nTitle: Presidential Determination Pursuant to Section 303 of the Defense Production Act of 1950, as Amended, on Domestic Petroleum Production, Refining, and Logistics Capacity\nAbstract: (none)\n\n[2026-22017] Notice — Labor Department; Occupational Safety and Health Administration\nTitle: Intertek Testing Services NA, Inc.: Grant of Expansion of Recognition\nAction: Notice.\nAbstract: In this notice, OSHA announces the final decision to expand the scope of recognition for Intertek Testing Services NA, Inc as a Nationally Recognized Testing Laboratory (NRTL).\n\n[2026-22018] Notice — Labor Department; Employment and Training Administration\nTitle: Agency Information Collection Activities; Comment Request; Contribution Operations\nAction: Notice.\nAbstract: The Department of Labor's (DOL) Employment and Training Administration (ETA) is soliciting comments concerning a proposed extension for the authority to conduct the information collection request (ICR) titled, \"Contribution Operations.\" This comment request is part of continuing Departmental efforts to reduce paperwork and respondent burden in accordance with the Paperwork Reduction Act of 1995 (PRA).\n\n[2026-22019] Notice — Labor Department\nTitle: New Collection; Older Workers Study Impact Evaluation\nAction: Notice of information collection; request for public comments.\nAbstract: The Department of Labor (DOL), as part of its continuing effort to reduce paperwork and respondent burden, conducts a pre- clearance request for comment to provide the general public and Federal agencies with an opportunity to comment on proposed collections of information in accordance with the Paperwork Reduction Act of 1995. This request helps to ensure that: requested data can be provided in the desired format; reporting burden (time and financial resources) is minimized; collection instruments are clearly understood; and the impact of collection requirements on respondents can be properly assessed. Currently, the DOL Chief Evaluation Office (CEO) is soliciting comments on the information collection for Senior Community Service Employment Program Older Workers Study Impact Evaluation.\n\n[2026-22023] Notice — Labor Department; Occupational Safety and Health Administration\nTitle: Grain Handling Facilities Standard; Extension of the Office of Management and Budget's (OMB) Approval of Information Collection (Paperwork) Requirements\nAction: Request for public comments.\nAbstract: OSHA solicits public comments concerning the proposal to extend the Office of Management and Budget's (OMB) approval of the information collection requirements specified in the Grain Handling Facilities Standard.\n\n[2026-22043] Notice — Agriculture Department\nTitle: Notice of Request for Approval of a Revision of a Currently Approved Information Collection Request\nAction: Notice and request for comments.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 (44 U.S.C. Chapter 35), this notice announces the intention of the United States Department of Agriculture (USDA) to request approval for a revision of a currently approved information collection request for the Agricultural Foreign Investment Disclosure Act of 1978 (AFIDA).\n\n[2026-22045] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the State of Indiana\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the state of Indiana dated October 26, 2026. Incident: Severe Storms and Flooding.\n\n[2026-22053] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the Commonwealth of Kentucky\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the commonwealth of Kentucky dated October 26, 2026. Incident: Severe Storms, Straight-line winds, Tornadoes, and Flooding.\n\n[2026-22056] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Microbial Rules (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Microbial Rules (EPA ICR Number 1895.12, OMB Control Number 2040-0205) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through October 31, 2026. Public comments were previously requested via the Federal Register on June 22, 2026, during a 60-day comment period. This notice allows for an additional 30 days for public comments.\n\n[2026-22057] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Chemical Data Reporting Under the Toxic Substances Control Act (TSCA) (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Chemical Data Reporting Under the Toxic Substances Control Act (EPA ICR Number 1884.17, OMB Control Number 2070-0162) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through October 31, 2026. Public comments were previously requested via the Federal Register on February 24, 2026 during a 60-day comment period. This notice allows for an additional 30 days for public comments.\n\n[2026-22061] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Underground Storage Tank Finder Application (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Underground Storage Tank Finder Application (EPA ICR Number 2696.02, OMB Control Number 2080-0086) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through October 31, 2026. Public comments were previously requested via the Federal Register on March 12, 2026 during a 60-day comment period. This notice allows for an additional 30 days for public comments.\n\n[2026-22063] Proposed Rule — Environmental Protection Agency\nTitle: Air Plan Approval and Air Quality Designation; TN; Attainment Plan and Redesignation of the Sullivan County Nonattainment Area for the 2010 1-Hour Primary SO2 NAAQS\nAction: Proposed rule.\nAbstract: The U.S. Environmental Protection Agency (EPA or Agency) is proposing to approve the State of Tennessee's attainment plan for the Sullivan County Nonattainment Area (Sullivan County Area or Area) for the 2010 Sulfur Dioxide (SO<INF>2</INF>) National Ambient Air Quality Standards (NAAQS). Additionally, the EPA is proposing to determine that the Area has attained the 2010 SO<INF>2</INF> NAAQS and to approve Tennessee's maintenance plan for continued attainment. With these approvals, the EPA is proposing to approve Tennessee's comprehensive source-specific SO<INF>2</INF> permitted limits for two facilities in the Area, other control measures, and provisions for Reasonably Available Control Measures (RACM) and Reasonably Available Control Technology (RACT), reasonable further progress (RFP), a modeling demonstration of SO<INF>2</INF> attainment and maintenance, and to approve Tennessee's request to redesignate the Area from nonattainment to attainment of the 2010 SO<INF>2</INF> NAAQS. The EPA is taking these actions in accordance with the Clean Air Act (CAA or Act).\n\n[2026-22065] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Comment Request; Application for Reimbursement to Local Governments for Emergency Response to Hazardous Substance Releases Under CERCLA Section 123 (Renewal)\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) has submitted an information collection request (ICR), Application for Reimbursement to Local Governments for Emergency Response to Hazardous Substance Releases Under CERCLA Section 123 (EPA ICR Number 1425.15, OMB Control Number 2050-0077) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act. This is a proposed extension of the ICR, which is currently approved through October 31, 2026. Public comments were previously requested via the Federal Register on April 23, 2026 during a 60-day comment period. This notice allows for an additional 30 days for public comments.\n\n[2026-22066] Notice — Environmental Protection Agency\nTitle: Cross-Media Electronic Reporting: Announcement of Determination To Approve Authorized Program Revisions\nAction: Notice.\nAbstract: This notice announces the Environmental Protection Agency's (EPA) approval of requests to revise/modify EPA-authorized programs to allow electronic reporting from Arkansas Energy and Environment (E&E), Arizona Department of Environmental Quality (AZDEQ), Connecticut Department of Energy and Environmental Protection (CT DEEP), Delaware Department of Technology & Information--Department of Natural Resources and Environmental Control (DTI-DNREC), Iowa Department of Natural Resources (IDNR), Idaho Department of Environmental Quality (IDEQ), Indiana Department of Environmental Management (IDEM), Kentucky Department of Water (DOW), Louisville Metro Air Pollution Control District (LMAPCD), Maryland Department of Environment (MDE), Mecklenburg County Air Quality, Mississippi Department of Environmental Quality (MDEQ), Montana Department of Environmental Quality (DEQ), North Carolina Department of Environmental Quality (NCDEQ), Nebraska Department of Environment and Energy (NDEE), Nevada Division of Environmental Protection (NDEP), Oregon Department of Environmental Quality (DEQ), Tennessee Department of Environmental Conservation (TNDEC), and Wyoming Department of Environmental Quality (DE\n\n[2026-22067] Notice — Transportation Department; National Highway Traffic Safety Administration\nTitle: NHTSA Workshop on Aftermarket Modifications and ADAS Performance\nAction: Notice of a public meeting.\nAbstract: The National Highway Traffic Safety Administration (NHTSA) will hold a Workshop on December 10, 2026 to use its convening authority to discuss advanced driver assistance system (ADAS) performance, as it pertains to the effects of aftermarket modifications. The event will not be live streamed; however, it will be recorded and made available on the NHTSA website after the event.\n\n[2026-22083] Rule — Federal Mediation and Conciliation Service\nTitle: Requests for Arbitration Panels\nAction: Final rule.\nAbstract: The Federal Mediation and Conciliation Service (FMCS) published an interim final rule on August 4, 2026, and republished on August 28, 2026, that amended its arbitration services regulations to clarify when the Office of Arbitration may decline to issue an arbitration panel, make a direct appointment, or provide related services. This document responds to the comments, clarifies the scope of the rule's threshold inquiry, adds procedural provisions governing notice, written disposition, request dates, and fees, and adopts the interim final rule as a final rule.\n\n[2026-22086] Notice — Postal Regulatory Commission\nTitle: New Postal Products\nAction: Notice.\nAbstract: The Commission is noticing a recent Postal Service filing for the Commission's consideration concerning a negotiated service agreement. This notice informs the public of the filing, invites public comment, and takes other administrative steps.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21994",
+            "relevant": false,
+            "reason": "Generic USDA OMB information-collection notice with no abstract; creates no new duty for Brightside's food, sourcing or fleet operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22006",
+            "relevant": false,
+            "reason": "Paperwork renewal for the Employee Polygraph Protection Act; no new duty for the Ohio and Georgia plants.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22051",
+            "relevant": false,
+            "reason": "Presidential document on housing costs; nothing for hot dogs, gummies, snack bars, SNAP or the truck fleet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22052",
+            "relevant": false,
+            "reason": "Defense Production Act determination on petroleum production and refining; imposes nothing on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22017",
+            "relevant": false,
+            "reason": "OSHA recognition of a testing laboratory (Intertek); imposes no requirement on a food manufacturer.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22018",
+            "relevant": false,
+            "reason": "ETA unemployment insurance 'Contribution Operations' information collection extension; it is aimed at state agencies and adds no new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22019",
+            "relevant": false,
+            "reason": "DOL evaluation study of the senior community service employment program; unrelated to Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22023",
+            "relevant": false,
+            "reason": "Paperwork extension for the OSHA Grain Handling Facilities Standard; Brightside buys corn but does not operate grain handling facilities, and no new duty is created.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22043",
+            "relevant": false,
+            "reason": "USDA information collection on foreign investment in agricultural land (AFIDA); not relevant to a food manufacturer buying crops.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22045",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Indiana; Brightside has no plants there and no stated suppliers affected.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22053",
+            "relevant": false,
+            "reason": "SBA disaster declaration for Kentucky; Brightside has no plants there and no stated suppliers affected.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22056",
+            "relevant": false,
+            "reason": "EPA drinking water Microbial Rules information collection renewal; it covers water systems and imposes nothing on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22057",
+            "relevant": false,
+            "reason": "TSCA Chemical Data Reporting paperwork renewal; no new duty, and food and food additives are generally outside TSCA.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22061",
+            "relevant": false,
+            "reason": "EPA underground storage tank finder app paperwork renewal; unrelated to Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22063",
+            "relevant": false,
+            "reason": "Tennessee SO2 air plan for Sullivan County; Brightside has no plants in Tennessee.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22065",
+            "relevant": false,
+            "reason": "CERCLA reimbursement to local governments for emergency response; paperwork renewal that does not touch Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22066",
+            "relevant": false,
+            "reason": "EPA approval of state electronic reporting programs; it names no Ohio or Georgia program and creates no duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22067",
+            "relevant": false,
+            "reason": "NHTSA public workshop on ADAS and aftermarket modifications; a meeting notice that imposes nothing on the delivery fleet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22083",
+            "relevant": false,
+            "reason": "FMCS final rule on arbitration panel requests; it governs the arbitration service's own procedures and creates no duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22086",
+            "relevant": false,
+            "reason": "Postal Regulatory Commission notice on a negotiated service agreement; unrelated to Brightside.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#3",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 14885,
+      "costUsd": 0.032496,
+      "inputTokens": 5933,
+      "outputTokens": 2063,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (20) ===\n\n[2026-22091] Notice — National Labor Relations Board\nTitle: Amendment of Statement of Organization and Functions; Restructuring of National Labor Relations Board's Field Organization\nAction: Notice of administrative change in status of the Memphis, Tennessee Office (Subregion 26) of the National Labor Relations Board, which will be closed and the area will be served by agents working primarily from the New Orleans, Louisiana Regional Office (Region 15) and other locations.\nAbstract: The National Labor Relations Board is closing its Memphis, Tennessee Subregional Office because it has determined that closing the office and serving the area with agents working at other locations will result in significant savings while continuing to effectively serve the area currently served by this office.\n\n[2026-22094] Notice — Homeland Security Department\nTitle: Notice Regarding the Uyghur Forced Labor Prevention Act Entity List\nAction: Notice.\nAbstract: The U.S. Department of Homeland Security (DHS), as the Chair of the Forced Labor Enforcement Task Force (FLETF), announces the publication and availability of the updated Uyghur Forced Labor Prevention Act (UFLPA) Entity List, a consolidated register of the four lists required to be developed and maintained pursuant to the UFLPA, on the DHS UFLPA website. The updated UFLPA Entity List is also published as an appendix to this notice. This update adds three new entities to the UFLPA Entity List, two of which appear on two separate sub-lists.\n\n[2026-22096] Notice — Health and Human Services Department\nTitle: Agency Information Collection Request. 60-Day Public Comment Request\nAction: Notice of request for public comments.\nAbstract: In compliance with the requirement of the Paperwork Reduction Act of 1995, the Office of the Secretary (OS), Department of Health and Human Services (HHS), the Assistant Secretary for Planning and Evaluation (ASPE) is inviting public comment on an extension request for an approved information collection request: ASPE Umbrella Generic Clearance for the Collection of Qualitative Research and Assessment (OMB #0990-0421). No changes are proposed to the purpose and use described within this generic, but burden estimates have been adjusted to reflect estimated use over the next three years.\n\n[2026-22099] Notice — Committee for Purchase From People Who Are Blind or Severely Disabled\nTitle: Procurement List; Additions and Deletions\nAction: Additions to and deletions from the Procurement List.\nAbstract: This action adds service(s) to the Procurement List that wil be furnished by nonprofit agencies employing persons who are blind or have other severe disabilities, and deletes product(s) from the Procurement List previously furnished by such agencies.\n\n[2026-22117] Notice — Commerce Department; Census Bureau\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Generic Clearance for Conducting Research Into Company Alternative Reporting Options\nAbstract: (none)\n\n[2026-22121] Proposed Rule — Health and Human Services Department\nTitle: Mandatory Guidelines for Federal Workplace Drug Testing Programs Using Oral Fluid (OFMG)\nAction: Proposed revisions to mandatory guidelines.\nAbstract: The Department of Health and Human Services (\"HHS\" or \"Department\") is proposing to revise the Mandatory Guidelines for Federal Workplace Drug Testing Programs using Oral Fluid (OFMG) published on October 12, 2023.\n\n[2026-22122] Proposed Rule — Health and Human Services Department\nTitle: Mandatory Guidelines for Federal Workplace Drug Testing Programs Using Urine (UrMG)\nAction: Proposed revisions to mandatory guidelines.\nAbstract: The Department of Health and Human Services (\"HHS\" or \"Department\") is proposing to revise the Mandatory Guidelines for Federal Workplace Drug Testing Programs using Urine (UrMG), published in the Federal Register on October 12, 2023).\n\n[2026-22123] Proposed Rule — Health and Human Services Department; Children and Families Administration\nTitle: Reducing Bureaucracy and Burden for Block Grants\nAction: Notice of proposed rulemaking.\nAbstract: ACF proposes to amend its block grant regulations to modernize requirements, reduce administrative burden on States and Tribal grantees, and improve the clarity and efficiency of program administration. The current regulations include outdated provisions and procedural requirements that no longer reflect statutory authority or agency practice. The proposed revisions are intended to streamline grantee obligations, eliminate unnecessary requirements, and align the regulations with current law and policy.\n\n[2026-22129] Notice — Housing and Urban Development Department\nTitle: 30-Day Notice of Proposed Information Collection: Restrictions on Assistance to Noncitizens and Authorization To Release Information/Privacy Act\nAction: Notice.\nAbstract: HUD is seeking approval from the Office of Management and Budget (OMB) for the information collection described below. In accordance with the Paperwork Reduction Act, HUD is requesting comments from all interested parties on the proposed collection of information. The purpose of this notice is to allow for 30 days of public comment.\n\n[2026-22139] Notice — Homeland Security Department; U.S. Citizenship and Immigration Services\nTitle: Agency Information Collection Activities; New Collection\nAction: 30-Day notice.\nAbstract: The Department of Homeland Security (DHS), U.S. Citizenship and Immigration Services (USCIS) will be submitting the following information collection request to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995. The purpose of this notice is to allow an additional 30 days for public comments.\n\n[2026-22164] Notice — Environmental Protection Agency\nTitle: Additions to the Clean Air Act Section 111, 112, and 129 Applicability Determination Dashboard and to the List of Broadly Applicable Alternative Test Methods\nAction: Notice of availability.\nAbstract: This document announces the availability of applicability determinations, regulatory interpretations, alternative monitoring, and other determinations made by the Environmental Protection Agency (EPA) from June 2025 to July 2026. The EPA made these applicability determinations, regulatory interpretations, alternative monitoring, and other determinations in response to inquiries concerning compliance with the Clean Air Act (CAA) stationary source program, specifically the New Source Performance Standards (NSPS); the National Emission Standards for Hazardous Air Pollutants (NESHAP); and the Emission Guidelines and Federal Plan Requirements for existing sources. The EPA posted the decisions on the CAA Section 111, 112, and 129 Applicability Determination Dashboard (ADD). This document also announces six broadly applicable alternative test method approval decisions that the EPA made in 2022, 2024, and 2025. These broadly applicable alternative test methods were approved in support of the NSPS and the NESHAP.\n\n[2026-22169] Notice — Commerce Department; Census Bureau\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; 2027 Commodity Flow Survey\nAbstract: (none)\n\n[2026-22176] Rule — Environmental Protection Agency\nTitle: Dimethyl Sulfoxide in Pesticide Formulations; Exemptions From the Requirement of a Tolerance\nAction: Final rule.\nAbstract: This regulation establishes exemptions from the requirement of a tolerance for residues of dimethyl sulfoxide (CAS Reg. No. 67-68-5) when used as an inert ingredient (solvent/cosolvent) in pesticide formulations applied to growing crops or to raw agricultural commodities after harvest, in pesticide formulations applied to animals, and in antimicrobial formulations applied to food-contact surfaces in public eating places, dairy-processing equipment, and food- processing equipment and utensils. Spring Regulatory Sciences on behalf of Gaylord Chemical Company, LLC submitted a petition to EPA under the Federal Food, Drug, and Cosmetic Act (FFDCA), requesting establishment of exemptions from the requirement of a tolerance. This regulation eliminates the need to establish maximum permissible levels for residues of dimethyl sulfoxide when used in accordance with the terms of those exemptions.\n\n[2026-22177] Notice — Small Business Administration\nTitle: Surety Bond Guarantee Program Fees\nAction: Notification of Prior Approval Surety Bond Guarantee Program Fee Changes.\nAbstract: This document announces a change in the guarantee fees that the U.S. Small Business Administration (SBA) charges all Prior Approval (Plan A) Surety companies and Principals on each guaranteed bond (other than a bid bond) issued in SBA's Surety Bond Guarantee (SBG) Program; with the exception of projects under NAICS Code 31, 32, 33: Manufacturing.\n\n[2026-22187] Notice — State Department\nTitle: Notice of Department of State Sanctions Actions\nAction: Notice of Designation.\nAbstract: The Department of State is publishing the names of one or more persons that have been placed on the Department of the Treasury's List of Specially Designated Nationals and Blocked Persons (SDN List) administered by the Office of Foreign Assets Control (OFAC) based on the Department of State's determination, in consultation with other departments, as appropriate, that one or more applicable legal criteria of the following Executive Orders (E.O.) were satisfied: the E.O. regarding blocking property of weapons of mass destruction proliferators and their supporters; the E.O. regarding blocking property of certain persons with respect to the conventional arms activities of Iran; the E.O. regarding blocking property with respect to specified harmful foreign activities of the Government of Russia; and the E.O. regarding imposing sanctions on those responsible for repression in Cuba and for threats to United States national security and foreign policy. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\n\n[2026-22202] Notice — Environmental Protection Agency\nTitle: Environmental Impact Statements; Notice of Availability\nAbstract: (none)\n\n[2026-22209] Notice — Environmental Protection Agency\nTitle: Agency Information Collection Activities; Proposed Information Collection Request; Comment Request; Motor Vehicle and Engine Compliance Program Fees (Renewal), EPA ICR 2080.09, OMB Control No. 2060-0545\nAction: Notice.\nAbstract: The Environmental Protection Agency (EPA) is planning to submit an information collection request (ICR), \"Motor Vehicle and Engine Compliance Program Fees (Renewal)\" (EPA ICR No. 2080.09, OMB Control No. 2060-0545) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act Before doing so, EPA is soliciting public comments on specific aspects of the proposed information collection as described below. This is a proposed extension of the ICR, which is currently approved through July 31, 2027. An Agency may not conduct or sponsor and a person is not required to respond to a collection of information unless it displays a currently valid OMB control number.\n\n[2026-22212] Notice — Labor Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; Housing Occupancy Certificate-Migrant and Seasonal Agricultural Worker Protection Act\nAction: Notice of availability; request for comments.\nAbstract: The Department of Labor (DOL) is submitting this Wage and Hour Division (WHD)-sponsored information collection request (ICR) to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act of 1995 (PRA). Public comments on the ICR are invited.\n\n[2026-22226] Notice — Transportation Department; National Highway Traffic Safety Administration\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget for Review and Approval; Request for Comment; State Data Transfer (SDT)\nAction: Notice and request for comments on a request for renewal with modification of a currently approved information collection.\nAbstract: In compliance with the Paperwork Reduction Act of 1995 (PRA), this notice announces that the Information Collection Request (ICR) summarized below will be submitted to the Office of Management and Budget (OMB) for review and approval. The ICR describes the nature of the information collection and its expected burden. This document describes a collection of information for which NHTSA intends to seek OMB approval on the State Data Transfer (SDT) program for Vehicle Crash Information. A Federal Register Notice with a 60-day comment period soliciting comments on this information collection was published on June 25, 2026. NHTSA received one public comment.\n\n[2026-22227] Notice — Consumer Financial Protection Bureau\nTitle: Agency Information Collection Activities: Comment Request\nAction: Notice and request for comment.\nAbstract: In accordance with the Paperwork Reduction Act of 1995 (PRA), the Consumer Financial Protection Bureau (Bureau or CFPB) requests the Office of Management and Budget's (OMB's) extension of the existing information collection titled \"Electronic Fund Transfer Act (Regulation E)\" approved under OMB Control Number 3170-0014.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-22091",
+            "relevant": false,
+            "reason": "NLRB closing its Memphis field office is an internal restructuring; Brightside has no Memphis plant and no new duty arises.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22094",
+            "relevant": false,
+            "reason": "UFLPA Entity List update concerns imports tied to listed foreign entities; Brightside buys pecans, apples and corn from US farms.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22096",
+            "relevant": false,
+            "reason": "HHS ASPE generic clearance paperwork renewal with no new duty for a packaged food maker.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22099",
+            "relevant": false,
+            "reason": "Procurement List additions and deletions for federal purchasing from nonprofit agencies; no effect on Brightside's gummies, sausages or snack bars.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22117",
+            "relevant": false,
+            "reason": "Census Bureau generic clearance for research on company reporting options is a paperwork notice that imposes nothing on Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22121",
+            "relevant": false,
+            "reason": "Oral fluid drug testing guidelines apply to federal agency programs and HHS-certified labs; they do not directly change Brightside's duties or its trucking fleet's testing until DOT adopts them.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22122",
+            "relevant": false,
+            "reason": "Urine drug testing guidelines apply to federal programs and certified labs; they do not directly change Brightside's duties or its trucking fleet's testing until DOT adopts them.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22123",
+            "relevant": false,
+            "reason": "ACF block grant rules for States and Tribal grantees; Brightside is not a grantee and this is not SNAP.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22129",
+            "relevant": false,
+            "reason": "HUD information collection on noncitizen assistance restrictions; unrelated to Brightside's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22139",
+            "relevant": false,
+            "reason": "USCIS new information collection notice with no direct requirement for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22164",
+            "relevant": false,
+            "reason": "EPA Clean Air Act applicability determinations notice announces availability of past decisions, with no new requirement for Brightside's plants.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22169",
+            "relevant": false,
+            "reason": "2027 Commodity Flow Survey information collection; a survey notice that creates no new duty for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22176",
+            "relevant": true,
+            "reason": "EPA tolerance exemption for dimethyl sulfoxide as an inert ingredient in pesticide formulations used on growing crops and harvested commodities changes residue requirements for pecans, apples and corn that Brightside buys.",
+            "areas": [
+              "sourcing"
+            ]
+          },
+          {
+            "document_number": "2026-22177",
+            "relevant": false,
+            "reason": "SBA surety bond guarantee fee change applies to surety companies and principals, and manufacturing is excluded.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22187",
+            "relevant": false,
+            "reason": "State Department sanctions designations on Iran, Russia, Cuba and WMD proliferators; Brightside has no exports or foreign dealings, and sanctions are outside its scope.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22202",
+            "relevant": false,
+            "reason": "EPA notice of availability of environmental impact statements; no requirement for Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22209",
+            "relevant": false,
+            "reason": "EPA motor vehicle and engine compliance fees ICR renewal applies to vehicle and engine manufacturers, not a fleet operator like Brightside.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22212",
+            "relevant": false,
+            "reason": "DOL migrant and seasonal worker housing certificate paperwork applies to agricultural employers, not Brightside's plants or fleet.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22226",
+            "relevant": false,
+            "reason": "NHTSA State Data Transfer crash data collection involves state agencies, not Brightside's fleet operations.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-22227",
+            "relevant": false,
+            "reason": "CFPB Regulation E information collection extension concerns financial institutions, not food manufacturing.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-21922",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1827,
+      "costUsd": 0.006996,
+      "inputTokens": 3243,
+      "outputTokens": 51,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-12-28",
+            "kind": "comment",
+            "quote": "Comments must be received by December 28, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-22176",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2416,
+      "costUsd": 0.00848,
+      "inputTokens": 3210,
+      "outputTokens": 206,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-10-30",
+            "kind": "effective",
+            "quote": "This regulation is effective October 30, 2026."
+          },
+          {
+            "date": "2026-12-29",
+            "kind": "comment",
+            "quote": "Objections and requests for hearings must be received on or before December 29, 2026 and must be filed in accordance with the instructions provided in 40 CFR part 178 (see also Unit I.C. of this document)."
+          },
+          {
+            "date": "2026-12-29",
+            "kind": "comment",
+            "quote": "All objections and requests for a hearing must be in writing and must be received by the Hearing Clerk on or before December 29, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2625,
+      "costUsd": 0.004176,
+      "inputTokens": 1198,
+      "outputTokens": 178,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n[2026-21922] Proposed Rule: Hazardous Materials: Harmonization With International Standards\nTier: Critical (comment deadline in 59 days (< 90))\nOwner: Ben Kowalski (Operations)\nWhy relevant: PHMSA proposed hazmat rule changes could affect shipping names/packaging if Brightside's trucks carry regulated materials (e.g., plant chemicals, ammonia, CO2); proposal could change fleet compliance.\n\n[2026-22176] Rule: Dimethyl Sulfoxide in Pesticide Formulations; Exemptions From the Requirement of a Tolerance\nTier: Critical (effective deadline in 0 days (< 90))\nOwner: Tom Alvarez (Sourcing)\nWhy relevant: EPA tolerance exemption for dimethyl sulfoxide as an inert ingredient in pesticide formulations used on growing crops and harvested commodities changes residue requirements for pecans, apples and corn that Brightside buys.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-21922",
+            "action": "Have Ben Kowalski check whether our trucks haul regulated hazardous materials like ammonia or carbon dioxide, and submit comments if the proposed shipping and packaging changes would raise fleet costs."
+          },
+          {
+            "document_number": "2026-22176",
+            "action": "Have Tom Alvarez tell pecan, apple and corn suppliers about the new residue exemption for dimethyl sulfoxide, and confirm our supplier specifications and testing still fit."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.14944401000000002,
+  "totalMs": 40483,
+  "scanned": 505,
+  "decisions": [
+    {
+      "document_number": "2026-21716",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21717",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21718",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21720",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21721",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21722",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-21722",
+        "relevant": false,
+        "reason": "Call for National Organic Standards Board nominations; Brightside makes no organic products and the notice imposes no duty on it.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21723",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21724",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21725",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21726",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21727",
+      "relevant": false,
+      "jevProbability": 0.39,
+      "llm": {
+        "document_number": "2026-21727",
+        "relevant": false,
+        "reason": "USDA civil penalty amounts unchanged for 2026, so nothing new to pay or do.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21731",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21732",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21733",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21733",
+        "relevant": false,
+        "reason": "OFAC sanctions designations of persons and vessels; no sanctions exposure for a domestic food maker.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21734",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21735",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21736",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21737",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21738",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21739",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21740",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21741",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21742",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21742",
+        "relevant": false,
+        "reason": "ACUS request for comments on agency comment processing; creates no duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21743",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21744",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21745",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21745",
+        "relevant": false,
+        "reason": "CWD herd certification standards concern cervids, not Brightside's pork/beef sausages or crops.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21746",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21747",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21748",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21749",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21750",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21751",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21752",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21752",
+        "relevant": false,
+        "reason": "SBA paperwork collection notice; no new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21753",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21754",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21755",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21756",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21757",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-21757",
+        "relevant": false,
+        "reason": "EPA TSCA CBI access notice for a contractor; imposes nothing on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21758",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21759",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21761",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21762",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21764",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21765",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21766",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21766",
+        "relevant": false,
+        "reason": "AD investigation on amine compounds from China; not an input Brightside buys.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21767",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21768",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21769",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21770",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21771",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21772",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21773",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21774",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21774",
+        "relevant": false,
+        "reason": "Treasury information collection on garnishment of benefit accounts; no impact on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21775",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21776",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21777",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21778",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21778",
+        "relevant": false,
+        "reason": "CVD investigation on Turkish corrugated die-cut boxes; the notice is an investigation initiation that imposes no duty on Brightside and does not clearly affect its packaging.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21779",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21780",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21781",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21782",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21782",
+        "relevant": false,
+        "reason": "Postal Service negotiated service agreement filing; not relevant to Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21783",
+      "relevant": false,
+      "jevProbability": 0.25,
+      "llm": {
+        "document_number": "2026-21783",
+        "relevant": false,
+        "reason": "LTFV investigations on corrugated boxes from China, Malaysia and Türkiye are only initiations with no duties yet imposed on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21786",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21789",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21790",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21791",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21792",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21793",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21793",
+        "relevant": false,
+        "reason": "CVD review on carbazole violet pigment 23 from India, an industrial pigment, not a food color additive Brightside uses.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21794",
+      "relevant": false,
+      "jevProbability": 0.45,
+      "llm": {
+        "document_number": "2026-21794",
+        "relevant": false,
+        "reason": "NHTSA FMVSS 108 lighting changes for ADS vehicles and headlamps; applies to vehicle manufacturers, not Brightside's delivery fleet operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21795",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21796",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21796",
+        "relevant": false,
+        "reason": "Social Security COLA and wage index notice; no SNAP or direct compliance duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21797",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21798",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21798",
+        "relevant": false,
+        "reason": "FTC Fuel Rating Rule paperwork extension; about fuel rating, not Brightside's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21799",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21800",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21801",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21802",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21804",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21805",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21807",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21808",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21809",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21810",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21811",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21812",
+      "relevant": false,
+      "jevProbability": 0.3,
+      "llm": {
+        "document_number": "2026-21812",
+        "relevant": false,
+        "reason": "Exemption application from a petroleum carrier regarding pulsing brake lamps; applies to that company, not Brightside's fleet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21813",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21814",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21815",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21816",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21817",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21818",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21819",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21819",
+        "relevant": false,
+        "reason": "AD/CVD order continuation on small vertical shaft engines from China; unrelated to food.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21820",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21821",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21822",
+      "relevant": false,
+      "jevProbability": 0.27,
+      "llm": {
+        "document_number": "2026-21822",
+        "relevant": false,
+        "reason": "Generic USDA OMB submission notice with no details showing any new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21823",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21825",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21825",
+        "relevant": false,
+        "reason": "EEOC Sunshine Act meeting notice; no new requirement.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21835",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21837",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21824",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21826",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21827",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21828",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21830",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21831",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21832",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21833",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21834",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21836",
+      "relevant": false,
+      "jevProbability": 0.24,
+      "llm": {
+        "document_number": "2026-21836",
+        "relevant": false,
+        "reason": "EEOC paperwork extension without change; creates no new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21838",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21839",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21840",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21841",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21842",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21843",
+      "relevant": false,
+      "jevProbability": 0.19,
+      "llm": {
+        "document_number": "2026-21843",
+        "relevant": false,
+        "reason": "EPA MOVES6 model is for SIP/transportation conformity by states; imposes nothing on a private delivery fleet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21844",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21845",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21846",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21847",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21848",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21849",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21850",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21851",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21852",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21853",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21854",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21855",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21856",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21857",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21858",
+      "relevant": false,
+      "jevProbability": 0.32,
+      "llm": {
+        "document_number": "2026-21858",
+        "relevant": false,
+        "reason": "SPUR loan program funds meat/poultry/seafood processing capacity for ranchers; Brightside is not an applicant and nothing it must do changes.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21859",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21860",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21861",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21862",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21863",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21864",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21865",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21866",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21867",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21868",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21869",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21870",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21871",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21872",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21873",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21873",
+        "relevant": false,
+        "reason": "FERC/NERC electric reliability enforcement review; unrelated to food manufacturing.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21874",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21875",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21876",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21877",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21878",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21879",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21880",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21881",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21882",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21883",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21884",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21885",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21886",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21887",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21888",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21889",
+      "relevant": false,
+      "jevProbability": 0.45,
+      "llm": {
+        "document_number": "2026-21889",
+        "relevant": false,
+        "reason": "NHTSA notice of intent to form tire safety committee and solicit nominations; creates no requirement on the fleet now.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21891",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21892",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21893",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21894",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21895",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21896",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21897",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21898",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21900",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21902",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21903",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21904",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21905",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21906",
+      "relevant": false,
+      "jevProbability": 0.36,
+      "llm": {
+        "document_number": "2026-21906",
+        "relevant": false,
+        "reason": "Exemption application by PAM Transport for CLP holder rules; applies to PAM only and Brightside's fleet is unaffected.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21907",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21918",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21920",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21922",
+      "relevant": true,
+      "jevProbability": 0.3,
+      "llm": {
+        "document_number": "2026-21922",
+        "relevant": true,
+        "reason": "PHMSA proposed hazmat rule changes could affect shipping names/packaging if Brightside's trucks carry regulated materials (e.g., plant chemicals, ammonia, CO2); proposal could change fleet compliance.",
+        "areas": [
+          "operations"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-21923",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21908",
+      "relevant": false,
+      "jevProbability": 0.64,
+      "llm": {
+        "document_number": "2026-21908",
+        "relevant": false,
+        "reason": "FDA paperwork collection on electronic records/signatures; no new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21909",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21910",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21911",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21912",
+      "relevant": false,
+      "jevProbability": 0.4,
+      "llm": {
+        "document_number": "2026-21912",
+        "relevant": false,
+        "reason": "FDA rapid response surveys information collection; voluntary surveys, no new obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21913",
+      "relevant": false,
+      "jevProbability": 0.64,
+      "llm": {
+        "document_number": "2026-21913",
+        "relevant": false,
+        "reason": "Color additive certification information collection submitted to OMB; paperwork renewal creating no new duty, though it relates to dyes in candy.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21914",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21915",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21915",
+        "relevant": false,
+        "reason": "USPS negotiated shipping contract; Brightside uses its own trucks.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21916",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21921",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21924",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21925",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21926",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21927",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21928",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21929",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-21929",
+        "relevant": false,
+        "reason": "AD/CVD orders on Chinese van-type trailers; Brightside runs delivery trucks, not trailer imports, and no indication it buys these.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21930",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21931",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21932",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21933",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21934",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21935",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21936",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21937",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21938",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21939",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21941",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21941",
+        "relevant": false,
+        "reason": "FEMA flood insurance community application collection; not applicable to Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21942",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21943",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21944",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21944",
+        "relevant": false,
+        "reason": "OFAC sanctions designations; no connection to Brightside's domestic business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21945",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21946",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21947",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21948",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21949",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21950",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21951",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21952",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21953",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21954",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21955",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21956",
+      "relevant": false,
+      "jevProbability": 0.36,
+      "llm": {
+        "document_number": "2026-21956",
+        "relevant": false,
+        "reason": "Unified Carrier Registration Plan meeting notice; meeting only.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21957",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21958",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21959",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21960",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21961",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21962",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21963",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21963",
+        "relevant": false,
+        "reason": "EPA formaldehyde standards for composite wood products; different industry.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21964",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21965",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21966",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21967",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21968",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21969",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21970",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21971",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21971",
+        "relevant": false,
+        "reason": "Postal Regulatory Commission negotiated service agreement notice; irrelevant.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21972",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-21972",
+        "relevant": false,
+        "reason": "FSA farm records transfer between counties paperwork; affects farmers, not Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21973",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21974",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21975",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21976",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21977",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21978",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21979",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21980",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21981",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21982",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21983",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21984",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21985",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21986",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21987",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21988",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21989",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21990",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21991",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21992",
+      "relevant": false,
+      "jevProbability": 0.27,
+      "llm": {
+        "document_number": "2026-21992",
+        "relevant": false,
+        "reason": "Generic USDA OMB submission notice with no stated content; no identifiable new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21993",
+      "relevant": false,
+      "jevProbability": 0.26,
+      "llm": {
+        "document_number": "2026-21993",
+        "relevant": false,
+        "reason": "Generic USDA OMB submission notice with no stated content; no identifiable new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21994",
+      "relevant": false,
+      "jevProbability": 0.28,
+      "llm": {
+        "document_number": "2026-21994",
+        "relevant": false,
+        "reason": "Generic USDA OMB information-collection notice with no abstract; creates no new duty for Brightside's food, sourcing or fleet operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21995",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21996",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21997",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21998",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21999",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22000",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22001",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22002",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22003",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22004",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22005",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22006",
+      "relevant": false,
+      "jevProbability": 0.37,
+      "llm": {
+        "document_number": "2026-22006",
+        "relevant": false,
+        "reason": "Paperwork renewal for the Employee Polygraph Protection Act; no new duty for the Ohio and Georgia plants.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22007",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22008",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22009",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22010",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22011",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22012",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22013",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22034",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22049",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22050",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22051",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22051",
+        "relevant": false,
+        "reason": "Presidential document on housing costs; nothing for hot dogs, gummies, snack bars, SNAP or the truck fleet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22052",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22052",
+        "relevant": false,
+        "reason": "Defense Production Act determination on petroleum production and refining; imposes nothing on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22014",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22015",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22016",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22017",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-22017",
+        "relevant": false,
+        "reason": "OSHA recognition of a testing laboratory (Intertek); imposes no requirement on a food manufacturer.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22018",
+      "relevant": false,
+      "jevProbability": 0.21,
+      "llm": {
+        "document_number": "2026-22018",
+        "relevant": false,
+        "reason": "ETA unemployment insurance 'Contribution Operations' information collection extension; it is aimed at state agencies and adds no new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22019",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22019",
+        "relevant": false,
+        "reason": "DOL evaluation study of the senior community service employment program; unrelated to Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22020",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22021",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22022",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22023",
+      "relevant": false,
+      "jevProbability": 0.34,
+      "llm": {
+        "document_number": "2026-22023",
+        "relevant": false,
+        "reason": "Paperwork extension for the OSHA Grain Handling Facilities Standard; Brightside buys corn but does not operate grain handling facilities, and no new duty is created.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22024",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22025",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22026",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22027",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22028",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22029",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22030",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22031",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22032",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22033",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22035",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22036",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22037",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22038",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22039",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22040",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22041",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22042",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22043",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22043",
+        "relevant": false,
+        "reason": "USDA information collection on foreign investment in agricultural land (AFIDA); not relevant to a food manufacturer buying crops.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22044",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22045",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22045",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Indiana; Brightside has no plants there and no stated suppliers affected.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22046",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22047",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22048",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22053",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-22053",
+        "relevant": false,
+        "reason": "SBA disaster declaration for Kentucky; Brightside has no plants there and no stated suppliers affected.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22054",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22055",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22056",
+      "relevant": false,
+      "jevProbability": 0.36,
+      "llm": {
+        "document_number": "2026-22056",
+        "relevant": false,
+        "reason": "EPA drinking water Microbial Rules information collection renewal; it covers water systems and imposes nothing on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22057",
+      "relevant": false,
+      "jevProbability": 0.33,
+      "llm": {
+        "document_number": "2026-22057",
+        "relevant": false,
+        "reason": "TSCA Chemical Data Reporting paperwork renewal; no new duty, and food and food additives are generally outside TSCA.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22058",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22059",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22060",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22061",
+      "relevant": false,
+      "jevProbability": 0.25,
+      "llm": {
+        "document_number": "2026-22061",
+        "relevant": false,
+        "reason": "EPA underground storage tank finder app paperwork renewal; unrelated to Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22063",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22063",
+        "relevant": false,
+        "reason": "Tennessee SO2 air plan for Sullivan County; Brightside has no plants in Tennessee.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22064",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22065",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22065",
+        "relevant": false,
+        "reason": "CERCLA reimbursement to local governments for emergency response; paperwork renewal that does not touch Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22066",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-22066",
+        "relevant": false,
+        "reason": "EPA approval of state electronic reporting programs; it names no Ohio or Georgia program and creates no duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22067",
+      "relevant": false,
+      "jevProbability": 0.25,
+      "llm": {
+        "document_number": "2026-22067",
+        "relevant": false,
+        "reason": "NHTSA public workshop on ADAS and aftermarket modifications; a meeting notice that imposes nothing on the delivery fleet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22068",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22069",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22070",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22071",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22072",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22073",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22074",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22075",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22076",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22077",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22078",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22080",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22081",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22082",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22083",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22083",
+        "relevant": false,
+        "reason": "FMCS final rule on arbitration panel requests; it governs the arbitration service's own procedures and creates no duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22084",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22085",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22086",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22086",
+        "relevant": false,
+        "reason": "Postal Regulatory Commission notice on a negotiated service agreement; unrelated to Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22087",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22088",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22089",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22090",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22091",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-22091",
+        "relevant": false,
+        "reason": "NLRB closing its Memphis field office is an internal restructuring; Brightside has no Memphis plant and no new duty arises.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22092",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22093",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22094",
+      "relevant": false,
+      "jevProbability": 0.25,
+      "llm": {
+        "document_number": "2026-22094",
+        "relevant": false,
+        "reason": "UFLPA Entity List update concerns imports tied to listed foreign entities; Brightside buys pecans, apples and corn from US farms.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22095",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22096",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22096",
+        "relevant": false,
+        "reason": "HHS ASPE generic clearance paperwork renewal with no new duty for a packaged food maker.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22098",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22099",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-22099",
+        "relevant": false,
+        "reason": "Procurement List additions and deletions for federal purchasing from nonprofit agencies; no effect on Brightside's gummies, sausages or snack bars.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22100",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22101",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22102",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22103",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22104",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22105",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22106",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22107",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22108",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22109",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22110",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22111",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22112",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22113",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22114",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22115",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22116",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22117",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-22117",
+        "relevant": false,
+        "reason": "Census Bureau generic clearance for research on company reporting options is a paperwork notice that imposes nothing on Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22118",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22119",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22120",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22121",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22121",
+        "relevant": false,
+        "reason": "Oral fluid drug testing guidelines apply to federal agency programs and HHS-certified labs; they do not directly change Brightside's duties or its trucking fleet's testing until DOT adopts them.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22122",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-22122",
+        "relevant": false,
+        "reason": "Urine drug testing guidelines apply to federal programs and certified labs; they do not directly change Brightside's duties or its trucking fleet's testing until DOT adopts them.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22123",
+      "relevant": false,
+      "jevProbability": 0.19,
+      "llm": {
+        "document_number": "2026-22123",
+        "relevant": false,
+        "reason": "ACF block grant rules for States and Tribal grantees; Brightside is not a grantee and this is not SNAP.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22125",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22126",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22128",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22129",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-22129",
+        "relevant": false,
+        "reason": "HUD information collection on noncitizen assistance restrictions; unrelated to Brightside's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22130",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22131",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22132",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22133",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22134",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22135",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22136",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22137",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22139",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-22139",
+        "relevant": false,
+        "reason": "USCIS new information collection notice with no direct requirement for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22140",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22141",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22142",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22143",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22144",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22145",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22146",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22147",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22148",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22149",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22150",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22151",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22152",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22153",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22154",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22155",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22156",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22157",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22158",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22159",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22160",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22161",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22163",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22164",
+      "relevant": false,
+      "jevProbability": 0.53,
+      "llm": {
+        "document_number": "2026-22164",
+        "relevant": false,
+        "reason": "EPA Clean Air Act applicability determinations notice announces availability of past decisions, with no new requirement for Brightside's plants.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22165",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22167",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22168",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22169",
+      "relevant": false,
+      "jevProbability": 0.23,
+      "llm": {
+        "document_number": "2026-22169",
+        "relevant": false,
+        "reason": "2027 Commodity Flow Survey information collection; a survey notice that creates no new duty for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22170",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22171",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22172",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22173",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22174",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22175",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22176",
+      "relevant": true,
+      "jevProbability": 0.73,
+      "llm": {
+        "document_number": "2026-22176",
+        "relevant": true,
+        "reason": "EPA tolerance exemption for dimethyl sulfoxide as an inert ingredient in pesticide formulations used on growing crops and harvested commodities changes residue requirements for pecans, apples and corn that Brightside buys.",
+        "areas": [
+          "sourcing"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-22177",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-22177",
+        "relevant": false,
+        "reason": "SBA surety bond guarantee fee change applies to surety companies and principals, and manufacturing is excluded.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22179",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22180",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22181",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22182",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22183",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22184",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22185",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22187",
+      "relevant": false,
+      "jevProbability": 0.16,
+      "llm": {
+        "document_number": "2026-22187",
+        "relevant": false,
+        "reason": "State Department sanctions designations on Iran, Russia, Cuba and WMD proliferators; Brightside has no exports or foreign dealings, and sanctions are outside its scope.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22188",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22189",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22190",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22191",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22192",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22193",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22194",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22195",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22196",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22197",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22198",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22199",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22200",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22201",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22202",
+      "relevant": false,
+      "jevProbability": 0.24,
+      "llm": {
+        "document_number": "2026-22202",
+        "relevant": false,
+        "reason": "EPA notice of availability of environmental impact statements; no requirement for Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22203",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22204",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22205",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22207",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22208",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22209",
+      "relevant": false,
+      "jevProbability": 0.41,
+      "llm": {
+        "document_number": "2026-22209",
+        "relevant": false,
+        "reason": "EPA motor vehicle and engine compliance fees ICR renewal applies to vehicle and engine manufacturers, not a fleet operator like Brightside.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22210",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22211",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22212",
+      "relevant": false,
+      "jevProbability": 0.27,
+      "llm": {
+        "document_number": "2026-22212",
+        "relevant": false,
+        "reason": "DOL migrant and seasonal worker housing certificate paperwork applies to agricultural employers, not Brightside's plants or fleet.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22213",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22214",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22215",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22216",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22217",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22218",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22219",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22220",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22222",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22223",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22224",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22225",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22226",
+      "relevant": false,
+      "jevProbability": 0.26,
+      "llm": {
+        "document_number": "2026-22226",
+        "relevant": false,
+        "reason": "NHTSA State Data Transfer crash data collection involves state agencies, not Brightside's fleet operations.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22227",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22227",
+        "relevant": false,
+        "reason": "CFPB Regulation E information collection extension concerns financial institutions, not food manufacturing.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22228",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22229",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22230",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22231",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22232",
+      "relevant": false,
+      "jevProbability": 0.32,
+      "llm": {
+        "document_number": "2026-22232",
+        "relevant": false,
+        "reason": "STB waybill data release concerns rail shipment data; Brightside uses its own truck fleet and the notice imposes no duty on it or its direct suppliers or customers.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22233",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22234",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22235",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22236",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22237",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22238",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22239",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22240",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22241",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22242",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22243",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22244",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22245",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22249",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22252",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22253",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-22253",
+        "relevant": false,
+        "reason": "Delaware River Basin Commission hearing and business meeting notice; it is a meeting notice for a region where Brightside has no plants (Ohio and Georgia) and creates no obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-22254",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22269",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22292",
+      "relevant": false,
+      "jevProbability": 0.09
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-22176",
+      "title": "Dimethyl Sulfoxide in Pesticide Formulations; Exemptions From the Requirement of a Tolerance",
+      "type": "Rule",
+      "agencies": [
+        "Environmental Protection Agency"
+      ],
+      "tier": "Critical",
+      "tierReason": "effective deadline in 0 days (< 90)",
+      "deadline": {
+        "date": "2026-10-30",
+        "kind": "effective",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "datesShown": [
+        {
+          "date": "2026-10-30",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        },
+        {
+          "date": "2026-12-29",
+          "kind": "comment",
+          "source": "extracted",
+          "quote": "Objections and requests for hearings must be received on or before December 29, 2026 and must be filed in accordance with the instructions provided in 40 CFR part 178 (see also Unit I.C. of this document).",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "deadlines": [
+        {
+          "date": "2026-10-30",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        },
+        {
+          "date": "2026-12-29",
+          "kind": "comment",
+          "source": "extracted",
+          "quote": "Objections and requests for hearings must be received on or before December 29, 2026 and must be filed in accordance with the instructions provided in 40 CFR part 178 (see also Unit I.C. of this document).",
+          "verified": true,
+          "verifyNote": "quote found verbatim in primary source"
+        }
+      ],
+      "owner": {
+        "name": "Tom Alvarez (Sourcing)",
+        "email": "sourcing@brightside.example"
+      },
+      "areas": [
+        "sourcing"
+      ],
+      "reason": "EPA tolerance exemption for dimethyl sulfoxide as an inert ingredient in pesticide formulations used on growing crops and harvested commodities changes residue requirements for pecans, apples and corn that Brightside buys.",
+      "action": "Have Tom Alvarez tell pecan, apple and corn suppliers about the new residue exemption for dimethyl sulfoxide, and confirm our supplier specifications and testing still fit.",
+      "citation": "91 FR 68480",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/10/30/2026-22176/dimethyl-sulfoxide-in-pesticide-formulations-exemptions-from-the-requirement-of-a-tolerance",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-21922",
+      "title": "Hazardous Materials: Harmonization With International Standards",
+      "type": "Proposed Rule",
+      "agencies": [
+        "Transportation Department",
+        "Pipeline and Hazardous Materials Safety Administration"
+      ],
+      "tier": "Critical",
+      "tierReason": "comment deadline in 59 days (< 90)",
+      "deadline": {
+        "date": "2026-12-28",
+        "kind": "comment",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "datesShown": [
+        {
+          "date": "2026-12-28",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "deadlines": [
+        {
+          "date": "2026-12-28",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "owner": {
+        "name": "Ben Kowalski (Operations)",
+        "email": "ops@brightside.example"
+      },
+      "areas": [
+        "operations"
+      ],
+      "reason": "PHMSA proposed hazmat rule changes could affect shipping names/packaging if Brightside's trucks carry regulated materials (e.g., plant chemicals, ammonia, CO2); proposal could change fleet compliance.",
+      "action": "Have Ben Kowalski check whether our trucks haul regulated hazardous materials like ammonia or carbon dioxide, and submit comments if the proposed shipping and packaging changes would raise fleet costs.",
+      "citation": "91 FR 67720",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/10/27/2026-21922/hazardous-materials-harmonization-with-international-standards",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — Brightside Foods Co.\nWindow 2026-10-26 → 2026-10-30 · as of 2026-10-30 · 2 items\n\n## Critical (2)\n\n- **Dimethyl Sulfoxide in Pesticide Formulations; Exemptions From the Requirement of a Tolerance** [Federal Register]\n  - Have Tom Alvarez tell pecan, apple and corn suppliers about the new residue exemption for dimethyl sulfoxide, and confirm our supplier specifications and testing still fit.\n  - Dates: effective 2026-10-30 ✓ · comment 2026-12-29 ✓ · Owner: Tom Alvarez (Sourcing) · Areas: sourcing\n  - 91 FR 68480 ✓ · https://www.federalregister.gov/documents/2026/10/30/2026-22176/dimethyl-sulfoxide-in-pesticide-formulations-exemptions-from-the-requirement-of-a-tolerance\n- **Hazardous Materials: Harmonization With International Standards** [Federal Register]\n  - Have Ben Kowalski check whether our trucks haul regulated hazardous materials like ammonia or carbon dioxide, and submit comments if the proposed shipping and packaging changes would raise fleet costs.\n  - Dates: comment 2026-12-28 ✓ · Owner: Ben Kowalski (Operations) · Areas: operations\n  - 91 FR 67720 ✓ · https://www.federalregister.gov/documents/2026/10/27/2026-21922/hazardous-materials-harmonization-with-international-standards\n"
+}

@@ -32,6 +32,18 @@ describe("getRawText", () => {
     expect(t).not.toContain("<pre>");
   });
 
+  it("keeps text after a literal '<' (govinfo serves '<=7.3 percent' unescaped inside <pre>)", async () => {
+    // Found 2026-11-22: the tag strip deleted everything from "<=" to the next ">" — up to 34 KB, including the
+    // whole power-bank passage of 2026-21922. Only real tags (<pre>, </pre>, <!-- -->) may be stripped.
+    const page = "<html><pre>a concentration of <=7.3 percent.\n    Passengers may carry two power banks; see Table 3 > below.</pre></html>";
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(page)));
+    const { getRawText } = await import("../src/lib/fr");
+    const t = await getRawText(doc);
+    expect(t).toContain("<=7.3 percent");
+    expect(t).toContain("two power banks");
+    expect(t).not.toContain("<pre>");
+  });
+
   it("never returns or caches a block page; falls back to the FR raw text only if it is real", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(BLOCK)));
     const { getRawText } = await import("../src/lib/fr");

@@ -1,0 +1,39 @@
+id: 05-strict-v3
+title: >-
+  Fewer false alarms: don't flag rules that bind only the agency or only other kinds of entities
+date: "2026-11-22"
+suite: arena-2026-11-21-22-04-jq4
+setup: jev-sonnet-strict-v3
+comparedTo: jev-sonnet-strict
+targets:
+  - rootCause:0
+  - trap:no-obligation
+  - trap:other-product
+  - trap:other-industry
+hypothesis: >-
+  Dev-only error analysis of 04's suite (error-analysis.json in this folder: 18 dev runs, 18 test runs excluded and
+  never read; code graders + trace checks + judge panel) found the filter's biggest system-side precision loss is
+  root cause 0: it flags documents whose duty sits with someone else in a way that doesn't touch the company — an
+  agency-only order (2026-21964), a mixed rule whose relevant part targets growers/packers (2026-22865), and a broad
+  physician-fee rule whose Part D section targets other entity types (2026-22743). Two generic exclusions should cut
+  these trap hits without losing recall, because real indirect effects on supply, price or demand stay relevant.
+  Not targeted here: the 50/50 key docs (root cause 1, an eval issue), generic actions (root cause 2), the missed
+  power-bank proposal (root cause 3).
+change: >-
+  Prompt set strict-v3 (config/prompt-sets/strict-v3.yaml) = strict + two exclusion bullets (binds only the government;
+  broad rule whose only connection is a section aimed at other kinds of entities) + one guard line keeping
+  supply/price/demand effects relevant. Wording names no company, product or agency. Everything else identical.
+decision: >-
+  Not promoted; no measurable effect. Live setup stays jev-sonnet-strict. Mechanism check on the targeted docs
+  (flagged / runs that saw them, same suite): 2026-21964 strict 0/9 vs strict-v3 0/9; 2026-22865 0/9 vs 0/9;
+  2026-22743 2/9 vs 2/9. The control already left the first two alone in this suite (its hits on them in 04's suite,
+  1/9 and 2/9, were run-to-run noise), and the third is still flagged by both. Headline: dev recall 30/33 both,
+  dev precision 88.2% -> 93.8% (trap hits 4 -> 2); test recall 25/27 -> 23/27, test precision 67.6% both
+  (12 -> 11 trap hits). All gaps are inside the A/A noise band measured on the unchanged control (see notes).
+notes: >-
+  A/A noise band: jev-sonnet-strict ran with an identical effective configuration (run.start fingerprint 5dfb73af95)
+  in 04's suite (arena-2026-11-21-21-23-64r) and this one. Its own swing: test recall 22/27 vs 25/27 (3 cases),
+  test trap hits 8 vs 12 (4), dev trap hits 5 vs 4. Decision rule from here on (amended 2026-11-22, before any
+  further suite): a gap between candidate and control counts only if it exceeds the control's A/A swing on that
+  metric; otherwise the result is "inconclusive" and the cheaper/simpler setup stays. Code note: src/lib/fr.ts
+  (text-strip fix) was edited in the working tree after this suite ran and was not used by it.
