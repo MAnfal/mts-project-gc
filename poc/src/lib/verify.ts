@@ -48,5 +48,14 @@ export function parseDocNumberFromUrl(url: string): string | null {
   }
 }
 
+/** The dates a card shows: every verified date, de-duplicated by date + kind, in date order. */
+export function verifiedDatesShown<T extends { date: string; kind: string; verified: boolean }>(ds: T[]): T[] {
+  const seen = new Set<string>();
+  return ds
+    .filter((d) => d.verified)
+    .filter((d) => (seen.has(`${d.date}|${d.kind}`) ? false : (seen.add(`${d.date}|${d.kind}`), true)))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 /** Dates in prose ("December 10, 2026", "Dec. 10, 2026", "12/10/2026", "2026-12-10"). Action text must not contain any. */
 export const DATE_RE = /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}, \d{4}\b|\b\d{1,2}\/\d{1,2}\/\d{4}\b|\b\d{4}-\d{2}-\d{2}\b/g;

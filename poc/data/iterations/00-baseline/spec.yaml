@@ -1,0 +1,16 @@
+id: 00-baseline
+title: >-
+  Baseline: one prompt to a frontier model with web search
+date: "2026-11-21"
+suite: arena-2026-11-21-18-40-w0i
+setup: baseline-sonnet
+hypothesis: >-
+  The RFC's bar to beat. A strong model (Sonnet 5.5) with its own web search, given the company profile and the week, can find the federal rules that matter, with dates, tiers and owners, in one prompt.
+change: >-
+  No pipeline. One task prompt (config/prompts.yaml → baselineTask, told the same tier rules) + web search, then a formatting step. Its claims are resolved and checked against the Federal Register by the same code that grades everything else.
+decision: >-
+  Reference point. Precision 79% (it flags little) but recall only 71%: it missed 4 of the 9 rules that directly change what a company must do, and it is the only setup failing trace checks (dates it could not verify, dates written into action text). This is what the pipeline has to beat.
+notes: >-
+  Not re-run each iteration (iterations change our pipeline, not this). Re-run only when the eval set grows, so comparisons stay on the same cases.
+regraded: >-
+  2026-11-22: re-graded with the fixed judge input (judges now see the verified date shown next to each action). The original verdicts are kept in each run's trace (earlier judge.call events).

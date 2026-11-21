@@ -94,6 +94,18 @@ describe("gradeRun", () => {
   });
 });
 
+describe("date check uses the dates the card actually showed", () => {
+  const fx = (n: string, date: string) => ({ date, kind: "effective" as const, source: "fr_field" as const, verified: true });
+  it("new runs: right if the key date is among datesShown, even when the headline is another date", () => {
+    const r = run([item("A", { deadline: fx("A", "2027-01-11"), datesShown: [fx("A", "2026-12-10"), fx("A", "2027-01-11")], tier: "Critical", owner: owner("maria") })]);
+    expect(gradeRun(r, { ...key, details: { ...key.details, A: { ...key.details!.A, acceptDates: [] } } }, profile, rules).checks.date).toEqual({ correct: 1, total: 1 });
+  });
+  it("old runs without datesShown are graded on the headline date only (what they displayed)", () => {
+    const r = run([item("A", { deadline: fx("A", "2027-01-11"), tier: "Critical", owner: owner("maria") })]);
+    expect(gradeRun(r, { ...key, details: { ...key.details, A: { ...key.details!.A, acceptDates: [] } } }, profile, rules).checks.date).toEqual({ correct: 0, total: 1 });
+  });
+});
+
 describe("passK", () => {
   it("share of cases right in every one of k runs", () => {
     const runs = [

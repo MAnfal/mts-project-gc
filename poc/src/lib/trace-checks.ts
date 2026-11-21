@@ -28,7 +28,7 @@ export function checkTrace(events: Ev[]): TraceCheck[] {
   const pipelineEvents = endIdx >= 0 ? events.slice(0, endIdx + 1) : events;
   const judgeOnlyAfterEnd = endIdx < 0 || events.slice(endIdx + 1).every((e) => e.type.startsWith("judge."));
   const mode = (start?.config as { mode?: string } | undefined)?.mode ?? "pipeline";
-  const finalItems = ((end?.itemsFinal as { document_number: string; deadline?: { date: string; verified: boolean } | null; action?: string }[]) ?? []);
+  const finalItems = ((end?.itemsFinal as { document_number: string; deadline?: { date: string; verified: boolean } | null; datesShown?: { date: string; verified: boolean }[]; action?: string }[]) ?? []);
 
   // 1. The trace is whole: starts, ends, nothing missing in between.
   const seqOk = events.every((e, i) => e.seq === undefined || e.seq === i);
@@ -72,8 +72,9 @@ export function checkTrace(events: Ev[]): TraceCheck[] {
   }
 
   // 6. Every deadline shown to the user is verified against the source.
-  const unverified = finalItems.filter((i) => i.deadline && !i.deadline.verified).map((i) => i.document_number);
-  add("shown-dates-verified", "Every deadline shown is verified against the primary source", unverified.length === 0, unverified.length ? `unverified: ${unverified.join(", ")}` : `${finalItems.filter((i) => i.deadline).length} dates`);
+  const shownOf = (i: (typeof finalItems)[number]) => i.datesShown ?? (i.deadline ? [i.deadline] : []);
+  const unverified = finalItems.filter((i) => shownOf(i).some((d) => !d.verified)).map((i) => i.document_number);
+  add("shown-dates-verified", "Every date shown is verified against the primary source", unverified.length === 0, unverified.length ? `unverified: ${unverified.join(", ")}` : `${finalItems.reduce((a, i) => a + shownOf(i).length, 0)} dates`);
 
   // 7. Action text carries no dates (dates are rendered only from verified data).
   const dated = finalItems.filter((i) => i.action && new RegExp(DATE_RE.source).test(i.action)).map((i) => i.document_number);

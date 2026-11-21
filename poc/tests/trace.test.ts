@@ -142,5 +142,9 @@ describe("execution trace (JSONL, one per run)", () => {
     expect(t.filter((e) => e.type === "judge.call").length).toBe(3);
     expect(t.filter((e) => e.type === "judge.verdict").length).toBeGreaterThan(0);
     expect(t.find((e) => e.type === "judge.call")).toMatchObject({ model: expect.any(String), prompt: expect.any(String), votes: expect.any(Array), costUsd: expect.any(Number) });
+    // Judges grade the card as the GC sees it: the action AND the verified date shown next to it.
+    const prompt = t.find((e) => e.type === "judge.call")!.prompt as string;
+    expect(prompt).toContain('"datesShown"');
+    expect(prompt).toContain("2026-12-10");
   });
 });

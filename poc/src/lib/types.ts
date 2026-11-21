@@ -73,6 +73,8 @@ export interface ActionItem {
   tier: Tier;
   tierReason: string;
   deadline: Deadline | null;
+  /** Every verified date shown on the card (e.g. "effective Nov 12 · comments due Dec 14"). Absent on runs made before 2026-11-22, which showed only `deadline`. */
+  datesShown?: Deadline[];
   /** All dates we checked, kept for the UI. */
   deadlines: Deadline[];
   owner: Owner;

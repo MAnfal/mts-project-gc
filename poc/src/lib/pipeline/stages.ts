@@ -6,7 +6,7 @@ import { pipelineCfg } from "../config";
 import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
 import { assignTier } from "../tier";
 import type { ActionItem, CompanyProfile, Deadline, FilterDecision, FrDoc } from "../types";
-import { DATE_RE, parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
+import { DATE_RE, parseDocNumberFromUrl, verifiedDatesShown, verifyQuotedDate } from "../verify";
 import type { RunCtx } from "./context";
 
 // ───────────────────────────── Scan ─────────────────────────────
@@ -214,6 +214,7 @@ export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: 
               tier: t.tier,
               tierReason: t.reason,
               deadline: t.deadline,
+              datesShown: verifiedDatesShown(deadlines),
               deadlines,
               owner,
               areas,
@@ -275,7 +276,7 @@ export function renderMarkdown(profile: CompanyProfile, cfg: { windowStart: stri
       lines.push(
         `- **${i.title}** ${i.sourceTag}`,
         `  - ${i.action}`,
-        `  - Deadline: ${i.deadline ? `${i.deadline.date} (${i.deadline.kind}, ${i.deadline.source === "fr_field" ? "FR field" : "quoted"} ✓)` : "none found"} · Owner: ${i.owner.name} · Areas: ${i.areas.join(", ") || "—"}`,
+        `  - Dates: ${(i.datesShown ?? (i.deadline ? [i.deadline] : [])).map((d) => `${d.kind} ${d.date} ✓`).join(" · ") || "none found"} · Owner: ${i.owner.name} · Areas: ${i.areas.join(", ") || "—"}`,
         `  - ${i.citation ?? i.document_number}${i.citationVerified ? " ✓" : " (unverified)"} · ${i.url}`,
       );
     }

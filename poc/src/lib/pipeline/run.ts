@@ -182,6 +182,8 @@ async function baseline(ctx: RunCtx) {
           tier: c.tier as Tier,
           tierReason: "model-assigned",
           deadline: deadlines[0] ?? null,
+          // The baseline shows the date it claimed whether or not we could verify it (that is what a reader would see).
+          datesShown: deadlines,
           deadlines,
           owner: areaKey ? profile.areas[areaKey].owner : profile.generalCounsel,
           areas: areaKey ? [areaKey] : [],

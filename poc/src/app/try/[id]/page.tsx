@@ -44,17 +44,22 @@ function Stepper({ run }: { run: RunRecord }) {
   );
 }
 
-function ItemCard({ it }: { it: ActionItem }) {
+function ItemCard({ it, today }: { it: ActionItem; today: string }) {
   const t = TIER_STYLE[it.tier];
   return (
     <Card className="py-4 gap-0" style={{ borderLeft: `4px solid ${t.bg}` }}>
       <CardContent className="px-4 flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge style={{ background: t.bg, color: "white" }}>{it.tier}</Badge>
-          {it.deadline ? (
-            <span className="text-sm">
-              {it.deadline.kind === "comment" ? "Comments due" : it.deadline.kind === "effective" ? "In force" : "Deadline"} <b>{it.deadline.date}</b>{" "}
-              {it.deadline.verified ? <span title={it.deadline.verifyNote}>✓ checked at source</span> : <span className="text-destructive">unverified</span>}
+          {(it.datesShown ?? (it.deadline ? [it.deadline] : [])).length ? (
+            <span className="text-sm flex flex-wrap gap-x-3">
+              {(it.datesShown ?? [it.deadline!]).map((d) => (
+                <span key={`${d.kind}${d.date}`} title={d.verifyNote}>
+                  {d.kind === "comment" ? "Comments due" : d.kind === "effective" ? (d.date <= today ? "In force since" : "In force") : d.kind === "compliance" ? "Comply by" : "Date"} <b>{d.date}</b>{" "}
+                  {d.verified ? "✓" : <span className="text-destructive">unverified</span>}
+                </span>
+              ))}
+              <span className="text-xs text-muted-foreground">✓ = checked at source</span>
             </span>
           ) : (
             <span className="text-sm text-muted-foreground">No dated deadline</span>
@@ -104,7 +109,7 @@ export default async function TryResult({ params }: PageProps<"/try/[id]">) {
           <section key={tier} className="flex flex-col gap-3">
             <h2 className="text-sm font-medium text-muted-foreground">{TIER_STYLE[tier].label} · {group.length}</h2>
             {group.map((it) => (
-              <ItemCard key={it.document_number} it={it} />
+              <ItemCard key={it.document_number} it={it} today={run.config.asOf} />
             ))}
           </section>
         );

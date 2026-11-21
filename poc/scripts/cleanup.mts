@@ -1,4 +1,5 @@
-// Keep ONE canonical eval suite (+ user-view runs); delete everything else so the data isn't polluted.
+// Tidy data/: migrate legacy flat-layout runs (keep the named suite + user-view runs, delete the rest).
+// Runs already inside data/evals/<suite>/ are iteration history and are never deleted.
 // Also migrates the legacy flat layout (data/runs, data/traces) into data/evals/<arena>/ and data/user-view/.
 // Deleted runs' spend is archived in data/spend-ledger.json first, so the budget cap still counts it.
 //   npx tsx scripts/cleanup.mts --keep <arenaId> [--dry-run]
@@ -44,6 +45,9 @@ for (const f of runFiles) {
         fs.renameSync(t, path.join(dir, "traces", `${run.id}.jsonl`));
       }
     }
+  } else if (f.includes(`${path.sep}evals${path.sep}`)) {
+    // Runs inside data/evals/<suite>/ belong to an iteration: keep them.
+    kept++;
   } else {
     deleted++;
     usd += runCostUsd(run);
@@ -57,8 +61,7 @@ console.log(`keep ${kept} runs (${a.keep} + user view); delete ${deleted} runs (
 if (dry) process.exit(0);
 if (deleted) await archiveSpend({ reason: `cleanup: deleted ${deleted} runs not in canonical suite ${a.keep}`, runs: deleted, usd });
 
-// Remove other eval-suite folders, leftovers of the flat layout, and regenerable caches.
-const evals = path.join(DATA(), "evals");
-if (fs.existsSync(evals)) for (const d of fs.readdirSync(evals)) if (d !== a.keep) fs.rmSync(path.join(evals, d), { recursive: true, force: true });
+// Eval suites are expensive history (iterations): they are NEVER deleted here. Only leftovers of the old flat layout
+// and regenerable caches go.
 for (const d of ["runs", "traces", "cache", "labels"]) fs.rmSync(path.join(DATA(), d), { recursive: true, force: true });
 console.log("done");

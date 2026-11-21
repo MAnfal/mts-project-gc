@@ -30,6 +30,9 @@ export async function judgePanel(run: RunRecord): Promise<PanelResult> {
     owner: i.owner.name,
     reason: i.reason,
     action: i.action,
+    // Shown next to the action on the card (verified dates only); actions deliberately contain no dates.
+    datesShown: (i.datesShown ?? (i.deadline ? [i.deadline] : [])).map((d) => ({ date: d.date, kind: d.kind, verified: d.verified })),
+    tier: i.tier,
     ...(key?.details?.[i.document_number]?.rubric ? { rubric: key.details[i.document_number].rubric } : {}),
   }));
   const hash = panelHash();

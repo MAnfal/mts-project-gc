@@ -19,6 +19,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <nav className="flex gap-4">
             <Link href="/try">Try it</Link>
             <Link href="/">Evals (interviewer)</Link>
+            <Link href="/progress">Progress</Link>
           </nav>
           <span className="ml-auto font-mono text-xs text-muted-foreground">
             spend ${spent.toFixed(2)} / ${budgetUsd()}

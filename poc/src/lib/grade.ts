@@ -53,7 +53,9 @@ export function gradeRun(run: RunRecord, key: LabelSet, profile: CompanyProfile,
     if (d?.docType) bump(`docType:${d.docType}`, !!it);
     if (!it || !d) continue;
     if (d.deadline) {
-      const ok = !!it.deadline && [d.deadline.date, ...(d.acceptDates ?? [])].includes(it.deadline.date);
+      // Graded on what the card showed: every verified date for new runs, the single headline date for older runs.
+      const shown = it.datesShown ?? (it.deadline ? [it.deadline] : []);
+      const ok = shown.some((x) => [d.deadline!.date, ...(d.acceptDates ?? [])].includes(x.date));
       checks.date = add(checks.date, ratio(ok ? 1 : 0, 1));
     }
     if (d.docType) {
