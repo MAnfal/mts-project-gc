@@ -65,6 +65,11 @@ the copy a session happens to read first wins.
 and prompt-authoring standards the loop cites. Brainstorm, planning, rubric generation,  
 implementation and review all route through it.
 
+- **POC eval loop matured** 2026-11-22: 12 frozen company-weeks (dev/test split), subset precision grading,
+per-step scores, and an evidence gate. Every iteration needs a dev-only error analysis (incl. judge
+feedback) first, and a gap counts only beyond the control's A/A swing. Iterations 00–05 and findings are in
+`poc/README.md` and `poc/data/iterations/`.
+
 ## Communication instructions.
 
 - Keep your messages short, concise and reflect the user's voice and tone. An ideal response back to the user is 1 - 2 sentences long, states the high level concern and waits for the user for clarifying  question. Only go in details if the user asks you to but treat the depth as layered and reveal more details in layers not at once.

@@ -7,7 +7,7 @@ shape changes, bump `schemaVersion` in the export manifest and record the change
 
 | File | Shape | Validated by |
 |---|---|---|
-| `experiment.yaml` | budget, Jev + judge models, arena concurrency, user-view setup, eval gates, score weights | `ExperimentSchema` in `src/lib/config.ts` |
+| `experiment.yaml` | budget, Jev model, arena concurrency, user-view setup, eval gates, score weights | `ExperimentSchema` in `src/lib/config.ts` |
 | `setups.yaml` | `models[]` (id, label, vendor, search), `methods[]`, `setups[]` (id, label, model, method, promptSet?, estUsd) | `SetupsSchema` |
 | `judges.yaml` | `minAgree`, `judges[]` (model), `criteria[]` (id, question, needsRubric?) | `JudgesSchema` |
 | `pipeline.yaml` | tier rules, batch sizes, concurrency, text limits | `PipelineSchema` |
