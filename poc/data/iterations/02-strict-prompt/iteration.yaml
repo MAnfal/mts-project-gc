@@ -10,18 +10,19 @@ change: New prompt set config/prompt-sets/strict.yaml overriding only filterSyst
 decision: "Kept and promoted to the live user view (experiment.yaml → userView.setup). Precision 45% → 79.6%, trap hits 2.4 → 0.4 per run, recall 98% → 93%. Held up on the held-out test week (124/132 vs 109/132 cases right). Still 0.4 pts under the 80% precision target; next: find out what the remaining false flags and misses have in common (error analysis)."
 notes: The exclusions mirror our trap taxonomy, so the test week is what keeps this honest; recall on the test week rests on few rules.
 regraded: "2026-11-22: re-graded with the fixed judge input (judges now see the verified date shown next to each action). The original verdicts are kept in each run's trace (earlier judge.call events)."
+regradedSubset: "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50)."
 results:
   candidate:
     setup: jev-sonnet-strict
     label: Sonnet · Jev filter · strict prompt
     runs: 18
     recall: 0.929
-    precision: 0.796
+    precision: 0.83
     trapAvoidance: 0.966
     datesRight: 0.744
     judgePass: 0.714
     consistency: 0.903
-    score: 0.898
+    score: 0.901
     perRun:
       tp: 2.17
       fn: 0.17
@@ -37,12 +38,12 @@ results:
     label: Sonnet · Jev filter · default prompt
     runs: 18
     recall: 0.976
-    precision: 0.446
+    precision: 0.488
     trapAvoidance: 0.819
     datesRight: 0.732
     judgePass: 0.772
     consistency: 0.796
-    score: 0.852
+    score: 0.856
     perRun:
       tp: 2.28
       fn: 0.06
@@ -53,11 +54,14 @@ results:
     testCasesRight: 109/132
     costPerRunUsd: 0.159
     secondsPerRun: 37
+code:
+  commit: b5af67f
+  uncommittedSrcChanges: 1
 systemChanges:
   - promptSet
   - prompts.filterSystem
 configChangesSincePrevious:
   previous: 01-first-pipeline
   files: []
-configHashAtRecord: 34086d27de
-recordedAt: 2026-11-21T20:04:20.612Z
+configHashAtRecord: e238bb82b4
+recordedAt: 2026-11-21T22:12:15.972Z

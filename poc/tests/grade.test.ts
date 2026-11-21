@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gradeRun, passK, majority, aggregate } from "../src/lib/grade";
+import { gradeRun, passK, majority, aggregate, stepGrade, aggregateSteps } from "../src/lib/grade";
 import type { ActionItem, CompanyProfile, LabelSet, RunRecord } from "../src/lib/types";
 
 const owner = (n: string) => ({ name: n, email: `${n}@x` });
@@ -134,7 +134,57 @@ describe("aggregate", () => {
     const a = aggregate([g1, g2]);
     expect(a.counts).toEqual({ tp: 3, fn: 1, trapHit: 1, tn: 3, unlabeled: 0 });
     expect(a.recall).toBeCloseTo(3 / 4);
-    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit + unlabeled)
+    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit)
     expect(a.trapAvoidance).toBeCloseTo(3 / 4);
+  });
+
+  it("subset grading: flags outside the key (unlabeled) are reported but never count against precision; traps do", () => {
+    const a = aggregate([gradeRun(run([item("A"), item("T1"), item("X")]), key, profile, rules)]);
+    expect(a.counts).toMatchObject({ tp: 1, trapHit: 1, unlabeled: 1 });
+    expect(a.precision).toBeCloseTo(1 / 2); // not 1/3: X is outside the key, so it is neither right nor wrong
+    expect(a.unlabeledPerRun).toBeCloseTo(1);
+  });
+});
+
+describe("stepGrade (score each pipeline step against the key, from what the run saved)", () => {
+  // Scored docs: A (flag), B (flag), T1 (trap), T2 (trap), plus 3 other docs. Jev threshold 0.1.
+  // Jev ranks: A 0.9 (1st), T1 0.8 (2nd), X 0.5, Y 0.3, B 0.2 (5th), Z 0.15, T2 0.05 (below threshold).
+  // LLM filter gets everything ≥ 0.1: keeps A, T1; rejects B, X, Y, Z. Verify turns A and T1 into items.
+  const dec = (n: string, p: number, llm?: boolean) => ({ document_number: n, jevProbability: p, relevant: !!llm, ...(llm === undefined ? {} : { llm: { relevant: llm, reason: "", areas: [] } }) });
+  const decisions = [dec("A", 0.9, true), dec("T1", 0.8, true), dec("X", 0.5, false), dec("Y", 0.3, false), dec("B", 0.2, false), dec("Z", 0.15, false), dec("T2", 0.05)];
+  const items = [
+    item("A", { deadlines: [{ date: "2027-01-11", kind: "effective", source: "extracted", verified: true }, { date: "2026-12-10", kind: "comment", source: "extracted", verified: false }] }),
+    item("T1"),
+  ];
+  const s = stepGrade(run(items, { decisions }), key);
+
+  it("Jev: flags kept at the cut-off, traps let through, each flag's rank and recall in the top N", () => {
+    expect(s.jev).toMatchObject({ flagsKept: { correct: 2, total: 2 }, trapsPassed: { correct: 1, total: 2 }, passed: 6, scored: 7 });
+    expect(s.jev!.flagRanks).toEqual([1, 5]);
+    expect(s.jev!.recallAtN[10]).toEqual({ correct: 2, total: 2 }); // both flags within Jev's top 10
+  });
+
+  it("LLM filter: judged only on what Jev handed it", () => {
+    expect(s.llm).toEqual({ flagsKept: { correct: 1, total: 2 }, trapsRejected: { correct: 0, total: 1 } });
+  });
+
+  it("verify: kept flags that became items; the key's date extracted at all, and verified", () => {
+    expect(s.verify.flagsSurvived).toEqual({ correct: 1, total: 1 });
+    expect(s.verify.dateFound).toEqual({ correct: 1, total: 1 }); // 2026-12-10 or accepted 2027-01-11 extracted
+    expect(s.verify.dateVerified).toEqual({ correct: 1, total: 1 }); // 2027-01-11 (an accepted date) is verified
+  });
+
+  it("a baseline run (no filter decisions) has no Jev or LLM step", () => {
+    const b = stepGrade(run([item("A")], { config: { ...run([]).config, mode: "baseline" }, decisions: undefined }), key);
+    expect(b.jev).toBeNull();
+    expect(b.llm).toBeNull();
+  });
+
+  it("aggregateSteps sums ratios and pools ranks across runs", () => {
+    const a = aggregateSteps([s, s]);
+    expect(a.jev!.flagsKept).toEqual({ correct: 4, total: 4 });
+    expect(a.jev!.flagRanks).toEqual([1, 1, 5, 5]);
+    expect(a.llm!.trapsRejected).toEqual({ correct: 0, total: 2 });
+    expect(a.verify.dateVerified).toEqual({ correct: 2, total: 2 });
   });
 });

@@ -10,7 +10,7 @@ import { z } from "zod";
 import { arenaRuns } from "../src/lib/arena";
 import { evalsets, getCompany, loadKey, pipelineCfg } from "../src/lib/config";
 import { gatewayCost, languageModel } from "../src/lib/gateway";
-import { gradeRun, trapsOf } from "../src/lib/grade";
+import { aggregateSteps, formatSteps, gradeRun, stepGrade, trapsOf } from "../src/lib/grade";
 import { archiveSpend } from "../src/lib/store";
 import { readTrace } from "../src/lib/trace";
 import { checkTrace } from "../src/lib/trace-checks";
@@ -78,6 +78,10 @@ for (const f of failures) {
 const rows = [...distinct.values()];
 const buckets = Object.entries(rows.reduce((a, f) => ((a[f.bucket] = (a[f.bucket] ?? 0) + f.times), a), {} as Record<string, number>)).sort((a, b) => b[1] - a[1]);
 
+// Per-step scores on the same dev runs (Jev → LLM filter → verify), so root causes can be pinned to a step.
+const steps = aggregateSteps(runs.map((r) => stepGrade(r, loadKey(r.config.profileId, r.config.windowStart, r.config.windowEnd)!)));
+const stepLines = formatSteps(steps);
+console.log(["per-step scores (dev):", ...stepLines].join("\n"));
 let llm: unknown = null;
 if (useLlm) {
   const model = "anthropic/claude-opus-5.5";
@@ -101,6 +105,9 @@ if (useLlm) {
 
 Pipeline facts you need: actions deliberately contain NO dates (dates are shown separately, only from verified sources). Tiering is code. The LLM filter decides relevance with a system prompt (prompt set "strict" lists exclusions).
 
+Per-step scores on these runs (which step loses flags or lets traps through):
+${stepLines.join("\n")}
+
 Code buckets (bucket → failure count): ${JSON.stringify(buckets)}
 
 Failures (distinct, with how many runs hit them):
@@ -112,7 +119,7 @@ ${JSON.stringify(rows.map(({ signal, kind, evalset, doc, bucket, times, detail }
 }
 
 fs.mkdirSync(outDir, { recursive: true });
-const out = { suite, setup, split: "dev", excludedTestRuns: all.length - runs.length, runs: runs.length, generatedAt: new Date().toISOString(), totals: { failures: failures.length, distinct: rows.length }, bySignal: Object.fromEntries(["relevance", "fact", "trace", "judge"].map((s) => [s, failures.filter((f) => f.signal === s).length])), buckets, rows, llm };
+const out = { suite, setup, split: "dev", excludedTestRuns: all.length - runs.length, runs: runs.length, generatedAt: new Date().toISOString(), totals: { failures: failures.length, distinct: rows.length }, bySignal: Object.fromEntries(["relevance", "fact", "trace", "judge"].map((s) => [s, failures.filter((f) => f.signal === s).length])), buckets, steps, rows, llm };
 fs.writeFileSync(path.join(outDir, "error-analysis.json"), JSON.stringify(out, null, 2));
 console.log(`${failures.length} failures (${rows.length} distinct) by signal ${JSON.stringify(out.bySignal)}`);
 for (const [b, n] of buckets) console.log(`  ${String(n).padStart(3)}  ${b}`);

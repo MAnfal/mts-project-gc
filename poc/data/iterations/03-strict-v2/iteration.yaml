@@ -11,6 +11,7 @@ codeChanges: Cards show every verified date with its label (ActionItem.datesShow
 evalChanges: '(a) Judges see the dates shown on the card and are told a paraphrase counts for "covers" (dev evidence: 7 of 8 judge failures penalised a date the action deliberately omits). (b) Dev-week rubrics rewritten at gist level by a blind agent (rubricRevision in the keys); test-week keys untouched. (c) Date grading uses the dates each run actually displayed (older runs: the one headline date).'
 decision: "Rejected; live config stays on jev-sonnet-strict. Decided on dev weeks only: recall tied (27/27 both), precision fell 93.1% -> 79.4% (trap hits 2 -> 7). strict-v2's higher test-week recall (14/15 vs 9/15) is not used to choose, since picking a change because of the test week is overfitting. Kept: the every-verified-date card (dates right ~74% -> 100%) and the eval fixes (judges see shown dates, gist-level dev rubrics)."
 notes: "The same jev-sonnet-strict setup scored 93% test recall in the previous suite and 60% in this one, so its filter decisions drift between runs and 15 test rules make each swing large. Next (iteration 04): stability, i.e. a 3-pass majority vote on the filter, plus more eval weeks."
+regradedSubset: "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50)."
 results:
   candidate:
     setup: jev-sonnet-strict-v2
@@ -55,20 +56,14 @@ results:
     costPerRunUsd: 0.123
     secondsPerRun: 34
 code:
-  commit: b54742a
-  uncommittedSrcChanges: 17
+  commit: b5af67f
+  uncommittedSrcChanges: 1
 systemChanges:
   - promptSet
   - prompts.filterSystem
   - prompts.actionsSystem
 configChangesSincePrevious:
   previous: 02-strict-prompt
-  files:
-    - evalsets/keys/brightside_2026-11-09_2026-11-13.json
-    - evalsets/keys/cornercare_2026-11-09_2026-11-13.json
-    - evalsets/keys/skyhop_2026-11-09_2026-11-13.json
-    - prompt-sets/strict-v2.yaml
-    - prompts.yaml
-    - setups.yaml
-configHashAtRecord: be6335a9a2
-recordedAt: 2026-11-21T20:56:27.336Z
+  files: []
+configHashAtRecord: e238bb82b4
+recordedAt: 2026-11-21T22:12:17.598Z

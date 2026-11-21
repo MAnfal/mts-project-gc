@@ -9,18 +9,19 @@ change: No pipeline. One task prompt (config/prompts.yaml → baselineTask, told
 decision: "Reference point. Precision 79% (it flags little) but recall only 71%: it missed 4 of the 9 rules that directly change what a company must do, and it is the only setup failing trace checks (dates it could not verify, dates written into action text). This is what the pipeline has to beat."
 notes: Not re-run each iteration (iterations change our pipeline, not this). Re-run only when the eval set grows, so comparisons stay on the same cases.
 regraded: "2026-11-22: re-graded with the fixed judge input (judges now see the verified date shown next to each action). The original verdicts are kept in each run's trace (earlier judge.call events)."
+regradedSubset: "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50)."
 results:
   candidate:
     setup: baseline-sonnet
     label: Baseline · Sonnet, 1 prompt + web search
     runs: 18
     recall: 0.714
-    precision: 0.789
+    precision: 0.811
     trapAvoidance: 0.97
     datesRight: 0.833
     judgePass: 0.556
     consistency: 0.86
-    score: 0.825
+    score: 0.827
     perRun:
       tp: 1.67
       fn: 0.67
@@ -31,9 +32,12 @@ results:
     testCasesRight: 124/132
     costPerRunUsd: 0.532
     secondsPerRun: 41
+code:
+  commit: b5af67f
+  uncommittedSrcChanges: 1
 systemChanges: []
 configChangesSincePrevious:
   previous: null
   files: []
-configHashAtRecord: 34086d27de
-recordedAt: 2026-11-21T20:04:17.272Z
+configHashAtRecord: e238bb82b4
+recordedAt: 2026-11-21T22:12:12.078Z
