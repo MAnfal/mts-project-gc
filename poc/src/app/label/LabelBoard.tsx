@@ -63,15 +63,15 @@ export default function LabelBoard({ profileId, start, end }: { profileId: strin
         <b>{rel.size}</b> relevant · <b>{reviewed.size}</b>/{allGroups.size} agencies reviewed · {docs.length} docs
         <input className="inp" placeholder="search title/abstract/agency" value={q} onChange={(e) => setQ(e.target.value)} />
         <label className="flex items-center gap-1"><input type="checkbox" checked={hideReviewed} onChange={(e) => setHideReviewed(e.target.checked)} /> hide reviewed</label>
-        <span className="ml-auto text-muted text-xs">{saved && `saved ${saved}`}</span>
+        <span className="ml-auto text-muted-foreground text-xs">{saved && `saved ${saved}`}</span>
         <button className="btn" onClick={save}>Save labels</button>
       </div>
       {groups
         .filter(([g]) => !(hideReviewed && reviewed.has(g)))
         .map(([g, ds]) => (
           <div key={g} className="box">
-            <div className="flex items-center gap-3 px-3 py-2 border-b border-line text-sm">
-              <b>{g}</b> <span className="text-muted">{ds.length} docs · {ds.filter((d) => rel.has(d.document_number)).length} relevant</span>
+            <div className="flex items-center gap-3 px-3 py-2 border-b border-border text-sm">
+              <b>{g}</b> <span className="text-muted-foreground">{ds.length} docs · {ds.filter((d) => rel.has(d.document_number)).length} relevant</span>
               <label className="ml-auto flex items-center gap-1 text-xs"><input type="checkbox" checked={reviewed.has(g)} onChange={() => setReviewed((s) => toggle(s, g))} /> reviewed every doc in this agency</label>
             </div>
             <table className="t">
@@ -84,7 +84,7 @@ export default function LabelBoard({ profileId, start, end }: { profileId: strin
                     <td className="text-xs">
                       <button className="text-left hover:underline" onClick={() => setOpen(open === d.document_number ? null : d.document_number)}>{d.title}</button>
                       {open === d.document_number && (
-                        <div className="mt-1 text-muted flex flex-col gap-1">
+                        <div className="mt-1 text-muted-foreground flex flex-col gap-1">
                           <div>{d.abstract ?? "(no abstract)"}</div>
                           <div>Dates: {d.dates ?? "—"} · effective {d.effective_on ?? "—"} · comments close {d.comments_close_on ?? "—"}</div>
                           <a className="underline" href={d.html_url} target="_blank">open on federalregister.gov</a>

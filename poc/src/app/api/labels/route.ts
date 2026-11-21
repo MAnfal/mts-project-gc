@@ -13,6 +13,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const body = (await req.json()) as LabelSet;
-  await saveLabels(body);
+  try {
+    await saveLabels(body);
+  } catch (e) {
+    return Response.json({ error: (e as Error).message }, { status: 409 });
+  }
   return Response.json({ ok: true });
 }

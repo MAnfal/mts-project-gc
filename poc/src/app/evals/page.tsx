@@ -45,7 +45,7 @@ export default async function EvalsPage({ searchParams }: PageProps<"/evals">) {
     <div className="flex flex-col gap-6">
       <section>
         <h1 className="text-lg font-semibold">Evals · {profileId} · {start} → {end}</h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-muted-foreground">
           Ground truth: {labels.relevant.length} relevant docs of {docs.length} · {labels.reviewedAgencies.length}/{agencies.size} agencies reviewed
           {labels.reviewedAgencies.length < agencies.size && " (recall is only honest once every agency is reviewed)"}. Graders are code: recall/precision on document numbers, dates checked against the Federal Register record, tier agreement across repeats.
         </p>
@@ -83,7 +83,7 @@ export default async function EvalsPage({ searchParams }: PageProps<"/evals">) {
       <section>
         <h2 className="font-semibold mb-2">Consistency (repeat groups)</h2>
         {groups.size === 0 ? (
-          <p className="text-sm text-muted">Run any config with &quot;Repeat: 3 runs&quot; to measure it.</p>
+          <p className="text-sm text-muted-foreground">Run any config with &quot;Repeat: 3 runs&quot; to measure it.</p>
         ) : (
           <div className="box overflow-x-auto">
             <table className="t">
@@ -110,8 +110,8 @@ export default async function EvalsPage({ searchParams }: PageProps<"/evals">) {
 
       {jevRun && (
         <section>
-          <h2 className="font-semibold mb-2">Jev prefilter threshold sweep <span className="text-xs text-muted font-normal">(from <Link className="underline" href={`/runs/${jevRun.id}`}>{jevRun.id.slice(0, 19)}</Link>)</span></h2>
-          <p className="text-sm text-muted mb-2">Jev answers with a probability only. The question is the lowest-cost cut that keeps recall: everything at or above the threshold goes to the LLM.</p>
+          <h2 className="font-semibold mb-2">Jev prefilter threshold sweep <span className="text-xs text-muted-foreground font-normal">(from <Link className="underline" href={`/runs/${jevRun.id}`}>{jevRun.id.slice(0, 19)}</Link>)</span></h2>
+          <p className="text-sm text-muted-foreground mb-2">Jev answers with a probability only. The question is the lowest-cost cut that keeps recall: everything at or above the threshold goes to the LLM.</p>
           <div className="box overflow-x-auto">
             <table className="t">
               <thead><tr><th>Threshold</th><th>Docs passed to LLM</th><th>Prefilter recall</th><th>Prefilter precision</th></tr></thead>

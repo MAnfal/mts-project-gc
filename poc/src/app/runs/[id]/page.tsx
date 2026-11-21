@@ -9,7 +9,7 @@ const TIER_STYLE: Record<Tier, string> = {
   Critical: "border-red-500 text-red-600",
   High: "border-orange-400 text-orange-600",
   Medium: "border-yellow-500 text-yellow-700",
-  Low: "border-line text-muted",
+  Low: "border-border text-muted-foreground",
 };
 
 function Item({ i, label }: { i: ActionItem; label?: boolean }) {
@@ -22,16 +22,16 @@ function Item({ i, label }: { i: ActionItem; label?: boolean }) {
         {label !== undefined && <span className={`tag ${label ? "border-green-600 text-green-700" : "border-red-500 text-red-600"}`}>{label ? "TP" : "FP"}</span>}
       </div>
       <div className="text-sm">{i.action}</div>
-      <div className="text-xs text-muted flex flex-wrap gap-x-4">
+      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4">
         <span>Deadline: {i.deadline ? `${i.deadline.date} · ${i.deadline.kind} · ${i.deadline.verified ? "✓ verified" : "✗ unverified"}` : "none"}</span>
         <span>Owner: {i.owner.name}</span>
         <span>Areas: {i.areas.join(", ") || "—"}</span>
         <span>{i.type} · {i.agencies.join("; ")}</span>
         <span>{i.citation ?? i.document_number} {i.citationVerified ? "✓" : "✗"}</span>
       </div>
-      <div className="text-xs text-muted">Why: {i.reason} · Tier rule: {i.tierReason}</div>
+      <div className="text-xs text-muted-foreground">Why: {i.reason} · Tier rule: {i.tierReason}</div>
       {i.deadlines.length > 0 && (
-        <details className="text-xs text-muted">
+        <details className="text-xs text-muted-foreground">
           <summary>dates checked ({i.deadlines.length})</summary>
           <ul className="pl-4 list-disc">
             {i.deadlines.map((d, k) => (
@@ -60,14 +60,14 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
       <AutoRefresh active={run.status === "running"} />
       <section className="flex flex-col gap-1">
         <h1 className="text-lg font-semibold">{c.mode === "pipeline" ? "Pipeline" : "Baseline"} run · <span className="font-mono text-sm">{run.id}</span></h1>
-        <div className="text-sm text-muted">
+        <div className="text-sm text-muted-foreground">
           {c.profileId} · {c.windowStart} → {c.windowEnd} · as-of {c.asOf} · {c.model}
           {c.mode === "pipeline" && ` · filter ${c.filter}${c.filter !== "llm" ? ` @ ${c.jevThreshold}` : ""} · web leads ${c.webLeads ? "on" : "off"}`}
           {c.group && ` · group ${c.group}`}
         </div>
         <div className="text-sm">
           Status <b>{run.status}</b>{run.error && <span className="text-red-600"> — {run.error}</span>} · ${run.totalCostUsd.toFixed(4)} · {(run.totalMs / 1000).toFixed(1)}s
-          {!truth && <span className="text-muted"> · no labels yet for this window (TP/FP hidden)</span>}
+          {!truth && <span className="text-muted-foreground"> · no labels yet for this window (TP/FP hidden)</span>}
         </div>
       </section>
 
@@ -78,7 +78,7 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
             <thead><tr><th>Stage</th><th>Time</th><th>Cost</th><th>In</th><th>Out</th><th>Note</th></tr></thead>
             <tbody>
               {run.stages.map((s, k) => (
-                <tr key={k}><td className="font-mono text-xs">{s.name}</td><td>{(s.ms / 1000).toFixed(1)}s</td><td className="font-mono text-xs">${s.costUsd.toFixed(4)}</td><td>{s.inCount ?? ""}</td><td>{s.outCount ?? ""}</td><td className="text-muted">{s.note ?? ""}</td></tr>
+                <tr key={k}><td className="font-mono text-xs">{s.name}</td><td>{(s.ms / 1000).toFixed(1)}s</td><td className="font-mono text-xs">${s.costUsd.toFixed(4)}</td><td>{s.inCount ?? ""}</td><td>{s.outCount ?? ""}</td><td className="text-muted-foreground">{s.note ?? ""}</td></tr>
               ))}
             </tbody>
           </table>
@@ -122,7 +122,7 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
                   {decisions.map((d) => (
                     <tr key={d.document_number}>
                       <td className="font-mono text-xs">{d.document_number}</td>
-                      <td className="text-xs">{docs.get(d.document_number)?.title.slice(0, 110)}{d.llm?.reason && <div className="text-muted">{d.llm.reason}</div>}</td>
+                      <td className="text-xs">{docs.get(d.document_number)?.title.slice(0, 110)}{d.llm?.reason && <div className="text-muted-foreground">{d.llm.reason}</div>}</td>
                       <td className="font-mono text-xs">{d.jevProbability?.toFixed(2) ?? "—"}</td>
                       <td>{d.llm ? (d.llm.relevant ? "yes" : "no") : "—"}</td>
                       <td>{d.relevant ? "✓" : ""}</td>
@@ -144,9 +144,9 @@ export default async function RunPage({ params }: PageProps<"/runs/[id]">) {
               <details key={k} className="box p-2 text-xs">
                 <summary className="font-mono">{call.stage} · {call.model} · {(call.ms / 1000).toFixed(1)}s · ${call.costUsd.toFixed(4)} · in {call.inputTokens ?? "?"} / out {call.outputTokens ?? "?"}{call.toolCalls ? ` · ${call.toolCalls.length} tool calls` : ""}{call.error ? " · ERROR" : ""}</summary>
                 {call.error && <pre className="whitespace-pre-wrap text-red-600">{call.error}</pre>}
-                {call.prompt && <><div className="text-muted mt-2">prompt</div><pre className="whitespace-pre-wrap max-h-64 overflow-auto">{call.prompt}</pre></>}
-                {call.toolCalls && <><div className="text-muted mt-2">tool calls</div><pre className="whitespace-pre-wrap max-h-64 overflow-auto">{JSON.stringify(call.toolCalls.map((t) => ({ name: t.name, input: t.input })), null, 2)}</pre></>}
-                <div className="text-muted mt-2">output</div>
+                {call.prompt && <><div className="text-muted-foreground mt-2">prompt</div><pre className="whitespace-pre-wrap max-h-64 overflow-auto">{call.prompt}</pre></>}
+                {call.toolCalls && <><div className="text-muted-foreground mt-2">tool calls</div><pre className="whitespace-pre-wrap max-h-64 overflow-auto">{JSON.stringify(call.toolCalls.map((t) => ({ name: t.name, input: t.input })), null, 2)}</pre></>}
+                <div className="text-muted-foreground mt-2">output</div>
                 <pre className="whitespace-pre-wrap max-h-64 overflow-auto">{typeof call.output === "string" ? call.output : JSON.stringify(call.output, null, 2)}</pre>
               </details>
             ))}

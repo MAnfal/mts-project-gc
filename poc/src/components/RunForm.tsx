@@ -7,7 +7,7 @@ const MODELS = ["anthropic/claude-sonnet-5.5", "anthropic/claude-haiku-5.5", "op
 
 function L({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-muted">
+    <label className="flex flex-col gap-1 text-xs text-muted-foreground">
       {label}
       {children}
     </label>

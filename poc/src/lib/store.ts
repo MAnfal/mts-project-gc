@@ -40,13 +40,17 @@ export async function loadLabels(profileId: string, start: string, end: string):
 }
 
 export async function saveLabels(l: LabelSet) {
+  // A key with provenance is frozen: every arena is graded against the same file.
+  const existing = await loadLabels(l.profileId, l.windowStart, l.windowEnd);
+  if (existing?.provenance) throw new Error(`Answer key is frozen (${existing.provenance}); edit the file deliberately if it must change`);
   await fs.mkdir(LABELS, { recursive: true });
   await fs.writeFile(labelFile(l.profileId, l.windowStart, l.windowEnd), JSON.stringify({ ...l, updatedAt: new Date().toISOString() }, null, 2));
 }
 
 /** Spend = sum of every persisted run's cost (no shared counter → no write races) + smoke-test spend. */
-export const SMOKE_SPEND_USD = 0.05;
+// Out-of-run smoke tests: $0.05 initial + ~$0.33 arena model checks (2026-11-21).
+export const SMOKE_SPEND_USD = 0.4;
 export async function spentUsd(): Promise<number> {
   const runs = await listRuns();
-  return runs.reduce((a, r) => a + (r.totalCostUsd ?? 0), 0) + SMOKE_SPEND_USD;
+  return runs.reduce((a, r) => a + (r.totalCostUsd ?? 0) + (r.judge?.costUsd ?? 0), 0) + SMOKE_SPEND_USD;
 }

@@ -117,6 +117,9 @@ export interface RunConfig {
   webLeads: boolean;
   /** Free label to group repeated runs for consistency scoring. */
   group?: string;
+  /** Arena this run belongs to, and its cell (config) key inside the arena. */
+  arena?: string;
+  cell?: string;
 }
 
 export interface RunRecord {
@@ -135,6 +138,8 @@ export interface RunRecord {
   /** Baseline only: raw items as the model claimed them, before resolution. */
   claimed?: unknown[];
   markdown?: string;
+  /** LLM-judge clarity score for the action items, run once after the run finishes. */
+  judge?: { model: string; clarity: number | null; perItem: { document_number: string; score: number; why: string }[]; costUsd: number; error?: string };
   totalCostUsd: number;
   totalMs: number;
 }
@@ -148,4 +153,17 @@ export interface LabelSet {
   reviewedAgencies: string[];
   notes: Record<string, string>;
   updatedAt: string;
+  /** Who/what produced the key (e.g. a blind Claude Code subagent). */
+  provenance?: string;
+  /** Per relevant doc: expected owner area, plain reason, confidence, and the expected deadline from the source. */
+  details?: Record<string, KeyDetail>;
+  borderlineRejected?: Record<string, { reason: string; confidence: string }>;
+}
+
+export interface KeyDetail {
+  relevant: true;
+  area: string;
+  reason: string;
+  confidence: "high" | "medium" | "low";
+  deadline: { date: string; kind: DeadlineKind; quote: string } | null;
 }

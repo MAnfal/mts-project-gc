@@ -57,3 +57,51 @@ export function jevSweep(run: RunRecord, labels: LabelSet, thresholds = [0.05, 0
     return { threshold: t, passed: passed.length, recall: truth.size ? tp / truth.size : 0, precision: passed.length ? tp / passed.length : 0 };
   });
 }
+
+/** Dates graded against the key: for found docs whose key has a deadline, does the shown date match exactly? */
+export function datesAgainstKey(run: RunRecord, key: LabelSet) {
+  const wrong: string[] = [];
+  let checked = 0;
+  for (const it of run.items ?? []) {
+    const expected = key.details?.[it.document_number]?.deadline;
+    if (!key.relevant.includes(it.document_number) || !expected) continue;
+    checked++;
+    if (it.deadline?.date !== expected.date) wrong.push(it.document_number);
+  }
+  return { checked, correct: checked - wrong.length, wrong };
+}
+
+const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+/** One arena row: every run of one config. Failed runs are shown, not hidden, and their spend still counts. */
+export function summarizeCell(runs: RunRecord[], key: LabelSet) {
+  const done = runs.filter((r) => r.status === "done");
+  const scores = done.map((r) => scoreRun(r, key));
+  const dates = done.map((r) => datesAgainstKey(r, key));
+  const clarity = done.map((r) => r.judge?.clarity).filter((c): c is number => typeof c === "number");
+  return {
+    runs: runs.length,
+    finished: done.length,
+    failed: runs.filter((r) => r.status === "error").length,
+    running: runs.filter((r) => r.status === "running").length,
+    recall: mean(scores.map((s) => s.recall)),
+    precision: mean(scores.map((s) => s.precision)),
+    found: mean(scores.map((s) => s.tp)),
+    extra: mean(scores.map((s) => s.fp)),
+    missed: mean(scores.map((s) => s.fn)),
+    datesChecked: dates.reduce((a, d) => a + d.checked, 0),
+    datesCorrect: dates.reduce((a, d) => a + d.correct, 0),
+    unverifiedShown: scores.reduce((a, s) => a + (s.datesShown - s.datesVerified), 0),
+    clarity: mean(clarity),
+    consistency: done.length >= 2 ? consistency(done) : null,
+    costUsd: runs.reduce((a, r) => a + r.totalCostUsd + (r.judge?.costUsd ?? 0), 0),
+    msMean: mean(done.map((r) => r.totalMs)),
+    errors: runs.filter((r) => r.error).map((r) => r.error!),
+  };
+}
+
+export type CellSummary = ReturnType<typeof summarizeCell>;
+
+export function arenaTotals(cells: CellSummary[]) {
+  return { runs: cells.reduce((a, c) => a + c.runs, 0), costUsd: cells.reduce((a, c) => a + c.costUsd, 0) };
+}

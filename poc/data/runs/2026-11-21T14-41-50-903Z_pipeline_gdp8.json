@@ -1,0 +1,2850 @@
+{
+  "id": "2026-11-21T14-41-50-903Z_pipeline_gdp8",
+  "createdAt": "2026-11-21T14:41:50.903Z",
+  "config": {
+    "mode": "pipeline",
+    "profileId": "brightside",
+    "windowStart": "2026-11-09",
+    "windowEnd": "2026-11-13",
+    "asOf": "2026-11-13",
+    "model": "openai/gpt-6.1-terra",
+    "filter": "jev+llm",
+    "jevThreshold": 0.9,
+    "webLeads": true,
+    "group": "g-mwqinubb"
+  },
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 7,
+      "costUsd": 0,
+      "outCount": 448
+    },
+    {
+      "name": "scan:web-leads",
+      "ms": 13010,
+      "costUsd": 0.03291325,
+      "outCount": 23,
+      "note": "8 resolved to FR, 8 already in scan"
+    },
+    {
+      "name": "filter:jev",
+      "ms": 14235,
+      "costUsd": 0.013186614000000027,
+      "inCount": 448,
+      "outCount": 1,
+      "note": "threshold 0.9"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 2308,
+      "costUsd": 0.0010630000000000014,
+      "inCount": 1,
+      "outCount": 1,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 3603,
+      "costUsd": 0.0011079999999999979,
+      "inCount": 1,
+      "outCount": 1,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 4236,
+      "costUsd": 0.0017459999999999976,
+      "outCount": 1
+    }
+  ],
+  "calls": [
+    {
+      "stage": "web-leads",
+      "model": "openai/gpt-6.1-terra",
+      "ms": 13008,
+      "costUsd": 0.03291325,
+      "inputTokens": 6981,
+      "outputTokens": 681,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\nFind US federal regulatory developments (final rules, proposed rules, guidance, enforcement) published 2026-11-09 to 2026-11-13 that could affect this company. Run at most 3 searches. Reply with the URLs only.",
+      "output": "https://www.federalregister.gov/documents/2026/11/09/2026-22826/pecans-grown-in-the-states-of-alabama-arkansas-arizona-california-florida-georgia-kansas-louisiana\n\nhttps://www.federalregister.gov/documents/2026/11/10/2026-22865/color-additive-petition-from-environmental-defense-fund-et-al-request-to-amend-the-color-additive\n\nhttps://www.federalregister.gov/documents/2026/11/10/2026-22866/color-additive-petition-from-the-international-association-of-color-manufacturers-request-to-amend\n\nhttps://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults\n\nhttps://www.govinfo.gov/content/pkg/FR-2026-11-10/xhtml/FR-2026-11-10.html\n\nhttps://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters",
+      "toolCalls": [
+        {
+          "name": "exa_search",
+          "input": {
+            "query": "site:federalregister.gov/documents/2026/11/09 OR site:federalregister.gov/documents/2026/11/10 OR site:federalregister.gov/documents/2026/11/12 OR site:federalregister.gov/documents/2026/11/13 food FDA USDA FSIS color additives SNAP marketing pecans apples",
+            "type": "auto",
+            "num_results": 30
+          },
+          "output": {
+            "requestId": "265232ff39779e25aeca29639e4e8e13",
+            "resolvedSearchType": "",
+            "results": [
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/09/2026-22826/pecans-grown-in-the-states-of-alabama-arkansas-arizona-california-florida-georgia-kansas-louisiana",
+                "title": "Federal Register\n       :: \n      Pecans Grown in the States of Alabama, Arkansas, Arizona, California, Florida, Georgia, Kansas, Louisiana, Missouri, Mississippi, North Carolina, New Mexico, Oklahoma, South Carolina, and Texas; Changes to Membership and Handling Requirements",
+                "url": "https://www.federalregister.gov/documents/2026/11/09/2026-22826/pecans-grown-in-the-states-of-alabama-arkansas-arizona-california-florida-georgia-kansas-louisiana",
+                "publishedDate": "2026-11-09T09:43:58.000Z",
+                "author": "Authority: 7 U.S.C. 601-674 .",
+                "highlights": [
+                  "Council (Council) to eliminate regional and size designations for sheller members, modify the nomination process for sheller members, adjust the requirements of the inter-handler transfer report form, and establish a late fee and interest charges for"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/10/2026-22865/color-additive-petition-from-environmental-defense-fund-et-al-request-to-amend-the-color-additive",
+                "title": "Federal Register\n       :: \n      Color Additive Petition From Environmental Defense Fund et al.; Request To Amend the Color Additive Regulations To Remove the Solvents Ethylene Dichloride, Methylene Chloride, and Trichloroethylene",
+                "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22865/color-additive-petition-from-environmental-defense-fund-et-al-request-to-amend-the-color-additive",
+                "publishedDate": "2026-11-10T05:40:36.000Z",
+                "highlights": [
+                  "The Food and Drug Administration (FDA or we) is partially granting a color additive petition submitted by Environmental Defense Fund et al. (petitioners), by amending our color additive regulations, on the basis of the Delaney Clause, to remove the authorized use of methylene chloride as a diluent in color additive mixtures in inks for marking fruit and vegetables. The petitioners provided data demonstrating that this additive induces cancer in laboratory animals. We are denying the remaining petition requests to remove ethylene dichloride, methylene chloride, and trichloroethylene from the list of authorized extraction solvents for annatto extract, paprika oleoresin, and turmeric oleoresin,"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/10/2026-22866/color-additive-petition-from-the-international-association-of-color-manufacturers-request-to-amend",
+                "title": "Federal Register\n       :: \n      Color Additive Petition From the International Association of Color Manufacturers; Request To Amend the Color Additive Regulations To Remove the Solvents Methylene Chloride, Trichloroethylene, and Ethylene Dichloride",
+                "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22866/color-additive-petition-from-the-international-association-of-color-manufacturers-request-to-amend",
+                "publishedDate": "2026-11-10T15:58:00.000Z",
+                "highlights": [
+                  "or petitioner), by amending our color additive regulations, on the basis of abandonment, to remove the authorized uses of methylene chloride, trichloroethylene ... ethylene dichloride from the list of authorized extraction solvents for annatto extract,"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters",
+                "title": "Federal Register\n       :: \n      Revocation of the Color Additive Listing for Use of Orange B on Casings or Surfaces of Frankfurters and Sausages; Confirmation of Effective Date",
+                "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters",
+                "publishedDate": "2026-11-13T17:28:22.000Z",
+                "highlights": [
+                  "the effective date of September 8, 2026, for the final order that appeared in the Federal ... 23, 2026, and that repealed the color additive regulation that allows for the use of Orange B for coloring the casings or surfaces of frankfurters and sausages."
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults",
+                "title": "Federal Register\n       :: \n      Modification to Work Requirements for Able-Bodied Adults",
+                "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults",
+                "publishedDate": "2026-11-10T03:00:37.000Z",
+                "author": "Authority: 7 U.S.C. 2011-2036 .",
+                "highlights": [
+                  "(OBBB) changing the three-month time limit for certain participants subject ... work requirements in the Supplemental Nutrition Assistance Program (SNAP). These changes include modifying the list ... to qualify for waivers of the time limit; and adding"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/10/2026-22876/the-emergency-food-assistance-program-availability-of-foods-for-fiscal-year-2027",
+                "title": "Federal Register\n       :: \n      The Emergency Food Assistance Program; Availability of Foods for Fiscal Year 2027",
+                "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22876/the-emergency-food-assistance-program-availability-of-foods-for-fiscal-year-2027",
+                "publishedDate": "2026-11-10T02:05:40.000Z",
+                "highlights": [
+                  ", canned pears, pecans, plums, Alaska Pollock, pork products, raisins, split peas, shrimp, and walnuts.\n...\n, Empire, Fresh |\n| Apples, Fuji, Fresh |\n| Apples, Gala, Fresh\n...\n| Apples, Red Delicious, Fresh |\n| Apples, Fresh |"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/12/2026-22965/agency-information-collection-activities-proposed-collection-comment-request-voluntary-qualified",
+                "title": "Federal Register\n       :: \n      Agency Information Collection Activities; Proposed Collection; Comment Request; Voluntary Qualified Importer Program",
+                "url": "https://www.federalregister.gov/documents/2026/11/12/2026-22965/agency-information-collection-activities-proposed-collection-comment-request-voluntary-qualified",
+                "publishedDate": "2026-11-12T19:47:54.000Z",
+                "highlights": [
+                  "s Voluntary Qualified Importer Program (VQIP), a voluntary fee-based program that provides expedited review and import entry of human and animal foods into the United States. Program participants may import products"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/13/2026-23123/common-crop-insurance-regulations-apple-crop-insurance-provisions-withdrawal",
+                "title": "Federal Register\n       :: \n      Common Crop Insurance Regulations; Apple Crop Insurance Provisions; Withdrawal",
+                "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23123/common-crop-insurance-regulations-apple-crop-insurance-provisions-withdrawal",
+                "publishedDate": "2026-11-13T12:57:10.000Z",
+                "highlights": [
+                  "on December 16, 2021, titled Common Crop Insurance Regulations, Apple Crop Insurance Provisions. FCIC has determined that rulemaking is not necessary or appropriate at this time based on comments received in response to the proposed changes. If FCIC"
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              }
+            ],
+            "searchTime": 1149.9,
+            "costDollars": {
+              "total": 0.007,
+              "search": {
+                "neural": 0.007
+              }
+            }
+          }
+        },
+        {
+          "name": "exa_search",
+          "input": {
+            "query": "\"November 2026\" \"2026-11-09\" OR \"2026-11-10\" OR \"2026-11-12\" OR \"2026-11-13\" EPA pesticide tolerance apple corn pecan federal register",
+            "type": "auto",
+            "num_results": 25
+          },
+          "output": {
+            "requestId": "f8bfdcde15e0da80df21d864a2943ed0",
+            "resolvedSearchType": "",
+            "results": [
+              {
+                "id": "https://civory.org/legislation/us-fr-2026-23115",
+                "title": "Isocycloseram; Pesticide Tolerance for Emergency Exemption, 2026-23115 | Office of the Federal Register | Civory",
+                "url": "https://civory.org/legislation/us-fr-2026-23115",
+                "publishedDate": "2026-11-13T19:50:14.000Z",
+                "highlights": [
+                  "## Publisher text / source description\n\nThis regulation establishes a time-limited tolerance for residues of isocycloseram, including its metabolites and degradates, in or on sunflowers. This action is in response to EPA's authorization of a specific exemption under the Federal Insecticide, Fungicide, and Rodenticide Act (FIFRA) authorizing use of the pesticide on sunflowers. This regulation establishes a maximum permissible level for residues of isocycloseram in or on sunflower, seed at 0.4 parts per million. The time-limited tolerance expires on December 31, 2029.\n\nPublisher API snapshot retrieved 14 November 2026. This"
+                ],
+                "image": "https://civory.org/assets/og.jpg"
+              },
+              {
+                "id": "https://civory.org/legislation/us-fr-2026-23120",
+                "title": "Ethephon; Pesticide Tolerances, 2026-23120 | Office of the Federal Register | Civory",
+                "url": "https://civory.org/legislation/us-fr-2026-23120",
+                "publishedDate": "2026-11-13T11:26:12.000Z",
+                "highlights": [
+                  "This regulation establishes tolerances for residues of ethephon in or on fig. Under the Federal Food, Drug, and Cosmetic Act (FFDCA), Interregional ... Project Number 4 (IR-4) submitted a petition to EPA requesting that EPA establish a maximum permissible"
+                ],
+                "image": "https://civory.org/assets/og.jpg"
+              },
+              {
+                "id": "https://www.legal500.com/intelligence/united-states/environment/recent-federal-developments-for-october-2026",
+                "title": "Recent Federal Developments For October 2026 | Legal 500",
+                "url": "https://www.legal500.com/intelligence/united-states/environment/recent-federal-developments-for-october-2026",
+                "publishedDate": "2026-11-12T06:13:40.000Z",
+                "author": "Bergeson, Campbell",
+                "highlights": [
+                  "Drug, and Cosmetic Act (FFDCA), EPA establishes pesticide tolerances (maximum residue limits) on food when it determines there is a “reasonable certainty that no harm will result from aggregate exposure to the pesticide residue” when used according to its"
+                ],
+                "image": "https://www.legal500.com/intelligence-og.png"
+              },
+              {
+                "id": "https://westhighlandresearch.com/research/pesticide-registration-review-deadline-2026/",
+                "title": "What happened when EPA's pesticide review deadline passed? | West Highland Research",
+                "url": "https://westhighlandresearch.com/research/pesticide-registration-review-deadline-2026/",
+                "publishedDate": "2026-11-09T00:00:00.000Z",
+                "author": "U.S. Environmental Protection Agency",
+                "highlights": [
+                  "bounded search of the Federal Register API for EPA documents containing “registration review” and carrying it in the title returned 23 such documents in ... . The titles include tolerance rules that implement earlier decisions as well as decision"
+                ],
+                "image": "https://westhighlandresearch.com/brand/og/pesticide-registration-review-deadline-2026.png"
+              },
+              {
+                "id": "https://www.orionexregulatory.com/fresh-fruit-vegetables-fda-requirements",
+                "title": "FDA Requirements for Fresh Fruit and Vegetable Exporters (2026) | Orionex",
+                "url": "https://www.orionexregulatory.com/fresh-fruit-vegetables-fda-requirements",
+                "publishedDate": "2026-11-11T06:41:48.000Z",
+                "highlights": [
+                  "### 🧪 Pesticide residues\n\nResidues must be within U.S. EPA tolerances. A pesticide that is legal at home but has no U.S. tolerance for that crop makes the produce violative at any level. FDA tests imported produce and keeps import alerts for repeat"
+                ],
+                "image": "https://www.orionexregulatory.com/og-image.jpg"
+              },
+              {
+                "id": "https://centerforfoodsafety.org/priority/environment-biodiversity-defense/",
+                "title": "Priority: Environment and Biodiversity Defense - Center for Food Safety",
+                "url": "https://centerforfoodsafety.org/priority/environment-biodiversity-defense/",
+                "publishedDate": "2026-11-09T17:15:50.000Z",
+                "highlights": [
+                  "Help us pressure EPA to cancel the approval of Enlist One. The EPA currently allows for over 40 million pounds of this highly toxic pesticide with known health risks to be sprayed on corn, soy, and cotton crops each year."
+                ],
+                "image": "https://phpstack-835434-6394357.cloudwaysapps.com/wp-content/uploads/2026/09/CFS.png"
+              },
+              {
+                "id": "https://www.londonstockexchange.com/en/news/article/EDEN/us-epa-registration-for-mevalone-delta/4494-39-01-e2-de-4e7ba8",
+                "title": "US EPA registration for Mevalone Delta - (EDEN) | London Stock Exchange",
+                "url": "https://www.londonstockexchange.com/en/news/article/EDEN/us-epa-registration-for-mevalone-delta/4494-39-01-e2-de-4e7ba8",
+                "publishedDate": "2026-11-13T00:00:00.000Z",
+                "highlights": [
+                  "Protection Agency (\"EPA\") has granted an unconditional registration under the Federal Insecticide, Fungicide, and Rodenticide Act (\"FIFRA\") for Mevalone Delta, an optimised biofungicide formulation based upon Eden"
+                ]
+              },
+              {
+                "id": "https://www.agribusinessglobal.com/agrochemicals/herbicides/first-u-s-convintro-herbicide-delivery-launches-a-new-weed-control-option-for-corn-and-soybean-growers/",
+                "title": "First U.S. Convintro Herbicide Delivery Launches a New Weed-Control Option for Corn and Soybean Growers - AgriBusiness Global",
+                "url": "https://www.agribusinessglobal.com/agrochemicals/herbicides/first-u-s-convintro-herbicide-delivery-launches-a-new-weed-control-option-for-corn-and-soybean-growers/",
+                "publishedDate": "2026-11-09T17:59:46.000Z",
+                "author": "Matt Hopkins",
+                "highlights": [
+                  "Bayer| 9 November 2026\n\nBayer has marked the first U.S. delivery of Convintro™ herbicide, transported from its Kansas City manufacturing facility to New Century FS in Ruthven, Iowa. The milestone moves a new pre-emergent weed-control option closer to corn"
+                ],
+                "image": "https://d6kq167ddwbdq.cloudfront.net/farmchemint/wp-content/uploads/2025/06/Palmer-amaranth-in-Soybean-photo-credit-United-Soybean-Board.jpg"
+              }
+            ],
+            "searchTime": 1281.2,
+            "costDollars": {
+              "total": 0.007,
+              "search": {
+                "neural": 0.007
+              }
+            }
+          }
+        },
+        {
+          "name": "exa_search",
+          "input": {
+            "query": "\"November 9, 2026\" OR \"November 10, 2026\" OR \"November 12, 2026\" OR \"November 13, 2026\" federal register food safety FDA USDA SNAP OSHA FMCSA regulations",
+            "type": "auto",
+            "num_results": 30
+          },
+          "output": {
+            "requestId": "a11ca2fb0ea7240be6a37492a1f7c893",
+            "resolvedSearchType": "",
+            "results": [
+              {
+                "id": "https://www.govinfo.gov/content/pkg/FR-2026-11-10/xhtml/FR-2026-11-10.html",
+                "title": "Federal Register, Tuesday, November 10, 2026",
+                "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-10/xhtml/FR-2026-11-10.html",
+                "publishedDate": "2026-11-10T00:00:00.000Z",
+                "highlights": [
+                  "RULES Modification to Work Requirements for Able-Bodied Adults, 72439-72454 Supplemental Nutrition Assistance Program: Reforming Categorical Eligibility, 72454-72465 NOTICES The Emergency Food Assistance Program Availability of Foods for Fiscal Year"
+                ]
+              },
+              {
+                "id": "https://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults",
+                "title": "Federal Register\n       :: \n      Modification to Work Requirements for Able-Bodied Adults",
+                "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults",
+                "publishedDate": "2026-11-10T03:00:37.000Z",
+                "author": "Authority: 7 U.S.C. 2011-2036 .",
+                "highlights": [
+                  "# SUMMARY:\n\nThe proposed rule would codify USDA's regulatory implementation of provisions of the One Big Beautiful Bill Act of 2025 (OBBB) changing the three-month time limit for certain participants subject to work requirements in the Supplemental Nutrition Assistance Program (SNAP). These changes include modifying the list of exceptions from the time limit for certain populations; updating requirements for areas to qualify for waivers of the time limit; and adding the temporary good faith exemptions in Alaska and Hawaii. Additionally, this rule proposes to strengthen requirements for requesting waivers of the time limit and revise the SNAP definition of a homeless individual."
+                ],
+                "image": "https://www.federalregister.gov/assets/open_graph_site_banner.png"
+              },
+              {
+                "id": "https://www.govinfo.gov/content/pkg/FR-2026-11-12/xhtml/FR-2026-11-12.html",
+                "title": "Federal Register, Thursday, November 12, 2026",
+                "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-12/xhtml/FR-2026-11-12.html",
+                "publishedDate": "2026-11-12T00:00:00.000Z",
+                "highlights": [
+                  "Food and Drug Administration PROPOSED RULES Hematology and Pathology Devices: Reclassification of Immunohistochemistry Test Systems for Use with a Corresponding Approved Oncology Therapeutic Product, 72825-72837 NOTICES Agency Information Collection"
+                ]
+              },
+              {
+                "id": "https://www.fda.gov/food/fda-updates-food/fda-issues-2026-voluntary-national-retail-food-regulatory-program-standards",
+                "title": "FDA Issues 2026 Voluntary National Retail Food Regulatory Program Standards | FDA",
+                "url": "https://www.fda.gov/food/fda-updates-food/fda-issues-2026-voluntary-national-retail-food-regulatory-program-standards",
+                "publishedDate": "2026-11-12T00:00:00.000Z",
+                "author": "Human Foods Program",
+                "highlights": [
+                  "Food and Drug Administration today issued the 2026 edition of the Voluntary National Retail Food Regulatory Program Standards, which defines the ... of an effective retail food regulatory program for state, local, tribal, and territorial food regulatory"
+                ],
+                "image": "https://www.fda.gov/themes/custom/preview/img/FDA-Social-Graphic.png"
+              },
+              {
+                "id": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/FR-2026-11-09-FrontMatter.htm",
+                "title": "Federal Register, Volume 91 Issue 215 (Monday, November 9, 2026)",
+                "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/FR-2026-11-09-FrontMatter.htm",
+                "publishedDate": "2026-11-09T00:00:00.000Z",
+                "highlights": [
+                  "Federal Motor Carrier Safety Administration\nNOTICES\nExemption Application:\n    Qualification of Drivers; Epilepsy and Seizure Disorders, 70980-\n            70981\n...\n:\n    Procedures for Transportation Workplace Drug and Alcohol Testing"
+                ]
+              },
+              {
+                "id": "https://www.nationalspecialdistricts.org/november-13-2026-week-in-review",
+                "title": "November 13, 2026 Week in Review - National Special Districts Association",
+                "url": "https://www.nationalspecialdistricts.org/november-13-2026-week-in-review",
+                "publishedDate": "2026-11-13T00:00:00.000Z",
+                "highlights": [
+                  "-based categorical eligibility (BBCE) by limiting SNAP categorical eligibility through TANF ... receive TANF “assistance.” The proposal would eliminate states’ ability to confer ... through certain non-cash or in-kind TANF or state maintenance-of-effort"
+                ]
+              },
+              {
+                "id": "https://www.govinfo.gov/app/frtoc/2026-11-09",
+                "title": "Federal Register Vol. 91, Issue 215, Monday, November 9, 2026 | Govinfo",
+                "url": "https://www.govinfo.gov/app/frtoc/2026-11-09",
+                "publishedDate": "2026-11-09T00:00:00.000Z",
+                "highlights": [
+                  "### Changes to Membership and Handling Requirements\n\nPecans Grown in the States of Alabama, Arkansas, Arizona\n...\nMeeting of the Advisory Board on Radiation and Worker Health, National Institute for Occupational Safety and Health"
+                ]
+              },
+              {
+                "id": "https://www.foodworldnews.com/articles/81869/20261109/fda-food-lot-code-tracking-flexibilities-outbreaks.htm",
+                "title": "FDA Weighs Easing Lot-Code Tracking Rules That Help Trace Contaminated Food Back Through Supply Chains During Outbreaks",
+                "url": "https://www.foodworldnews.com/articles/81869/20261109/fda-food-lot-code-tracking-flexibilities-outbreaks.htm",
+                "publishedDate": "2026-11-10T04:13:43.000Z",
+                "author": "Paige Mitchell",
+                "highlights": [
+                  "new flexibilities to the lot-code tracking at the heart of its Food Traceability Rule, the ... designed to help investigators trace contaminated food back to its source. The agency heard from industry and the public at a virtual meeting on Nov."
+                ],
+                "image": "https://d.foodworldnews.com/en/full/1726127/worker-scanning-food-shipment-lot-codes.jpg"
+              }
+            ],
+            "searchTime": 929.3,
+            "costDollars": {
+              "total": 0.007,
+              "search": {
+                "neural": 0.007
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "openai/gpt-6.1-terra",
+      "ms": 2306,
+      "costUsd": 0.001063,
+      "inputTokens": 623,
+      "outputTokens": 88,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n=== DOCUMENTS (1) ===\n\n[2026-23112] Rule — Health and Human Services Department; Food and Drug Administration\nTitle: Revocation of the Color Additive Listing for Use of Orange B on Casings or Surfaces of Frankfurters and Sausages; Confirmation of Effective Date\nAction: Final order; confirmation of effective date.\nAbstract: The Food and Drug Administration (FDA or we) is confirming the effective date of September 8, 2026, for the final order that appeared in the Federal Register of July 23, 2026, and that repealed the color additive regulation that allows for the use of Orange B for coloring the casings or surfaces of frankfurters and sausages.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-23112",
+            "relevant": true,
+            "reason": "Confirms the repeal of authorization to use Orange B on frankfurter and sausage casings or surfaces, effective September 8, 2026.",
+            "areas": [
+              "food-safety"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-23112",
+      "model": "openai/gpt-6.1-terra",
+      "ms": 2736,
+      "costUsd": 0.001108,
+      "inputTokens": 768,
+      "outputTokens": 68,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-09-08",
+            "kind": "effective",
+            "quote": "The effective date of September 8, 2026, for the final order published in the Federal Register of July 23, 2026 (91 FR 46276) is confirmed."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "openai/gpt-6.1-terra",
+      "ms": 4236,
+      "costUsd": 0.001746,
+      "inputTokens": 471,
+      "outputTokens": 255,
+      "prompt": "Company: Brightside Foods Co.\n\nUS mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.\n\nRules that APPLY:\n- FDA food additive and color additive rules (dyes in candy, casings, meat)\n- Food labeling and food safety rules for packaged food and meat products\n- EPA pesticide residue limits on crops we buy (pecans, apples, corn)\n- USDA marketing orders and grading for pecans and apples\n- SNAP rules that change what shoppers can buy or who qualifies (affects demand)\n- Workplace safety and labor rules for food plants; trucking safety rules for our fleet\n\nRules that DO NOT apply:\n- Aviation, airspace, aircraft airworthiness\n- Banking, securities, crypto, sanctions\n- Medicare/Medicaid payment rules, medical devices\n- Mining, offshore oil and gas, fisheries\n- Broadcast/TV licensing\n\n[2026-23112] Rule: Revocation of the Color Additive Listing for Use of Orange B on Casings or Surfaces of Frankfurters and Sausages; Confirmation of Effective Date\nTier: High (final rule, in effect since 2026-09-08 (older than 30 days))\nOwner: Maria Chen (Food Safety & Regulatory)\nWhy relevant: Confirms the repeal of authorization to use Orange B on frankfurter and sausage casings or surfaces, effective September 8, 2026.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-23112",
+            "action": "Verify that hot dog and sausage casings and surfaces contain no Orange B, including those supplied by others, because its use is no longer allowed."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.05001686400000002,
+  "totalMs": 37428,
+  "scanned": 448,
+  "webLeads": [
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/09/2026-22826/pecans-grown-in-the-states-of-alabama-arkansas-arizona-california-florida-georgia-kansas-louisiana",
+      "document_number": "2026-22826",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22865/color-additive-petition-from-environmental-defense-fund-et-al-request-to-amend-the-color-additive",
+      "document_number": "2026-22865",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22866/color-additive-petition-from-the-international-association-of-color-manufacturers-request-to-amend",
+      "document_number": "2026-22866",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters",
+      "document_number": "2026-23112",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22944/modification-to-work-requirements-for-able-bodied-adults",
+      "document_number": "2026-22944",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/10/2026-22876/the-emergency-food-assistance-program-availability-of-foods-for-fiscal-year-2027",
+      "document_number": "2026-22876",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/12/2026-22965/agency-information-collection-activities-proposed-collection-comment-request-voluntary-qualified",
+      "document_number": "2026-22965",
+      "inWindow": true
+    },
+    {
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23123/common-crop-insurance-regulations-apple-crop-insurance-provisions-withdrawal",
+      "document_number": "2026-23123",
+      "inWindow": true
+    },
+    {
+      "url": "https://civory.org/legislation/us-fr-2026-23115",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://civory.org/legislation/us-fr-2026-23120",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.legal500.com/intelligence/united-states/environment/recent-federal-developments-for-october-2026",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://westhighlandresearch.com/research/pesticide-registration-review-deadline-2026/",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.orionexregulatory.com/fresh-fruit-vegetables-fda-requirements",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://centerforfoodsafety.org/priority/environment-biodiversity-defense/",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.londonstockexchange.com/en/news/article/EDEN/us-epa-registration-for-mevalone-delta/4494-39-01-e2-de-4e7ba8",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.agribusinessglobal.com/agrochemicals/herbicides/first-u-s-convintro-herbicide-delivery-launches-a-new-weed-control-option-for-corn-and-soybean-growers/",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-10/xhtml/FR-2026-11-10.html",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-12/xhtml/FR-2026-11-12.html",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.fda.gov/food/fda-updates-food/fda-issues-2026-voluntary-national-retail-food-regulatory-program-standards",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/FR-2026-11-09-FrontMatter.htm",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.nationalspecialdistricts.org/november-13-2026-week-in-review",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.govinfo.gov/app/frtoc/2026-11-09",
+      "document_number": null,
+      "inWindow": false
+    },
+    {
+      "url": "https://www.foodworldnews.com/articles/81869/20261109/fda-food-lot-code-tracking-flexibilities-outbreaks.htm",
+      "document_number": null,
+      "inWindow": false
+    }
+  ],
+  "decisions": [
+    {
+      "document_number": "2026-22729",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22730",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22731",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22733",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22736",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22738",
+      "relevant": false,
+      "jevProbability": 0.34
+    },
+    {
+      "document_number": "2026-22740",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22743",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22744",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22745",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22746",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22749",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22750",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22751",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22752",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22753",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22754",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22755",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22756",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22757",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22758",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22759",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22760",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22761",
+      "relevant": false,
+      "jevProbability": 0.24
+    },
+    {
+      "document_number": "2026-22762",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22763",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22764",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22765",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22766",
+      "relevant": false,
+      "jevProbability": 0.14
+    },
+    {
+      "document_number": "2026-22767",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22768",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22769",
+      "relevant": false,
+      "jevProbability": 0.71
+    },
+    {
+      "document_number": "2026-22770",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22771",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22772",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22773",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22774",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22775",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-22776",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22777",
+      "relevant": false,
+      "jevProbability": 0.18
+    },
+    {
+      "document_number": "2026-22778",
+      "relevant": false,
+      "jevProbability": 0.22
+    },
+    {
+      "document_number": "2026-22779",
+      "relevant": false,
+      "jevProbability": 0.22
+    },
+    {
+      "document_number": "2026-22780",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22781",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22782",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22783",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22784",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22785",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22786",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22788",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22790",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22791",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22792",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22793",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22794",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22795",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22796",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22797",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22798",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22799",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22800",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22801",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22802",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "2026-22803",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22804",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22805",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22806",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-22807",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22808",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22809",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22810",
+      "relevant": false,
+      "jevProbability": 0.55
+    },
+    {
+      "document_number": "2026-22811",
+      "relevant": false,
+      "jevProbability": 0.15
+    },
+    {
+      "document_number": "2026-22813",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22814",
+      "relevant": false,
+      "jevProbability": 0.65
+    },
+    {
+      "document_number": "2026-22815",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22816",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22817",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22818",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-22819",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-22820",
+      "relevant": false,
+      "jevProbability": 0.1
+    },
+    {
+      "document_number": "2026-22821",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22823",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22824",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22825",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22826",
+      "relevant": false,
+      "jevProbability": 0.78
+    },
+    {
+      "document_number": "2026-22827",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22828",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22829",
+      "relevant": false,
+      "jevProbability": 0.48
+    },
+    {
+      "document_number": "2026-22830",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22831",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22832",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22833",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22834",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22835",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22836",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22837",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-19414",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "C1-2026-21857",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22812",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22838",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22839",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22840",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22842",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22843",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22844",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22845",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22846",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22847",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22848",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22849",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22850",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22851",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22852",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22853",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22854",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22855",
+      "relevant": false,
+      "jevProbability": 0.26
+    },
+    {
+      "document_number": "2026-22856",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22857",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22858",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22859",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22860",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22861",
+      "relevant": false,
+      "jevProbability": 0.16
+    },
+    {
+      "document_number": "2026-22862",
+      "relevant": false,
+      "jevProbability": 0.15
+    },
+    {
+      "document_number": "2026-22863",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22864",
+      "relevant": false,
+      "jevProbability": 0.14
+    },
+    {
+      "document_number": "2026-22865",
+      "relevant": false,
+      "jevProbability": 0.57
+    },
+    {
+      "document_number": "2026-22866",
+      "relevant": false,
+      "jevProbability": 0.69
+    },
+    {
+      "document_number": "2026-22867",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22868",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22869",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22870",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22871",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22872",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22873",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22874",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22875",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22876",
+      "relevant": false,
+      "jevProbability": 0.24
+    },
+    {
+      "document_number": "2026-22877",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22878",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22879",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22880",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22881",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22882",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22883",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22884",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22885",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22886",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22887",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22888",
+      "relevant": false,
+      "jevProbability": 0.62
+    },
+    {
+      "document_number": "2026-22889",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22890",
+      "relevant": false,
+      "jevProbability": 0.14
+    },
+    {
+      "document_number": "2026-22891",
+      "relevant": false,
+      "jevProbability": 0.64
+    },
+    {
+      "document_number": "2026-22892",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22893",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22894",
+      "relevant": false,
+      "jevProbability": 0.1
+    },
+    {
+      "document_number": "2026-22895",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22896",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22897",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22898",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22899",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22900",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22901",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22902",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22903",
+      "relevant": false,
+      "jevProbability": 0.17
+    },
+    {
+      "document_number": "2026-22904",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22905",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22906",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22907",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22908",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22909",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22910",
+      "relevant": false,
+      "jevProbability": 0.1
+    },
+    {
+      "document_number": "2026-22911",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22912",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22913",
+      "relevant": false,
+      "jevProbability": 0.1
+    },
+    {
+      "document_number": "2026-22914",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22915",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22917",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22918",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22919",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22920",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22921",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22923",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22924",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-22925",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22926",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22927",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22928",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22929",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22930",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22931",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "2026-22932",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22933",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22934",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22935",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22936",
+      "relevant": false,
+      "jevProbability": 0.6
+    },
+    {
+      "document_number": "2026-22937",
+      "relevant": false,
+      "jevProbability": 0.13
+    },
+    {
+      "document_number": "2026-22938",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22939",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22940",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22941",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22942",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22943",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22944",
+      "relevant": false,
+      "jevProbability": 0.59
+    },
+    {
+      "document_number": "2026-22951",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-22953",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22962",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-22945",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-22946",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22947",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22949",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22950",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22954",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22955",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22956",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22957",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22958",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22959",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22960",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22961",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22963",
+      "relevant": false,
+      "jevProbability": 0.18
+    },
+    {
+      "document_number": "2026-22964",
+      "relevant": false,
+      "jevProbability": 0.13
+    },
+    {
+      "document_number": "2026-22965",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-22966",
+      "relevant": false,
+      "jevProbability": 0.19
+    },
+    {
+      "document_number": "2026-22967",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22968",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22969",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-22970",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22971",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-22972",
+      "relevant": false,
+      "jevProbability": 0.13
+    },
+    {
+      "document_number": "2026-22973",
+      "relevant": false,
+      "jevProbability": 0.23
+    },
+    {
+      "document_number": "2026-22974",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22975",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22976",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22977",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22978",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22979",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22980",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22981",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22982",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22983",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22984",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22985",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22986",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22987",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22988",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22989",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-22990",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22991",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22993",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22994",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22995",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22996",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-22998",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-22999",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23000",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23001",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23002",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23003",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23004",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23005",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23006",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23007",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23008",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23009",
+      "relevant": false,
+      "jevProbability": 0.17
+    },
+    {
+      "document_number": "2026-23010",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23011",
+      "relevant": false,
+      "jevProbability": 0.1
+    },
+    {
+      "document_number": "2026-23013",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23014",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23015",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-23016",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23017",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23018",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23019",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-23020",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23021",
+      "relevant": false,
+      "jevProbability": 0.72
+    },
+    {
+      "document_number": "2026-23022",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23023",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-23024",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23025",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23026",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-23027",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23028",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23029",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23030",
+      "relevant": false,
+      "jevProbability": 0.17
+    },
+    {
+      "document_number": "2026-23031",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23032",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23033",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23034",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23035",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23036",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23037",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23038",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23040",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23041",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23042",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23043",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23044",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23045",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23046",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23047",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23048",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23049",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23050",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23051",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23052",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23053",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23054",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "2026-23055",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23056",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23057",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23058",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23059",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23060",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23061",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23062",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23063",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23064",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23065",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23066",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23067",
+      "relevant": false,
+      "jevProbability": 0.37
+    },
+    {
+      "document_number": "2026-23068",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23072",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23073",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23074",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23075",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23077",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23080",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23113",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "C1-2026-21030",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "C1-2026-22802",
+      "relevant": false,
+      "jevProbability": 0.12
+    },
+    {
+      "document_number": "2026-23069",
+      "relevant": false,
+      "jevProbability": 0.14
+    },
+    {
+      "document_number": "2026-23070",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23071",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23078",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23079",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "2026-23081",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23082",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23083",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23085",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23086",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23087",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23088",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23089",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23090",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23091",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23092",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23093",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23094",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23095",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23096",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23097",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23098",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23099",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23100",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23101",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23102",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23103",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23104",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23105",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23106",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23107",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23108",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23109",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23110",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23111",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23112",
+      "relevant": true,
+      "jevProbability": 0.95,
+      "llm": {
+        "document_number": "2026-23112",
+        "relevant": true,
+        "reason": "Confirms the repeal of authorization to use Orange B on frankfurter and sausage casings or surfaces, effective September 8, 2026.",
+        "areas": [
+          "food-safety"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-23114",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-23115",
+      "relevant": false,
+      "jevProbability": 0.11
+    },
+    {
+      "document_number": "2026-23116",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23117",
+      "relevant": false,
+      "jevProbability": 0.7
+    },
+    {
+      "document_number": "2026-23118",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23119",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23120",
+      "relevant": false,
+      "jevProbability": 0.16
+    },
+    {
+      "document_number": "2026-23121",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23122",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23123",
+      "relevant": false,
+      "jevProbability": 0.17
+    },
+    {
+      "document_number": "2026-23124",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23125",
+      "relevant": false,
+      "jevProbability": 0.44
+    },
+    {
+      "document_number": "2026-23126",
+      "relevant": false,
+      "jevProbability": 0.15
+    },
+    {
+      "document_number": "2026-23127",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23128",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23129",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23130",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23131",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23132",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23133",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23134",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23135",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23136",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23137",
+      "relevant": false,
+      "jevProbability": 0.38
+    },
+    {
+      "document_number": "2026-23138",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23139",
+      "relevant": false,
+      "jevProbability": 0.23
+    },
+    {
+      "document_number": "2026-23141",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23142",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23143",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23144",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23145",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23146",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23147",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23148",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23149",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23150",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23151",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23152",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23153",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23154",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23155",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23158",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23160",
+      "relevant": false,
+      "jevProbability": 0.39
+    },
+    {
+      "document_number": "2026-23161",
+      "relevant": false,
+      "jevProbability": 0.39
+    },
+    {
+      "document_number": "2026-23162",
+      "relevant": false,
+      "jevProbability": 0.35
+    },
+    {
+      "document_number": "2026-23163",
+      "relevant": false,
+      "jevProbability": 0.39
+    },
+    {
+      "document_number": "2026-23164",
+      "relevant": false,
+      "jevProbability": 0.41
+    },
+    {
+      "document_number": "2026-23165",
+      "relevant": false,
+      "jevProbability": 0.35
+    },
+    {
+      "document_number": "2026-23166",
+      "relevant": false,
+      "jevProbability": 0.42
+    },
+    {
+      "document_number": "2026-23167",
+      "relevant": false,
+      "jevProbability": 0.44
+    },
+    {
+      "document_number": "2026-23168",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23169",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23170",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23171",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23172",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23173",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23174",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23175",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23176",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-23177",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23178",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23179",
+      "relevant": false,
+      "jevProbability": 0.13
+    },
+    {
+      "document_number": "2026-23180",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23181",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23182",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23183",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23184",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23185",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23186",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23187",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23188",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23189",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23190",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23191",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-23192",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23193",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23194",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-23195",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-23196",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-23197",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-23198",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-23233",
+      "relevant": false,
+      "jevProbability": 0.07
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-23112",
+      "title": "Revocation of the Color Additive Listing for Use of Orange B on Casings or Surfaces of Frankfurters and Sausages; Confirmation of Effective Date",
+      "type": "Rule",
+      "agencies": [
+        "Health and Human Services Department",
+        "Food and Drug Administration"
+      ],
+      "tier": "High",
+      "tierReason": "final rule, in effect since 2026-09-08 (older than 30 days)",
+      "deadline": {
+        "date": "2026-09-08",
+        "kind": "effective",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "deadlines": [
+        {
+          "date": "2026-09-08",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "owner": {
+        "name": "Maria Chen (Food Safety & Regulatory)",
+        "email": "foodsafety@brightside.example"
+      },
+      "areas": [
+        "food-safety"
+      ],
+      "reason": "Confirms the repeal of authorization to use Orange B on frankfurter and sausage casings or surfaces, effective September 8, 2026.",
+      "action": "Verify that hot dog and sausage casings and surfaces contain no Orange B, including those supplied by others, because its use is no longer allowed.",
+      "citation": "91 FR 73139",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — Brightside Foods Co.\nWindow 2026-11-09 → 2026-11-13 · as of 2026-11-13 · 1 items\n\n## High (1)\n\n- **Revocation of the Color Additive Listing for Use of Orange B on Casings or Surfaces of Frankfurters and Sausages; Confirmation of Effective Date** [Federal Register]\n  - Verify that hot dog and sausage casings and surfaces contain no Orange B, including those supplied by others, because its use is no longer allowed.\n  - Deadline: 2026-09-08 (effective, FR field ✓) · Owner: Maria Chen (Food Safety & Regulatory) · Areas: food-safety\n  - 91 FR 73139 ✓ · https://www.federalregister.gov/documents/2026/11/13/2026-23112/revocation-of-the-color-additive-listing-for-use-of-orange-b-on-casings-or-surfaces-of-frankfurters\n"
+}

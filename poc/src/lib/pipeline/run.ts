@@ -1,9 +1,8 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
 import { getProfile, profileBrief } from "../profiles";
 import { saveRun } from "../store";
+import { searchKind, searchTools } from "../models";
 import type { ActionItem, Deadline, FilterDecision, RunConfig, RunRecord, Tier } from "../types";
 import { parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
 import { RunCtx } from "./context";
@@ -66,8 +65,8 @@ async function pipeline(ctx: RunCtx) {
 }
 
 // ───────────────────────────── Baseline ─────────────────────────────
-// One prompt, provider-native web search, the model does everything (relevance, dates, tier, owner).
-// Same model as the pipeline so the delta measures the harness, not the model.
+// One task prompt + web search (vendor-native, or Exa where the vendor has none); the model does everything
+// (relevance, dates, tier, owner). Same model as the pipeline cell, so the delta measures the harness.
 
 const baselineSchema = z.object({
   items: z.array(
@@ -85,12 +84,6 @@ const baselineSchema = z.object({
   ),
 });
 
-function nativeSearch(model: string) {
-  if (model.startsWith("anthropic/")) return { web_search: anthropic.tools.webSearch_20250305({ maxUses: 8 }) };
-  if (model.startsWith("openai/")) return { web_search: openai.tools.webSearch({}) };
-  throw new Error(`No native web search wired for ${model}`);
-}
-
 async function baseline(ctx: RunCtx) {
   const cfg = ctx.run.config;
   const profile = getProfile(cfg.profileId);
@@ -103,9 +96,21 @@ ${Object.entries(profile.areas)
 
 Task: Find every US Federal Register document published between ${cfg.windowStart} and ${cfg.windowEnd} (inclusive) that affects this company. For each, give the Federal Register document number, title, federalregister.gov URL, the key deadline, a tier (Critical if a deadline is < 90 days from ${cfg.asOf}, otherwise High/Medium/Low by importance), the owner area, a one-line reason, and a one-line action. Only include items you found via search. Return an empty list if none.`;
 
+  // Two steps for every model: research freely with web search, then put the answer in our format.
+  // (Some providers skip tool calls when structured output is requested in the same call — Kimi did in smoke tests.)
+  const research = await ctx.stage(
+    `baseline:search (${searchKind(cfg.model)})`,
+    () => ctx.agent("baseline:search", { model: cfg.model, prompt, tools: searchTools(cfg.model), maxSteps: 12 }),
+    (r) => ({ outCount: r.toolCalls.length, note: `${r.toolCalls.length} search calls` }),
+  );
   const out = await ctx.stage(
-    "baseline:single-prompt",
-    () => ctx.object("baseline", { model: cfg.model, prompt, schema: baselineSchema, tools: nativeSearch(cfg.model) }),
+    "baseline:format",
+    () =>
+      ctx.object("baseline:format", {
+        model: cfg.model,
+        prompt: `Convert your research below into the required list. Keep exactly the items and facts you found; do not add new ones.\n\nTask was:\n${prompt}\n\nYour research:\n${research.text}`,
+        schema: baselineSchema,
+      }),
     (r) => ({ outCount: r.items.length }),
   );
   ctx.run.claimed = out.items;
