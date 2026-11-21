@@ -1,6 +1,9 @@
 // Record one improvement iteration: the story (hypothesis, change, decision) + measured results + config snapshot.
 //   npx tsx scripts/iteration.mts <data/iterations/<id>/spec.yaml>
-// spec.yaml (hand-written): { id, title, date, suite, setup, comparedTo?, hypothesis, change, codeChanges?, evalChanges?, decision, notes? }
+// spec.yaml (hand-written): { id, title, date, suite, setup, comparedTo?, targets, hypothesis, change, codeChanges?, evalChanges?, decision, notes? }
+// Evidence gate: a new iteration (not --keep-snapshot) needs <dir>/error-analysis.json — a dev-only analysis of the
+// PREVIOUS iteration's suite, incl. judge verdicts, written before this suite ran — and spec.targets naming which of
+// its failure buckets / root causes the change addresses. Without it, recording refuses.
 // Writes iteration.yaml next to it (spec + results computed from the suite) and config/ (snapshot of live config), plus:
 //   system.diff — the candidate setup's EFFECTIVE config vs the comparedTo setup's, taken from their traces' run.start
 //                 (prompts after prompt-set overrides, pipeline knobs, model, method): exactly what ran differently.
@@ -12,6 +15,7 @@ import { arenaRuns } from "../src/lib/arena";
 import { CONFIG_DIR, configHash } from "../src/lib/config";
 import { suiteReport } from "../src/lib/suite";
 import { readTrace } from "../src/lib/trace";
+import { evidenceProblems, type ErrorAnalysisSummary } from "../src/lib/iterations";
 import { execFileSync } from "node:child_process";
 
 const specPath = process.argv[2];
@@ -64,6 +68,18 @@ function unifiedDiff(a: string, b: string, labelA: string, labelB: string): stri
 
 // 1. System diff: effective config of candidate vs comparedTo, from run.start in their traces.
 const runs = await arenaRuns(spec.suite);
+
+// 0. Evidence gate (see header). Re-grading an existing iteration (--keep-snapshot) doesn't re-open its evidence.
+if (!keepSnapshot) {
+  const itersRoot = path.dirname(dir);
+  const prevId = fs.readdirSync(itersRoot).filter((d) => d < path.basename(dir) && fs.existsSync(path.join(itersRoot, d, "spec.yaml"))).sort().at(-1);
+  const previousSuite = prevId ? (YAML.parse(fs.readFileSync(path.join(itersRoot, prevId, "spec.yaml"), "utf8")) as { suite: string }).suite : null;
+  const eaPath = path.join(dir, "error-analysis.json");
+  const analysis = fs.existsSync(eaPath) ? (JSON.parse(fs.readFileSync(eaPath, "utf8")) as ErrorAnalysisSummary) : null;
+  const suiteStartedAt = runs.map((r) => r.createdAt).sort()[0];
+  const problems = evidenceProblems(spec as { comparedTo?: string; targets?: string[] }, analysis, { previousSuite, suiteStartedAt });
+  if (problems.length) throw new Error(`iteration ${spec.id} refused — evidence gate:\n- ${problems.join("\n- ")}`);
+}
 const effective = (setup: string) => {
   const r = runs.find((x) => x.config.cell === setup && x.status === "done");
   const start = r ? (readTrace(r.id).find((e) => e.type === "run.start") as Record<string, unknown> | undefined) : undefined;

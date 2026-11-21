@@ -33,6 +33,8 @@ export interface Iteration {
   suite: string;
   setup: string;
   comparedTo?: string;
+  /** Failure buckets / rootCause:<i> from error-analysis.json this change targets (required from iteration 05 on). */
+  targets?: string[];
   hypothesis: string;
   change: string;
   codeChanges?: string;
@@ -70,4 +72,44 @@ export function listIterations(): Iteration[] {
         evidence: e ? { runs: e.runs, excludedTestRuns: e.excludedTestRuns, bySignal: e.bySignal, buckets: e.buckets, rootCauses: e.llm?.rootCauses } : undefined,
       };
     });
+}
+
+/** The slice of error-analysis.json the evidence gate reads. */
+export interface ErrorAnalysisSummary {
+  suite: string;
+  split: string;
+  generatedAt: string;
+  bySignal: Record<string, number>;
+  buckets: [string, number][];
+  llm?: { rootCauses?: { cause: string }[] } | null;
+}
+
+/**
+ * Evidence gate for recording a new iteration. Every change after the first must start from a dev-only error analysis
+ * of the PREVIOUS iteration's suite that includes the judge panel's verdicts, written BEFORE the new suite ran, and
+ * the spec must name which failures it targets (bucket names, or "rootCause:<i>" from the analysis' LLM grouping).
+ * Returns the problems; empty = OK.
+ */
+export function evidenceProblems(
+  spec: { comparedTo?: string; targets?: string[] },
+  analysis: ErrorAnalysisSummary | null,
+  ctx: { previousSuite: string | null; suiteStartedAt: string },
+): string[] {
+  if (!spec.comparedTo) return [];
+  if (!analysis) return ["no error-analysis.json in the iteration folder: run scripts/error-analysis.mts on the previous suite first"];
+  const p: string[] = [];
+  if (ctx.previousSuite && analysis.suite !== ctx.previousSuite) p.push(`error analysis is of ${analysis.suite}, not the previous iteration's suite ${ctx.previousSuite}`);
+  if (analysis.split !== "dev") p.push(`error analysis split is "${analysis.split}"; only dev weeks may drive changes`);
+  if (analysis.bySignal.judge === undefined) p.push("error analysis has no judge signal: judge feedback must be part of the evidence");
+  if (analysis.generatedAt >= ctx.suiteStartedAt) p.push(`error analysis (${analysis.generatedAt}) must be written before the iteration's suite started (${ctx.suiteStartedAt})`);
+  const targets = spec.targets ?? [];
+  if (!targets.length) p.push("spec has no targets: name the failure buckets or rootCause:<i> this change is meant to fix");
+  const buckets = new Set(analysis.buckets.map(([b]) => b));
+  const causes = analysis.llm?.rootCauses ?? [];
+  const unknown = targets.filter((t) => {
+    const m = /^rootCause:(\d+)$/.exec(t);
+    return m ? !causes[Number(m[1])] : !buckets.has(t);
+  });
+  if (unknown.length) p.push(`targets not found in the error analysis: ${unknown.join(", ")}`);
+  return p;
 }
