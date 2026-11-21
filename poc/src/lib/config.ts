@@ -55,6 +55,8 @@ const SetupsSchema = z.object({
         method: z.enum(["jev+llm", "llm", "baseline"]),
         /** Optional prompt set (config/prompt-sets/<name>.yaml) overriding some prompts for this setup only. */
         promptSet: z.string().optional(),
+        /** LLM filter passes per run; a doc is kept only if a majority of passes call it relevant. Odd, default 1. */
+        filterVotes: z.number().int().positive().refine((n) => n % 2 === 1, "filterVotes must be odd").optional(),
         estUsd: z.number().positive(),
       }),
     )
@@ -71,7 +73,6 @@ const ExperimentSchema = z.object({
   budgetUsd: z.number().positive(),
   smokeSpendUsd: z.number().min(0),
   jevModel: z.string(),
-  judgeModel: z.string(),
   arena: z.object({ concurrency: z.number().int().positive(), defaultEvalset: z.string(), repeatOptions: z.array(z.number().int().positive()) }),
   userView: z.object({ setup: z.string(), maxWindowDays: z.number().int().positive() }),
   evals: z.object({
@@ -94,7 +95,7 @@ const PipelineSchema = z.object({
 
 const PROMPT_NAMES = [
   "profileBrief", "jevQuestion", "jevState", "filterSystem", "filterPrompt", "extractSystem", "extractPrompt",
-  "actionsSystem", "actionsPrompt", "webLeadsSystem", "webLeadsPrompt", "baselineTask", "baselineFormat", "judgeClarity",
+  "actionsSystem", "actionsPrompt", "webLeadsSystem", "webLeadsPrompt", "baselineTask", "baselineFormat",
   "panelJudge",
 ] as const;
 export type PromptName = (typeof PROMPT_NAMES)[number];

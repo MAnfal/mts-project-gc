@@ -76,3 +76,12 @@ setups:
     method: jev+llm
     promptSet: strict-v2
     estUsd: 0.2
+  - id: jev-sonnet-strict-vote3
+    label: Sonnet · Jev filter · strict prompt · 3-pass vote
+    model: anthropic/claude-sonnet-5.5
+    method: jev+llm
+    promptSet: strict
+    # The LLM filter runs 3 times; a doc is kept only if at least 2 passes call it relevant.
+    filterVotes: 3
+    # Measured: strict run $0.11, of which the LLM filter is $0.076, so 3 passes ≈ $0.26–0.35 (smoke run on Brightside: $0.35).
+    estUsd: 0.35

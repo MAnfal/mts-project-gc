@@ -59,9 +59,8 @@ describe("every prompt builder renders (no placeholder drift between prompts.yam
       P.webLeadsPrompt(co, "2026-11-09", "2026-11-13"),
       P.baselineTask(co, { windowStart: "2026-11-09", windowEnd: "2026-11-13", asOf: "2026-11-13" }),
       P.baselineFormat("task", "research"),
-      P.judgeClarity([item]),
     ];
-    expect(out).toHaveLength(14);
+    expect(out).toHaveLength(13);
     for (const s of out) expect(s).not.toMatch(/\{\{\w+\}\}/);
   });
 });

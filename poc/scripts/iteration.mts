@@ -69,7 +69,7 @@ const effective = (setup: string) => {
   const start = r ? (readTrace(r.id).find((e) => e.type === "run.start") as Record<string, unknown> | undefined) : undefined;
   if (!start) return null;
   const cfg = start.config as Record<string, unknown>;
-  const pick = { model: cfg.model, mode: cfg.mode, filter: cfg.filter, jevThreshold: cfg.jevThreshold, webLeads: cfg.webLeads, promptSet: start.promptSet ?? "default", jevModel: start.jevModel, pipeline: start.pipeline, prompts: start.prompts };
+  const pick = { model: cfg.model, mode: cfg.mode, filter: cfg.filter, jevThreshold: cfg.jevThreshold, filterVotes: cfg.filterVotes ?? 1, webLeads: cfg.webLeads, promptSet: start.promptSet ?? "default", jevModel: start.jevModel, pipeline: start.pipeline, prompts: start.prompts };
   return YAML.stringify(pick, { lineWidth: 0, blockQuote: "literal" });
 };
 let systemChanges: string[] = [];

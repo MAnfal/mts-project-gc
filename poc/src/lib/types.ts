@@ -61,7 +61,8 @@ export interface Deadline {
 export interface FilterDecision {
   document_number: string;
   jevProbability?: number;
-  llm?: { relevant: boolean; reason: string; areas: string[] };
+  /** votes: set when the filter ran more than one pass (setup filterVotes). */
+  llm?: { relevant: boolean; reason: string; areas: string[]; votes?: { yes: number; no: number; passes: number } };
   relevant: boolean;
 }
 
@@ -123,6 +124,8 @@ export interface RunConfig {
   group?: string;
   /** Prompt set (config/prompt-sets/<name>.yaml) overriding some prompts for this run; unset = config/prompts.yaml. */
   promptSet?: string;
+  /** LLM filter passes (majority vote); unset = 1. */
+  filterVotes?: number;
   /** User view: a profile typed in by the user instead of one from config/companies/. */
   customProfile?: CompanyProfile;
   /** Arena this run belongs to, and its cell (config) key inside the arena. */

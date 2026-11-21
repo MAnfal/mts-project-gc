@@ -8,7 +8,7 @@ Three questions it answers:
 1. **Does the workflow work?** Config → Scan (Federal Register API + optional Exa leads) →
    Filter (Jev decision model and/or LLM) → Verify + Tier (code) → Output (LLM).
 2. **What do the evals look like?** Code graders on the outcome, transcript checks as a
-   secondary signal, an LLM judge only for action-item quality (`evals/triage.eval.ts`).
+   secondary signal, a 3-judge LLM panel only for action-item quality (`scripts/suite.mts` runs it all).
 3. **Does it beat a baseline?** One prompt + the same model's native web search, graded by the
    same code.
 
@@ -20,9 +20,7 @@ pnpm install
 pnpm dev                 # http://localhost:3000 (PORT=3457 in the POC session) — Run · Label · Evals
 pnpm test                # unit tests: tier rules, date verification, scoring
 pnpm run run -- --filter jev+llm --threshold 0.1 --runs 3 --group my-group   # CLI run
-pnpm evals               # grade saved runs against your labels (free)
-EVAL_MODE=live pnpm evals  # execute fresh runs, then grade (spends money)
-pnpm evals:json && pnpm evals:ui   # vitest-evals report viewer
+npx tsx scripts/suite.mts --setups jev-sonnet-strict --repeat 3   # eval suite: setups × eval sets × repeats (spends money)
 ```
 
 Spend is capped at $15 total (`config/experiment.yaml → budgetUsd`). It is the sum of every saved run's

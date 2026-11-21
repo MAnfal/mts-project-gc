@@ -12,6 +12,7 @@ export interface Cell {
   model: string;
   method: "jev+llm" | "llm" | "baseline";
   promptSet?: string;
+  filterVotes?: number;
   /** Rough $/run used for the pre-flight budget check. */
   estUsd: number;
 }
@@ -19,7 +20,7 @@ export interface Cell {
 export const methods = () => setups().methods;
 
 /** The setups the eval suite runs (config/setups.yaml → setups). */
-export const suiteCells = (): Cell[] => setups().setups.map((x) => ({ key: x.id, label: x.label, model: x.model, method: x.method, promptSet: x.promptSet, estUsd: x.estUsd }));
+export const suiteCells = (): Cell[] => setups().setups.map((x) => ({ key: x.id, label: x.label, model: x.model, method: x.method, promptSet: x.promptSet, filterVotes: x.filterVotes, estUsd: x.estUsd }));
 
 /** Every model × method pair. Arenas before 2026-11-22 used these "<method>:<model>" keys; kept so old runs still resolve. */
 export const allCells = (): Cell[] =>
@@ -41,6 +42,7 @@ export function cellConfig(cell: Cell, base: { profileId: string; windowStart: s
     jevThreshold: m.jevThreshold ?? jev?.jevThreshold ?? 0.1,
     webLeads: m.webLeads ?? false,
     ...(cell.promptSet ? { promptSet: cell.promptSet } : {}),
+    ...(cell.filterVotes && cell.filterVotes > 1 ? { filterVotes: cell.filterVotes } : {}),
     group: `${arena}:${cell.key}`,
     arena,
     cell: cell.key,

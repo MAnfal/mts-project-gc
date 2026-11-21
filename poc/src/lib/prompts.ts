@@ -52,4 +52,3 @@ export const baselineTask = (p: CompanyProfile, cfg: { windowStart: string; wind
   });
 export const baselineFormat = (task: string, research: string) => prompt("baselineFormat", { task, research });
 
-export const judgeClarity = (items: unknown[]) => prompt("judgeClarity", { items: JSON.stringify(items, null, 1) });

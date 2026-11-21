@@ -3,6 +3,7 @@ import { z } from "zod";
 import { gw } from "../gateway";
 import { agencyNames, getDoc, getRawTextWithSource, listWindow } from "../fr";
 import { pipelineCfg } from "../config";
+import { majority } from "../grade";
 import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
 import { assignTier } from "../tier";
 import type { ActionItem, CompanyProfile, Deadline, FilterDecision, FrDoc } from "../types";
@@ -96,33 +97,63 @@ export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
   for (let i = 0; i < docs.length; i += BATCH) batches.push(docs.slice(i, i + BATCH));
   const limit = pLimit(pipelineCfg().filter.llmConcurrency);
 
+  const votes = ctx.run.config.filterVotes ?? 1;
+
+  // One full pass over every batch. With filterVotes > 1 the passes run in parallel and are combined by majority vote.
+  const onePass = async (tag: string) => {
+    const out = new Map<string, FilterDec>();
+    await Promise.all(
+      batches.map((batch, bi) =>
+        limit(async () => {
+          let pending = batch;
+          for (let attempt = 0; attempt < 2 && pending.length; attempt++) {
+            const r = await ctx.object(`filter-llm#${tag}${bi}${attempt ? "-retry" : ""}`, {
+              model: ctx.run.config.model,
+              system,
+              prompt: filterPrompt(profile, pending),
+              schema,
+            });
+            const want = new Set(pending.map((d) => d.document_number));
+            for (const dec of r.decisions) if (want.has(dec.document_number)) out.set(dec.document_number, dec);
+            // Contract check: the model must answer for every input document. Missing ones are retried once.
+            pending = pending.filter((d) => !out.has(d.document_number));
+          }
+        }),
+      ),
+    );
+    return out;
+  };
+
   return ctx.stage(
     "filter:llm",
-    async () => {
-      const out = new Map<string, { relevant: boolean; reason: string; areas: string[] }>();
-      await Promise.all(
-        batches.map((batch, bi) =>
-          limit(async () => {
-            let pending = batch;
-            for (let attempt = 0; attempt < 2 && pending.length; attempt++) {
-              const r = await ctx.object(`filter-llm#${bi}${attempt ? "-retry" : ""}`, {
-                model: ctx.run.config.model,
-                system,
-                prompt: filterPrompt(profile, pending),
-                schema,
-              });
-              const want = new Set(pending.map((d) => d.document_number));
-              for (const dec of r.decisions) if (want.has(dec.document_number)) out.set(dec.document_number, dec);
-              // Contract check: the model must answer for every input document. Missing ones are retried once.
-              pending = pending.filter((d) => !out.has(d.document_number));
-            }
-          }),
-        ),
-      );
-      return out;
-    },
-    (m) => ({ inCount: docs.length, outCount: [...m.values()].filter((x) => x.relevant).length, note: `${docs.length - m.size} unanswered after retry` }),
+    async () => combineFilterPasses(await Promise.all(Array.from({ length: votes }, (_, p) => onePass(votes > 1 ? `p${p}#` : ""))), votes),
+    (m) => ({
+      inCount: docs.length,
+      outCount: [...m.values()].filter((x) => x.relevant).length,
+      note: `${docs.length - m.size} unanswered after retry${votes > 1 ? ` · ${votes}-pass vote, ${[...m.values()].filter((x) => x.votes && x.votes.yes > 0 && x.votes.no > 0).length} split` : ""}`,
+    }),
   );
+}
+
+type FilterDec = { relevant: boolean; reason: string; areas: string[] };
+
+/**
+ * Majority vote over repeated LLM filter passes (setup knob filterVotes). Each pass is one vote; a pass that didn't
+ * answer for a doc abstains. A doc is relevant only with a strict majority of ALL passes saying yes, so abstentions
+ * never add up to a yes. Reason and areas come from the first pass that agrees with the outcome.
+ * One pass is a pass-through (no votes field), so single-pass runs are unchanged.
+ */
+export function combineFilterPasses(passes: Map<string, FilterDec>[], votes: number): Map<string, FilterDec & { votes?: { yes: number; no: number; passes: number } }> {
+  if (votes === 1) return passes[0];
+  const out = new Map<string, FilterDec & { votes: { yes: number; no: number; passes: number } }>();
+  for (const n of new Set(passes.flatMap((p) => [...p.keys()]))) {
+    const ballots = passes.map((p) => (p.has(n) ? (p.get(n)!.relevant ? "PASS" : "FAIL") : "UNKNOWN") as "PASS" | "FAIL" | "UNKNOWN");
+    const relevant = majority(ballots, Math.floor(votes / 2) + 1) === "PASS";
+    const answers = passes.map((p) => p.get(n)).filter((d): d is FilterDec => !!d);
+    const pick = answers.find((d) => d.relevant === relevant) ?? answers[0];
+    out.set(n, { ...pick, relevant, votes: { yes: ballots.filter((b) => b === "PASS").length, no: ballots.filter((b) => b === "FAIL").length, passes: votes } });
+  }
+  return out;
 }
 
 // ───────────────────────────── Verify + Tier (code) ─────────────────────────────

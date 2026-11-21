@@ -1,0 +1,27 @@
+id: 04-filter-vote
+title: >-
+  Steadier filter: run the LLM filter 3 times and keep what the majority says
+date: "2026-11-22"
+suite: SUITE_PLACEHOLDER
+setup: jev-sonnet-strict-vote3
+comparedTo: jev-sonnet-strict
+hypothesis: >-
+  The same strict setup scored 93% test recall in one suite and 60% in the next, so its answers drift. Dev-only
+  evidence (36 dev runs of the Sonnet Jev setups across both suites): all 13 final-decision flips happened at the LLM
+  filter, all of them between repeats of the same suite; Jev scores jitter (54 docs straddle the 0.1 cut-off) but
+  never changed a final answer. A 3-pass majority vote on the LLM filter should cut those flips, raising consistency,
+  with recall and precision at least as good on dev.
+change: >-
+  New setup jev-sonnet-strict-vote3 = jev-sonnet-strict + filterVotes 3 (config/setups.yaml). Same model, prompt set,
+  Jev cut-off and everything else.
+codeChanges: >-
+  New setup knob filterVotes (odd, default 1). The LLM filter runs that many full passes in parallel and
+  combineFilterPasses keeps a doc only with a strict majority of all passes (a pass that didn't answer abstains;
+  reuses grade.ts majority()). Each decision records its votes. One pass is unchanged, so existing setups behave as
+  before. Tests: tests/filter-vote.test.ts.
+evalChanges: >-
+  Two more frozen weeks: 2026-10-26..30 (dev) and 2026-10-19..23 (test), 3 companies each, keys drafted blind by two
+  agents (Opus + Sonnet) and reconciled by a third, as of each week's last day, with gist-level date-free rubrics.
+  Splits were fixed before any system ran on them.
+decision: >-
+  PENDING
