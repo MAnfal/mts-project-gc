@@ -1,0 +1,39 @@
+id: 06-passages
+title: >-
+  Jev re-ranks passages inside its top 20 docs; the LLM filter reads the best ones, not just the abstract
+date: "2026-11-22"
+suite: SUITE_PLACEHOLDER
+setup: jev-sonnet-strict-passages
+comparedTo: jev-sonnet-strict
+targets:
+  - rootCause:2
+  - llm-filter-rejected-a-real-rule
+hypothesis: >-
+  Dev-only error analysis of 05's suite (error-analysis.json here: 18 dev runs, 18 test runs excluded; code graders,
+  trace checks, judge panel, per-step scores). Per step: Jev keeps 100% of real flags and ranks all in its top 20;
+  verify is 100%; the LLM filter is the only lossy step (keeps 91% of real flags). Root cause 2: the filter rejects a
+  real rule whose operative provision isn't in the abstract (2026-21922: passenger power-bank limits buried in a
+  PHMSA harmonization NPRM; missed 3 of 3 in every suite). Giving the filter Jev-selected passages from the full
+  text should let it see such provisions. Predictions, both directions: flags kept by the filter rise (21922 flagged
+  in at least 2 of 3 repeats); traps rejected by the filter do not fall (the traps it falls for rank 10-20 in Jev, so
+  they also get passages: 2026-22743 is the one to watch).
+change: >-
+  New setup jev-sonnet-strict-passages = jev-sonnet-strict + filterExcerpts {topN 20, chunkChars 1200, perDoc 3,
+  maxChunks 300}. topN fixed at 20 from dev ranks only. Same model, prompt set, Jev cut-off; docs outside the top 20
+  still go to the filter with the abstract as before.
+codeChanges: >-
+  src/lib/pipeline/excerpts.ts (chunkText, pickPassages), filterPassages stage (traced as filter.passages: every
+  pick with its Jev score), filterPrompt takes optional passages (byte-identical without them; Jev's own input never
+  gets them). Tests: tests/filter-excerpts.test.ts. Both setups in this suite also run with the govinfo text-strip
+  fix (90c6292), which the passages depend on.
+evalChanges: >-
+  None. Budget cap raised by the user to $130.
+plan: >-
+  Gate before the suite (~$1.5): candidate 3x on skyhop_2026-10-26_2026-10-30 and cornercare_2026-11-09_2026-11-13
+  (the only dev errors that repeat in every suite). Proceed only if 21922 is flagged in >= 2 of 3 and no new trap is
+  hit there. Suite 1: control vs candidate, 12 company-weeks x 3. Stop rule after suite 1: not promoted (no repeat) if
+  21922 is flagged in < 2 of 3, or dev trap hits exceed the control's by more than 2. Otherwise replicate unchanged
+  and decide on pooled runs: promote only if test recall and test trap hits are no worse than the control beyond the
+  band. Band = the largest swing of the unchanged control across all its identical-config suites, new ones included.
+decision: >-
+  PENDING

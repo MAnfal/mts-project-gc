@@ -19,8 +19,19 @@ export const jevQuestion = () => prompt("jevQuestion");
 export const jevState = (p: CompanyProfile, d: FrDoc) => prompt("jevState", { profile: profileBrief(p), document: docBlock(d) });
 
 export const filterSystem = (p: CompanyProfile) => prompt("filterSystem", { areas: bullets(Object.entries(p.areas).map(([k, v]) => `${k}: ${v.description}`)) });
-export const filterPrompt = (p: CompanyProfile, docs: FrDoc[]) =>
-  prompt("filterPrompt", { profile: profileBrief(p), count: docs.length, documents: docs.map(docBlock).join("\n\n") });
+/** Filter input. `passages` (setup knob filterExcerpts) adds Jev-selected full-text passages under their own doc only;
+ *  without it the prompt is byte-identical to before, so control setups don't change. Jev's own input (jevState) never gets them. */
+export const filterPrompt = (p: CompanyProfile, docs: FrDoc[], passages?: Map<string, string[]>) =>
+  prompt("filterPrompt", {
+    profile: profileBrief(p),
+    count: docs.length,
+    documents: docs
+      .map((d) => {
+        const ps = passages?.get(d.document_number);
+        return ps?.length ? `${docBlock(d)}\nKey passages from the full text (selected for this company):\n${ps.map((x) => `- "${x}"`).join("\n")}` : docBlock(d);
+      })
+      .join("\n\n"),
+  });
 
 export const extractSystem = () => prompt("extractSystem");
 export const extractPrompt = (d: FrDoc, text: string) => prompt("extractPrompt", { number: d.document_number, title: d.title, text });

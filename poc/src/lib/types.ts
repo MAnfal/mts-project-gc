@@ -126,6 +126,8 @@ export interface RunConfig {
   promptSet?: string;
   /** LLM filter passes (majority vote); unset = 1. */
   filterVotes?: number;
+  /** Jev-selected full-text passages for the LLM filter (iteration 06); unset = abstract only. */
+  filterExcerpts?: { topN: number; chunkChars: number; perDoc: number; maxChunks: number };
   /** User view: a profile typed in by the user instead of one from config/companies/. */
   customProfile?: CompanyProfile;
   /** Arena this run belongs to, and its cell (config) key inside the arena. */

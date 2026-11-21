@@ -57,6 +57,8 @@ const SetupsSchema = z.object({
         promptSet: z.string().optional(),
         /** LLM filter passes per run; a doc is kept only if a majority of passes call it relevant. Odd, default 1. */
         filterVotes: z.number().int().positive().refine((n) => n % 2 === 1, "filterVotes must be odd").optional(),
+        /** For Jev's top-N docs, Jev re-ranks full-text passages and the LLM filter also sees the best `perDoc`. */
+        filterExcerpts: z.object({ topN: z.number().int().positive(), chunkChars: z.number().int().positive(), perDoc: z.number().int().positive(), maxChunks: z.number().int().positive() }).optional(),
         estUsd: z.number().positive(),
       }),
     )

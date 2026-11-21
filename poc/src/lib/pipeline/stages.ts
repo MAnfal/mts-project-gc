@@ -1,7 +1,8 @@
 import pLimit from "p-limit";
 import { z } from "zod";
 import { gw } from "../gateway";
-import { agencyNames, getDoc, getRawTextWithSource, listWindow } from "../fr";
+import { agencyNames, getDoc, getRawText, getRawTextWithSource, listWindow } from "../fr";
+import { chunkText, pickPassages } from "./excerpts";
 import { pipelineCfg } from "../config";
 import { majority } from "../grade";
 import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
@@ -79,7 +80,35 @@ export async function filterJev(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
   );
 }
 
-export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
+/**
+ * Jev-picked passages (setup knob filterExcerpts): for the top-N docs by Jev score, split the full text into passages,
+ * let Jev score each against the company, keep the best `perDoc` for the LLM filter. Every pick is traced.
+ */
+export async function filterPassages(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], probs: Map<string, number>) {
+  const o = ctx.run.config.filterExcerpts!;
+  const top = [...docs].sort((a, b) => (probs.get(b.document_number) ?? 0) - (probs.get(a.document_number) ?? 0)).slice(0, o.topN);
+  const limit = pLimit(pipelineCfg().filter.jevConcurrency);
+  const question = jevQuestion();
+  return ctx.stage(
+    "filter:passages",
+    async () => {
+      const out = new Map<string, string[]>();
+      for (const d of top) {
+        const text = await getRawText(d);
+        const chunks = chunkText(text, o.chunkChars, o.maxChunks);
+        if (!chunks.length) continue;
+        const scores = await Promise.all(chunks.map((c, i) => limit(async () => (await ctx.jev(jevState(profile, { ...d, abstract: c }), question, `${d.document_number}#p${i}`)).p)));
+        const picked = pickPassages(chunks, scores, o.perDoc);
+        ctx.trace.emit("filter.passages", { document_number: d.document_number, chunks: chunks.length, picked: picked.map(({ index, p, text: t }) => ({ index, p, text: t })) });
+        out.set(d.document_number, picked.map((x) => x.text));
+      }
+      return out;
+    },
+    (m) => ({ inCount: top.length, outCount: m.size, note: `top ${o.topN} by Jev · ${o.perDoc} passages each` }),
+  );
+}
+
+export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], passages?: Map<string, string[]>) {
   const areaKeys = Object.keys(profile.areas) as [string, ...string[]];
   const schema = z.object({
     decisions: z.array(
@@ -110,7 +139,7 @@ export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDo
             const r = await ctx.object(`filter-llm#${tag}${bi}${attempt ? "-retry" : ""}`, {
               model: ctx.run.config.model,
               system,
-              prompt: filterPrompt(profile, pending),
+              prompt: filterPrompt(profile, pending, passages),
               schema,
             });
             const want = new Set(pending.map((d) => d.document_number));

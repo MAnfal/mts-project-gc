@@ -7,7 +7,7 @@ import { searchKind, searchTools } from "../models";
 import type { ActionItem, Deadline, FilterDecision, RunConfig, RunRecord, Tier } from "../types";
 import { parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
 import { RunCtx } from "./context";
-import { filterJev, filterLlm, renderMarkdown, scan, verifyAndTier, webLeads, writeActions } from "./stages";
+import { filterJev, filterLlm, filterPassages, renderMarkdown, scan, verifyAndTier, webLeads, writeActions } from "./stages";
 
 export function newRun(config: RunConfig): RunRecord {
   const id = `${new Date().toISOString().replace(/[:.]/g, "-")}_${config.mode}_${Math.random().toString(36).slice(2, 6)}`;
@@ -55,14 +55,16 @@ async function pipeline(ctx: RunCtx) {
 
   const decisions = new Map<string, FilterDecision>(docs.map((d) => [d.document_number, { document_number: d.document_number, relevant: false }]));
   let toLlm = docs;
+  let passages: Map<string, string[]> | undefined;
   if (cfg.filter !== "llm") {
     const probs = await filterJev(ctx, profile, docs);
     for (const [n, p] of probs) decisions.get(n)!.jevProbability = p;
     toLlm = docs.filter((d) => (probs.get(d.document_number) ?? 0) >= cfg.jevThreshold);
     if (cfg.filter === "jev") for (const d of toLlm) decisions.get(d.document_number)!.relevant = true;
+    if (cfg.filterExcerpts && cfg.filter !== "jev") passages = await filterPassages(ctx, profile, toLlm, probs);
   }
   if (cfg.filter !== "jev") {
-    const llm = await filterLlm(ctx, profile, toLlm);
+    const llm = await filterLlm(ctx, profile, toLlm, passages);
     for (const [n, v] of llm) {
       const dec = decisions.get(n)!;
       dec.llm = v;

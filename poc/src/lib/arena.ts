@@ -13,6 +13,7 @@ export interface Cell {
   method: "jev+llm" | "llm" | "baseline";
   promptSet?: string;
   filterVotes?: number;
+  filterExcerpts?: { topN: number; chunkChars: number; perDoc: number; maxChunks: number };
   /** Rough $/run used for the pre-flight budget check. */
   estUsd: number;
 }
@@ -20,7 +21,7 @@ export interface Cell {
 export const methods = () => setups().methods;
 
 /** The setups the eval suite runs (config/setups.yaml → setups). */
-export const suiteCells = (): Cell[] => setups().setups.map((x) => ({ key: x.id, label: x.label, model: x.model, method: x.method, promptSet: x.promptSet, filterVotes: x.filterVotes, estUsd: x.estUsd }));
+export const suiteCells = (): Cell[] => setups().setups.map((x) => ({ key: x.id, label: x.label, model: x.model, method: x.method, promptSet: x.promptSet, filterVotes: x.filterVotes, filterExcerpts: x.filterExcerpts, estUsd: x.estUsd }));
 
 /** Every model × method pair. Arenas before 2026-11-22 used these "<method>:<model>" keys; kept so old runs still resolve. */
 export const allCells = (): Cell[] =>
@@ -43,6 +44,7 @@ export function cellConfig(cell: Cell, base: { profileId: string; windowStart: s
     webLeads: m.webLeads ?? false,
     ...(cell.promptSet ? { promptSet: cell.promptSet } : {}),
     ...(cell.filterVotes && cell.filterVotes > 1 ? { filterVotes: cell.filterVotes } : {}),
+    ...(cell.filterExcerpts ? { filterExcerpts: cell.filterExcerpts } : {}),
     group: `${arena}:${cell.key}`,
     arena,
     cell: cell.key,
