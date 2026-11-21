@@ -61,14 +61,14 @@ the copy a session happens to read first wins.
 
 <!-- One line per completed plan, newest first. Added by /plan:complete. -->
 
-- **Knowledge layer added** 2026-09-19: `.claude/resources/bibles/` holds the engineering  
-and prompt-authoring standards the loop cites. Brainstorm, planning, rubric generation,  
-implementation and review all route through it.
-
 - **POC eval loop matured** 2026-11-22: 12 frozen company-weeks (dev/test split), subset precision grading,
 per-step scores, and an evidence gate. Every iteration needs a dev-only error analysis (incl. judge
 feedback) first, and a gap counts only beyond the control's A/A swing. Iterations 00–05 and findings are in
 `poc/README.md` and `poc/data/iterations/`.
+
+- **Knowledge layer added** 2026-09-19: `.claude/resources/bibles/` holds the engineering  
+and prompt-authoring standards the loop cites. Brainstorm, planning, rubric generation,  
+implementation and review all route through it.
 
 ## Communication instructions.
 
