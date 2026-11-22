@@ -279,10 +279,14 @@ a follow-up.
   a "changed" case is a different hit *rate* (2/2 vs 3/3 is no change). `cases.test.ts` requires per-case sums to
   equal every shipped suite's `report.json` counts, so there is no second grader to drift. Key normalisation
   (`keyedDocs`, `trapIds`) lives in `bundle-build.ts`; import it, don't copy it.
-- **Every run's trace link comes from the suite's `trace-checks.json`** (one entry per run, failed ones too;
-  ~100 KB a suite). `runs.jsonl.gz` is megabytes a suite, so the Runs page loads it only for suites in view, for
-  labels. Example runs (`user-view`) have no trace checks: `loadTraceChecks(USER_VIEW)` is null. Only the
-  first repeat of a setup carries a judge `panel`; the judges' reasons are in `panel.judges[].votes`.
+- **List runs from `runs-index.json`, never from `runs.jsonl.gz`.** The build writes one per suite and one for
+  `user-view` (`runsIndex` in `bundle-build.ts`: runId, setup, profileId, window, repeat, status, superseded;
+  ~20 KB a suite vs megabytes of run records), and `verify-eval-bundle.sh` recomputes them. Load with
+  `loadRunsIndex(suiteId | USER_VIEW)`. Example runs have no trace checks: `loadTraceChecks(USER_VIEW)` is
+  null. Only the first repeat of a setup carries a judge `panel`; the judges' reasons are in
+  `panel.judges[].votes`.
+- **Rebuild the eval bundle under the project's Node (24.13.0).** `export.mts` gzips `runs.jsonl.gz` with
+  Node's zlib: under Node 26 the bytes differ (same content), so a rebuild is byte-stable only on Node 24.
 
 ## Layout
 
@@ -312,8 +316,10 @@ public/evals/                 GENERATED eval bundle, served as static files (nev
   index.json                  suites, setups, iterations (+ measured, evidence), live, baseline, suiteResults,
                               noiseBand, evalSet, counts (index-schema.ts).
   config/                     One copy of poc/config, answer keys included.
-  suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz.
-  user-view/                  index.json, runs/<runId>.json, traces/<runId>.jsonl.gz (all 22, failed too).
+  suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz,
+                              runs-index.json (one small row per run, for the Runs page).
+  user-view/                  index.json, runs-index.json, runs/<runId>.json, traces/<runId>.jsonl.gz (all 22,
+                              failed too).
   iterations/<NN-slug>/       iteration.json + the POC's files verbatim (spec, record, diffs, evidence, config/).
 src/
   app/                        Next.js App Router.

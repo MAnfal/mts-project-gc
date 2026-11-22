@@ -190,9 +190,10 @@ set -e
 bash plans/2026-11-22-demo-build/03-pipeline/gates.sh   # lint, test, build, typecheck, parity, no-fs-writes
 bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh
 bash scripts/verify-eval-bundle.sh
-# no poc/ paths
-! git ls-tree -r --name-only HEAD | grep -q '^poc/'
-! git log --name-only --format= feat/plan--demo-build..HEAD | grep -q '^poc/'
+# no poc/ paths. Explicit counts: `! cmd | grep -q` can never trip set -e (bash exempts negated pipelines).
+a=$(git ls-tree -r --name-only HEAD | grep -c '^poc/' || true)
+b=$(git log --name-only --format= feat/plan--demo-build..HEAD | grep -c '^poc/' || true)
+if [ "$a" -ne 0 ] || [ "$b" -ne 0 ]; then echo "FAIL: poc/ paths (tree $a, history $b)" >&2; exit 1; fi
 ```
 
 Add needles for this chunk's own visible figures (e.g. "177") to `no-typed-numbers.sh`

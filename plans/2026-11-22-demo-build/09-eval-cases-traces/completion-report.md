@@ -19,23 +19,26 @@ follows the amendment.
 | `src/lib/evals/cases.ts` | created | Per-case hits for each setup, graded the POC way (subset grading via `gradedFlags`). Rate-based `change` (Fixed/Regressed, flipped for Skip rows), the filters (`changed`/`stillMissed`/`trapsFlagged`/`all`), `setupTotals` (tp/fn/trapHit/tn/unlabeled, recall, precision), `liveIterationId`, `SPLIT_WORD`. Pure. |
 | `src/lib/evals/runFacts.ts` | created | What one repeat did on one case. `filterWhy` covers llm / jev-screened / baseline / failed / none. `judgeView` covers judged / notJudged / nothingToJudge. `traceFacts` gives the event count and `filter.passages` per doc. Pure. |
 | `src/lib/evals/traceIndex.ts` | created | Trace viewer logic: `indexTrace` (type counts + value-only haystacks computed once), `filterTrace`, `eventSummary` (POC `summary()` port plus `filter.passages`), `eventLabel`. Pure. |
-| `src/lib/evals/runList.ts` | created | Runs page rows from `trace-checks.json`, with labels from run records. `checkSummary` is shared with the panel and the viewer. |
+| `src/lib/evals/runList.ts` | created | Runs page rows from the `runs-index.json` listings plus each run's trace-check summary; `evalsetOfRun` maps a listed run to its eval set for naming. `checkSummary` is shared with the panel and the viewer. |
 | `src/lib/evals/evalsetInfo.ts` | created | Server-only. Eval-set company name, week label and split, read from `config/` (`evalsets()`, `companies()`) and passed to client pages. |
-| `src/lib/evals/loader.ts` | edited | Adds `loadSuiteReport`, `loadTraceChecks` (null for `user-view`, no fetch), `loadAnswerKey`, `loadWeekDocs` and `loadUserViewIndex`, each zod-validated. |
-| `src/lib/evals/bundle-build.ts` | edited | Exports `keyedDocs` and a new `trapIds`; `keyTotals` now uses `trapIds`. This is the key normalisation amendment 3 asks to reuse. |
+| `src/lib/evals/loader.ts` | edited | Adds `loadSuiteReport`, `loadTraceChecks` (null for `user-view`, no fetch), `loadAnswerKey`, `loadWeekDocs` and `loadRunsIndex` (suite or `user-view`), each zod-validated. |
+| `src/lib/evals/bundle-build.ts` | edited | Exports `keyedDocs` and a new `trapIds`; `keyTotals` now uses `trapIds`. This is the key normalisation amendment 3 asks to reuse. Adds `runsIndex()`, the pure shaping of the run listings (lead decision, below). |
+| `src/lib/evals/index-schema.ts` | edited | `RunsIndexSchema` (strict rows: runId, setup, profileId, window, repeat, status, superseded). |
+| `scripts/build-eval-index.mts`, `scripts/verify-eval-bundle.sh` | edited | The index build writes `suites/<id>/runs-index.json` and `user-view/runs-index.json`. `--check` (run by verify) recomputes them byte for byte. |
+| `public/evals/suites/*/runs-index.json`, `public/evals/user-view/runs-index.json` | generated | 10 listings, 124 KB in all, from `bash scripts/build-eval-bundle.sh` (commit `cb6d93a`, data only). |
 | `src/lib/evals/__fixtures__/shipped.ts` | created | Node reads of the shipped bundle (runs, traces, keys, report), plus `stubFetch`, which moved here from `loader.test.ts`. |
 | `src/lib/evals/{cases,runFacts,traceIndex,runList,evalsetInfo}.test.ts`, `loader.test.ts` | created / edited | Tests against real shipped suites and traces (see Tests). |
 | `src/components/evals/CasesView.tsx` | created | `/evals/cases` client view: loads the iteration's suite, keys and week titles; renders the header, iteration nav, filters, table and run panel in `AppShell`'s aside. Handles the empty states for 00 (no Before) and 07 (evidence only), and an unknown id. |
 | `src/components/evals/CasesTable.tsx` | created | Cases table and filter buttons (≤ 4 choices, each with its count). At < 640 px "What happened" folds into the rule cell. |
 | `src/components/evals/RunPanel.tsx` | created | Run 1/2/3 tabs (failed repeats marked), filter reason, collapsible passages, `ChecksBox`, judge votes with collapsible reasoning, and a raw-trace link for every repeat whose event count fills in as each trace streams. |
-| `src/components/evals/RunsView.tsx` | created | `/evals/runs`: all 9 suites (newest first) and the 22 example runs. Links render from `trace-checks.json`; labels come from `runs.jsonl.gz`, loaded only for suites near the viewport. |
+| `src/components/evals/RunsView.tsx` | created | `/evals/runs`: all 9 suites (newest first) and the 22 example runs. Every row, label and link comes from the `runs-index.json` listings, with check counts from `trace-checks.json`. It never downloads `runs.jsonl.gz`, and the 461 links don't prefetch. |
 | `src/components/evals/TraceViewer.tsx` | created | Check summary first, type chips, "Decisions only" / "Show all", value search, fixed 34 px rows virtualized with `@tanstack/react-virtual`, and event JSON in a `<pre>` below the list. |
 | `src/app/evals/{cases,runs}/page.tsx`, `src/app/evals/traces/[suiteId]/[runId]/page.tsx` | created | Server pages. They read YAML per request (`await connection()`) and pass names from `config/`. The bundle loads in the browser. |
 | `src/components/evals/EvalSidebar.tsx` | edited | Adds a **Runs** item (`active="runs"`). |
 | `src/components/evals/EvalSummary.tsx` | edited | Uses `liveIterationId(index) ?? index.iterations[0].id`. Behaviour is unchanged; this consolidates the one-liner the Cases page also needs. |
 | `plans/.../08-eval-summary-iterations/no-typed-numbers.sh` | edited | Adds needles for this chunk's figures (`177`, `2,104`/`2104`, `439`, `n/3`, `n trace checks`). |
 | `package.json`, `pnpm-lock.yaml` | edited | `@tanstack/react-virtual` `3.14.26`, pinned exactly (`pnpm add -E`). |
-| `.claude/resources/project.md` | edited | Layout (routes, components, lib modules), the Convention Map eval row (tests run on shipped data), and two Conventions: per-case grading, and trace links / judges / user-view. Stack and Commands are untouched; the Stack row is left to the lead (see below). |
+| `.claude/resources/project.md` | edited | Layout (routes, components, lib modules, `runs-index.json`), the Convention Map eval row (tests run on shipped data), and three Conventions: per-case grading, list runs from `runs-index.json`, and rebuild under Node 24. Stack and Commands are untouched; the Stack row is left to the lead (see below). |
 | `plans/.../09-eval-cases-traces/click-path.js`, `screenshots/`, `evidence/` | created | Click-path check script, screenshots, and the saved browser measurements. |
 
 **Stack row for the lead.** 04 owns Stack this wave. The row to add is ``Trace list virtualization (eval view) | `@tanstack/react-virtual` (pinned; pulls `@tanstack/virtual-core` 3.19.11) | 3.14.26``. Both versions were read from `node_modules/@tanstack/react-virtual/package.json` and `pnpm-lock.yaml`. `package.json` and `pnpm-lock.yaml` changed in commit `aa1eff4`, so they may conflict with 04 at merge.
@@ -61,7 +64,8 @@ follows the amendment.
 | Amendment 11: bare `/evals/cases` → 06; 00 shows its setup alone; 07 has an empty state | yes | Bare URL opens "Cases that changed in 06". `evidence/iterations-00-07.json` renders all eight iterations: 00 is "Cases in 00" with filters `Still missed 8 · Traps flagged 5 · All 93 cases` and columns `Flagged`/What happened (no Before); 01–06 each show a table, "Changed in NN" counts 27/22/9/7/9/17, and no alert; 07 shows "Iteration 07 has no cases" (an earlier check saw 0 `runs.jsonl` fetches) |
 | A case computation that throws shows an error, not a blank page | yes | `evidence/cases-missing-key-state.json`: with `index.json` patched in the page to drop one l92 eval set, the page shows "The recorded evaluation could not be loaded: no answer key for eval set brightside_2026-10-19_2026-10-23" and no table |
 | No console errors | yes | `list_console_messages` was empty on the final build for Cases (bare URL), Runs and the trace page. An earlier "form field should have an id or name" issue was fixed (`name="q"` on the trace search) |
-| Amendment 10: loader extensions, user-view = no trace checks | yes | `loader.test.ts` (12 new tests), including › "is null for the example runs … without fetching anything" (`requested` = `[]`) |
+| Amendment 10: loader extensions, user-view = no trace checks | yes | `loader.test.ts` (14 new tests), including › "is null for the example runs … without fetching anything" (`requested` = `[]`) and the three `loadRunsIndex` tests |
+| Runs page names and links every run from the listings, never `runs.jsonl.gz` (lead decision) | yes | `evidence/runs-page-listings.json`, measured after scrolling to the bottom: 461 "Raw trace" links, **0 rows without a label**, **0 `runs.jsonl.gz` requests**, and 0 `/evals/traces/*` prefetches. The `/evals/*` requests were `index.json`, 9 × (`runs-index.json` + `trace-checks.json`) and `user-view/runs-index.json`. `runList.test.ts` checks that each shipped listing equals `runsIndex(runs.jsonl.gz)` and matches the trace-checks keys, for all 9 suites and user-view, at < 30 KB each |
 
 ### Click paths from `/evals` (amendment 1; SPEC "≤ 3 clicks")
 
@@ -69,8 +73,9 @@ follows the amendment.
 rendered link or button, and the script counts the clicks and waits for `Raw trace · N events` to render. Results
 under `pnpm start -p 3901` were saved by the tool to `evidence/click-1…7-*.json`.
 
-Runs 2–7 used the script before its last edit, which wrapped the body in `try/catch` so a failure returns
-`{ok:false, error}` instead of throwing. Click 1 and the negative control were re-run with the final script.
+After the Runs page moved to the listings, the five Runs-page paths (1, 2, 4, 6, 7) and the negative control
+were re-recorded with the final script and the final build. Each file now carries `"ok":true`. The two Cases
+paths (3, 5) are from the earlier run; the Cases page did not change.
 
 | Run | Path | Clicks | Landed on / heading |
 | --- | ---- | ------ | ------------------- |
@@ -104,7 +109,9 @@ The red runs are in the scratch dir named at the top (`red/`, `mut/`). The kind 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
 | `cases.test.ts` (36) | **Import red**: `Failed to resolve import "./cases"`, `Tests no tests` (`red/cases-import.txt`) | 36 passed |
-| `traceIndex.test.ts` (14), `runList.test.ts` (17) | **Import red**: both files `FAIL … [ file ]` (`red/t001-before-impl.txt`) | 14 / 17 passed |
+| `traceIndex.test.ts` (14) | **Import red**: `FAIL … [ file ]` (`red/t001-before-impl.txt`) | 14 passed |
+| `runList.test.ts` (17) | **Import red**: `FAIL … [ file ]` (`red/t001-before-impl.txt`). The rewrite for the listings went red on the `runRows`/`evalsetOfRun` imports and on the missing shipped `runs-index.json` (`red/runs-index-before.txt`) | 17 passed |
+| `bundle-build.test.ts` › runsIndex (3) + RunsIndexSchema (1) | **Assertion-level red**: `TypeError: runsIndex is not a function` and `expected [Function] to throw … 'run r9 records no company or window'` (`red/runs-index-before.txt`; 21 failures across the three files) | 38 passed |
 | `loader.test.ts`, 12 new | **Red in this worktree before `loader.ts` was touched** (not in the base worktree): `TypeError: loadSuiteReport is not a function`, and the same for each new loader. The 16 existing tests passed (`red/t001-before-impl.txt`) | 28 passed |
 | `runFacts.test.ts` (12) | **Import red**: `Cannot find module './runFacts'` (`red/runFacts-import.txt`) | 12 passed |
 | `evalsetInfo.test.ts` (4) | **Not seen red before the module.** I wrote the module first. Red is shown only through the mutations below. | 4 passed |
@@ -125,7 +132,9 @@ and checked with `diff -q`):
 | Search matches values, not keys | haystack = `JSON.stringify(e)` | › "matches values, not keys: a word that is only ever a key finds nothing" |
 | Case-insensitive / trimmed / type filter | dropped `.toLowerCase()`; dropped `.trim()`; ignored `hidden` | the matching `filterTrace` test in each case (2 for `hidden`) |
 | runFacts branches | removed failed / baseline branch; `none` → `jev`; `notJudged` → `nothingToJudge`; removed `nothingToJudge` | the one matching test each time (5 mutations, 5 reds) |
-| runList guards | removed `runLabel` throw; `checkSummary(null)` returns zeros | › "throws naming the run …"; › "is null when no checks were recorded" |
+| runList guard | `checkSummary(null)` returns zeros | › "is null when no checks were recorded" |
+| Listing guards and shape | removed the `runsIndex` company/window throw; `superseded: false` always; `loadRunsIndex` ignoring `USER_VIEW` (`mut/runs-index-mutations.txt`) | › "throws naming the run when it records no company or window"; › "keeps each run's … superseded flag"; › "reads the example runs' listing from user-view/" |
+| Verify recomputes the listings | hand-edited `ly9/runs-index.json` (`"repeat": 0` → `1`), ran `verify-eval-bundle.sh`, restored, ran again | `FAIL: suites/arena-2026-11-21-21-04-ly9/runs-index.json differs from the recomputation over the shipped bundle` (exit 1), then `verify-eval-bundle: OK` (exit 0). Before the data was regenerated, verify failed with `runs-index.json is missing` for every suite (`basegates/verify-before-regen.txt`) |
 | evalsetInfo | removed the unknown-company throw; one-month format only | › "throws naming the eval set whose company has no profile"; › "names both months across a month boundary" |
 | No typed numbers (6 new needles) | four-step canary per needle (plant `Canary.tsx`, gate fires, remove, gate clean) | all 6 caught with exit 1 and clean after removal (`canaries.txt`). The `n/3` needle was then narrowed to `(^\|[^-])\b[0-9]/3\b`, so a Tailwind fraction can't trip it, and re-canaried (`canaries-2.txt`): `After 3/3` and `0/3` caught, `w-1/3 aspect-4/3` not caught, clean after each |
 
@@ -139,15 +148,16 @@ The final block was run after the last code edit (`evidence/final-gates.txt`; ty
 
 | Gate | Command | Result | Fails on base? |
 | ---- | ------- | ------ | -------------- |
-| Standard set + parity + no-fs-writes | `bash plans/2026-11-22-demo-build/03-pipeline/gates.sh` | `Test Files 30 passed (30) / Tests 380 passed (380)`, build OK, `parity: OK`, `no-fs-writes: OK (64 … files)`, `gates: OK` | **No, it passes on base** (exit 0; 285 tests). It is a regression gate and cannot show this chunk's work. The chunk's own tests run on base fail: 5 files `Cannot find module './cases'` etc. (`basegates/new-tests-on-base.txt`), and the 12 loader tests fail with `TypeError … is not a function` |
+| Standard set + parity + no-fs-writes | `bash plans/2026-11-22-demo-build/03-pipeline/gates.sh` | `Test Files 30 passed (30) / Tests 386 passed (386)`, build OK, `parity: OK`, `no-fs-writes: OK (64 … files)`, `gates: OK` | **No, it passes on base** (exit 0; 285 tests). It is a regression gate and cannot show this chunk's work. The chunk's own tests run on base fail: 5 files `Cannot find module './cases'` etc. (`basegates/new-tests-on-base.txt`). The 12 loader tests failed with `TypeError … is not a function` in this worktree before `loader.ts` was touched, not in the base worktree |
 | No typed numbers | `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | `OK (18 component/page files …)` | **No, it passes on base** (it is an absence gate). It was proven per needle by the canaries above |
-| Bundle verify | `bash scripts/verify-eval-bundle.sh` | `OK (9 suites, 22 user-view runs, 8 iterations)` | No, it passes on base. `public/evals/` is unchanged by this chunk |
-| No `poc/` paths | the plan's `! git ls-tree … \| grep -q '^poc/'` and `! git log … \| grep -q '^poc/'` | passed | **The plan's form is vacuous under `set -e`**, because bash exempts negated pipelines. `bash -c 'set -e; ! echo poc/x \| grep -q "^poc/"; echo still running'` printed "still running". I re-ran it as explicit counts: `poc/ paths in tree: 0; in branch history: 0` |
+| Bundle verify | `bash scripts/verify-eval-bundle.sh` | `OK (9 suites, 22 user-view runs, 8 iterations)`; it now also recomputes the 10 listings | It passes on base, which has no listing check. On this branch it fails without the regenerated data (`runs-index.json is missing` × 10) and on a hand edit (above) |
+| Rebuild idempotence | `bash scripts/build-eval-bundle.sh` on the committed tree (Node 24.13.0) | exit 0, then `git status` empty (`rebuild-idempotence.txt` in the scratch dir) | — |
+| No `poc/` paths | the plan's block, fixed to explicit counts (`a=$(git ls-tree … \| grep -c '^poc/' \|\| true)`, same for `git log`, `if [ "$a" -ne 0 ] …; exit 1`) | tree 0, history 0 | It passes on base (no `poc/` paths there either). The new form can fail: fed a listing containing `poc/y`, it printed `FAIL: poc/ paths (tree 1, history 0)` and exited 1. The old `! … \| grep -q` form kept running after a match under `set -e` |
 | New routes exist | `curl -w '%{http_code}'` on base (`pnpm start -p 3902`) and branch (`-p 3901`) | branch: `/evals/cases 200`, `/evals/runs 200`, `/evals/traces/…/k6tv 200` | **Yes**: base `404 / 404 / 404` (`routes/status.txt`) |
 
 Baseline before this chunk, captured in the scratch dir's `baseline/`: lint exit 0, 0 warnings; tests 25
-files / 285 passed; typecheck exit 0. After: lint 0 errors and 0 warnings, 30 files / 380 tests, typecheck 0. The
-delta is +5 test files and +95 tests, with no new diagnostics.
+files / 285 passed; typecheck exit 0. After: lint 0 errors and 0 warnings, 30 files / 386 tests, typecheck 0. The
+delta is +5 test files and +101 tests, with no new diagnostics.
 
 The base tree was a detached worktree at `8222830` in the scratch dir with its own `pnpm install`. The first
 attempt symlinked `node_modules`, and Turbopack refused to resolve `next` outside the root, which was not a tree
@@ -155,12 +165,17 @@ failure. The worktree was removed afterwards.
 
 ## Judgment calls
 
-- **Runs page data source.** The links come from each suite's `trace-checks.json`, which the test shows lists
-  exactly the runs in `runs.jsonl.gz` for all 9 suites (~100 KB each). Labels come from `runs.jsonl.gz` (~19 MB
-  in total), loaded only for sections within 600 px of the viewport. All checks load before any section renders,
-  so lazy loading isn't defeated by short sections. Measured: only `du8` was fetched at the top, and `w0i`/`gip`
-  were fetched after scrolling to them. The cleaner fix would add a per-run listing to `index.json`, but that is
-  chunk 07's generator, schema and verify, so I didn't do it here. The lead was told; this is a candidate for 07.
+- **Runs page data source (lead decision).** The first version rendered links from `trace-checks.json` and lazily
+  loaded labels from `runs.jsonl.gz` (~19 MB in all). The lead chose the cleaner option: the index build writes a
+  small `runs-index.json` per suite and one for user-view. The pure shaping lives in `bundle-build.ts`, verify
+  recomputes it, and the data was committed separately. The Runs page now reads only the listings and
+  `trace-checks.json`. I added a `superseded` flag to the lead's six fields, because `runs.jsonl.gz` keeps
+  superseded runs and the page should mark them. The example runs now come from `user-view/runs-index.json`, so
+  `loadUserViewIndex` was removed and the page no longer shows their item counts.
+- **Rebuild under Node 24.13.0.** My first rebuild ran under Node 26.5.0 (homebrew first on a hand-set `PATH`). It
+  changed all 9 `runs.jsonl.gz` files: gunzipped content identical (same md5), deflate bytes different. Under the
+  project's Node 24.13.0 the rebuild touches only the 10 new listings, and a second rebuild leaves the tree clean.
+  This is recorded in `project.md` Conventions.
 - **Rule titles come from the frozen weeks** (`loadWeekDocs`, a loader the amendment does not list). Answer keys
   carry no titles, and run items carry titles only for flagged docs, so a trap that was never flagged would have
   no name. The cost is 4 week files (about 115 KB each gzipped on the wire).
@@ -185,7 +200,7 @@ failure. The worktree was removed afterwards.
 ## Deviations from the plan
 
 - **The plan's gate block lines `! … | grep -q '^poc/'` cannot fail under `set -e`.** I report the explicit
-  check above. The lead may want to fix the block for later chunks.
+  check above. On the lead's request, this chunk's `plan.md` gate block now uses the explicit-count form.
 - **The `evalsetInfo` module was not seen red before it existed.** I wrote it before its test, and its tests were
   shown red only by mutation.
 - The plan's Test Plan row for `grade.test.ts` is replaced by the per-suite sums test in `cases.test.ts`
@@ -196,5 +211,4 @@ failure. The worktree was removed afterwards.
 - `AppShell` (chunk 01) puts the whole sidebar above the content at 390 px, so the Cases table starts below the
   fold on a phone. On a narrow screen, picking a case scrolls the stacked panel into view. The shell itself is not
   mine to change.
-- `public/evals/index.json` has no per-run listing (see the Runs judgment call). This is a chunk 07 candidate.
 - The iteration page (chunk 08) does not link to its Cases view. That could be a one-line follow-up.

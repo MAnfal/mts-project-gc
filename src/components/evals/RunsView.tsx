@@ -88,7 +88,8 @@ function Section({ listing, directory }: { listing: Listing; directory: EvalDire
                 ) : null}
               </span>
             </div>
-            <Link href={traceHref(listing.id, r.run.runId)} className={cn("shrink-0 whitespace-nowrap", r.run.status === "error" && "text-status-red-fg")}>
+            {/* 461 links: no viewport prefetch, or scrolling the list would request a route payload per row. */}
+            <Link href={traceHref(listing.id, r.run.runId)} prefetch={false} className={cn("shrink-0 whitespace-nowrap", r.run.status === "error" && "text-status-red-fg")}>
               Raw trace
             </Link>
           </li>
