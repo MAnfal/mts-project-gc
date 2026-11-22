@@ -175,6 +175,20 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   Fix: after any preflight amendment, grep rubric.md for each struck item before
   dispatch. Chunk 06 must now carry the eval-side "Open this run's report".
 
+### Chunk 10 — Models page
+
+- The plan named 4 models and a jev-only method; only Sonnet and GPT ran, in one suite.
+  The preflight caught it.
+- Lead message lag: two rulings arrived after the implementer had already decided, so
+  the reviewer found a dirty tree mid-review. The reviewer stopped rather than grade an
+  unreported tree, which was the right call. Lesson: when an implementer asks "proceeding
+  unless you object", answer before spawning anything else.
+- The lead's "no date" ruling was wrong. The date lived in a recorded source (a YAML
+  comment), which the generator can parse. The reviewer was right that the rubric item
+  should stand.
+- US2 checkpoint reached on the plan branch: summary, iterations, cases, runs, traces and
+  models all come from recorded data. Verified locally; deploy deferred.
+
 
 ---
 
