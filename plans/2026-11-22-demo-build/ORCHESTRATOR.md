@@ -128,6 +128,11 @@ original deployed-URL check is listed for the user in the final PR description:
 - **Chunk branches**: `feat/demo-build--<chunk-name>` (e.g. `feat/demo-build--scaffold`)
 - **Chunks merge into**: `feat/plan--demo-build`, by the lead, after a fresh reviewer
   PASS and a lead re-run of the gates. See amended decision 2.
+- **Every chunk lands through a GitHub PR** (user, 2026-11-23): push the chunk branch,
+  `gh pr create --base feat/plan--demo-build` with the chunk-PR template, then the lead
+  merges it with `gh pr merge --merge` so the PR is the record. Chunks 01, 02 and 07
+  merged locally before this rule; their branches are pushed as the record, and GitHub
+  can't open a PR for an already-merged branch.
 - **Final PR**: `feat/plan--demo-build` → `main`, opened by the lead, merged by the user.
 
 ## Dependency Graph
