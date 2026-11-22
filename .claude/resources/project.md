@@ -51,7 +51,7 @@ dev dependency `fake-indexeddb` (read from `node_modules/fake-indexeddb/package.
 | Language | `typescript` | 5.9.3 |
 | Styling | `tailwindcss` · `@tailwindcss/turbopack` · `tw-animate-css` | 4.3.3 · 4.3.3 · 1.4.0 |
 | Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
-| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08, `pnpm exec shadcn add`, shadcn 4.23.0) | — |
+| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08); tabs (chunk 04) — all via `pnpm exec shadcn add`, shadcn 4.23.0 | — |
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
