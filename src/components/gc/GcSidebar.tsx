@@ -106,7 +106,8 @@ export function GcSidebar({ appName, user, activeRunId, active }: { appName: str
           <ul aria-labelledby="examples" className="m-0 flex list-none flex-col gap-0.5 p-0">
             {examples.map((x) => (
               <li key={x.id}>
-                <Link href={x.href} aria-current={x.id === activeRunId ? "page" : undefined} className={rowClass(x.id === activeRunId)}>
+                {/* No viewport prefetch: each example is a server-rendered route, and the list sits on every GC page. */}
+                <Link href={x.href} prefetch={false} aria-current={x.id === activeRunId ? "page" : undefined} className={rowClass(x.id === activeRunId)}>
                   <span className="min-w-0 truncate">{x.label}</span>
                 </Link>
               </li>

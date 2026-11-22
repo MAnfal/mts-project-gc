@@ -24,6 +24,7 @@ gate_gc_code() {
 # Gate 3: every file under public/examples is free of internal names, and there is one per finished example run.
 gate_examples_scan() { # <dir> <expected example count>
   local dir=$1 expected=$2 files n
+  [ -d "$dir" ] || fail "$dir is missing"
   files=$(find "$dir" -type f | sort)
   n=$(printf '%s\n' "$files" | grep -c '\.json$' || true)
   [ "$n" -eq $((expected + 1)) ] || fail "$dir holds $n JSON files, expected $expected examples + index.json"
@@ -33,7 +34,8 @@ gate_examples_scan() { # <dir> <expected example count>
 
 # Gate 4 (Decision 9): GC code never reads the eval bundle: no import of lib/evals or components/evals, no "/evals" URL.
 gate_gc_reads() {
-  local hits
+  local d hits
+  for d in "$@"; do [ -d "$d" ] || fail "$d is missing"; done
   hits=$(grep -rnE "(lib|components)/evals|[\"'\`]/evals" --exclude='*.test.*' --exclude-dir='__fixtures__' "$@" || true)
   [ -z "$hits" ] || fail "GC code reads the eval bundle:
 $hits"
