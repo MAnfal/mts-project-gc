@@ -48,7 +48,8 @@ Evidence files sit under the scratch directory
 ## Tests
 
 Baseline (base tree, before any change): `pnpm typecheck` exit 0, `pnpm lint` exit 0, `pnpm test` 406 passed
-(`$S/baseline/`). HEAD: 483 passed, typecheck 0 errors, lint 0 problems (`$S/gates-head-1.txt`).
+(`$S/baseline/`). HEAD: 484 passed, typecheck 0 errors, lint 0 problems (`$S/gates-head-final.txt`; 483 in the
+earlier `$S/gates-head-1.txt`, before the area-order test).
 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
@@ -86,7 +87,7 @@ Command (after the last code edit, typecheck last):
 
 | Gate | Command | Result | Fails on base? |
 | ---- | ------- | ------ | -------------- |
-| 1 · 04's gates (03's lint, test, build, typecheck, parity, no-fs-writes, poc/; 04's route, imports, bundle names), 08's typed numbers, eval bundle | first three lines of `gates.sh` | `Tests 483 passed`, `parity: OK`, `no-fs-writes: OK (84 …)`, `chunk 04 gates: OK`, `no-typed-numbers: OK`, `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)` | Passes on base (`$S/gates-base.txt`, 406 tests): it is the regression set, not a chunk-05 assertion. |
+| 1 · 04's gates (03's lint, test, build, typecheck, parity, no-fs-writes, poc/; 04's route, imports, bundle names), 08's typed numbers, eval bundle | first three lines of `gates.sh` | `Tests 484 passed`, `parity: OK`, `no-fs-writes: OK (84 …)`, `chunk 04 gates: OK`, `no-typed-numbers: OK`, `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)` | Passes on base (`$S/gates-base.txt`, 406 tests): it is the regression set, not a chunk-05 assertion. |
 | 2 · `/runs/new` offers `ledgerly`, never `brightside`/`cornercare`/`skyhop` | `gates.sh` Gate 2 | pass | **Yes**: base worktree at `a7fbf1c` with an offline install, exit 1, `FAIL: ledgerly missing from /runs/new` (on base `/runs/new` is 04's run page for id "new", so the preset props are absent). |
 | 3 · no model id, `AI_GATEWAY`, `suggestAreas` in the page or keyless suggest answers; keyless → 503, empty → 400 | `gates.sh` Gate 3 | pass | **Yes**: Gate 3 alone on base, exit 1, `FAIL: no suggestAreas model found in config/app.yaml` (`$S/gates-base-g3.txt`). |
 | 4 · `demo.ts` gone, no `DEMO_RUN` in `src` | `gates.sh` Gate 4 | pass | **Yes**: Gate 4 alone on base, exit 1, `FAIL: src/lib/runs/demo.ts still exists` (`$S/gates-base-g4.txt`). |
@@ -199,3 +200,11 @@ stated, measurable wording). Changes:
 `04-custom-week-error.png`, `05-390px.png` (+ `05-390px-top.png`), `06-picked-hearth.png`, `07-empty-areas.png`,
 `08-saved-profile-listed.png`. All were taken against a keyless `next start` on port 3502, which was stopped
 afterwards.
+
+## Final run
+
+After the report and the ticked plan were committed (commit `Chunk 05: completion report; tasks ticked`), with no
+code change after it: `PORT=3503 bash plans/2026-11-22-demo-build/05-new-run-screen/gates.sh` → exit 0; `Tests 484
+passed`, `parity: OK`, `no-fs-writes: OK (84 non-test source files under src/ scanned)`, `chunk 04 gates: OK`,
+`no-typed-numbers: OK`, `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)`, `tsc --noEmit` last,
+`chunk 05 gates: OK` (`$S/gates-head-final.txt`).
