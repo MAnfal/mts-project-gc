@@ -222,3 +222,23 @@ export const UserViewIndexSchema = z.array(
   }),
 );
 export type UserViewIndex = z.infer<typeof UserViewIndexSchema>;
+
+/**
+ * suites/<id>/runs-index.json and user-view/runs-index.json (chunk 09): one small row per run, so the Runs page
+ * can name and link every run without downloading runs.jsonl.gz. Built by runsIndex() in bundle-build.ts, in
+ * the order of the run records; `setup` and `repeat` are null for example runs that record neither.
+ */
+export const RunsIndexSchema = z.array(
+  z
+    .object({
+      runId: z.string().min(1),
+      setup: z.string().nullable(),
+      profileId: z.string().min(1),
+      window: z.object({ start: z.string(), end: z.string() }).strict(),
+      repeat: z.number().int().nonnegative().nullable(),
+      status: z.enum(["done", "error", "running"]),
+      superseded: z.boolean(),
+    })
+    .strict(),
+);
+export type RunsIndex = z.infer<typeof RunsIndexSchema>;

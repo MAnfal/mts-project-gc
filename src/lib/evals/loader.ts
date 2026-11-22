@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EvalIndexSchema, type EvalIndex } from "./index-schema";
+import { EvalIndexSchema, RunsIndexSchema, type EvalIndex, type RunsIndex } from "./index-schema";
 
 /**
  * Browser-side reader for the static eval bundle in public/evals (layout: plans/2026-11-22-demo-build,
@@ -116,4 +116,76 @@ export type IterationFile = "system.diff" | "config.diff" | "error-analysis.json
 export async function loadIterationFile(id: string, name: IterationFile, opts: LoaderOptions = {}): Promise<string> {
   const res = await get(`${base(opts)}/iterations/${encodeURIComponent(id)}/${name}`, opts);
   return res.text();
+}
+
+// ── Chunk 09: what the Cases, Runs and trace pages read ──
+
+const CountsSchema = z.object({ tp: z.number(), fn: z.number(), trapHit: z.number(), tn: z.number(), unlabeled: z.number() });
+
+/** suites/<id>/report.json: the POC's suiteReport for that suite. Only the per-setup counts and metrics are typed. */
+export const SuiteReportSchema = z.looseObject({
+  setups: z.array(
+    z.looseObject({
+      key: z.string(),
+      label: z.string().optional(),
+      counts: CountsSchema,
+      metrics: z.record(z.string(), z.number().nullable()),
+    }),
+  ),
+});
+export type SuiteReport = z.infer<typeof SuiteReportSchema>;
+
+export async function loadSuiteReport(suiteId: string, opts: LoaderOptions = {}): Promise<SuiteReport> {
+  const res = await get(`${base(opts)}/suites/${encodeURIComponent(suiteId)}/report.json`, opts);
+  return SuiteReportSchema.parse(await res.json());
+}
+
+/** One deterministic check of a run's trace (POC src/lib/trace-checks.ts). */
+export const TraceCheckSchema = z.object({ id: z.string(), label: z.string(), pass: z.boolean(), detail: z.string() });
+export type TraceCheck = z.infer<typeof TraceCheckSchema>;
+const TraceChecksSchema = z.record(z.string(), z.array(TraceCheckSchema));
+
+/**
+ * suites/<id>/trace-checks.json: every run's checks, keyed by run id. Null for the example runs (USER_VIEW),
+ * which record none; nothing is fetched for them.
+ */
+export async function loadTraceChecks(suiteId: string, opts: LoaderOptions = {}): Promise<Record<string, TraceCheck[]> | null> {
+  if (suiteId === USER_VIEW) return null;
+  const res = await get(`${base(opts)}/suites/${encodeURIComponent(suiteId)}/trace-checks.json`, opts);
+  return TraceChecksSchema.parse(await res.json());
+}
+
+/**
+ * config/evalsets/keys/<evalset>.json: which docs should be flagged (`relevant`, with `details`) and which are
+ * look-alikes to skip (`traps`: a list in v1 keys, a map to the reason in v2). Untyped fields pass through.
+ */
+export const AnswerKeySchema = z.looseObject({
+  relevant: z.array(z.string()),
+  details: z.record(z.string(), z.looseObject({ kind: z.enum(["direct", "indirect"]).optional(), reason: z.string().optional() })).optional(),
+  traps: z.union([z.array(z.string()), z.record(z.string(), z.looseObject({ reason: z.string().optional() }))]),
+});
+export type AnswerKeyFile = z.infer<typeof AnswerKeySchema>;
+
+export async function loadAnswerKey(evalsetId: string, opts: LoaderOptions = {}): Promise<AnswerKeyFile> {
+  const res = await get(`${base(opts)}/config/evalsets/keys/${encodeURIComponent(evalsetId)}.json`, opts);
+  return AnswerKeySchema.parse(await res.json());
+}
+
+/** config/evalsets/weeks/<week>.json, the frozen Federal Register input, reduced to what names a rule. */
+const WeekDocsSchema = z.array(z.looseObject({ document_number: z.string(), title: z.string(), type: z.string() }));
+export type WeekDoc = { document_number: string; title: string; type: string };
+
+export async function loadWeekDocs(weekId: string, opts: LoaderOptions = {}): Promise<WeekDoc[]> {
+  const res = await get(`${base(opts)}/config/evalsets/weeks/${encodeURIComponent(weekId)}.json`, opts);
+  return WeekDocsSchema.parse(await res.json()).map(({ document_number, title, type }) => ({ document_number, title, type }));
+}
+
+/**
+ * A suite's run listing (suites/<id>/runs-index.json), or the example runs' (user-view/runs-index.json): one
+ * small row per run, so the Runs page never downloads runs.jsonl.gz.
+ */
+export async function loadRunsIndex(suiteId: string, opts: LoaderOptions = {}): Promise<RunsIndex> {
+  const dir = suiteId === USER_VIEW ? `${base(opts)}/user-view` : `${base(opts)}/suites/${encodeURIComponent(suiteId)}`;
+  const res = await get(`${dir}/runs-index.json`, opts);
+  return RunsIndexSchema.parse(await res.json());
 }

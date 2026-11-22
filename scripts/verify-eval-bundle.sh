@@ -12,9 +12,9 @@
 #     poc are compared after gunzip), user-view/index.json lists all of them;
 #   - iterations: every poc/data/iterations/* dir has iteration.json and byte-identical copies of its files;
 #   - config/: identical to poc/config;
-#   - index.json, iteration.json, user-view/index.json and every report.json: recomputed by the POC's
-#     suiteReport (scripts/build-eval-index.mts --check, under the POC's tsx) from the shipped runs, traces
-#     and keys, and compared byte for byte. That includes index.live, so a figure copied from anywhere else
+#   - index.json, iteration.json, user-view/index.json, every runs-index.json (suites and user-view) and every
+#     report.json: recomputed by the POC's suiteReport (scripts/build-eval-index.mts --check, under the POC's
+#     tsx) from the shipped runs, traces and keys, and compared byte for byte. That includes index.live, so a figure copied from anywhere else
 #     fails here.
 set -uo pipefail
 

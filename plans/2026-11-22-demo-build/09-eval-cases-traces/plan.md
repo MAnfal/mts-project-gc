@@ -129,7 +129,7 @@ text below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/evals/cases.test.ts`: `casesForIteration(suite, iteration, keys)` on a
     **real** shipped suite, using the 06 suite `arena-2026-11-21-22-52-l92`. Assert that
     the power-bank case (`2026-21922`, SkyHop Oct 26–30) is listed as changed, and that
@@ -137,13 +137,13 @@ text below conflicts with these points, these win:
   - ~~`src/lib/evals/grade.test.ts`~~ (no port; amendment 3) — per-setup recall and precision
     equal `report.json` for the same suite.
   - `src/lib/evals/traceIndex.test.ts`: filter and search over a real shipped trace.
-- [ ] T002 — create `src/lib/evals/cases.ts` and `src/lib/evals/traceIndex.ts` (pure), and
+- [x] T002 — create `src/lib/evals/cases.ts` and `src/lib/evals/traceIndex.ts` (pure), and
   ~~`src/lib/evals/grade.ts`~~ (no port; amendment 3).
-- [ ] T003 [P] — create `src/components/evals/CasesTable.tsx` and `RunPanel.tsx`.
-- [ ] T004 [P] — create `src/components/evals/TraceViewer.tsx`. Virtualize with a small
+- [x] T003 [P] — create `src/components/evals/CasesTable.tsx` and `RunPanel.tsx`.
+- [x] T004 [P] — create `src/components/evals/TraceViewer.tsx`. Virtualize with a small
   windowing approach or `@tanstack/react-virtual`; explain the choice. You may reuse
   parts of `git show poc:poc/src/components/TraceTimeline.tsx`.
-- [ ] T005 — create `src/app/evals/cases/page.tsx` and
+- [x] T005 — create `src/app/evals/cases/page.tsx` and
   `src/app/evals/traces/[suiteId]/[runId]/page.tsx`, and add Cases to `EvalSidebar`.
 
 ## Test Plan
@@ -190,9 +190,10 @@ set -e
 bash plans/2026-11-22-demo-build/03-pipeline/gates.sh   # lint, test, build, typecheck, parity, no-fs-writes
 bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh
 bash scripts/verify-eval-bundle.sh
-# no poc/ paths
-! git ls-tree -r --name-only HEAD | grep -q '^poc/'
-! git log --name-only --format= feat/plan--demo-build..HEAD | grep -q '^poc/'
+# no poc/ paths. Explicit counts: `! cmd | grep -q` can never trip set -e (bash exempts negated pipelines).
+a=$(git ls-tree -r --name-only HEAD | grep -c '^poc/' || true)
+b=$(git log --name-only --format= feat/plan--demo-build..HEAD | grep -c '^poc/' || true)
+if [ "$a" -ne 0 ] || [ "$b" -ne 0 ]; then echo "FAIL: poc/ paths (tree $a, history $b)" >&2; exit 1; fi
 ```
 
 Add needles for this chunk's own visible figures (e.g. "177") to `no-typed-numbers.sh`
@@ -204,14 +205,14 @@ revert.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots of Cases (06), the run panel,
+- [x] `completion-report.md`, committed, with screenshots of Cases (06), the run panel,
       the trace viewer filtered to `filter.decision`, and the 390 px width view. Report
       the click count from `/evals` to a raw trace.
 
 ## Artifacts Checklist
 
-- ☐ New tests
+- ☑ New tests
 - — Existing tests: none affected
-- ☐ Docs / conventions updated
+- ☑ Docs / conventions updated
 - — Generated code: n/a
-- ☐ `.claude/resources/project.md` updated (Layout)
+- ☑ `.claude/resources/project.md` updated (Layout)

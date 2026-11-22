@@ -12,10 +12,11 @@ import {
   repeatAgreement,
   requireKeys,
   runCountsOf,
+  runsIndex,
   splitOfEvalset,
   type SetupReport,
 } from "./bundle-build";
-import { METRICS } from "./index-schema";
+import { METRICS, RunsIndexSchema } from "./index-schema";
 
 // Synthetic inputs in the shapes scripts/build-eval-index.mts passes: run records from runs.jsonl.gz /
 // poc runs/*.json, setups.yaml's setups[], and export.mts's manifest.json text.
@@ -299,5 +300,37 @@ describe("bandControl (the setup whose re-runs give the noise band)", () => {
   it("is null when no iteration ran the live setup, or it was compared to nothing", () => {
     expect(bandControl(its, "other")).toBeNull();
     expect(bandControl([{ setup: "live", comparedTo: null }], "live")).toBeNull();
+  });
+});
+
+describe("runsIndex (suites/<id>/runs-index.json and user-view/runs-index.json: one small row per run)", () => {
+  const rec = (id: string, config: Record<string, unknown>, extra: Record<string, unknown> = {}) => ({ id, status: "done", config, ...extra });
+  const cfg = { profileId: "skyhop", windowStart: "2026-10-26", windowEnd: "2026-10-30", cell: "s1", repeatIndex: 2 };
+
+  it("keeps each run's id, setup, company, window, repeat, status and superseded flag, in record order", () => {
+    const rows = runsIndex([rec("b", cfg, { status: "error" }), rec("a", { ...cfg, repeatIndex: 0 }, { superseded: true })]);
+    expect(rows).toEqual([
+      { runId: "b", setup: "s1", profileId: "skyhop", window: { start: "2026-10-26", end: "2026-10-30" }, repeat: 2, status: "error", superseded: false },
+      { runId: "a", setup: "s1", profileId: "skyhop", window: { start: "2026-10-26", end: "2026-10-30" }, repeat: 0, status: "done", superseded: true },
+    ]);
+    expect(RunsIndexSchema.parse(rows)).toEqual(rows);
+  });
+
+  it("leaves setup and repeat null for an example run that records neither", () => {
+    const [row] = runsIndex([rec("u", { profileId: "hearth", windowStart: "2026-11-09", windowEnd: "2026-11-13" })]);
+    expect(row).toMatchObject({ setup: null, repeat: null });
+  });
+
+  it("throws naming the run when it records no company or window", () => {
+    expect(() => runsIndex([rec("r9", { cell: "s1", windowStart: "2026-10-26", windowEnd: "2026-10-30" })])).toThrow("run r9 records no company or window");
+    expect(() => runsIndex([rec("r8", { profileId: "skyhop", windowStart: "2026-10-26" })])).toThrow("run r8 records no company or window");
+  });
+});
+
+describe("RunsIndexSchema", () => {
+  const row = { runId: "r", setup: null, profileId: "p", window: { start: "a", end: "b" }, repeat: null, status: "done", superseded: false };
+  it("rejects an unknown status and an extra field", () => {
+    expect(() => RunsIndexSchema.parse([{ ...row, status: "lost" }])).toThrow();
+    expect(() => RunsIndexSchema.parse([{ ...row, items: [] }])).toThrow();
   });
 });

@@ -15,6 +15,8 @@
 //                                      suiteResults (every setup in every suite), noiseBand, evalSet, counts
 //   iterations/<id>/iteration.json     spec.yaml merged with iteration.yaml (07-next: evidence only)
 //   user-view/index.json               one row per example run, failed ones included
+//   suites/<id>/runs-index.json        one small row per run (id, setup, company, window, repeat, status,
+//   user-view/runs-index.json          superseded), so the Runs page never downloads runs.jsonl.gz (chunk 09)
 // and checks that suites/<id>/report.json equals suiteReport() over that suite's shipped runs.
 //
 // Build mode also takes --poc-data <dir>: any run record on `poc` that export.mts did not put into a suite's
@@ -43,12 +45,13 @@ import {
   repeatAgreement,
   requireKeys,
   runCountsOf,
+  runsIndex,
   splitOfEvalset,
   type AgreementCounts,
   type AnswerKey,
   type SetupReport,
 } from "../src/lib/evals/bundle-build";
-import { EvalIndexSchema, METRICS, SPLITS, UserViewIndexSchema, type EvalIndex, type Split } from "../src/lib/evals/index-schema";
+import { EvalIndexSchema, METRICS, RunsIndexSchema, SPLITS, UserViewIndexSchema, type EvalIndex, type Split } from "../src/lib/evals/index-schema";
 
 // ── Which runs the headline numbers pool ──
 // Live: the live setup (config/experiment.yaml → userView.setup) over both iteration-06 suites: the suite
@@ -231,23 +234,25 @@ function iterationFiles(bundle: string) {
   return out;
 }
 
-function userViewIndex(bundle: string) {
+/** The example runs' records, in file-name order. */
+function userViewRuns(bundle: string): Run[] {
   const dir = path.join(bundle, USER_VIEW_RUNS);
   return fs
     .readdirSync(dir)
     .filter((f) => f.endsWith(".json"))
     .sort()
-    .map((f) => {
-      const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")) as Run;
-      return {
-        id: r.id,
-        profileId: r.config.profileId,
-        window: { start: r.config.windowStart, end: r.config.windowEnd },
-        status: r.status,
-        items: Array.isArray(r.items) ? r.items.length : null,
-        setup: r.config.cell ?? null,
-      };
-    });
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")) as Run);
+}
+
+function userViewIndex(bundle: string) {
+  return userViewRuns(bundle).map((r) => ({
+    id: r.id,
+    profileId: r.config.profileId,
+    window: { start: r.config.windowStart, end: r.config.windowEnd },
+    status: r.status,
+    items: Array.isArray(r.items) ? r.items.length : null,
+    setup: r.config.cell ?? null,
+  }));
 }
 
 async function main() {
@@ -349,6 +354,9 @@ async function main() {
   for (const it of iterations) files.set(`iterations/${it.id}/iteration.json`, json(it.record));
   const uv = UserViewIndexSchema.parse(userViewIndex(bundle));
   files.set("user-view/index.json", json(uv));
+  // Run listings for the Runs page (chunk 09): small enough to load for every suite at once.
+  for (const id of suiteIds) files.set(`suites/${id}/runs-index.json`, json(RunsIndexSchema.parse(runsIndex(runsOf(id)))));
+  files.set("user-view/runs-index.json", json(RunsIndexSchema.parse(runsIndex(userViewRuns(bundle)))));
 
   const index = EvalIndexSchema.parse({
     schemaVersion: 1,

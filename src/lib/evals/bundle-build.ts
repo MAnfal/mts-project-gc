@@ -109,7 +109,10 @@ export type AnswerKey = { relevant: string[]; traps: string[] | Record<string, u
 type Ratio = { numerator: number; denominator: number };
 export type AgreementCounts = { relevance: Ratio; tier: Ratio; runs: number };
 
-const keyedDocs = (k: AnswerKey) => new Set([...k.relevant, ...(Array.isArray(k.traps) ? k.traps : Object.keys(k.traps))]);
+/** An answer key's trap (Skip) doc numbers: v1 keys list them, v2 keys map each to its reason. */
+export const trapIds = (k: AnswerKey): string[] => (Array.isArray(k.traps) ? k.traps : Object.keys(k.traps));
+/** Every doc an answer key labels: relevant (Flag) ∪ traps (Skip). Flags outside this set are not graded. */
+export const keyedDocs = (k: AnswerKey) => new Set([...k.relevant, ...trapIds(k)]);
 
 /**
  * How often a setup's repeats agree with each other, per split and pooled. Runs are grouped by suite (arena)
@@ -190,7 +193,7 @@ export function noiseBand(setup: string, a: AllSplitResult | null, b: AllSplitRe
 /** Rules that matter (relevant) and look-alikes (traps), summed over the answer keys. */
 export function keyTotals(keys: AnswerKey[]): { relevant: number; traps: number } {
   return keys.reduce(
-    (t, k) => ({ relevant: t.relevant + k.relevant.length, traps: t.traps + (Array.isArray(k.traps) ? k.traps.length : Object.keys(k.traps).length) }),
+    (t, k) => ({ relevant: t.relevant + k.relevant.length, traps: t.traps + trapIds(k).length }),
     { relevant: 0, traps: 0 },
   );
 }
@@ -225,4 +228,33 @@ export function requireKeys<K>(evalsetIds: string[], keyOf: (evalset: string) =>
 /** The noise band's control: what the last iteration that ran the live setup was compared to, or null. */
 export function bandControl(iterations: { setup: string | null; comparedTo: string | null }[], liveSetup: string): string | null {
   return iterations.findLast((i) => i.setup === liveSetup)?.comparedTo ?? null;
+}
+
+// ── Run listings (chunk 09) ──
+
+export type ListedRun = {
+  id: string;
+  status: string;
+  superseded?: boolean;
+  config: { profileId?: string; windowStart?: string; windowEnd?: string; cell?: string; repeatIndex?: number };
+};
+
+/**
+ * One row per run for runs-index.json, in record order: the fields the Runs page names a run by. Throws naming
+ * the run when it records no company or window. (The schema in index-schema.ts rejects an unknown status.)
+ */
+export function runsIndex(runs: ListedRun[]) {
+  return runs.map((r) => {
+    const { profileId, windowStart, windowEnd, cell, repeatIndex } = r.config;
+    if (!profileId || !windowStart || !windowEnd) throw new Error(`run ${r.id} records no company or window`);
+    return {
+      runId: r.id,
+      setup: cell ?? null,
+      profileId,
+      window: { start: windowStart, end: windowEnd },
+      repeat: repeatIndex ?? null,
+      status: r.status,
+      superseded: !!r.superseded,
+    };
+  });
 }
