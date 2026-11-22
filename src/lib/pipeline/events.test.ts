@@ -1,9 +1,20 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { assertPublic, STEP_LABELS, stepOf, type RunEvent } from "./events";
+import { assertPublic, assertPublicText, STEP_LABELS, stepOf, type RunEvent } from "./events";
 import { runReplay, type ReplayResult } from "./__fixtures__/replay";
 
 // What the GC must never see: the internal component's name, its model id, or any model vendor id.
 const NEEDLES = ["jev", "typesafe-ai", "claude-", "anthropic/", "openai/", "google/", "moonshotai/"];
+
+describe("assertPublicText", () => {
+  it("refuses any text naming an internal component or model, saying where it was found", () => {
+    expect(() => assertPublicText('{"name":"x","note":"claude-sonnet"}', "example x")).toThrow('Internal name "claude-" in example x');
+    expect(() => assertPublicText("ranked by filter:jev", "file")).toThrow('Internal name "jev" in file');
+  });
+
+  it("lets ordinary text through", () => {
+    expect(() => assertPublicText("A Sarajevo notice about Jevons", "file")).not.toThrow();
+  });
+});
 
 describe("assertPublic", () => {
   const base = { type: "step.retry", step: "rank", attempt: 2, delayMs: 2000 } as const;

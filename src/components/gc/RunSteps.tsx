@@ -1,16 +1,16 @@
-import { CircleCheck, CircleDashed, CircleX, LoaderCircle, RotateCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CircleCheck, CircleDashed, CircleX, LoaderCircle } from "lucide-react";
 import { stepStatusText, type StepView } from "@/lib/runs/reduce";
+import { FailedStep } from "./FailedStep";
 
 /** "466 · 2s": the step's count and how long it took. */
 const doneMeta = (s: StepView) => [s.count, s.ms === null ? null : s.ms < 1000 ? "<1s" : `${Math.round(s.ms / 1000)}s`].filter((x) => x !== null).join(" · ");
 
 /**
  * The run's steps as the Running screen shows them (design/HiRunning.dc.html): done, in progress with its sub-items,
- * waiting, or failed with its message and Retry right under it. `live` is false once the stream is over, so a step
- * that was cut off stops spinning.
+ * waiting, or failed with its message, Retry and Edit settings right under it (FailedStep). Finished steps stay as
+ * they were. `live` is false once the stream is over, so a step that was cut off stops spinning.
  */
-export function RunSteps({ steps, live, onRetry, retrying = false }: { steps: StepView[]; live: boolean; onRetry?: () => void; retrying?: boolean }) {
+export function RunSteps({ steps, live, onRetry, retrying = false, editHref }: { steps: StepView[]; live: boolean; onRetry?: () => void; retrying?: boolean; editHref?: string }) {
   return (
     <ol className="m-0 flex list-none flex-col gap-0.5 p-0">
       {steps.map((s) => (
@@ -38,14 +38,8 @@ export function RunSteps({ steps, live, onRetry, retrying = false }: { steps: St
             </ul>
           ) : null}
           {s.state === "failed" && s.message ? (
-            <div className="ml-[26px] flex flex-col items-start gap-2 rounded-md bg-status-red-surface px-3 py-2.5 text-status-red-fg">
-              <p className="m-0">{s.message}</p>
-              {onRetry ? (
-                <Button onClick={onRetry} disabled={retrying}>
-                  <RotateCw aria-hidden="true" />
-                  {retrying ? "Starting…" : "Retry"}
-                </Button>
-              ) : null}
+            <div className="ml-[26px]">
+              <FailedStep message={s.message} onRetry={onRetry} retrying={retrying} editHref={editHref} />
             </div>
           ) : null}
         </li>

@@ -10,7 +10,7 @@ import { evalsetOfRun, runRows, type RunRow } from "@/lib/evals/runList";
 import { cn } from "@/lib/utils";
 import { iterationNumber } from "./EvalSidebar";
 import { LoadState, useEvalIndex } from "./EvalSummary";
-import { traceHref } from "./RunPanel";
+import { reportHref, traceHref } from "./RunPanel";
 
 type Listing = { id: string; title: string; sub: string; rows: RunRow[] };
 
@@ -88,10 +88,15 @@ function Section({ listing, directory }: { listing: Listing; directory: EvalDire
                 ) : null}
               </span>
             </div>
-            {/* 461 links: no viewport prefetch, or scrolling the list would request a route payload per row. */}
-            <Link href={traceHref(listing.id, r.run.runId)} prefetch={false} className={cn("shrink-0 whitespace-nowrap", r.run.status === "error" && "text-status-red-fg")}>
-              Raw trace
-            </Link>
+            {/* 461 rows: no viewport prefetch, or scrolling the list would request a route payload per link. */}
+            <span className="flex shrink-0 gap-3 whitespace-nowrap">
+              <Link href={reportHref(listing.id, r.run.runId)} prefetch={false}>
+                Report
+              </Link>
+              <Link href={traceHref(listing.id, r.run.runId)} prefetch={false} className={cn(r.run.status === "error" && "text-status-red-fg")}>
+                Raw trace
+              </Link>
+            </span>
           </li>
         ))}
       </ul>
@@ -111,7 +116,7 @@ export function RunsView({ directory }: { directory: EvalDirectory }) {
   return (
     <div className="flex flex-col gap-7">
       <p className="m-0 max-w-[75ch] leading-relaxed text-muted-foreground">
-        {index.counts.runs} runs in {index.counts.suites} suites, and {index.counts.userViewRuns} example runs. Each links to its full trace.
+        {index.counts.runs} runs in {index.counts.suites} suites, and {index.counts.userViewRuns} example runs. Each links to its report and its full trace.
       </p>
       {listings.map((l) => (
         <Section key={l.id} listing={l} directory={directory} />

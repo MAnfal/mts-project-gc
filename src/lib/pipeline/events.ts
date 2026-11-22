@@ -53,24 +53,29 @@ export function stepOf(stage: string, company: string): { step: StepKey; label: 
   return { step: s.step, label: s.label.replaceAll("{company}", company) };
 }
 
-export const TIMEOUT_MESSAGE = "No response after 3 tries. Retry runs this step again with the same settings.";
-export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry runs it again with the same settings.";
+// Retry re-posts the whole run (src/lib/runs/reader.ts), so no copy may promise that only the failed step reruns.
+export const TIMEOUT_MESSAGE = "No response after 3 tries. Retry starts the run again from the beginning, with the same settings.";
+export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings.";
 
 // The component's name as a word or a camelCase part (filter:jev, jevProbability, passedJev, JEV), and id prefixes.
 // Inside an ordinary word it is let through, so a document about Sarajevo or the Jevons paradox still is.
 const INTERNAL = [/(?:\b[jJ]|(?<=[a-z])J)ev(?![a-z])/, /\bJEV\b/, /typesafe-ai/i, /\bclaude-/i, /\banthropic\//i, /\bopenai\//i, /\bgoogle\//i, /\bmoonshotai\//i];
 
-/** Throws if the serialized event names an internal component, its model, or a model vendor. */
-export function assertPublic(event: RunEvent): void {
-  const s = JSON.stringify(event);
+/** Throws if `text` names an internal component, its model, or a model vendor; `where` names it in the message. */
+export function assertPublicText(text: string, where: string): void {
   for (const re of INTERNAL) {
-    const m = s.match(re);
-    if (m) throw new Error(`Internal name "${m[0]}" in public event ${event.type}`);
+    const m = text.match(re);
+    if (m) throw new Error(`Internal name "${m[0]}" in ${where}`);
   }
 }
 
+/** Throws if the serialized event names an internal component, its model, or a model vendor. */
+export function assertPublic(event: RunEvent): void {
+  assertPublicText(JSON.stringify(event), `public event ${event.type}`);
+}
+
 /** Documents the LLM filter rejected, most relevant first (by the relevance score, which is not passed on). */
-export function screenedOut(docs: FrDoc[], decisions: Map<string, FilterDecision>): DocNote[] {
+export function screenedOut(docs: Pick<FrDoc, "document_number" | "title">[], decisions: Map<string, FilterDecision>): DocNote[] {
   return docs
     .map((d, i) => ({ d, i, dec: decisions.get(d.document_number) }))
     .filter((x) => x.dec?.llm && !x.dec.llm.relevant)

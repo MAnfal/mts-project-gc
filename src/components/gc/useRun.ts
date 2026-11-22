@@ -56,6 +56,8 @@ export interface UseRun {
   persistent: boolean;
   /** Starts the same request again; resolves with the new run's id. */
   retry: () => Promise<string | null>;
+  /** "Add after checking": saves a held-back document as confirmed by the GC on this run. */
+  confirm: (documentNumber: string) => Promise<void>;
 }
 
 export function useRun(id: string): UseRun {
@@ -75,7 +77,13 @@ export function useRun(id: string): UseRun {
     const r = await getRunner();
     return (await r.retry(id))?.id ?? null;
   }, [id]);
-  return { ...state, retry };
+  const confirm = useCallback(
+    async (documentNumber: string) => {
+      await (await getRunner()).confirmHeldBack(id, documentNumber);
+    },
+    [id],
+  );
+  return { ...state, retry, confirm };
 }
 
 /** Saved runs, newest first, refreshed whenever a run changes. */

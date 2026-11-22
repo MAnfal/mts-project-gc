@@ -41,11 +41,12 @@ $bad"
 #   - .next/server/app/<route>/page_client-reference-manifest.js: that route's entryJSFiles and every client
 #     module's `chunks` (the file sets globalThis.__RSC_MANIFEST["/<route>/page"]);
 #   - then, transitively, any static/chunks/*.js a listed chunk names (lazy chunks).
-# GC routes: / and /runs/[id], plus /runs/new once it exists. GC_ROUTES overrides the list (used to prove the
-# gate fails on a route that resolves to nothing). It fails if a required route has no manifest, a route lists
-# no chunks, or a listed chunk is missing, so it can't pass by scanning nothing.
+# GC routes: / and /runs/[id], plus /runs/new once it exists, and /examples/[id] (chunk 06: a recorded example run).
+# GC_ROUTES overrides the list (used to prove the gate fails on a route that resolves to nothing). It fails if a
+# required route has no manifest, a route lists no chunks, or a listed chunk is missing, so it can't pass by scanning
+# nothing.
 [ -d .next/static/chunks ] || fail ".next/static/chunks missing: run pnpm build first"
-gc_chunks=$(GC_ROUTES="${GC_ROUTES:-page runs/[id]/page runs/new/page?}" node - <<'JS'
+gc_chunks=$(GC_ROUTES="${GC_ROUTES:-page runs/[id]/page runs/new/page? examples/[id]/page}" node - <<'JS'
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const die = (m) => { console.error(`FAIL: ${m}`); process.exit(1); };
 const files = new Set();

@@ -280,7 +280,7 @@ describe("failing runs", () => {
     vi.stubGlobal("fetch", synFetch([], () => ""));
     const events: RunEvent[] = [];
     await expect(runPipeline(synConfig({ profileId: "no-such-company" }), (e) => events.push(e))).rejects.toBeInstanceOf(RunFailed);
-    expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry runs it again with the same settings." }]);
+    expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings." }]);
   });
 
   it("a failure outside any step (a run.start that would leak) ends with run.failed only, no step.failed", async () => {
@@ -289,7 +289,7 @@ describe("failing runs", () => {
     const events: RunEvent[] = [];
     const customProfile = { ...getCompany("ledgerly"), name: "Jev Labs" };
     await expect(runPipeline(synConfig({ customProfile }), (e) => events.push(e))).rejects.toBeInstanceOf(RunFailed);
-    expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry runs it again with the same settings." }]);
+    expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings." }]);
   });
 
   it("writes the internal trace to the server log only when DEBUG_PIPELINE is set", async () => {
