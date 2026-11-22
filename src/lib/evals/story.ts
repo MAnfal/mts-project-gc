@@ -7,10 +7,10 @@ import { SCOREBOARD_MEASURES, type Verdict } from "./verdict";
  * every number in it stays the recorded one. Pure and client-safe.
  */
 
-/** A share as a percent with at most one decimal: 0.8981 → "89.8%", 1 → "100%". */
 /** "06-passages" → "06": the iteration's number, shown before its label. */
 export const iterationNumber = (id: string) => id.split("-")[0];
 
+/** A share as a percent with at most one decimal: 0.8981 → "89.8%", 1 → "100%". */
 export const formatShare = (v: number) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
 
 /** A difference of shares in percentage points, unsigned: 0.0019 → "0.2 pts". */
