@@ -44,84 +44,173 @@ often as it passes a violation.
 
 ## Test Coverage Checks
 
-- [ ] Unit tests for `casesForIteration(suite, iteration, keys)` in
-      `src/lib/evals/cases.test.ts` on the real shipped iteration-06 suite: a case known to
-      change between the iteration's setup and its `comparedTo` is listed as changed; each
-      case's After and Before equal a direct count over the runs per (case, repeat); a setup
-      with 0 repeats for a week shows "—", not a zero count (constructed input) —
+- [ ] Unit tests for `casesForIteration()` in `src/lib/evals/cases.test.ts`, run on a real
+      shipped iteration suite read from `public/evals`: a case whose hits differ between the
+      iteration's setup and its `comparedTo` setup is listed as changed; every case's After
+      and Before equal a direct count over that suite's runs, one per (case, repeat), with
+      failed and superseded runs handled as the module documents; and the sum of hits and
+      misses over all cases equals the suite's `report.json` per-setup `counts`
+      (`tp`, `fn`, `trapHit`) — `.claude/resources/bibles/swe/testing.md`
+- [ ] `cases.test.ts` covers, with constructed input: a setup with no finished repeat for a
+      company-week shows as "no runs" (not a zero count); two setups with unequal finished
+      repeats for the same case are compared the way the module documents (count or rate),
+      and a test pins that choice — `.claude/resources/bibles/swe/testing.md`
+- [ ] If a grader is ported (`src/lib/evals/grade.ts` or an extension of
+      `src/lib/grade.ts`): its test shows per-setup recall and precision equal to the
+      shipped `report.json` for the same suite —
+      `.claude/resources/bibles/swe/patterns/migration-verification.md`. N/A when no grader
+      is ported and the report shows `report.json` carries no per-case results (its keys
+      listed) and that case counts reproduce its totals
+- [ ] Unit tests for the trace index (filter and search) in
+      `src/lib/evals/traceIndex.test.ts` over a real shipped trace: filtering by event type
+      returns exactly the events of that type; search by document number or a word matches
+      field values, not field names; a trace with 0 events returns an empty result —
       `.claude/resources/bibles/swe/testing.md`
-- [ ] If `src/lib/evals/grade.ts` is ported: `src/lib/evals/grade.test.ts` shows per-setup
-      recall and precision equal to `report.json` for the same suite —
-      `.claude/resources/bibles/swe/patterns/migration-verification.md`. N/A when
-      `report.json` already carries rule-level results and the report shows which keys
-      prove it
-- [ ] Unit tests for filtering and search in `src/lib/evals/traceIndex.test.ts` over a real
-      shipped trace: filter by event type; search by document number or word matches
-      values, not keys; a trace with 0 events returns an empty result
-- [ ] `CasesTable.tsx`, `RunPanel.tsx` and `TraceViewer.tsx` keep selection, counting and
-      filtering logic in the tested pure modules; any logic left in them has a test
+- [ ] Any reader added to `src/lib/evals/loader.ts` (suite JSON, trace checks, answer keys)
+      has a `loader.test.ts` case that serves the real shipped file through the fetch stub
+      and asserts what the caller receives, plus a non-OK response that throws naming the
+      URL — `.claude/resources/bibles/swe/testing.md`
+- [ ] `CasesTable.tsx`, `RunPanel.tsx`, `TraceViewer.tsx` and any run-report adapter keep
+      selection, counting, filtering and shaping logic in tested pure modules under
+      `src/lib/evals/`; any logic left in a component has a test
 - [ ] For each defensive branch in this chunk — a guard, a boundary, a clamp, a
       uniqueness or normalization check — a test exists whose input cannot come from the
       committed fixture. Delete the branch and confirm a named test goes red
+- [ ] Every new `throw` or guard (unknown iteration, iteration with no suite or no
+      `comparedTo`, missing answer key, unknown run id, malformed trace line) has a test
+      that drives it with constructed input, not with shipped data
 
 ## Chunk-Specific Checks
 
-> **Convention Map: empty at generation time.** `.claude/resources/project.md` declared no
-> Convention Map rows when this rubric was generated, so no row matched a file this chunk
-> touches. The checks below are derived from the acceptance criteria, the test plan, the
-> verification gates and the chunk's stated constraints. If the map has rows by the time
-> this chunk is graded, also apply every row whose glob matches a touched file.
+Convention Map rows matched: `src/lib/**/*.ts`
+(`.claude/resources/bibles/swe/testing.md`); `src/components/**/*.tsx` (no doc);
+`src/app/evals/**`, `src/components/evals/**` (`.claude/resources/bibles/swe/testing.md`);
+and, only if the chunk touches them, `public/evals/**`, `scripts/*eval*` (no doc). The
+`project.md` edit is governed by the prompt-engineering bible.
 
-- [ ] `/evals/cases?iteration=<id>` lists the cases whose hit count differs between the
-      iteration's setup and its `comparedTo` setup in that iteration's suite, with columns
-      Rule · company-week (tuning / held-out) | Expected (Flag / Skip) | After | Before |
-      What happened (Fixed / Regressed / Trap / Indirect tag plus the key's short reason)
+### Cases
+
+- [ ] `/evals/cases` with an iteration selected lists the cases whose hits differ between
+      that iteration's setup and its `comparedTo` setup in the iteration's suite, with
+      columns Rule · company-week (tuning / held-out) | Expected (Flag / Skip) | After |
+      Before | What happened (Fixed / Regressed / Trap / Indirect tag plus the answer key's
+      short reason)
+- [ ] `/evals/cases` with no iteration, an unknown iteration, the reference iteration (no
+      `comparedTo`) and an evidence-only iteration each render a defined state — a default
+      iteration or a stated message — never a crash or an empty table with no explanation
 - [ ] The filter buttons ("Changed in <iteration>", "Still missed", "Traps flagged", "All N
       cases") each show a computed count, and no more than 4 choices are visible
-- [ ] The report states where per-case hits come from (`report.json` rule-level results, or
-      a port of the POC grader), with the `report.json` keys inspected
-- [ ] Subset grading is reproduced: flags outside the key are not penalised; the report
-      shows that making the grader penalise them turns `grade.test.ts` or `cases.test.ts`
+- [ ] The report states where per-case hits come from (`report.json` per-case results, or
+      a count over `runs.jsonl.gz` against the answer keys), with the `report.json` keys
+      inspected; no second copy of logic that already exists (`majority`/`Verdict` in
+      `src/lib/grade.ts`, trap normalization and `AnswerKey` in `bundle-build.ts`,
+      `LabelSet` in `src/lib/types.ts`)
+- [ ] Subset grading is reproduced: flags outside the answer key are not counted against
+      precision; the report shows that making the counting penalise them turns a named test
       red, then green after the revert
-- [ ] The run side panel has Run 1 | 2 | 3 tabs; "Why the filter flagged it" from the
-      `filter.decision` reason; the passages read, when the setup used them; trace checks
-      as "All N passed" or the failing ones named; judge verdicts with votes and reasoning
-      collapsed; and "Open this run's report" and "Raw trace · N events" links
-- [ ] `/evals/traces/<suiteId>/<runId>` fetches one gz file, decompresses it in the browser
-      through the loader, shows the trace-check summary first, renders a virtualized list
-      that stays smooth at about 1,000 events, offers event-type filter chips and a search
-      box, and opens any event's JSON on click; the report explains the virtualization
-      choice
-- [ ] A raw trace is reachable from `/evals` in at most 3 clicks, and the report states the
-      count
-- [ ] The run report link renders the run's items, tiers, owners and dates; the report
-      explains whether `ReportView` was reused or a thin eval-side adapter was written
-- [ ] Every eval number shown comes only from data under `public/evals` (read through the
-      loader), is labelled with its split and run count, and none is typed into a
-      component, page or prose template
-- [ ] Internal names (model IDs, component names) are allowed in the eval view; no eval
-      page or component is imported by a GC route
-- [ ] `EvalSidebar` has a working "Cases" entry and keeps every existing entry
-- [ ] No server code this chunk adds or edits writes to the filesystem — no `writeFile`,
-      `appendFile`, `mkdir`, `writeFileSync`, `createWriteStream` or equivalent in any
-      route or module it imports
-- [ ] UI rules hold for every component this chunk adds or edits: colours, radii and
-      shadows come from theme tokens (no raw hex or rgb literal in `.tsx`); interactive
-      elements are real `button`, `a` or `input`/`select`/`textarea` elements, never a
-      clickable `div`; every form control has an associated label; every icon-only button
-      has an `aria-label` naming what it acts on; at 390 px width the page never scrolls
-      sideways (shown in a screenshot or browser check, not inferred from the CSS)
-- [ ] At 390 px, the side panel stacks under the table
-- [ ] No file under `src/components/shell/` is modified — layout is built by composing
-      `AppShell` and `SidebarNav`, not by editing them (`git diff --stat` against the base
-      lists no shell path)
-- [ ] The report includes screenshots (Cases for iteration 06, run panel, trace viewer
-      filtered to one event type, 390 px)
-- [ ] `project.md` Layout gains the new paths
-- [ ] Every line this chunk adds to `.claude/resources/project.md` is true of the tree after
-      the chunk and was measured, not assumed (a version read off disk, a command actually
-      run); each rule lives in one section only; and each added line passes the filtering
-      test — removing it would let a cold reader make a mistake —
+
+### Run panel
+
+- [ ] Selecting a case shows one tab per repeat of the selected setup; "Why the filter
+      flagged it" shows the LLM filter's recorded reason for that document in that run; the
+      passages the filter read, when that run recorded them for that document (as many as
+      were recorded), and nothing when it did not; trace checks as "All N passed" or the
+      failing ones named; judge verdicts with votes and reasoning collapsed, and an explicit
+      "not judged" state for a repeat the panel did not grade; links "Open this run's
+      report" and "Raw trace · N events" with N taken from data
+- [ ] A failed repeat (status not `done`) appears in the tabs with its status, not silently
+      dropped, and its raw trace is still reachable
+
+### Trace viewer
+
+- [ ] `/evals/traces/<suiteId>/<runId>` fetches one gz file and decompresses it in the
+      browser through `loader.ts` (no `res.json()` on a `.gz`, no server read of
+      `public/evals`); the trace-check summary is shown first; event-type filter chips and a
+      search box (document number or word) work; any event's JSON opens on click
+- [ ] The list is virtualized and stays responsive on the largest shipped trace (measured
+      event count stated in the report); the report explains the virtualization choice, and
+      any new dependency is pinned exactly and added to the `project.md` Stack table with
+      the version read from `node_modules`
+- [ ] The trace viewer works for a user-view run (pseudo suite `user-view`), which ships
+      no `trace-checks.json`: the summary states that no checks were recorded rather than
+      erroring
+
+### Run report
+
+- [ ] "Open this run's report" renders the run's items, tiers, owners and dates; the report
+      explains whether an existing report component was reused or a thin eval-side adapter
+      written, and an adapter imports nothing GC-route-only
+
+### Reachability and numbers
+
+- [ ] A reviewer reaches the raw trace of any shipped run in at most 3 clicks from `/evals`
+      (SPEC success metric). The report lists the click path and count for at least: Run 1
+      of a changed case, a later repeat of the same case, a failed repeat, and a run outside
+      the iteration's two setups. A run that needs more than 3 clicks is a FAIL unless the
+      plan records the exception
+- [ ] Every number shown (hits, counts, event counts, check counts, filter counts) is
+      computed from shipped data under `public/evals` read through `loader.ts` and names
+      its denominator, split and suite (tooltip, footnote or column header); none is typed
+      into a component, page or prose template (ORCHESTRATOR Decision 10) —
+      `.claude/resources/bibles/swe/testing.md`
+- [ ] Pure modules imported by client components (`cases.ts`, `traceIndex.ts`, any grader
+      or adapter) import neither `@/lib/config`, `@/lib/config/load`, `node:fs` nor
+      `server-only`; answer keys reach the browser from `public/evals/config/`, not through
+      a server read
+
+### Convention Map rows and project Conventions
+
+- [ ] `src/lib/**/*.ts`: every pure module added has a colocated `*.test.ts` that asserts
+      what a caller receives; no module under `src/lib/` imports React; any module that
+      touches the filesystem or secrets imports `server-only` —
+      `.claude/resources/bibles/swe/testing.md`
+- [ ] `src/components/**/*.tsx` and every page this chunk adds: colours, radii and shadows
+      come from theme tokens (no raw hex, `rgb`/`rgba` literal, or Tailwind palette colour
+      such as `bg-sky-500/15`); interactive elements are real `button`, `a` or
+      `input`/`select`/`textarea` elements, never a clickable `div`; every form control has
+      an associated label; every icon-only button has an `aria-label` naming what it acts
+      on; no file under `src/components/shell/` is modified (`git diff --stat` against the
+      base lists no shell path)
+- [ ] At 390 px width, `/evals/cases` (with a case selected) and the trace viewer never
+      scroll sideways, and the run panel stacks under the table — shown in a screenshot or
+      a browser check of `document.documentElement.scrollWidth`, not inferred from the CSS
+- [ ] `src/app/evals/**`, `src/components/evals/**`: no metric number is typed in a
+      component or page; every number names its split, runs and suite; server pages read
+      YAML only and no server module reads `public/evals` —
+      `.claude/resources/bibles/swe/testing.md`
+- [ ] Any page that reads config calls `await connection()` before reading; props are typed
+      explicitly (no `PageProps`/`LayoutProps` globals); `searchParams`/`params` are awaited
+- [ ] Internal names (Jev, model ids, stage ids) are allowed in the eval view; no eval page
+      or component is imported by a GC route, and the GC sidebar gains no eval link
+- [ ] `EvalSidebar`'s "Cases" entry resolves to a working page and every existing entry
+      still works; the Cases entry is active on `/evals/cases`
+- [ ] No server code this chunk adds or edits writes to the filesystem (gate
+      `bash plans/2026-11-22-demo-build/02-core-libs/no-fs-writes.sh` passes)
+- [ ] No `poc/` path in the HEAD tree (`git ls-tree -r --name-only HEAD | grep '^poc/'` is
+      empty) or in any commit of `feat/plan--demo-build..HEAD`
+      (`git log --name-only --format= feat/plan--demo-build..HEAD | grep '^poc/'` is empty)
+- [ ] If `public/evals/**` or `scripts/*eval*` is touched: the diff comes from re-running
+      `bash scripts/build-eval-bundle.sh`, never a hand edit; a second rebuild leaves
+      `git status` clean (idempotent); `bash scripts/verify-eval-bundle.sh` passes. N/A
+      when neither is touched (`git diff --stat` shows no path there)
+
+### Gates and evidence
+
+- [ ] These pass after the last edit, with output in the report:
+      `bash plans/2026-11-22-demo-build/03-pipeline/gates.sh`,
+      `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh`,
+      `bash scripts/verify-eval-bundle.sh`. If the no-typed-numbers needles were extended
+      for this chunk's figures, the report shows the gate failing on a planted number
+- [ ] Runtime checks (pages render, gz fetch and decompress, 390 px, click counts) were
+      made against a local production server (`pnpm build && pnpm start -p <port ≥ 3101>`),
+      stopped afterwards; no check relies on `next dev` or on a deploy
+- [ ] The report includes screenshots: Cases for one iteration, the run panel, the trace
+      viewer filtered to one event type, and the 390 px view
+- [ ] `project.md` Layout gains the new paths; every line this chunk adds to
+      `.claude/resources/project.md` is true of the tree after the chunk and was measured,
+      not assumed (a version read off disk, a command actually run); each rule lives in one
+      section only; and each added line passes the filtering test — removing it would let a
+      cold reader make a mistake —
       `.claude/resources/bibles/prompt-engineering/conventions/ai-optimized-writing.md`
 
 ## Verdict
