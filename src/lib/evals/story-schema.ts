@@ -68,8 +68,11 @@ export const ModelsStorySchema = z
       .object({
         /** `holds` when the lowest pipeline recall is exactly the other vendor's setups (computed), else `otherwise`. */
         keyBias: z.object({ holds: Prose, otherwise: Prose }).strict(),
+        /** Its date is {{models.priceCheckedOn}}: index.json → priceParity, read from config/setups.yaml's comment. */
         priceParity: Prose,
         tuning: Prose,
+        /** The rationale rests on one suite: its weeks and company-weeks as placeholders. */
+        oneSuite: Prose,
       })
       .strict(),
     /** The judge panel sentence; the judges' model ids are listed after it, from config/judges.yaml. */

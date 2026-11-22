@@ -93,7 +93,7 @@ export function likeForLike(group: ModelGroup): { live: ModelRow; other: ModelRo
 /**
  * The lowest recall (all weeks) among the group's pipeline setups, the comparison set named by `among`. The
  * baseline is left out: it is not a pipeline. `onlyOtherVendor` is true when the lowest setups are exactly the
- * pipeline setups whose model is not from the live model's vendor.
+ * pipeline setups whose model is not from the live model's vendor (`otherVendor`).
  */
 export function lowestRecall(group: ModelGroup, liveVendor = vendorOf(group.rows.find((r) => r.live)?.model ?? "")) {
   const among = group.rows.filter((r) => isPipeline(r) && r.result.recall.all.value !== null);
@@ -101,7 +101,7 @@ export function lowestRecall(group: ModelGroup, liveVendor = vendorOf(group.rows
   const lowest = among.filter((r) => r.result.recall.all.value === min);
   const others = among.filter((r) => vendorOf(r.model) !== liveVendor);
   const onlyOtherVendor = others.length > 0 && lowest.length === others.length && lowest.every((r) => vendorOf(r.model) !== liveVendor);
-  return { among, lowest, onlyOtherVendor };
+  return { among, lowest, otherVendor: others, onlyOtherVendor };
 }
 
 export const COMPARED = ["recall", "precision", "datesRight", "judgePass", "costPerRunUsd", "secondsPerRun"] as const satisfies readonly Metric[];

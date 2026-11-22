@@ -144,6 +144,7 @@ export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalS
     "models.liveSetup": cmp.live.setup,
     "models.livePromptSet": promptOf(cmp.live.promptSet),
     "models.livePromptSetModels": listed(index.setups.filter((s) => promptOf(s.promptSet) === promptOf(cmp.live.promptSet)).map((s) => s.modelLabel)),
+    "models.priceCheckedOn": index.priceParity.checkedOn,
     "judges.count": String(judges.models.length),
     "judges.minAgree": String(judges.minAgree),
   };
@@ -161,6 +162,8 @@ export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalS
   return {
     ...ctx,
     "models.suite": shortSuite(group.suite),
+    "models.suiteWeeks": String(group.weeks.length),
+    "models.suiteEvalsets": String(group.evalsets),
     "models.other": other.modelLabel,
     "models.otherPromptSets": listed(index.setups.filter((s) => s.model === other.model).map((s) => promptOf(s.promptSet))),
     "models.pair.live": live.setup,
@@ -171,6 +174,8 @@ export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalS
     "models.lowest.setups": listed(low.lowest.map((r) => r.setup)),
     "models.lowest.recall": listed(low.lowest.map((r) => formatValue("recall", r.result.recall.all.value))),
     "models.lowest.runs": listed(low.lowest.map((r) => `${r.result.recall.all.runs} runs`)),
+    "models.lowest.count": String(low.lowest.length),
+    "models.otherVendor.count": String(low.otherVendor.length),
   };
 }
 
@@ -186,7 +191,7 @@ export function modelsStory(index: EvalIndex, judges: JudgePanel, story: EvalSto
     intro: fill(m.why.intro),
     points: m.why.points.map(fill),
     closing: fill(m.why.closing),
-    caveats: [fill(keyBias), fill(m.caveats.priceParity), fill(m.caveats.tuning)],
+    caveats: [fill(keyBias), fill(m.caveats.priceParity), fill(m.caveats.tuning), fill(m.caveats.oneSuite)],
     judges: fill(m.judges),
     liveRule: fill(m.liveRule),
   };

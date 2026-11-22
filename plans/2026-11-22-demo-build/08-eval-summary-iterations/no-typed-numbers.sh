@@ -10,7 +10,9 @@
 #   - chunk 10 (Models, suite w0i): the like-for-like pair's recall 97.6 / 85.7 and gap "11.9 pts", precision 48.8 / 50.7,
 #     cost $0.159 / $0.103 and gap $0.056, a typed "<n> runs each", the judge rule typed as "<n> of [the] <n> judges",
 #     and a model label typed with its version (Sonnet 5.5, GPT-6.2 Sol, Gemini 4 Carbon, Opus 5.5): labels come from
-#     index.json setups[].modelLabel and config/judges.yaml.
+#     index.json setups[].modelLabel and config/judges.yaml. Review i1 added the price-parity date typed as a date
+#     (2026-11-21 not followed by "-", so suite ids like arena-2026-11-21-18-40-w0i don't match) and a typed
+#     "<n> weeks, <n> company-weeks" (both come from index.json via placeholders).
 # Finding one in a component, page or config/eval-story.yaml means it was typed rather than read from data.
 # (Bare 20 is not a needle: SVG sizes use it.) config/eval-story.yaml is also guarded by EvalStorySchema.
 # Missing paths are reported and fail the gate, so it can't pass by scanning nothing.
@@ -19,7 +21,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 PATHS=(src/components/evals src/app/evals config/eval-story.yaml)
 for p in "${PATHS[@]}"; do [ -e "$p" ] || { echo "FAIL: $p does not exist" >&2; exit 1; }; done
-NEEDLES='89\.8|81\.5|72\.6|63%|\$0\.52|\b157\b|\b20 rules|\b[0-9]+ changes\b|\b[0-9]+ were kept\b|\b177\b|2,104|\b2104\b|\b439\b|(^|[^-])\b[0-9]/3\b|\b[0-9]+ trace checks\b|97\.6|85\.7|11\.9 pts|48\.8|50\.7|\$0\.159|\$0\.103|\$0\.056|\b[0-9]+ runs each\b|\b[0-9]+ of (the )?[0-9]+ judges\b|Sonnet 5\.5|GPT-6\.2|Gemini 4|Opus 5\.5'
+NEEDLES='89\.8|81\.5|72\.6|63%|\$0\.52|\b157\b|\b20 rules|\b[0-9]+ changes\b|\b[0-9]+ were kept\b|\b177\b|2,104|\b2104\b|\b439\b|(^|[^-])\b[0-9]/3\b|\b[0-9]+ trace checks\b|97\.6|85\.7|11\.9 pts|48\.8|50\.7|\$0\.159|\$0\.103|\$0\.056|\b[0-9]+ runs each\b|\b[0-9]+ of (the )?[0-9]+ judges\b|Sonnet 5\.5|GPT-6\.2|Gemini 4|Opus 5\.5|2026-11-21([^-0-9]|$)|\b[0-9]+ weeks, [0-9]+ company-weeks'
 if grep -rnE "$NEEDLES" "${PATHS[@]}"; then
   echo "FAIL: hard-coded eval number" >&2
   exit 1

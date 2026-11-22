@@ -37,9 +37,13 @@ const STORY: EvalStory = {
       closing: "Rests on these.",
     },
     caveats: {
-      keyBias: { holds: "Only {{models.lowest.setups}} is lowest", otherwise: "Lowest: {{models.lowest.setups}} of {{models.pipeline.count}}" },
-      priceParity: "Parity per the config used for {{models.suite}}.",
+      keyBias: {
+        holds: "Only {{models.lowest.setups}} is lowest ({{models.lowest.count}} at it, {{models.otherVendor.count}} other-vendor)",
+        otherwise: "Lowest: {{models.lowest.setups}} of {{models.pipeline.count}}",
+      },
+      priceParity: "Parity checked {{models.priceCheckedOn}}.",
       tuning: "{{models.livePromptSet}} ran on {{models.livePromptSetModels}}; {{models.other}} ran {{models.otherPromptSets}}.",
+      oneSuite: "Rests on {{models.suite}}: {{models.suiteWeeks}} weeks, {{models.suiteEvalsets}} company-weeks.",
     },
     judges: "{{judges.minAgree}} of {{judges.count}} must agree.",
   },
@@ -137,7 +141,7 @@ describe("modelsContext / modelsStory", () => {
   const build = (rows: [Info, ReturnType<typeof result>][]) =>
     index({
       setups: [info("live", "anthropic/sonnet", "jev+llm", "strict"), ...rows.map(([i]) => i)],
-      suites: [suite("arena-2026-11-21-18-40-su1", 2)],
+      suites: [{ ...suite("arena-2026-11-21-18-40-su1", 2), weeks: [{ id: "w1", split: "dev" as const }, { id: "w2", split: "test" as const }, { id: "w3", split: "test" as const }] }],
       suiteResults: rows.map(([, r]) => r),
       live: result("live"),
     });
@@ -154,7 +158,12 @@ describe("modelsContext / modelsStory", () => {
     expect(v.points).toEqual(["Recall: 90% vs 80%, 10.0 pts higher (18 and 17 runs)"]);
     expect(v.judges).toBe("2 of 3 must agree.");
     expect(modelsStory(pair, { models: ["a/1", "b/2", "c/3", "d/4", "e/5"], minAgree: 3 }, STORY).judges).toBe("3 of 5 must agree.");
-    expect(v.caveats).toEqual(["Only g is lowest", "Parity per the config used for su1.", "strict ran on sonnet; gpt ran default."]);
+    expect(v.caveats).toEqual([
+      "Only g is lowest (1 at it, 1 other-vendor)",
+      "Parity checked 2026-11-21.",
+      "strict ran on sonnet; gpt ran default.",
+      "Rests on su1: 3 weeks, 2 company-weeks.",
+    ]);
   });
 
   it("phrases equal, lower and unmeasured differences, and cost in dollars", () => {
@@ -183,6 +192,20 @@ describe("modelsContext / modelsStory", () => {
       [info("g", "openai/gpt"), at("g", { recall: 0.8 })],
     ]);
     expect(modelsStory(tie, PANEL, STORY).caveats[0]).toBe("Lowest: s of 2");
+  });
+
+  it("counts a tie: two other-vendor setups sharing the lowest recall read as two, not as 'the only one'", () => {
+    const two = build([
+      [info("s", "anthropic/sonnet"), at("s", { recall: 0.9 })],
+      [info("g", "openai/gpt"), at("g", { recall: 0.5 })],
+      [info("g2", "openai/gpt", "llm"), at("g2", { recall: 0.5 })],
+    ]);
+    expect(modelsStory(two, PANEL, STORY).caveats[0]).toBe("Only g and g2 is lowest (2 at it, 2 other-vendor)");
+  });
+
+  it("dates price parity from index.json's priceParity, whatever the suite", () => {
+    const later = { ...pair, priceParity: { checkedOn: "2027-01-05", source: "config/setups.yaml comment" as const } };
+    expect(modelsContext(later, PANEL, STORY)["models.priceCheckedOn"]).toBe("2027-01-05");
   });
 
   it("throws naming a pair placeholder when no suite has a like-for-like pair (nothing to rest the choice on)", () => {

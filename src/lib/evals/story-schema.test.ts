@@ -98,17 +98,18 @@ describe("config/eval-story.yaml → models, filled from the shipped index and c
     ]);
   });
 
-  it("words the key-bias caveat over the pipeline setups only (the baseline's recall is lower still)", () => {
+  it("words the key-bias caveat over the pipeline setups only, with computed counts (the baseline's recall is lower still)", () => {
     expect(view().caveats[0]).toBe(
-      "Possible key bias. The answer keys were drafted by Claude models. Among the 4 pipeline setups in suite w0i, the lowest recall is jev-gpt (85.7%, 18 runs), the only one on a non-Claude model. The single-prompt baseline is not a pipeline and is left out of this ranking; its recall is in the table.",
+      "Possible key bias. The answer keys were drafted by Claude models. Among the 4 pipeline setups in suite w0i, the lowest recall, 85.7% (18 runs), is held by jev-gpt. Pipeline setups at that recall: 1; pipeline setups on a non-Claude model: 1, the same ones. The single-prompt baseline is not a pipeline and is left out of this ranking; its recall is in the table.",
     );
   });
 
-  it("words price parity as the arena config's list price per token, with no date, and the tuning caveat from the setups", () => {
+  it("dates price parity from index.json (read from config/setups.yaml's comment), and words the tuning and one-suite caveats from data", () => {
     expect(view().caveats[1]).toBe(
-      "Price parity. The models were chosen at the same AI Gateway list price per token, per the arena config used for suite w0i. The same price per token is not the same cost per run: the table shows each setup's measured cost.",
+      "Price parity. The arena config (a comment in config/setups.yaml) records that the models were chosen at the same AI Gateway list price per token, checked on 2026-11-21. The same price per token is not the same cost per run: the table shows each setup's measured cost.",
     );
     expect(view().caveats[2]).toBe("Tuned on one model. The live setup's strict prompt ran only on Sonnet 5.5; GPT-6.2 Sol ran only with the default prompt.");
+    expect(view().caveats[3]).toBe("One suite. The rationale above rests on suite w0i alone: 2 weeks, 6 company-weeks.");
   });
 
   it("states the judge rule from judges.yaml and the live-row rule", () => {
