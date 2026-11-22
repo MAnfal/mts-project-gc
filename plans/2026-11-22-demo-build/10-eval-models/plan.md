@@ -174,7 +174,7 @@ Add needles for this page's figures to `no-typed-numbers.sh` and canary them.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with a screenshot, the list of multi-model suites
+- [x] `completion-report.md`, committed, with a screenshot, the list of multi-model suites
       found, and their run counts.
 
 ## Artifacts Checklist
