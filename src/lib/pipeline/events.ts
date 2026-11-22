@@ -75,7 +75,7 @@ export function assertPublic(event: RunEvent): void {
 }
 
 /** Documents the LLM filter rejected, most relevant first (by the relevance score, which is not passed on). */
-export function screenedOut(docs: FrDoc[], decisions: Map<string, FilterDecision>): DocNote[] {
+export function screenedOut(docs: Pick<FrDoc, "document_number" | "title">[], decisions: Map<string, FilterDecision>): DocNote[] {
   return docs
     .map((d, i) => ({ d, i, dec: decisions.get(d.document_number) }))
     .filter((x) => x.dec?.llm && !x.dec.llm.relevant)

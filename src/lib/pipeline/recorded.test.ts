@@ -180,3 +180,13 @@ describe("projectExamples", () => {
     expect(() => projectExamples(listing().filter((r) => r.status !== "done"), read)).toThrow("No finished example run in the listing");
   });
 });
+
+describe("projectRecordedRun: an item with no reason at all", () => {
+  it("gets the neutral reason (the POC writes \"\" when there was neither an LLM verdict nor a score; constructed)", () => {
+    const rec = record("t6m4");
+    const ex = projectRecordedRun({ ...rec, items: rec.items.map((i, n) => (n === 1 ? { ...i, reason: "" } : i)) });
+    const done = doneOf(ex.events);
+    expect(done.items[1].reason).toBe(NEUTRAL_REASON);
+    expect(done.items[0].reason).toBe(rec.items[0].reason);
+  });
+});
