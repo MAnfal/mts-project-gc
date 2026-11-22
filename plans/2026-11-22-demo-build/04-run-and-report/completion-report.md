@@ -21,12 +21,13 @@ Evidence files referenced below live in the session scratch directory
 | `src/lib/runs/reader.ts` (+ test) | created | `readNdjson` (TextDecoder in stream mode). `createRunner({fetch, store, newId, now})` handles start, retry, load and list. The runner owns each stream, so a run keeps streaming across navigation. A stream with no terminal event is saved as `interrupted`, and so is a stale `running` record on load or list. |
 | `src/lib/runs/report.ts` (+ test) | created | Writes, in code from the items: the heading, summary, counts (each from its own list, never by subtraction), sort order, why-tier text, deadline labels, one `mailto:` per owner, and the `.json` download. |
 | `src/lib/runs/sidebar-user.ts` (+ test), `src/lib/runs/demo.ts` | created | The sidebar footer user is the demo preset's general counsel. `DEMO_RUN` is the fixed Ledgerly Nov 2–6 request that `/` starts. |
-| `src/app/api/run/route.ts` (+ test) | created | `POST`: wiring only. `runtime = "nodejs"`, `maxDuration = 300`. The response is `application/x-ndjson; charset=utf-8`, or a 400 in `text/plain`. |
+| `src/app/api/run/route.ts` (+ test) | created | `POST`: wiring only. `runtime = "nodejs"`, `maxDuration = 300`. The response is `application/x-ndjson; charset=utf-8`, a 400 in `text/plain` for a bad body, or a plain-text 500 (no file name) when `app.yaml` or the presets can't be read. |
 | `src/app/api/run/request.ts` (+ test) | created | zod body validation (amendment 3). Preset ids are checked against `presets()`. A custom body is a full `CompanySchema` profile. The window is counted inclusively, ≤ `app.yaml` `maxWindowDays`. Messages are plain. |
 | `src/app/api/run/run-config.ts` (+ test) | created | The server-only RunConfig builder (amendment 1): `experiment().userView.setup` looked up in `setups()` with the POC `cellConfig` expressions, `asOf = windowEnd`, and a custom profile mapped to `"custom"`. |
 | `src/app/api/run/stream.ts` (+ test) | created | NDJSON sink (amendment 4). It never adds to `RunFailed`. Any other error becomes one `run.failed` with `step: null`. There is never a second terminal event, and emit is a no-op after `cancel()`. The open spend-after-disconnect issue is documented in the JSDoc. |
 | `src/components/gc/useRun.ts` | created | One runner per page load (amendment 7). Provides `useRun(id)`, `useRecentRuns()` and `startRun()`. |
 | `src/components/gc/{GcSidebar,RunSteps,ReportView,SourcesPanel,RunView,StartRunButton}.tsx` | created | The screens, built from the hi-fi with theme tokens only. |
+| `src/components/ui/button.tsx` | untouched | `git diff df4549b -- src/components/ui/button.tsx \| wc -l` → `0`. |
 | `src/app/runs/[id]/page.tsx` | created | Server page (amendment 10): `await connection()`, `params` as a Promise, the wordmark and sidebar user from config, then the client `RunView`. |
 | `src/app/page.tsx` | edited | `/` is a server component. It renders `GcSidebar` and a "Run Ledgerly · Nov 2–6" `StartRunButton` that carries the preset snapshot (amendment 11). The chunk 01 placeholder content is gone. |
 | `.claude/resources/project.md` | edited | See "project.md changes" below. |
@@ -47,6 +48,12 @@ Evidence files referenced below live in the session scratch directory
   - the browser imports only types from `events.ts`, enforced by Gate 4;
   - the live-run persistence model: the runner owns streams, the record shape, what `interrupted` means, no
     RunConfig in the browser, and `reduceEvents` as the single source of screen state.
+- **Convention Map.** New row for `src/lib/runs/**/*.ts` and `src/components/gc/**/*.tsx`, naming this chunk's
+  `gates.sh`: browser code imports no server code and only `import type` from `events.ts`; GC-facing copy is derived in
+  `report.ts` with tests; and a new IndexedDB store bumps the version. Chunks 05, 06 and 11 edit these paths, and
+  their rubrics are generated from the map. The no-server-import claim was checked with
+  `grep -rnE "lib/config|server-only|from \"node:|\.\./config" src/lib/runs src/components/gc | grep -v .test.ts`,
+  which found no hits.
 - **Layout.** Added `app/api/run/`, `app/runs/[id]/`, `components/gc/`, `lib/runs/`, and the new `ui/` primitives.
   Replaced the stale "`/` — placeholder" line.
 
@@ -62,9 +69,9 @@ bullets for rules, the "why" stated, paths instead of code dumps, and no duplica
 | A body that fails validation gets a 400 with a plain message and starts no run (unknown profileId, window > maxWindowDays, end < start, custom profile missing summary) | yes | `route.test.ts` › "rejected bodies get a plain 400 and start no run": 8 cases, including brightside, 2026-02-30 and non-JSON. Each asserts a 400, `text/plain`, no `Error` / `.ts:` / `config/` in the body, `runPipeline` calls = 0 (counted by a pass-through mock), and 0 model calls. `request.test.ts` has 25 cases. Gate 2 returns 400 at runtime. |
 | A custom profile in the body is the profile the pipeline runs; the server writes it nowhere | yes | `route.test.ts` › "runs a custom profile from the body": `run.start.company` is the custom name, every decision-model state contains the custom summary, none mentions Ledgerly, and `config/companies` is byte-identical before and after. `no-fs-writes.sh` passes (52 files scanned). |
 | Running: steps done / in progress / waiting with counts and timings; sub-items and a spinner that respects reduced motion; an `aria-live="polite"` status line; skeletons | yes | `reduce.test.ts` › "shows the step in progress with its sub-items so far…". `$S/shots/01-running-desktop.png` and `07-running-390-reduced-motion.png`. `$S/shots/runtime-checks.json`: the live region's HTML; spinner `animationName` is `["spin","spin"]` with no preference and `["none","none"]` with `prefers-reduced-motion: reduce`. |
-| Report: "Worked for Ns" collapsible; heading and summary from items (no LLM); tier badges plus "Held back N"; table Priority / Rule and what to do with numbered chips / Deadline with Verified / Owner; "Why <tier>?"; "Draft email to <owner>" `mailto:`; "N not relevant · see why"; `.md` / `.json` downloads; Sources / Profile panel | yes | `report.test.ts` (21 tests, on the recorded replay items and constructed ones). `$S/shots/02-report-desktop.png` (expanded: steps, why-tier, not relevant), `02b-report-expanded-full.png`, `04-report-390.png`. The mailto `href` was captured in the a11y snapshot; it decodes to the owner's three items. |
-| `run.failed`: the failed step shows its message under it with Retry; Retry starts a new run with the identical saved config | yes | `reduce.test.ts` › "keeps which step failed and its message…". `reader.test.ts` › "posts the stored request unchanged…" (byte-equal body). At runtime, a real click on a keyless server gave `$S/shots/03-failed-retry-desktop.png`, and clicking Retry created a second record with the identical request (`$S/shots/idb-after-retry.json`). |
-| After a reload, "Recent runs" lists finished and failed runs from IndexedDB, and opening one re-renders from stored events with no network | yes | `store.test.ts` › "keeps runs across a reopen". The seeded replay record rendered the full report (`02-report-desktop.png`). The page reads only IndexedDB: `RunView` → `useRun` → `runner.load` → `store`, and no fetch exists on that path (`grep -n "fetch" src/components/gc/*.tsx` → no hits). |
+| Report: "Worked for Ns" collapsible; heading and summary from items (no LLM); tier badges plus "Held back N"; table Priority / Rule and what to do with numbered chips / Deadline with Verified / Owner; "Why <tier>?"; "Draft email to <owner>" `mailto:`; "N not relevant · see why"; `.md` / `.json` downloads; Sources / Profile panel | yes | `report.test.ts` (22 tests, on the recorded replay items and constructed ones). Recorded run: `$S/shots/02-report-desktop.png` (steps, why-tier, not relevant expanded), `02b-report-expanded-full.png`, `04-report-390.png`. Constructed fixture (titles labelled `[Constructed UI fixture]`): Critical / High / Medium tones, a verified deadline cell, Held back 1, an unmatched-citation marker, two "Draft email" buttons and "Why Critical" open in `08-report-constructed-desktop.png`; the Profile tab in `09-report-constructed-profile-tab-full.png`; 390 px in `14-report-constructed-390.png`. Both downloads were clicked with `createObjectURL` and `a.click` intercepted. `$S/shots/downloads.json` was written by the tool's `filePath`: `reg-monitor_ledgerly_2026-11-02_2026-11-06.md` (`text/markdown`, the run's markdown) and `….json` (`application/json`, 3408 bytes, starting with `company`, `windowStart`, …). |
+| `run.failed`: the failed step shows its message under it with Retry; Retry starts a new run with the identical saved config | yes | `reduce.test.ts` › "keeps which step failed and its message…". `reader.test.ts` › "posts the stored request unchanged…" (byte-equal body). At runtime, a real click on a keyless server gave `$S/shots/03-failed-retry-desktop.png`, and clicking Retry created a second record with the identical request (`$S/shots/idb-after-retry.json`, **transcribed** from the `evaluate_script` result). The timeout message under the failed step (`10-failed-timeout-desktop.png`) and the run-level (`step: null`) box (`11-failed-runlevel-desktop.png`) come from seeded records. The live retry line ("trying again (attempt 3 of 3)…") comes from a stubbed stream: `12-running-retrying-desktop.png`. |
+| After a reload, "Recent runs" lists finished and failed runs from IndexedDB, and opening one re-renders from stored events with no network | yes | `store.test.ts` › "keeps runs across a reopen". `reader.test.ts` › "reopens a finished run after a reload from the store alone, with no network call" and the reload-mid-run test both assert the new runner's `fetch` was called 0 times. At runtime, the network list for opening `/runs/seed-constructed-done` (`$S/shots/network-reopen-constructed.txt`, transcribed from `list_network_requests`) shows the document plus Next.js link prefetches for the sidebar links, and no `/api/run` or other data request. |
 | A reload during a run shows it as "Interrupted" with Retry, and the UI says a stream can't resume | yes | `reader.test.ts` › "marks a run left 'running' by a previous page (reload mid-run) as interrupted", and `createRunner: list`. At runtime, a run started by the real button (fetch stubbed to stream 18 replay events and hang) showed "interrupted" plus Retry after the page reloaded (`$S/shots/06-after-reload-390.png`). `05-interrupted-desktop.png` shows a seeded stale record. |
 
 ## Tests
@@ -76,7 +83,14 @@ way, its test went red, and the file was restored by copy (the script asserts by
 `$S/mut/run_mutations.py`. Results: `$S/mut/{lib,api,late}-results.md`.
 
 Green, final, after the last code edit: `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh` → `Test Files 30
-passed (30)`, `Tests 318 passed (318)` (`$S/gates-head.txt`). The baseline was 21 files and 204 tests.
+passed (30)`, `Tests 323 passed (323)` (`$S/gates-head.txt`). The baseline was 21 files and 204 tests.
+
+All mutations were re-run on the final source with the script recording each failure's first assertion lines
+(`$S/mut/final-{lib,api,late,extra}-results.md`). Examples:
+- R1 (progress ignored) → `AssertionError: expected [] to have a length of 12 but got +0`.
+- C7 (filterVotes dropped) → `expected undefined to be 3`.
+- W3 (config catch removed) → `Error: Config error in config/app.yaml: maxWindowDays: …`, thrown out of `POST`.
+- P9 (unverified deadline) → `expected 'Hi Marcus,…' to contain '   Comments due Nov 14, 2026\n'`.
 
 | Contract | Mutation applied | What went red |
 | -------- | ---------------- | ------------- |
@@ -127,8 +141,19 @@ passed (30)`, `Tests 318 passed (318)` (`$S/gates-head.txt`). The baseline was 2
 | route validates before running | body passed straight through | route › 8 × 400 tests |
 | config error stays in-stream | config built before the stream | route › "a server-side config problem" |
 | sidebar user | preferred preset ignored / null guard removed | sidebar-user (1 each) |
+| config unreadable → plain 500 | route's catch removed | route › "a config file the validation needs can't be read" |
+| unverified deadline not called verified | always "(verified…)" | report › "doesn't call an unverified deadline verified" |
+| filterVotes carried | spread removed | run-config › "carries filterVotes only when…" |
+| a response with no body | `!res.body` removed | **stayed green.** Without the check, `readNdjson(null)` throws inside the same `try`, so the run still ends `interrupted`. The check is there for type narrowing; the outcome is covered by reader › "the response has no body". |
 
-All 52 mutations (27 in `src/lib/runs`, 21 in `src/app/api/run`, 4 late ones for `runner.list` and `sidebarUser`) went red; none stayed green or failed to apply.
+56 mutations in total: 27 in `src/lib/runs`, 21 in `src/app/api/run`, 4 for `runner.list` and `sidebarUser`, and 4 added
+after review. 55 went red. One stayed green, for the reason given in its row (D11). None failed to apply.
+
+Branches with no red test, deliberately:
+- `run-config.ts`'s `??` fallbacks (`m.filter ?? jev?.filter ?? "jev+llm"` and the like) are the POC `cellConfig`
+  expressions, ported unchanged so the decision path matches. Every real pipeline method sets these fields.
+- `onupgradeneeded` now creates the v1 store unconditionally. The old `contains()` check could not run at version 1 and
+  was removed. A chunk that adds a store must bump the version and guard, as the new Convention Map row says.
 
 ## Gates
 
@@ -138,14 +163,14 @@ after the last code edit: exit 0, ending `chunk 04 gates: OK` (`$S/gates-head.tx
 
 | Gate | Result on HEAD | Fails on base? |
 | ---- | -------------- | -------------- |
-| 1 · 03 `gates.sh` (lint, test, build, typecheck, parity, no-fs-writes, poc/ on HEAD) | OK: 318 tests, `parity: OK`, `no-fs-writes: OK (52 files)` | Passes on base (`$S/gates-base.txt`, 204 tests). It is the regression set, not a chunk-04 assertion. |
+| 1 · 03 `gates.sh` (lint, test, build, typecheck, parity, no-fs-writes, poc/ on HEAD) | OK: 323 tests, `parity: OK`, `no-fs-writes: OK (52 files)` | Passes on base (`$S/gates-base.txt`, 204 tests). It is the regression set, not a chunk-04 assertion. |
 | 2 · 30-day window → 400 (port 3401, `next start` directly so `kill` reaches the server) | `400`, `Pick a window of at most 7 days.` | **Yes**, on a detached worktree of `df4549b` with a fresh offline install: exit 1, `FAIL: 30-day window not rejected (404)`. The failure text differs from HEAD's pass for the right reason: the route is absent. |
 | 3 · no `poc/` in the HEAD tree or in `feat/plan--demo-build..HEAD` | OK | Base passes (vacuous), so each needle got a four-step canary in the base worktree (`$S/canaries.txt`). A committed `poc/canary.txt` gave `FAIL: poc/ path in HEAD tree`; reset gave OK. Added then deleted (tree clean) gave `FAIL: poc/ path in a commit since feat/plan--demo-build`; reset gave OK. |
 | 4 · no value import from `pipeline/events` in GC client code (`src/lib/runs`, `src/components/gc`, `src/app` minus `api/`) | OK | Base exits 1 with `FAIL: src/lib/runs is missing`, which is absence and not discrimination, so canaries were run on HEAD. `import { STEP_LABELS }` appended to `report.ts` gave FAIL naming `report.ts:130`; restoring gave OK. `import { type RunEvent }` (inline form) in `RunSteps.tsx` gave FAIL; restoring gave OK. |
 | 5 · no internal name in `.next/static` | OK | Base passes (vacuous: base has no GC client code). Canary: `var x="filter:jev"` in `.next/static/chunks/zz-canary.js` gave FAIL; removing it gave OK. |
 
 Baseline was captured before any change at `$S/baseline/{types,lint,tests}.txt`: typecheck 0 errors, lint 0 problems,
-204 tests passing. Delta: 0 type errors and 0 lint findings added, and +114 tests (204 → 318), all passing. Port 3401 was
+204 tests passing. Delta: 0 type errors and 0 lint findings added, and +119 tests (204 → 323), all passing. Port 3401 was
 confirmed free after every server stop (`lsof … | wc -l` → 0).
 
 ### Quoted payloads
@@ -154,7 +179,8 @@ confirmed free after every server stop (`lsof … | wc -l` → 0).
 | -------------- | ----------- | ---------- |
 | Keyless monitor pass: status, content-type, event types | `$S/curl-keyless.{meta,headers,ndjson}` | The event list was printed by `node` from the `.ndjson` file, not typed. |
 | 400 body | `$S/curl-400.txt` | `curl -o`; status from `-w`. |
-| IndexedDB after Retry | `$S/shots/idb-after-retry.json` | Returned by `evaluate_script` on the page. The two `request` strings are identical by construction of the query output; the same equality is asserted in `reader.test.ts`. |
+| IndexedDB after Retry | `$S/shots/idb-after-retry.json` | **Transcribed** from the inline `evaluate_script` result. The equality it shows is asserted independently in `reader.test.ts`. |
+| Downloads, no-IndexedDB notice, 390 px check | `$S/shots/{downloads,no-indexeddb,390-constructed-check}.json` | Written by `evaluate_script` with `filePath`, not typed. |
 
 ## How the report was rendered without spending
 
@@ -166,13 +192,21 @@ confirmed free after every server stop (`lsof … | wc -l` → 0).
 - **Report and Interrupted.** I seeded IndexedDB through `evaluate_script` with a record built from `runReplay().events`
   (dumped once to `$S/replay-events.json`) and the Brightside profile snapshot.
 - **Running.** I stubbed `window.fetch` in the page to stream the first 18 replay events and hang, then clicked the real
-  Run button.
+  Run button. The same was done with a constructed head ending in two `step.retry` events (`12-running-retrying-desktop.png`).
+- **Constructed fixtures** (second session, port 3402) were generated by
+  `$S/make-seed2.cjs`: a `done` run with Critical / High / Medium items, a verified deadline, two owners, one held back
+  and one unmatched citation; a `failed` run with `TIMEOUT_MESSAGE` after two retries; and a `failed` run with
+  `step: null`. Every title says `[Constructed UI fixture]`.
+- **Storage unavailable.** The page was loaded with an `initScript` that sets `window.indexedDB` to `undefined`.
+  `$S/shots/no-indexeddb.json` (tool `filePath`) shows `"indexedDB":"undefined"` and the notice text "This browser isn't
+  letting the app save runs…"; see also `13-no-indexeddb-notice.png`.
 
-Screenshots are in `$S/shots/`: `01-running-desktop`, `02-report-desktop`, `02b-report-expanded-full`,
-`03-failed-retry-desktop`, `04-report-390`, `05-interrupted-desktop`, `06-after-reload-390`,
-`07-running-390-reduced-motion`. At 390 px: `innerWidth 390 = scrollWidth 390` on Report and Running, and no element
-outside the table's own scroller passes the right edge (`$S/shots/390-overflow-check.json`). The table keeps the
-hi-fi's `min-width: 680px` inside its own `overflow-x: auto` container (332 / 680).
+Screenshots are in `$S/shots/`: `01`–`07` from the first session, and `08`–`14` from the second. At 390 px the
+constructed report gives `{"innerWidth":390,"scrollWidth":390,"pastRightEdge":[],"tableContainer":[[332,680]]}`
+(`$S/shots/390-constructed-check.json`, written by the tool's `filePath`). The table keeps the hi-fi's
+`min-width: 680px` inside its own `overflow-x: auto` container. Two files are **transcribed**, not tool-written,
+because the first session's tool calls returned output inline: `390-overflow-check.json` (recorded report at 390 px,
+same result) and `runtime-checks.json` (live region HTML, spinner `animationName` values).
 
 ## Judgment calls
 
@@ -188,6 +222,12 @@ hi-fi's `min-width: 680px` inside its own `overflow-x: auto` container (332 / 68
   also 7 and is not used by the route.
 - **The builder rejects a non-pipeline `userView.setup`.** `runPipeline` has no baseline mode, so a baseline setup would
   silently run the pipeline under another setup's name.
+- **An unreadable config gets a plain-text 500, not an in-stream `run.failed`.** The route needs `app.yaml` and
+  `presets()` to validate the body before it can decide to stream at all. Errors after validation (the RunConfig
+  builder, the pipeline) stay in-stream as one `run.failed`. Measured before the fix: the error escaped `POST`
+  (W3's red output). After it, `route.test.ts` asserts the 500 body and that no run started.
+- **Unmatched citations are marked in the table row**, because the summary says "1 citation couldn't be matched and
+  is marked". Before this, only the Sources panel's missing "citation matched" tick said so.
 - **A non-OK response is saved as `interrupted`, and its body is not stored** (amendment 5). The record shape is fixed
   by amendment 2, so the 400 message is not shown to the GC. Chunk 05's form validates the same limits before posting.
 - **The heading noun comes from the doc type** ("3 notices…") when all items share one, and is "items" otherwise. The
