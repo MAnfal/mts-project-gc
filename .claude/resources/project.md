@@ -39,8 +39,9 @@ disk, and run each command before writing it into the table.
 Measured 2026-11-22 by chunk 01 of `2026-11-22-demo-build`: each version below was read from
 `node_modules/<pkg>/package.json`, and `package.json` pins every one exactly (no ranges). The set
 matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `date-fns` the same way
-(read from `node_modules/date-fns/package.json`, same version as the POC's lockfile), and chunk 03 added `p-limit`
-(read from `node_modules/p-limit/package.json`; the POC's lockfile resolves `^7.3.3` to 7.3.3).
+(read from `node_modules/date-fns/package.json`, same version as the POC's lockfile), chunk 03 added `p-limit`
+(read from `node_modules/p-limit/package.json`; the POC's lockfile resolves `^7.3.3` to 7.3.3), and chunk 04 added the
+dev dependency `fake-indexeddb` (read from `node_modules/fake-indexeddb/package.json`).
 
 | Layer | Package | Version |
 | ----- | ------- | ------- |
@@ -50,7 +51,7 @@ matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `
 | Language | `typescript` | 5.9.3 |
 | Styling | `tailwindcss` · `@tailwindcss/turbopack` · `tw-animate-css` | 4.3.3 · 4.3.3 · 1.4.0 |
 | Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
-| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08, `pnpm exec shadcn add`, shadcn 4.23.0) | — |
+| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08); tabs (chunk 04) — all via `pnpm exec shadcn add`, shadcn 4.23.0 | — |
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
@@ -58,6 +59,7 @@ matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `
 | Charts (eval view) | `recharts` (pinned; same version as the POC's `package.json`) | 3.8.0 |
 | Server marker | `server-only` | 0.0.1 |
 | Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
+| IndexedDB in tests (dev only) | `fake-indexeddb` | 6.2.8 |
 
 - **Harness: plain Vercel AI SDK + AI Gateway (Flue/Pi deferred; no sandbox/shell needed).**
   The RFC named Flue, built on Pi. The POC pipeline already runs on the AI SDK, Flue/Pi would
@@ -89,7 +91,7 @@ All commands run from the repository root.
 | Lint | `pnpm lint` (`eslint`) |
 | Unit tests | `pnpm test` (`vitest run`; discovers `src/**/*.test.ts`; `pool: "forks"`, because some tests call `process.chdir`, which worker threads reject) |
 | Build | `pnpm build` (`next build`) |
-| Run a monitor pass | N/A |
+| Run a monitor pass (**spends real Gateway credit, ~$0.24 a run**, `setups.yaml` estUsd of the live setup; needs `pnpm build && pnpm start`) | `curl -sN -X POST localhost:3000/api/run -H 'content-type: application/json' -d '{"profileId":"ledgerly","windowStart":"2026-11-02","windowEnd":"2026-11-06"}'` — streams NDJSON `RunEvent`s ending in `run.done` or `run.failed`. With `AI_GATEWAY_API_KEY=` set empty on `pnpm start` it costs nothing and ends in `run.failed` at the ranking step. |
 | Run the evals | N/A |
 | Rebuild the eval bundle (needs the `poc` branch; writes `public/evals/`) | `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh` |
 | Verify the shipped eval bundle | `bash scripts/verify-eval-bundle.sh` |
@@ -152,6 +154,7 @@ one.
 | `src/app/api/**/route.ts` | `pnpm test`, `pnpm build`, `pnpm typecheck` | Server-only. Request input (query, body) is parsed with zod before use. No secrets or stack traces in responses. Exports only HTTP handlers and segment config (`runtime`, `maxDuration`); helpers live in a sibling module with their own test. | `.claude/resources/bibles/swe/testing.md` |
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
 | `src/lib/pipeline/**/*.ts`, `src/lib/fr.ts`, `src/lib/gateway.ts` | `pnpm test` (incl. `replay.test.ts`), `bash plans/2026-11-22-demo-build/03-pipeline/mutations.sh` | Decision expressions match `poc:poc/src/lib/pipeline/` (any difference is listed as intentional). Every public event is built from named fields, never by spreading an internal object. Every external call goes through `withRetry`; no SDK-level retries. Tests stub models with `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`) and stub `fetch`. | `.claude/resources/bibles/swe/patterns/migration-verification.md` |
+| `src/lib/runs/**/*.ts`, `src/components/gc/**/*.tsx` | `pnpm test`, `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh` | Browser code: no import of `@/lib/config`, a `server-only` module or a Node built-in, and only `import type { … }` from `pipeline/events` (Gate 4). Screen state comes from `reduceEvents`; sentences and counts shown to the GC are derived in `src/lib/runs/report.ts` with tests, not inside components. A new IndexedDB object store bumps the `reg-monitor` version and creates only the stores the old version lacks. | `.claude/resources/bibles/swe/testing.md` |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
 | `src/app/evals/**`, `src/components/evals/**`, `config/eval-story.yaml` | `pnpm test`, `pnpm build`, `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | No metric number is typed in a component, page or the story YAML: numbers come from `index.json` via `loader.ts`, prose numbers via `{{placeholders}}` (`story.ts`) or verbatim quotes (`resolveQuote`). Every number shown names its split, runs and suite (tooltip or footnote). Server pages read YAML only; no server module reads `public/evals`. | `.claude/resources/bibles/swe/testing.md` |
 | `public/evals/**`, `scripts/*eval*`, `scripts/poc-src.sh` | `bash scripts/verify-eval-bundle.sh`, `pnpm build` | `public/evals/` is generated: a diff there comes from re-running `scripts/build-eval-bundle.sh`, never from a hand edit, and the verify gate passes on the result. No `poc/` path is committed. No route or server module imports `public/evals` (it ships as static files). POC grading code runs unmodified from the detached `poc-src` checkout. | — |
@@ -190,6 +193,17 @@ a follow-up.
   intentional non-decision changes, so it is checked by behaviour instead: `src/lib/pipeline/replay.test.ts`
   replays a recorded POC run (`__fixtures__/replay-06*`) and requires every decision, prompt, tier, owner and item
   to match.
+- **The browser imports only types from `src/lib/pipeline/events.ts`** (`import type { … }`, never a value): a value
+  import would bundle `STEP_LABELS`, whose keys and patterns name internal components. Step labels reach the browser in
+  `run.start.steps` and `step.start.label`. Gate 4 of `plans/2026-11-22-demo-build/04-run-and-report/gates.sh` checks
+  `src/lib/runs`, `src/components/gc` and `src/app` (routes under `src/app/api` excepted).
+- **Live runs live in the browser.** `src/lib/runs/reader.ts` (`createRunner`) owns each run's stream, not a component,
+  so a run started on one page keeps streaming after navigation; `src/components/gc/useRun.ts` holds one runner per page
+  load. Every event is appended to the IndexedDB record (`src/lib/runs/store.ts`: database `reg-monitor`, store `runs`,
+  record `{id, createdAt, request, events, status, result, profile}`). A record still `running` that this page isn't
+  streaming was cut off by a reload, so it is marked `interrupted`: it can be retried, never resumed. The record never
+  holds the server's `RunConfig` or decisions (model ids, internal scores). Screen state always comes from
+  `reduceEvents(run.events)` (`src/lib/runs/reduce.ts`), live or reopened.
 - **GC-facing text comes only from `STEP_LABELS` and item fields; `assertPublic` guards every event**
   (`src/lib/pipeline/events.ts`). `RunCtx.emit` runs it on each event, so a leak fails the run instead of reaching
   the browser. Build events from named fields: a `FilterDecision` carries the internal relevance score, and stage
@@ -308,16 +322,22 @@ public/evals/                 GENERATED eval bundle, served as static files (nev
 src/
   app/                        Next.js App Router.
     layout.tsx                Root layout: Inter via next/font, globals.css.
-    page.tsx                  `/` — placeholder in the GC shell; reads config/app.yaml per request.
+    page.tsx                  `/` — GC shell with one "Run Ledgerly · Nov 2–6" button (DEMO_RUN) until chunk 05's form.
+    runs/[id]/page.tsx        One run from this browser's IndexedDB (server page; renders the client RunView).
     evals/page.tsx            `/evals` — eval Summary (reviewer view, separate sidebar; the GC sidebar has no link).
     evals/iterations/[id]/    `/evals/iterations/<id>` — one iteration. Both read YAML per request; the
                               bundle loads client-side.
     globals.css               GC AI theme tokens (the only place raw colour values live).
     api/probe/stream/         Deploy probe: route.ts streams `tick N` lines then `done`;
                               seconds.ts parses ?seconds= (zod, clamped 1–120).
+    api/run/                  POST: one live run as NDJSON RunEvents (maxDuration 300). route.ts wires request.ts
+                              (body validation), run-config.ts (RunConfig from experiment.yaml userView.setup) and
+                              stream.ts (NDJSON sink: exactly one terminal event, no-op after disconnect).
   components/
     shell/                    AppShell (three-pane layout) and SidebarNav parts. Owned by chunk 01.
-    ui/                       shadcn primitives (button, badge, sheet, table, collapsible, tooltip, chart).
+    gc/                       GC screens: GcSidebar (recent runs from IndexedDB), RunView (Running / Report / Failed /
+                              Interrupted), RunSteps, ReportView, SourcesPanel, StartRunButton, useRun (the page's runner).
+    ui/                       shadcn primitives (button, badge, sheet, table, tabs, collapsible, tooltip, chart).
     evals/                    Eval view: EvalSidebar, EvalSummary (+ useEvalIndex), CarlTable, Scoreboard,
                               ProgressChart (Recharts), IterationView, DiffSheet, ErrorAnalysisSheet.
   lib/
@@ -342,6 +362,10 @@ src/
                               bundle-build.ts (pure decisions of scripts/build-eval-index.mts, no fs),
                               verdict.ts · story.ts · chartSeries.ts (pure, client-safe view logic),
                               story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts.
+    runs/                     Browser-side runs, pure and client-safe (no config/fs imports): types.ts (StoredRun,
+                              RunRequest), store.ts (IndexedDB + in-memory fallback), reader.ts (NDJSON reader, runner:
+                              start/retry/load/list), reduce.ts (events → screen state), report.ts (heading, summary,
+                              counts, why-tier, mailto drafts, .json download), sidebar-user.ts, demo.ts (DEMO_RUN).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
