@@ -204,7 +204,7 @@ revert.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots of Cases (06), the run panel,
+- [x] `completion-report.md`, committed, with screenshots of Cases (06), the run panel,
       the trace viewer filtered to `filter.decision`, and the 390 px width view. Report
       the click count from `/evals` to a raw trace.
 
