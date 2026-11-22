@@ -3,9 +3,9 @@
 #
 #   bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh
 #
-# Idempotent: public/evals/ is deleted and regenerated on every run. Never hand-edit it.
-# Each suites/<id>/manifest.json carries export.mts's `exportedAt` timestamp, so those 9 files change on
-# every rebuild; everything else is byte-stable.
+# Idempotent: public/evals/ is deleted and regenerated on every run, and a rebuild from an unchanged `poc`
+# leaves it byte-identical (git status clean). Never hand-edit it. export.mts stamps `exportedAt` on each
+# suites/<id>/manifest.json; the previous manifest is kept when that stamp is the only difference.
 #
 # Steps:
 #   1. A detached checkout of `poc` at <main checkout>/.worktrees/poc-src (created if absent; see
@@ -20,7 +20,8 @@
 #      ones); iterations/ copied verbatim from poc/data/iterations (spec, record, evidence, diffs and config
 #      snapshot).
 #   4. scripts/build-eval-index.mts, under the POC's tsx: keeps any run export.mts skipped (flagged
-#      superseded), writes index.json, iterations/*/iteration.json and user-view/index.json.
+#      superseded), keeps each previous manifest.json whose only change is `exportedAt`, and writes
+#      index.json, iterations/*/iteration.json and user-view/index.json.
 #   5. Nothing in the POC worktree is removed or edited (export.mts replaces only its own data/exports/<id>/).
 #
 # No model is called and nothing is spent: export and grading read recorded runs only, and the POC's
@@ -46,7 +47,12 @@ for a in "${ARENAS[@]}"; do
   (cd "$POC" && "$TSX" scripts/export.mts "$a")
 done
 
-# 3. Assemble.
+# 3. Assemble. Save the current manifests first, so step 4 can keep any whose only change is exportedAt.
+PREV="$(mktemp -d)"
+trap 'rm -rf "$PREV"' EXIT
+for m in "$OUT"/suites/*/manifest.json; do
+  if [ -f "$m" ]; then cp "$m" "$PREV/$(basename "$(dirname "$m")").json"; fi
+done
 rm -rf "$OUT"
 mkdir -p "$OUT/suites" "$OUT/user-view/runs" "$OUT/user-view/traces" "$OUT/iterations"
 
@@ -74,6 +80,6 @@ done
 cp -R "$POC"/data/iterations/. "$OUT/iterations/"
 
 # 4. Derived files, computed by the POC's grading code over what was just assembled.
-"$TSX" "$ROOT/scripts/build-eval-index.mts" --bundle "$OUT" --poc "$POC" --commit "$POC_REF" --poc-data "$POC/data"
+"$TSX" "$ROOT/scripts/build-eval-index.mts" --bundle "$OUT" --poc "$POC" --commit "$POC_REF" --poc-data "$POC/data" --previous-manifests "$PREV"
 
 echo "bundle: $(find "$OUT" -type f | wc -l | tr -d ' ') files, $(du -sm "$OUT" | cut -f1) MB at $OUT"

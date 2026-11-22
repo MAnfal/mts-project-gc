@@ -16,7 +16,10 @@
 // and checks that suites/<id>/report.json equals suiteReport() over that suite's shipped runs.
 //
 // Build mode also takes --poc-data <dir>: any run record on `poc` that export.mts did not put into a suite's
-// runs.jsonl.gz is appended with `superseded: true`, so nothing recorded is dropped.
+// runs.jsonl.gz is appended with `superseded: true`, so nothing recorded is dropped. And
+// --previous-manifests <dir> (<suiteId>.json copies saved before the rebuild): a suite's previous
+// manifest.json is kept when export.mts's `exportedAt` is the only change, so rebuilds are byte-stable.
+// The decisions themselves live in src/lib/evals/bundle-build.ts, tested by vitest.
 //
 // No model is ever called. The POC's gateway module refuses to load without a key, so the key is set to a
 // dummy value: if anything tried to call a model, the call would fail on auth instead of spending money.
@@ -25,6 +28,7 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import YAML from "yaml";
+import { appendSkippedRuns, keepManifest, pickBaselineSetup, poolSetupRuns } from "../src/lib/evals/bundle-build";
 import { EvalIndexSchema, METRICS, UserViewIndexSchema, type EvalIndex, type Metric, type Split } from "../src/lib/evals/index-schema";
 
 // ── Which runs the headline numbers pool ──
@@ -82,8 +86,16 @@ function args() {
   const bundle = val("--bundle");
   const poc = val("--poc");
   const commit = val("--commit");
-  if (!bundle || !poc || !commit) throw new Error("usage: build-eval-index.mts --bundle <dir> --poc <dir> --commit <sha> [--poc-data <dir>] [--check]");
-  return { bundle: path.resolve(bundle), poc: path.resolve(poc), commit, pocData: val("--poc-data"), check: a.includes("--check") };
+  if (!bundle || !poc || !commit)
+    throw new Error("usage: build-eval-index.mts --bundle <dir> --poc <dir> --commit <sha> [--poc-data <dir>] [--previous-manifests <dir>] [--check]");
+  return {
+    bundle: path.resolve(bundle),
+    poc: path.resolve(poc),
+    commit,
+    pocData: val("--poc-data"),
+    previousManifests: val("--previous-manifests"),
+    check: a.includes("--check"),
+  };
 }
 
 const readGzLines = (file: string): Run[] =>
@@ -102,17 +114,15 @@ function keepSkippedRuns(bundle: string, pocData: string, suiteIds: string[]): R
   const added: Record<string, number> = {};
   for (const id of suiteIds) {
     const gz = path.join(bundle, "suites", id, "runs.jsonl.gz");
-    const runs = readGzLines(gz);
-    const have = new Set(runs.map((r) => r.id));
     const dir = path.join(pocData, "evals", id, "runs");
-    const missing = fs
+    const raw = fs
       .readdirSync(dir)
       .filter((f) => f.endsWith(".json"))
       .sort()
-      .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")) as Run)
-      .filter((r) => !have.has(r.id));
-    added[id] = missing.length;
-    if (missing.length) writeGzLines(gz, [...runs, ...missing.map((r) => ({ ...r, superseded: true }))]);
+      .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")) as Run);
+    const { runs, added: n } = appendSkippedRuns(readGzLines(gz), raw);
+    added[id] = n;
+    if (n) writeGzLines(gz, runs);
   }
   return added;
 }
@@ -145,11 +155,7 @@ function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: str
     const id = r.config.evalset ?? sets.find((e) => e.company === r.config.profileId && e.windowStart === r.config.windowStart)?.id;
     return sets.find((e) => e.id === id)?.split;
   };
-  const pooled = suites.flatMap((id) => graded(runsOf(id))).filter((r) => r.config.cell === setup);
-  if (!pooled.length) throw new Error(`no runs of setup ${setup} in ${suites.join(", ")}`);
-  const covered = new Set(pooled.map((r) => r.config.evalset));
-  const uncovered = sets.filter((e) => !covered.has(e.id)).map((e) => e.id);
-  if (uncovered.length) throw new Error(`setup ${setup} in ${suites.join(", ")} misses eval sets: ${uncovered.join(", ")}`);
+  const pooled = poolSetupRuns(setup, suites, (id) => graded(runsOf(id)), sets.map((e) => e.id));
 
   const per = (split: Split) => {
     const runs = split === "all" ? pooled : pooled.filter((r) => splitOf(r) === split);
@@ -235,7 +241,7 @@ function userViewIndex(bundle: string) {
 }
 
 async function main() {
-  const { bundle, poc: pocDir, commit, pocData, check } = args();
+  const { bundle, poc: pocDir, commit, pocData, previousManifests, check } = args();
   const suiteIds = fs
     .readdirSync(path.join(bundle, "suites"))
     .filter((d) => fs.statSync(path.join(bundle, "suites", d)).isDirectory())
@@ -245,6 +251,18 @@ async function main() {
     const added = keepSkippedRuns(bundle, path.resolve(pocData), suiteIds);
     const total = Object.values(added).reduce((a, b) => a + b, 0);
     console.log(`superseded runs kept: ${total}${total ? " " + JSON.stringify(added) : ""}`);
+  }
+  if (!check && previousManifests) {
+    let kept = 0;
+    for (const id of suiteIds) {
+      const prevFile = path.join(previousManifests, `${id}.json`);
+      const file = path.join(bundle, "suites", id, "manifest.json");
+      const next = fs.readFileSync(file, "utf8");
+      const body = keepManifest(fs.existsSync(prevFile) ? fs.readFileSync(prevFile, "utf8") : null, next);
+      if (body !== next) kept++;
+      fs.writeFileSync(file, body);
+    }
+    console.log(`manifest.json kept where only exportedAt changed: ${kept} of ${suiteIds.length}`);
   }
 
   const poc = await loadPoc(pocDir, path.join(bundle, "config"));
@@ -294,8 +312,7 @@ async function main() {
     }
 
   const liveSetup = poc.experiment().userView.setup;
-  const baselines = poc.setups().setups.filter((s) => s.method === "baseline");
-  if (baselines.length !== 1) throw new Error(`expected one baseline setup in setups.yaml, found ${baselines.length}`);
+  const baselineSetup = pickBaselineSetup(poc.setups().setups);
 
   const iterations = iterationFiles(bundle);
   for (const it of iterations) files.set(`iterations/${it.id}/iteration.json`, json(it.record));
@@ -313,7 +330,7 @@ async function main() {
     setups: [...setupInfo.values()],
     iterations: iterations.map((i) => i.summary),
     live: setupResult(poc, liveSetup, LIVE_SUITES, runsOf),
-    baseline: setupResult(poc, baselines[0].id, BASELINE_SUITES, runsOf),
+    baseline: setupResult(poc, baselineSetup, BASELINE_SUITES, runsOf),
     counts: {
       suites: suites.length,
       runs: suites.reduce((a, s) => a + s.runs, 0),

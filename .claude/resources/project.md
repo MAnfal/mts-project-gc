@@ -216,8 +216,10 @@ a follow-up.
 - **The eval bundle is generated: never hand-edit `public/evals/`; rebuild it from `poc`** with
   `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh`. The verify script
   recomputes `index.json` with the POC's `suiteReport` and byte-compares every run, trace and
-  iteration against the `poc` branch, so a hand edit fails it. Each `suites/*/manifest.json` carries
-  `export.mts`'s `exportedAt`, so those 9 files change on every rebuild; nothing else does.
+  iteration against the `poc` branch, so a hand edit fails it. A rebuild from an unchanged `poc`
+  leaves `git status` clean: `export.mts` stamps a fresh `exportedAt` on each `manifest.json`, and
+  the build keeps the committed manifest when that stamp is the only change
+  (`keepManifest` in `src/lib/evals/bundle-build.ts`).
 - **POC code runs only from `<main checkout>/.worktrees/poc-src`**, a detached checkout of `poc` that
   `scripts/poc-src.sh` creates and checks (HEAD equals `poc`, no edits to tracked files). It sits
   outside every chunk worktree, so no `poc/` path can be staged. Run POC scripts with that
@@ -283,8 +285,9 @@ src/
     prompts.ts                Prompt builders that render config/prompts.yaml (POC, verbatim).
     types.ts                  Shared shapes (FrDoc, CompanyProfile, ActionItem, RunRecord, …).
     __fixtures__/             recorded-prompts.json: prompts the POC arena sent (golden prompt parity).
-    evals/                    index-schema.ts (zod contract for public/evals/index.json) and
-                              loader.ts (browser fetch + gunzip reader for the bundle).
+    evals/                    index-schema.ts (zod contract for public/evals/index.json),
+                              loader.ts (browser fetch + gunzip reader for the bundle) and
+                              bundle-build.ts (pure decisions of scripts/build-eval-index.mts, no fs).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
