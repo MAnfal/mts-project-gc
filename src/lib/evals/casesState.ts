@@ -46,7 +46,8 @@ export function casesPageState(
 ): CasesPageView {
   if (requested && (pick.suite || pick.setup)) {
     const st = iterationState(index, requested);
-    return { ...st, note: `Showing iteration ${st.kind === "unknown" ? requested : iterationNumber(requested)}: ?iteration= takes precedence over ?suite= and ?setup=.` };
+    const precedence = "?iteration= takes precedence over ?suite= and ?setup=";
+    return { ...st, note: st.kind === "unknown" ? `${precedence}, so they were ignored.` : `Showing iteration ${iterationNumber(requested)}: ${precedence}.` };
   }
   if (pick.suite) {
     const suite = index.suites.find((s) => s.id === pick.suite);

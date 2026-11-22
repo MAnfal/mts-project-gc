@@ -182,6 +182,19 @@ describe("likeForLike / lowestRecall guards", () => {
     expect(low.onlyOtherVendor).toBe(false);
   });
 
+  it("ranks nothing, and claims nothing, when no pipeline setup has a recall", () => {
+    const idx = build([info("a", SONNET), info("g", GPT)], [result("a", { recall: null }, { suite: ["su1"] }), result("g", { recall: null }, { suite: ["su1"] })]);
+    const low = lowestRecall(modelComparisons(idx).groups[0]);
+    expect(low).toMatchObject({ among: [], lowest: [], onlyOtherVendor: false });
+  });
+
+  it("works on a multi-model suite with no live-model row (no vendor to compare against: no claim)", () => {
+    const idx = build([info("g", GPT), info("m", "google/gem")], [at("g", "su1", 0.4), at("m", "su1", 0.8)]);
+    const low = lowestRecall(modelComparisons(idx).groups[0]);
+    expect(low.lowest.map((r) => r.setup)).toEqual(["g"]);
+    expect(low.onlyOtherVendor).toBe(false);
+  });
+
   it("leaves a setup with no recall out of the ranking", () => {
     const idx = build([info("a", SONNET), info("g", GPT)], [at("a", "su1", 0.9), result("g", { recall: null }, { suite: ["su1"] })]);
     const low = lowestRecall(modelComparisons(idx).groups[0]);

@@ -162,6 +162,11 @@ describe("modelsContext / modelsStory", () => {
     expect(c["models.precision.diff"]).toBe("the same");
     expect(c["models.costPerRunUsd.diff"]).toBe("$0.060 higher");
     expect(c["models.costPerRunUsd.runs"]).toBe("18 and 17 runs");
+    const slow = build([
+      [info("s", "anthropic/sonnet"), at("s", { secondsPerRun: 36.5 })],
+      [info("g", "openai/gpt"), at("g", { secondsPerRun: 39.4 })],
+    ]);
+    expect(modelsContext(slow, PANEL, STORY)["models.secondsPerRun.diff"]).toBe("3 s lower");
     const lower = build([
       [info("s", "anthropic/sonnet"), at("s", { recall: 0.7, judgePass: null })],
       [info("g", "openai/gpt"), at("g", { recall: 0.8 })],

@@ -73,7 +73,11 @@ describe("casesPageState: ?suite=&setup= (the Models page's drill-down)", () => 
       id: "06-passages",
       note: "Showing iteration 06: ?iteration= takes precedence over ?suite= and ?setup=.",
     });
-    expect(casesPageState(index, "99-nope", { suite: W0I, setup: null })).toMatchObject({ kind: "unknown", requested: "99-nope", note: expect.stringContaining("takes precedence") });
+    expect(casesPageState(index, "99-nope", { suite: W0I, setup: null })).toEqual({
+      kind: "unknown",
+      requested: "99-nope",
+      note: "?iteration= takes precedence over ?suite= and ?setup=, so they were ignored.",
+    });
   });
 
   it("gives an unknown suite its own state", () => {
