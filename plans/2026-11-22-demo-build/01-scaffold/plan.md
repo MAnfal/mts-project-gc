@@ -65,25 +65,25 @@ plan's `design/gcai-ui-notes.md`:
 
 ### Tasks
 
-- [ ] T001 — write failing test `src/lib/config/load.test.ts`. It loads a temp
+- [x] T001 — write failing test `src/lib/config/load.test.ts`. It loads a temp
   `app.yaml` fixture with a wrong type and asserts that the thrown message contains the
   file name and the field path. It fails today because no loader exists to reject the
   value. Also test that a valid file returns the typed object.
-- [ ] T002 — scaffold Next.js 16 at the repo root with pnpm, TypeScript, Tailwind 4,
+- [x] T002 — scaffold Next.js 16 at the repo root with pnpm, TypeScript, Tailwind 4,
   ESLint, App Router and the `src/` dir. Then run `pnpm dlx shadcn@latest init` (Base UI
   primitives). Add `vitest`, `zod`, `yaml`, `ai`, `@ai-sdk/gateway` and `lucide-react`.
   Pin exact versions and record them in `project.md` as read from `node_modules`, not
   from the manifest ranges.
-- [ ] T003 — create `src/lib/config/load.ts`: a server-only `readYaml(relPath, schema)`
+- [x] T003 — create `src/lib/config/load.ts`: a server-only `readYaml(relPath, schema)`
   that reads `config/<relPath>` under `process.cwd()`, parses it with `yaml`, validates
   with zod, and throws `Config error in <file>: <path>: <message>`.
   - Reuse: the POC's `yamlFile` in `git show poc:poc/src/lib/config.ts`. Port its shape,
     not its prompt-set AsyncLocalStorage, which chunk 02 handles.
   - It must work on Vercel. Add `outputFileTracingIncludes` for `config/**` in
     `next.config.ts`, so the YAML ships inside the function bundle.
-- [ ] T004 — create `config/app.yaml` (`appName: Reg Monitor`, `maxWindowDays: 7`) and
+- [x] T004 — create `config/app.yaml` (`appName: Reg Monitor`, `maxWindowDays: 7`) and
   its zod schema in `src/lib/config/schemas.ts`. Later chunks add the POC's files beside it.
-- [ ] T005 — edit `src/app/globals.css`: define the GC AI tokens as CSS variables in
+- [x] T005 — edit `src/app/globals.css`: define the GC AI tokens as CSS variables in
   shadcn's variable names. Use these values:
 
   | Variable | Value |
@@ -102,7 +102,7 @@ plan's `design/gcai-ui-notes.md`:
   Also add status pairs (`--status-{red,orange,yellow,green,blue,purple,neutral}-{surface,fg}`),
   shadow tokens and the heading colour `#173c51`. Load Inter via `next/font/google`.
   Light theme only, since GC AI ships light.
-- [ ] T006 [P] — create `src/components/shell/AppShell.tsx`. It takes `sidebar`, `children`
+- [x] T006 [P] — create `src/components/shell/AppShell.tsx`. It takes `sidebar`, `children`
   and an optional `aside` and renders the three-pane layout from
   `design/HiReport.dc.html`:
   - a cream sidebar 220–264 px wide;
@@ -113,18 +113,18 @@ plan's `design/gcai-ui-notes.md`:
   Also create `src/components/shell/SidebarNav.tsx` with the wordmark, nav item (icon +
   label, active state) and section label ("RECENT RUNS" style), styled from the hi-fi.
   This chunk owns these shell files; later chunks compose them and must not edit them.
-- [ ] T007 — edit `src/app/page.tsx`: a placeholder in `AppShell` that shows `appName` read
+- [x] T007 — edit `src/app/page.tsx`: a placeholder in `AppShell` that shows `appName` read
   server-side via `readYaml`, a navy primary button, a status badge from each tone, and a
   link to the probe.
-- [ ] T008 — create `src/app/api/probe/stream/route.ts`:
+- [x] T008 — create `src/app/api/probe/stream/route.ts`:
   - Node runtime, `export const maxDuration = 300` (Vercel Hobby's Fluid compute max is
     300 s; the POC's worst-case run was 87 s).
   - Returns a `ReadableStream` that writes `tick N` once a second for `seconds` (default
     5, clamped 1–120), then `done`.
   - Add a test for the clamp: inputs `0`, `500` and `abc` all become a valid value.
-- [ ] T009 — edit `.gitignore`: keep `.worktrees/` and the existing entries; add `.next/`,
+- [x] T009 — edit `.gitignore`: keep `.worktrees/` and the existing entries; add `.next/`,
   `node_modules/`, `*.tsbuildinfo`, `next-env.d.ts`, `.vercel` and `.env*.local`.
-- [ ] T010 — edit `.claude/resources/project.md`:
+- [x] T010 — edit `.claude/resources/project.md`:
   - **Stack:** the measured versions, plus "Harness: plain Vercel AI SDK + AI Gateway
     (Flue/Pi deferred; no sandbox/shell needed)".
   - **Commands:** fill every row with an exact, run-verified command. Install
@@ -145,7 +145,7 @@ plan's `design/gcai-ui-notes.md`:
     the AI SDK reads natively; the POC used `VERCEL_AI_GATEWAY_API_KEY`. State the chosen
     name, and that it is the variable to set in Vercel.
   - **Layout:** the actual tree.
-- [ ] T011 — edit `CLAUDE.md`: replace "Harness: Flue (https://flueframework.com/), built
+- [x] T011 — edit `CLAUDE.md`: replace "Harness: Flue (https://flueframework.com/), built
   on Pi." with "Harness: plain Vercel AI SDK + AI Gateway (Flue/Pi deferred)". Change
   nothing else.
 
@@ -226,9 +226,9 @@ the gate is broken, not the tree.
 
 ## Deliverables
 
-- [ ] `completion-report.md` in this directory, committed, written from
+- [x] `completion-report.md` in this directory, committed, written from
       `.claude/resources/templates/completion-report.md`
-- [ ] The completion report ends with a **"For the user: Vercel setup"** section:
+- [x] The completion report ends with a **"For the user: Vercel setup"** section:
   - the env var name to set;
   - framework preset Next.js, root `/`, pnpm;
   - two checks on the deployed URL: open `/`, and
@@ -236,8 +236,8 @@ the gate is broken, not the tree.
 
 ## Artifacts Checklist
 
-- ☐ New tests for new behavior
+- ☑ New tests for new behavior
 - — Existing tests updated: none exist on the base
-- ☐ Docs / conventions updated: `project.md`, `CLAUDE.md`
+- ☑ Docs / conventions updated: `project.md`, `CLAUDE.md`
 - — Generated code: n/a
-- ☐ `.claude/resources/project.md` updated (Stack, Commands, Principles, Convention Map, Conventions, Layout)
+- ☑ `.claude/resources/project.md` updated (Stack, Commands, Principles, Convention Map, Conventions, Layout)
