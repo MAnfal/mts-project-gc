@@ -2,13 +2,15 @@
 
 Branch `feat/demo-build--core-libs`, base `9d08486` (tip of `feat/plan--demo-build`). Every log quoted
 below is committed under `evidence/` in this directory, captured by redirecting the command's output
-to that file. Nothing here was typed from memory.
+to that file. Short excerpts are quoted from those files. The scripts that produced them are
+`evidence/mutate.sh` (mutations) and `evidence/config-hash-repro.sh` (hash table, re-runnable). The
+diffs of every ported file against its POC source are in `evidence/poc-diffs/`.
 
 ## What changed
 
 | File | Change | Why |
 | ---- | ------ | --- |
-| `config/**` (32 files) | created | Copied byte-for-byte from `poc:poc/config/` (`git archive poc poc/config \| tar -x` into scratch, then `cp`). Chunk 01's `config/app.yaml` kept. |
+| `config/**` (31 files) | created | Copied byte-for-byte from `poc:poc/config/` (`git archive poc poc/config \| tar -x` into scratch, then `cp`). Chunk 01's `config/app.yaml` kept. |
 | `config/companies/brightside.yaml` | edited | `use: eval` added after `id:`. This is the one deliberate difference from the POC. |
 | `src/lib/__fixtures__/recorded-prompts.json` | created | The POC's golden prompt fixture, byte-identical. |
 | `package.json`, `pnpm-lock.yaml` | edited | `date-fns` 4.4.0, pinned exactly. It is the POC lockfile's version, and `tier.ts` and `verify.ts` import it. |
@@ -40,7 +42,7 @@ to that file. Nothing here was typed from memory.
 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
-| all 9 new/ported files | **Import red** (`evidence/red-01-no-modules.txt`): `Error: Cannot find module './config'`, `'./tier'`, `'./verify'`, `'/src/lib/fr'`, `Cannot find package '@/lib/config'`. This proves only that the modules were absent. | `Test Files 10 passed (10) / Tests 76 passed (76)` (`evidence/gates-final.txt`) |
+| all 8 new/ported test files (5 ported, 3 new) | **Import red** (`evidence/red-01-no-modules.txt`): `Error: Cannot find module './config'`, `'./tier'`, `'./verify'`, `'/src/lib/fr'`, `Cannot find package '@/lib/config'`. This proves only that the modules were absent. | `Test Files 10 passed (10) / Tests 76 passed (76)` (`evidence/gates-final.txt`) |
 | `presets.test.ts` › brightside tags itself `use: eval` | **Wrong-value red**, with the modules implemented and before T008 (`evidence/red-02-before-brightside-edit.txt`): `AssertionError: expected undefined to be 'eval'`. All other 75 tests were green. | pass |
 
 The discriminating reds come from deliberate mutations. `/private/tmp/…/chunk-02/mutate.sh` copies
@@ -111,15 +113,19 @@ files restored with `cp` and `cmp`, never git; the gate is re-run clean after ea
 Baseline captured at base `9d08486` (`evidence/baseline-*.txt`): typecheck, lint and build exit 0
 with no warnings; tests 22/22. The delta: +54 tests, still no lint, type or build diagnostics.
 
-**Runtime check (not a committed gate).** A throwaway route `src/app/api/zz-trace-probe/route.ts`
-imported `@/lib/config`, `@/lib/fr` and `@/lib/prompts`. It was built with `pnpm build`, which
-reported no warnings, so there was no "Dynamic filesystem access" warning. Its
-`route.js.nft.json` traced 32 `config/` files, the 4 frozen weeks among them, and 0 `src/` files.
-It was served with `pnpm start -p 3201` and fetched with `curl`, which returned:
-`{"hash":"a113914a72","presets":["hearth","ledgerly"],"problems":[],"docs":466,"len":1669}`.
-That proves `server-only` resolves under Next and that `process.cwd()/config` holds at runtime.
-This response came from the terminal and was not saved to a file. The route was deleted afterwards
-and the server killed (`port 3201 free`).
+**Runtime check (not a committed gate)**, captured in `evidence/runtime-probe/`. A throwaway route
+(`route.ts.txt`) imported `@/lib/config`, `@/lib/fr` and `@/lib/prompts`.
+
+- **Build.** `pnpm build` exited 0 (`build.exit`, `build.txt`). `nft-summary.txt` records 0
+  warn/"dynamic filesystem" lines. It also records the route's `route.js.nft.json`: 145 files,
+  32 under `config/` (the 31 POC files plus `app.yaml`), 4 frozen weeks, 0 under `src/`.
+- **Response.** Served with `pnpm start -p 3202` and fetched with
+  `curl -o response.json -w '%{http_code} %{time_total}'`. The status was `200` (`response.meta`)
+  and the body was
+  `{"hash":"a113914a72","presets":["hearth","ledgerly"],"problems":[],"docs":466,"len":1669}`.
+
+That shows `server-only` resolves under Next, and that `process.cwd()/config` holds at runtime. The
+route was deleted afterwards and the server killed (`port-after.txt`: `port 3202 free`).
 
 ## Judgment calls
 
@@ -147,17 +153,23 @@ and the server killed (`port 3201 free`).
 - **`configHash(dir?)`** takes an optional directory, defaulting to `config/`. I added it so the
   function can be checked against the POC's `9a0f857741` and unit-tested on a temp copy. The walk and
   what it hashes are unchanged.
+- **`prompts.ts` has no colocated `prompts.test.ts`.** The Convention Map's `src/lib` row asks for
+  one. Its tests are the POC's: the golden-prompt and "renders all 14 templates" tests in
+  `config.test.ts`. I kept the POC's file split so the ported tests stay diffable against their
+  source (`evidence/poc-diffs/config.test.ts.diff`), rather than moving those blocks into a new file.
 - **`defaultEvalset`, `currentPromptSet` and `promptSetNames` are kept.** They are cheap, and the
   plan asked for a port, not a trim. Only what the plan told me to drop was dropped.
 
 ## Deviations from the plan / from the POC source
 
-The POC-source deviations, by file:
+The POC-source deviations, by file. Every hunk in `evidence/poc-diffs/*.diff` falls under one of
+these:
 
 - **`config.ts`**:
   1. `CONFIG_DIR` (with `POC_CONFIG_DIR`) is replaced by the internal, statically scoped `configPath()`.
   2. YAML goes through `readYaml`, so error text becomes `Config error in config/<rel>: …` (it was `config/<rel>: …`).
-  3. The mtime cache moves into `readCached()`.
+  3. The mtime cache moves into `readCached()`. A missing file now reaches the reader's labelled error
+     instead of `statSync`'s raw `ENOENT`. Frozen-week and key JSON is read by `jsonFile()`.
   4. `pinConfig`, `unpinConfig` and the `pinned` flag are dropped. `git grep` over the POC finds callers only in `poc/scripts/prerun.mts` and `poc/scripts/suite.mts`, which are eval-harness scripts that don't ship.
   5. `import "server-only"` is added.
   6. `isPreset`/`presets` are added.

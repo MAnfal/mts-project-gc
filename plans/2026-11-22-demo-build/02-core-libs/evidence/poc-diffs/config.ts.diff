@@ -1,0 +1,168 @@
+diff --git a/dev/fd/12 b/src/lib/config.ts
+index 0000000..295085c 100644
+--- a/dev/fd/12
++++ b/src/lib/config.ts
+@@ -1,17 +1,23 @@
++import "server-only";
+ import { AsyncLocalStorage } from "node:async_hooks";
+ import crypto from "node:crypto";
+ import fs from "node:fs";
+ import path from "node:path";
+-import YAML from "yaml";
+ import { z } from "zod";
++import { readYaml } from "./config/load";
+ import type { CompanyProfile, FrDoc, LabelSet } from "./types";
+ 
+ /**
+- * Everything tunable lives in poc/config/ (YAML for what people edit, JSON for data). This module only
++ * Everything tunable lives in config/ (YAML for what people edit, JSON for data). This module only
+  * reads and validates it; the rest of the code executes it. Files are re-read when they change on disk
+  * (mtime check), so editing a YAML takes effect without a restart.
++ *
++ * Ported from poc:poc/src/lib/config.ts. Schemas and every decision-path function are unchanged; YAML now
++ * loads through readYaml, the directory is always config/ under the working directory, and the eval-suite
++ * pinning (pinConfig/unpinConfig) is gone because nothing in the demo runs a suite.
+  */
+-export const CONFIG_DIR = process.env.POC_CONFIG_DIR ?? path.resolve(process.cwd(), "config");
++// Statically scoped to config/ so the bundler traces that folder only (see readYaml).
++const configPath = (rel = "") => path.join(process.cwd(), "config", rel);
+ 
+ const ISO = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be a quoted YYYY-MM-DD string");
+ const owner = z.object({ name: z.string(), email: z.string() });
+@@ -117,25 +123,29 @@ export type Manifest = z.infer<typeof ManifestSchema>;
+ 
+ // ── file reading with mtime-based cache (edits show up immediately, unchanged files aren't re-parsed) ──
+ const cache = new Map<string, { mtimeMs: number; value: unknown }>();
+-// While pinned (an eval suite is running), files already read are served from memory even if edited on disk,
+-// so a mid-run edit can neither change nor crash the suite. pinConfig() pre-reads every config file.
+-let pinned = false;
+-function readFile<T>(rel: string, parse: (text: string) => T): T {
+-  const p = path.join(CONFIG_DIR, rel);
+-  const hit = cache.get(p);
+-  if (pinned && hit) return hit.value as T;
+-  const { mtimeMs } = fs.statSync(p);
+-  if (hit && hit.mtimeMs === mtimeMs) return hit.value as T;
+-  let value: T;
++function readCached<T>(rel: string, read: () => T): T {
++  const p = configPath(rel);
++  let mtimeMs: number;
+   try {
+-    value = parse(fs.readFileSync(p, "utf8"));
+-  } catch (e) {
+-    throw new Error(`config/${rel}: ${(e as Error).message}`);
++    mtimeMs = fs.statSync(p).mtimeMs;
++  } catch {
++    return read(); // missing file: let the reader throw its "Config error in config/<rel>" message
+   }
++  const hit = cache.get(p);
++  if (hit && hit.mtimeMs === mtimeMs) return hit.value as T;
++  const value = read();
+   cache.set(p, { mtimeMs, value });
+   return value;
+ }
+-const yamlFile = <S extends z.ZodType>(rel: string, schema: S): z.infer<S> => readFile(rel, (t) => schema.parse(YAML.parse(t)));
++const yamlFile = <S extends z.ZodType>(rel: string, schema: S): z.infer<S> => readCached(rel, () => readYaml(rel, schema));
++const jsonFile = <T>(rel: string): T =>
++  readCached(rel, () => {
++    try {
++      return JSON.parse(fs.readFileSync(configPath(rel), "utf8")) as T;
++    } catch (e) {
++      throw new Error(`Config error in config/${rel}: ${(e as Error).message}`);
++    }
++  });
+ 
+ export const experiment = () => yamlFile("experiment.yaml", ExperimentSchema);
+ export const setups = () => yamlFile("setups.yaml", SetupsSchema);
+@@ -150,7 +160,7 @@ export const withPromptSet = <T>(promptSet: string | undefined, fn: () => Promis
+ export const currentPromptSet = () => promptScope.getStore()?.promptSet;
+ 
+ export function promptSetNames(): string[] {
+-  const dir = path.join(CONFIG_DIR, "prompt-sets");
++  const dir = configPath("prompt-sets");
+   return fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".yaml")).map((f) => f.replace(/\.yaml$/, "")).sort() : [];
+ }
+ export const promptSet = (name: string) => yamlFile(`prompt-sets/${name}.yaml`, PromptOverridesSchema);
+@@ -166,7 +176,7 @@ export function prompts(): z.infer<typeof PromptsSchema> {
+ export const manifest = () => yamlFile("evalsets/manifest.yaml", ManifestSchema);
+ 
+ export function companies(): CompanyProfile[] {
+-  const files = fs.readdirSync(path.join(CONFIG_DIR, "companies")).filter((f) => f.endsWith(".yaml")).sort();
++  const files = fs.readdirSync(configPath("companies")).filter((f) => f.endsWith(".yaml")).sort();
+   return files.map((f) => {
+     const c = yamlFile(`companies/${f}`, CompanySchema);
+     if (`${c.id}.yaml` !== f) throw new Error(`config/companies/${f}: id "${c.id}" must match the file name`);
+@@ -180,6 +190,10 @@ export function getCompany(id: string): CompanyProfile {
+   return c;
+ }
+ 
++/** A profile the GC can pick on the new-run screen. Only `use: demo`; eval companies were tuned on, so never offered. */
++export const isPreset = (c: Pick<CompanyProfile, "use">) => c.use === "demo";
++export const presets = (): CompanyProfile[] => companies().filter(isPreset);
++
+ // ── prompts ──
+ /** Fills {{name}} placeholders. Missing or unused variables are errors, so a template and its caller can't drift. */
+ export function render(template: string, vars: Record<string, string | number>): string {
+@@ -201,13 +215,13 @@ const keyFile = (company: string, start: string, end: string) => `evalsets/keys/
+ 
+ /** Frozen week input, or null if this window isn't an eval-set week. */
+ export function frozenWeek(start: string, end: string): FrDoc[] | null {
+-  if (!fs.existsSync(path.join(CONFIG_DIR, weekFile(start, end)))) return null;
+-  return readFile(weekFile(start, end), (t) => JSON.parse(t) as FrDoc[]);
++  if (!fs.existsSync(configPath(weekFile(start, end)))) return null;
++  return jsonFile<FrDoc[]>(weekFile(start, end));
+ }
+ 
+ export function loadKey(company: string, start: string, end: string): LabelSet | null {
+-  if (!fs.existsSync(path.join(CONFIG_DIR, keyFile(company, start, end)))) return null;
+-  return readFile(keyFile(company, start, end), (t) => JSON.parse(t) as LabelSet);
++  if (!fs.existsSync(configPath(keyFile(company, start, end)))) return null;
++  return jsonFile<LabelSet>(keyFile(company, start, end));
+ }
+ 
+ 
+@@ -272,34 +286,23 @@ export function validateAll(): string[] {
+   return problems;
+ }
+ 
+-/** Freeze the current config for the rest of this process (used by eval suites). */
+-export function pinConfig() {
+-  validateAll();
+-  for (const e of evalsets()) {
+-    frozenWeek(e.windowStart, e.windowEnd);
+-    loadKey(e.company, e.windowStart, e.windowEnd);
+-  }
+-  for (const s of promptSetNames()) promptSet(s);
+-  pinned = true;
+-}
+-export function unpinConfig() {
+-  pinned = false;
+-}
+-
+-/** Short hash of every config file except the (large, frozen) week inputs — stamped on each run. */
+-export function configHash(): string {
++/**
++ * Short hash of every config file except the (large, frozen) week inputs — stamped on each run.
++ * `dir` defaults to the app's config/; pass another directory to hash a copy (tests, POC comparison).
++ */
++export function configHash(dir: string = configPath()): string {
+   const h = crypto.createHash("sha256");
+-  const walk = (dir: string) => {
+-    for (const f of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+-      const p = path.join(dir, f.name);
++  const walk = (d: string) => {
++    for (const f of fs.readdirSync(d, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
++      const p = path.join(/*turbopackIgnore: true*/ d, f.name);
+       if (f.isDirectory()) {
+-        if (p !== path.join(CONFIG_DIR, "evalsets")) walk(p);
++        if (p !== path.join(/*turbopackIgnore: true*/ dir, "evalsets")) walk(p);
+       } else if (/\.(ya?ml)$/.test(f.name)) {
+-        h.update(path.relative(CONFIG_DIR, p));
++        h.update(path.relative(dir, p));
+         h.update(fs.readFileSync(p));
+       }
+     }
+   };
+-  walk(CONFIG_DIR);
++  walk(dir);
+   return h.digest("hex").slice(0, 10);
+ }
