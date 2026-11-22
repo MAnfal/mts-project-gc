@@ -62,7 +62,7 @@ Also checked live: unknown setup (`?suite=…l92&setup=jev-gpt`) → "Suite l92 
 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
-| `models.test.ts` (18) | Import error: `Cannot find module './models'` — `$S/red-models-import.txt`. Proves absence only; discrimination is shown by the mutations below. | 18 passed |
+| `models.test.ts` (20) | Import error: `Cannot find module './models'` — `$S/red-models-import.txt`. Proves absence only; discrimination is shown by the mutations below. | 20 passed |
 | `story.test.ts` › modelsContext / modelsStory (4); `story-schema.test.ts` › models (5) | `TypeError: modelsStory is not a function` and `Cannot read properties of undefined (reading 'why')` per test, the rest of each file green — `$S/red-story.txt` | passed |
 | `casesState.test.ts` new (9) | Assertion-level: e.g. `expected { kind: 'iteration', …(6) } to deeply equal { kind: 'setup', …(4) }`, `… { kind: 'unknownSuite' }`, `casesQuery is not a function` — `$S/red-casesState.txt` | 23 passed |
 | `cases.test.ts` drill-down (2) | Never red: no new code in `cases.ts` was needed (the setup filter already existed). Proven by mutation below. | passed |
@@ -76,7 +76,7 @@ Mutations (script `$S/mutate.sh`: copy aside, perl edit, run, copy back, `cmp` r
 | -------- | ---------------- | ------------- |
 | No cross-suite mixing | filter `() => true` (flat, by model) | "one group per multi-model suite", "rows are w0i's setups", "single-model", "report.json" |
 | A pooled result is not a suite's own | `r.suite.includes(s.id)` | "ignores a pooled (multi-suite) result" |
-| Numbers equal report.json | rows chosen by setup key across suites | "leaves a single-model suite out", "never pools suites", … |
+| Numbers equal report.json | each w0i setup takes its *latest* result across suites (`findLast` by setup key) — mutation `latest-result-per-setup` | "each row's numbers equal report.json's…", plus the grouping and ranking tests. (An earlier mutation, `by-setup-not-suite`, only turned constructed tests red, because on the shipped order it picks w0i's own results; it is not counted as evidence for this row.) |
 | Single-model suites excluded | `models.length >= 1` | 4 tests incl. "leaves a single-model suite out" |
 | Live = live *model* | `i.key === live.setup` | "marks the live model's rows", pair, ranking, direction |
 | Guards | delete each throw | "throws when the live setup…", "throws when a suite result names a setup…" |
@@ -88,6 +88,10 @@ Mutations (script `$S/mutate.sh`: copy aside, perl edit, run, copy back, `cmp` r
 | "the same", run phrasing, cost in $ | each broken | the phrasing tests + real-YAML points |
 | Parity date from the suite | typed `"2026-11-22"` | "dates the price-parity check…" |
 | Judge count from config | typed `"3"` | survived at first; added a 5-judge panel assertion → red |
+| Empty ranking makes no claim | drop `others.length > 0` | "ranks nothing, and claims nothing, when no pipeline setup has a recall" |
+| No live-model row in a group | replace the `?? ""` fallback with `!` | "works on a multi-model suite with no live-model row" (TypeError) |
+| Seconds difference phrasing | drop the `secondsPerRun` branch | "phrases equal, lower and unmeasured differences…" (`3 s lower`) |
+| Note when `?iteration=` names nothing | drop the unknown-iteration wording | "lets ?iteration= win over ?suite=, and says so" (full-string assertion) |
 | No pair → loud failure | `cmp.groups[0]` with a fabricated pair | "throws naming a pair placeholder…" |
 | casesState precedence/guards/query | iteration-loses, no unknownSuite, no setup-in-suite check, silent `?setup=`, arrays take first | one named test each |
 | Drill-down counts only that setup | remove the setup filter in both `casesForIteration` and `repeatsOf` | both new `cases.test.ts` drill-down tests |
@@ -101,7 +105,14 @@ Equivalent mutants (survived, reported): removing either one of the two setup fi
 | Amended gate block (plan › Verification Gates) | the block, fed to `bash -s` with `set -e` (05 `gates.sh` on PORT=3701 → 04/03 gates: lint, test, build, typecheck, parity, no-fs-writes, no-poc, route/bundle gates; then 08 no-typed-numbers, verify-eval-bundle, poc/ count) | exit 0; `Tests 644 passed (644)`, build lists `ƒ /evals/models`, `tsc --noEmit` last inside 05's gates, `no-typed-numbers: OK (20 files…)`, `verify-eval-bundle: OK`, `poc/ paths: tree 0, history 0`, `GATE BLOCK: PASS` — `$S/gates-final.txt`, run after the last code edit | **No — it passes on base** (exit 0, `Tests 606 passed`, `GATE BLOCK: PASS`, `$S/gates-base.txt`). The block as written checks regressions, not this chunk's work. Discriminating evidence instead: the new tests on base (18 failures above), and `/evals/models` answering **404** on a base build vs **200** on this branch (`$S/http/base-models.meta`, `$S/http/models.meta`). |
 | New no-typed-numbers needles | `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | OK | Each needle silent on base and on this tree before its canary; 4-step canary per needle (15 strings in a temp `Canary.tsx`, plus one in `eval-story.yaml`): every one "fired / after removal: clean" — `$S/canaries.txt`. |
 
-Baseline (before any change, `$S/baseline/`): typecheck 0 errors, lint 0 problems, tests 46 files / 606 passed. After: 47 files / 644 passed, typecheck and lint clean.
+Baseline (before any change, `$S/baseline/`): typecheck 0 errors, lint 0 problems, tests 46 files / 606 passed. After: 47 files / 646 passed, typecheck and lint clean (final gate run, after the last code edit, `$S/gates-final.txt`).
+
+### Transcript self-check
+
+| Quoted payload | Captured at | Self-check |
+| -------------- | ----------- | ---------- |
+| `/evals/models` on base vs this branch (404 vs 200) | `$S/http/base-models.{html,meta}`, `$S/http/models.{html,meta}` (one `curl -o … -w '%{http_code}'` each) | `diff -q base-models.meta models.meta` exit 1; `diff -q base-models.html models.html` exit 1 (they differ, as claimed) |
+| Page values, drill-down counts, 390 px widths | chrome-devtools snapshots / `evaluate_script` returns during the visual check; screenshots `$S/shot-models-desktop.png`, `$S/shot-models-390.png`, `$S/shot-cases-drilldown-390.png` (all three opened and inspected) | values also asserted by `story-schema.test.ts` / `models.test.ts` on the same data |
 
 ## Judgment calls
 
@@ -109,7 +120,7 @@ Baseline (before any change, `$S/baseline/`): typecheck 0 errors, lint 0 problem
 - **No invented rationale** — the closing line says no recorded decision explains the choice in words; the "why" is only the three computed differences (amendment 9). Precision is stated as lower on Sonnet, because it is.
 - **Key-bias sentence is conditional** on the computed `onlyOtherVendor` (vendor = model id prefix); the baseline is named as outside the ranking (amendment 8).
 - **Highlight** — all rows on the live model's id (amendment 3), baseline-sonnet included, with the rule stated under the table.
-- **Rationale picks the first suite with a like-for-like pair**; with none, `fillTemplate` throws and the page shows the error while still rendering the tables.
+- **Rationale picks the first suite with a like-for-like pair**; with none, `fillTemplate` throws and the page shows the error while still rendering the tables. Observed under `next start`: with `{{models.pair.live}}` changed to `{{models.pair.nope}}` in the YAML (copied aside, restored, `cmp` + `git diff --quiet` clean), the page showed the alert "…Unknown placeholder {{models.pair.nope}}…" with 1 table and the Suite / Single model / Judge panel sections (`$S/shot-models-story-error.png`).
 - **`?setup=` without `?suite=`** opens the live iteration with a note; **`?suite=` without `?setup=`** lists the suite's setups. Repeated or empty params are ignored (`casesQuery`).
 - **Noise band not applied** to w0i (different eval-set size from the live suites).
 - **Judge models shown as ids** from `judges.yaml`: no shipped label source exists for the Opus judge.
@@ -124,5 +135,6 @@ Baseline (before any change, `$S/baseline/`): typecheck 0 errors, lint 0 problem
 
 ## Left alone
 
+- The Models page's prose-error alert reuses `LoadState`, whose prefix reads "The recorded evaluation could not be loaded:" (same as the Summary page's story-mismatch error).
 - Cases footnote "After and Before count finished repeats…" also shows on the single-setup view (no Before column); pre-existing wording shared with the 00 view.
 - `configHash` is `d4bd6b962e` as measured on this branch (base `36599b6308` re-measured to confirm the method); chunk 06's config edits, if any, will move it again at merge.
