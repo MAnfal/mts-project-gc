@@ -172,7 +172,9 @@ a follow-up.
 - **Theme tokens live only in `src/app/globals.css`**, in shadcn's variable names plus `--heading`,
   `--caption`, `--status-{red,orange,yellow,green,blue,purple,neutral}-{surface,fg}` and the
   `--elev-*` shadows. GC AI's radius scale is set explicitly: `rounded-sm` 4 px, `rounded-md` 6 px
-  (buttons, nav rows), `rounded-lg` 12 px (panels), `rounded-xl` 16 px. Light theme only.
+  (buttons, nav rows), `rounded-lg` 12 px (panels), `rounded-xl` 16 px. Light theme only:
+  `@custom-variant dark (&:is(.dark *))` keeps shadcn's `dark:` classes inert (no `.dark` is ever
+  set). Without it Tailwind 4 applies them under `prefers-color-scheme: dark`.
 - **shadcn components** are added with `pnpm exec shadcn add <name>` (`components.json`, style
   `base-nova`, Base UI primitives). `src/components/ui/button.tsx` is adjusted to GC AI's 34 px /
   6 px primary button; re-adding it with `--overwrite` would undo that.

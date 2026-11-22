@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* `dark:` follows a `.dark` class that is never set, so shadcn's dark: utilities stay inert. Without
+   this line Tailwind 4 maps dark: to prefers-color-scheme and the light-only theme breaks in OS dark mode. */
+@custom-variant dark (&:is(.dark *));
+
 /*
  * GC AI's light theme, measured from app.gc.ai (plans/2026-11-22-demo-build/design/gcai-ui-notes.md).
  * Values live here only: components use the token utilities (bg-primary, text-heading,
