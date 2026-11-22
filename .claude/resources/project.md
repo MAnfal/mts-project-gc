@@ -87,6 +87,8 @@ All commands run from the repository root.
 | Build | `pnpm build` (`next build`) |
 | Run a monitor pass | N/A |
 | Run the evals | N/A |
+| Rebuild the eval bundle (needs the `poc` branch; writes `public/evals/`) | `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh` |
+| Verify the shipped eval bundle | `bash scripts/verify-eval-bundle.sh` |
 
 Local production server for runtime checks: `pnpm start -p <port>` after `pnpm build`. Use ports
 3101 and up, and stop the server afterwards.

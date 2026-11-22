@@ -43,7 +43,7 @@ See `SPEC.md` in this directory.
 | 04 | US1 | Not started | — | — |
 | 05 | US1 | Not started | — | — |
 | 06 | US1 | Not started | — | — |
-| 07 | US2 | Not started | — | — |
+| 07 | US2 | Merged | local merge 89e61d3 | — |
 | 08 | US2 | Not started | — | — |
 | 09 | US2 | Not started | — | — |
 | 10 | US2 | Not started | — | — |
@@ -81,6 +81,12 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-22 | review_iteration | 02 | i1 FAIL: untested config.ts defensive branches; no malformed-config test |
 | 2026-11-22 | review_passed | 02 | i2 PASS |
 | 2026-11-23 | pr_merged | 02 | merged --no-ff into feat/plan--demo-build (64e9c4f); plan-tip gates exit 0 |
+| 2026-11-23 | chunk_dispatched | 03 | implementer chunk-03 (cut after 02 merged; plan amended at preflight) |
+| 2026-11-23 | review_iteration | 07 | i1 FAIL: rebuild not idempotent (manifest exportedAt); untested index-script branches |
+| 2026-11-23 | review_passed | 07 | i2 PASS |
+| 2026-11-23 | pr_merged | 07 | merged --no-ff into feat/plan--demo-build (89e61d3); Commands line applied by lead; plan-tip gates exit 0 |
+| 2026-11-23 | wave_merged | 02,07 | Wave 1 |
+| 2026-11-23 | user_checkpoint | 07 | Checkpoint 2 local stand-in: /evals/index.json 200 application/json, trace 200 application/gzip (reviewer-observed); deployed check deferred |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
