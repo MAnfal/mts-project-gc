@@ -37,13 +37,13 @@ See `SPEC.md` in this directory.
 
 | Chunk | Story | Status | PR | Blocker |
 | ----- | ----- | ------ | -- | ------- |
-| 01 | Foundation | Merged | local merge e719139 | — |
-| 02 | US1 | Merged | local merge 64e9c4f | — |
-| 03 | US1 | Not started | — | — |
+| 01 | Foundation | Merged | local merge e719139 (pre-PR rule; branch pushed) | — |
+| 02 | US1 | Merged | (pre-PR rule; branch pushed) local merge 64e9c4f | — |
+| 03 | US1 | Merged | [#1](https://github.com/MAnfal/mts-project-gc/pull/1) | — |
 | 04 | US1 | Not started | — | — |
 | 05 | US1 | Not started | — | — |
 | 06 | US1 | Not started | — | — |
-| 07 | US2 | Merged | local merge 89e61d3 | — |
+| 07 | US2 | Merged | local merge 89e61d3 (pre-PR rule; branch pushed) | — |
 | 08 | US2 | Not started | — | — |
 | 09 | US2 | Not started | — | — |
 | 10 | US2 | Not started | — | — |
@@ -87,6 +87,11 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | pr_merged | 07 | merged --no-ff into feat/plan--demo-build (89e61d3); Commands line applied by lead; plan-tip gates exit 0 |
 | 2026-11-23 | wave_merged | 02,07 | Wave 1 |
 | 2026-11-23 | user_checkpoint | 07 | Checkpoint 2 local stand-in: /evals/index.json 200 application/json, trace 200 application/gzip (reviewer-observed); deployed check deferred |
+| 2026-11-23 | user_checkpoint | — | User: every chunk lands via a GitHub PR into the plan branch, merged by the lead |
+| 2026-11-23 | wave_started | 08 | chunk 08 dispatched (depends on 07 only; plan amended at preflight) |
+| 2026-11-23 | review_passed | 03 | i1 PASS (one comment-only follow-up) |
+| 2026-11-23 | pr_created | 03 | #1 |
+| 2026-11-23 | pr_merged | 03 | #1 → 846328b; plan-tip gates exit 0 |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,

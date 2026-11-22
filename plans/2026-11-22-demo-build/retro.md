@@ -115,6 +115,20 @@ Every one of these is a candidate for `.claude/resources/project.md`.
 - Parallel-wave merge: `project.md` Layout conflicted between 02 and 07. Resolved by
   keeping both blocks (lead).
 
+### Chunk 03 — Pipeline
+
+- Preflight paid off. A rubric-regeneration agent read the POC sources and found that the
+  plan's parity mutation targeted the wrong file (the relevance cut is in `run.ts`, not
+  `stages.ts`), and that the replay could not run offline without captured
+  FR/govinfo text. Amending before dispatch turned a likely 2-iteration chunk into
+  1 iteration. Pattern worth keeping: rubric regen doubles as a source-reading preflight.
+- Cross-chunk edit: 03 edited 02's `fr.ts`, because the POC's fetchers swallow errors so
+  retries had to go inside. The reviewer confirmed it is not a decision change.
+- Deferred risk: in a govinfo outage, retries can add about 240 s, close to the 300 s limit.
+  A hard timeout emits no `run.failed`, so chunk 04 must handle a dropped stream.
+- `assertPublic` is case-sensitive on `\bJEV\b`, so a live title containing "JEV" would
+  fail the run. This was accepted.
+
 
 ---
 
@@ -150,6 +164,12 @@ iteration; every line here skips one.
   `loadSuiteRuns`, `loadTrace`, async gunzip). Every number is `{value, split, runs, suite}`.
   Baseline pools w0i+cb0; live pools l92+du8. POC checkout for rebuilds:
   `<main>/.worktrees/poc-src` (detached `poc`).
+- **Pipeline (03)**: `runPipeline(config, emit)` in `src/lib/pipeline/run.ts`; events +
+  `STEP_LABELS` + `assertPublic` in `src/lib/pipeline/events.ts` (browser imports types
+  only); `withRetry` in `retry.ts`; `src/lib/gateway.ts` (`AI_GATEWAY_API_KEY`). Run config
+  must be built like the POC's `api/try` + `cellConfig`. A doc the filter never answered is
+  in neither `screenedOut` nor `notReviewedCount`. Gate: `bash plans/2026-11-22-demo-build/03-pipeline/gates.sh`.
+- **Chunks land via GitHub PR** into `feat/plan--demo-build` (`gh pr create` → `gh pr merge --merge`).
 
 ---
 
