@@ -1,0 +1,78 @@
+// TEMPORARY one-off capture (never committed): records the FR/govinfo responses a replay of a recorded
+// trace needs, and measures drift against the trace. Run with CAPTURE=1.
+import fs from "node:fs";
+import zlib from "node:zlib";
+import { it } from "vitest";
+
+const RUN = process.env.CAPTURE === "1";
+const OUT = process.env.CAPTURE_OUT!;
+const TRACE = process.env.CAPTURE_TRACE!;
+
+function chunkText(text: string, size: number, max = Infinity): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const out: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if (cur && cur.length + 1 + w.length > size) {
+      out.push(cur);
+      cur = "";
+    }
+    cur = cur ? `${cur} ${w}` : w.slice(0, size);
+  }
+  if (cur) out.push(cur);
+  if (out.length <= max) return out;
+  return Array.from({ length: max }, (_, i) => out[Math.floor((i * out.length) / max)]);
+}
+
+it.runIf(RUN)("capture", { timeout: 600_000 }, async () => {
+  const realFetch = globalThis.fetch;
+  const recorded: Record<string, { status: number; body: string }> = {};
+  globalThis.fetch = (async (url: string, init?: RequestInit) => {
+    const res = await realFetch(url, init);
+    const body = await res.text();
+    recorded[String(url)] = { status: res.status, body };
+    return new Response(body, { status: res.status });
+  }) as typeof fetch;
+
+  const { getDoc, getRawText, getRawTextWithSource, listWindow } = await import("../fr");
+  const { getCompany, withPromptSet } = await import("../config");
+  const { jevState } = await import("../prompts");
+  const ev = zlib.gunzipSync(fs.readFileSync(TRACE)).toString("utf8").trim().split("\n").map((l) => JSON.parse(l));
+  const start = ev.find((e) => e.type === "run.start");
+  const cfg = start.config;
+  const docs = await listWindow(cfg.windowStart, cfg.windowEnd);
+  const byNum = new Map(docs.map((d) => [d.document_number, d]));
+  const profile = getCompany(cfg.profileId);
+  const report: string[] = [];
+  const jevByNum = new Map(ev.filter((e) => e.type === "jev.call").map((e) => [e.document_number, e]));
+
+  await withPromptSet(cfg.promptSet, async () => {
+    for (const p of ev.filter((e) => e.type === "filter.passages")) {
+      const d = byNum.get(p.document_number)!;
+      const text = await getRawText(d);
+      const chunks = chunkText(text, 1200, 300);
+      const pickedOk = p.picked.every((x: { index: number; text: string }) => chunks[x.index] === x.text);
+      let stateMismatch = 0;
+      for (let i = 0; i < chunks.length; i++) {
+        const j = jevByNum.get(`${d.document_number}#p${i}`);
+        if (!j || j.state !== jevState(profile, { ...d, abstract: chunks[i] })) stateMismatch++;
+      }
+      report.push(`passages ${d.document_number} chars=${text.length} chunks=${chunks.length} recorded=${p.chunks} pickedOk=${pickedOk} stateMismatch=${stateMismatch}`);
+    }
+    for (const v of ev.filter((e) => e.type === "verify.doc")) {
+      const doc = await getDoc(v.document_number);
+      const { text, source } = await getRawTextWithSource(doc!);
+      const f = { comments_close_on: doc!.comments_close_on, effective_on: doc!.effective_on, citation: doc!.citation };
+      report.push(`verify ${v.document_number} chars=${text.length} recorded=${v.textChars} source=${source} fieldsSame=${JSON.stringify(f) === JSON.stringify(v.fields)} ${JSON.stringify(f)}`);
+    }
+    // Jev doc-level states (abstract only, no network) — confirms prompts/profile parity on all scanned docs.
+    let docStateMismatch = 0;
+    for (const d of docs) if (jevByNum.get(d.document_number)?.state !== jevState(profile, d)) docStateMismatch++;
+    report.push(`jev doc-level state mismatches: ${docStateMismatch} of ${docs.length}`);
+  });
+  globalThis.fetch = realFetch;
+  fs.writeFileSync(`${OUT}.report.txt`, report.join("\n") + "\n");
+  fs.writeFileSync(OUT, zlib.gzipSync(JSON.stringify(recorded)));
+  console.log(report.join("\n"));
+  console.log("urls", Object.keys(recorded).length, Object.values(recorded).map((r) => r.status));
+});

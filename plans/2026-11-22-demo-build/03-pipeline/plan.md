@@ -116,10 +116,10 @@ they conflict:
 
 ### Tasks
 
-- [ ] T001 — copy the replay fixture:
+- [x] T001 — copy the replay fixture:
   `git show poc:poc/data/evals/arena-2026-11-21-23-16-du8/traces/<id>.jsonl.gz > src/lib/pipeline/__fixtures__/replay-06.jsonl.gz`.
   Write the chosen `<id>` and why you chose it in the report.
-- [ ] T002 — write failing tests:
+- [x] T002 — write failing tests:
   - `src/lib/pipeline/replay.test.ts`: the parity contract above. It fails until the
     stages are ported, because stub stages produce no decisions to compare.
   - `src/lib/pipeline/retry.test.ts`: a counting stub, with fake timers for the delays.
@@ -128,7 +128,7 @@ they conflict:
   - `src/lib/pipeline/events.test.ts`: the no-internal-names scan over the replay run's
     events, plus a constructed event carrying `model:"typesafe-ai/jev"` that must make the
     sanitizer throw.
-- [ ] T003 — create `src/lib/pipeline/events.ts`:
+- [x] T003 — create `src/lib/pipeline/events.ts`:
   - the `RunEvent` union: `run.start`, `step.start`, `step.progress` (count, current
     item title), `step.retry`, `step.done` (count, ms), `step.failed`, `item.confirmed`,
     `run.done`, `run.failed`;
@@ -145,28 +145,28 @@ they conflict:
   - the `STEP_LABELS` table (internal stage ID → label template);
   - `assertPublic(event)`, which throws on any internal name. The tests above are its
     contract.
-- [ ] T004 — create `src/lib/pipeline/retry.ts`: `withRetry(fn, {attempts:3,
+- [x] T004 — create `src/lib/pipeline/retry.ts`: `withRetry(fn, {attempts:3,
   delaysMs:[2000,4000]}, onRetry)`: 3 attempts, 2 waits. Each constant carries a one-line reason comment.
-- [ ] T005 — create `src/lib/gateway.ts` (no `models.ts`; see amendment 4), ported from the POC with
+- [x] T005 — create `src/lib/gateway.ts` (no `models.ts`; see amendment 4), ported from the POC with
   only `languageModel`, `decisionModel` and `gatewayCost`. Read the key from the env var
   named in `project.md` Conventions.
-- [ ] T006 — create `src/lib/pipeline/context.ts`, ported `RunCtx`:
+- [x] T006 — create `src/lib/pipeline/context.ts`, ported `RunCtx`:
   - `stage()`, `agent()`, `object()` and `jev()` wrap their external call in `withRetry`;
   - `trace.emit` becomes an internal no-op sink, or a debug log behind
     `process.env.DEBUG_PIPELINE`;
   - a separate `emit(event: RunEvent)` sends public events through `assertPublic`;
   - delete `saveRun`, `spentUsd`, `budgetUsd` and the `guard()` that read the ledger.
-- [ ] T007 — create `src/lib/pipeline/stages.ts` and `src/lib/pipeline/excerpts.ts`,
+- [x] T007 — create `src/lib/pipeline/stages.ts` and `src/lib/pipeline/excerpts.ts`,
   ported from the POC:
   - emit `step.*` events at each stage boundary, and `step.progress` per passage document
     with its title;
   - emit `item.confirmed` when an item passes verify and tier;
   - fix the reason fallback;
   - leave every decision expression untouched.
-- [ ] T008 — create `src/lib/pipeline/run.ts`: `runPipeline(config, emit)`, which returns
+- [x] T008 — create `src/lib/pipeline/run.ts`: `runPipeline(config, emit)`, which returns
   `{items, dropped, decisions, markdown}`. It covers the pipeline path only: no
   `baseline()`, no `saveRun`.
-- [ ] T009 — edit `.claude/resources/project.md` Conventions: "GC-facing text comes only
+- [x] T009 — edit `.claude/resources/project.md` Conventions: "GC-facing text comes only
   from `STEP_LABELS` and item fields; `assertPublic` guards every event".
 
 Judgement calls (explain each choice in the report):
