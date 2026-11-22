@@ -1,5 +1,6 @@
 import "server-only";
 import { frozenWeek } from "./config";
+import { withScopedRetry } from "./pipeline/retry";
 import type { FrDoc } from "./types";
 
 // Ported from poc:poc/src/lib/fr.ts. The one change: the POC cached HTTP responses as files under data/cache/,
@@ -38,8 +39,20 @@ async function cached<T>(key: string, fetcher: () => Promise<T>, useCache: boole
   return value;
 }
 
+/**
+ * fetch, retried (3 tries, 2 s and 4 s apart, reported to the run in scope) when the request throws or the server
+ * answers 5xx or 429. Any other answer, 404 included, is returned as-is on the first try. After the last try the
+ * error propagates, and each caller handles it exactly as it handled a failed fetch before retries existed.
+ */
+const fetchRetrying = (url: string, init: RequestInit) =>
+  withScopedRetry(async () => {
+    const res = await fetch(url, init);
+    if (res.status >= 500 || res.status === 429) throw new Error(`HTTP ${res.status} for ${url}`);
+    return res;
+  });
+
 async function getJson(url: string) {
-  const res = await fetch(url, { headers: { accept: "application/json" } });
+  const res = await fetchRetrying(url, { headers: { accept: "application/json" } });
   if (!res.ok) throw new Error(`Federal Register ${res.status} for ${url}`);
   return res.json();
 }
@@ -92,7 +105,7 @@ export const govinfoUrl = (doc: Pick<FrDoc, "document_number" | "publication_dat
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const res = await fetch(url, { headers: { "user-agent": "reg-monitor-poc" } });
+    const res = await fetchRetrying(url, { headers: { "user-agent": "reg-monitor-poc" } });
     if (!res.ok) return null;
     const html = await res.text();
     if (!html.trim() || isBlockPage(html)) return null;
