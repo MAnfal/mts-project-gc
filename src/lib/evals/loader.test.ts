@@ -3,12 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BUNDLE as SHIPPED_BUNDLE, stubFetch } from "./__fixtures__/shipped";
+import { BUNDLE as SHIPPED_BUNDLE, shippedJson, shippedRuns, shippedSuiteIds, stubFetch } from "./__fixtures__/shipped";
 import {
   loadAnswerKey,
   loadIndex,
   loadIteration,
   loadIterationFile,
+  loadRecordedRun,
   loadSuiteReport,
   loadSuiteRuns,
   loadTrace,
@@ -282,5 +283,59 @@ describe("loadRunsIndex", () => {
   it("throws naming the URL for a suite with no listing", async () => {
     const { fetch } = stubFetch(root);
     await expect(loadRunsIndex("nope", { fetch })).rejects.toThrow("/evals/suites/nope/runs-index.json returned 404");
+  });
+});
+
+// Chunk 06: the reviewer's run report loads one run record. A suite run is found by streaming runs.jsonl.gz and
+// stopping at the match; an example run is its own file.
+describe("loadRecordedRun", () => {
+  it("returns the matching suite run without parsing past it", async () => {
+    // The line after the match is not JSON: reading on would throw.
+    put("suites/arena-x/runs.jsonl.gz", gz(`${JSON.stringify({ id: "r1" })}\n${JSON.stringify({ id: "r2", status: "done" })}\n<not json>\n`));
+    const { fetch } = stubFetch(root);
+    expect(await loadRecordedRun("arena-x", "r2", { fetch })).toEqual({ id: "r2", status: "done" });
+  });
+
+  it("stops downloading once it has the run: the body is cancelled", async () => {
+    let cancelled = false;
+    const bytes = gz(`${JSON.stringify({ id: "r1" })}\n`);
+    // A body that never ends on its own, like a large file still arriving.
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new Uint8Array(bytes));
+      },
+      pull: () => new Promise(() => {}),
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const fetch = (async () => new Response(body, { status: 200 })) as unknown as typeof globalThis.fetch;
+    expect(await loadRecordedRun("arena-x", "r1", { fetch })).toEqual({ id: "r1" });
+    // The cancel travels back up the pipe chain (decompress ← count ← body) over a few tasks.
+    await new Promise((r) => setTimeout(r, 20));
+    expect(cancelled).toBe(true);
+  });
+
+  it("throws naming the run and suite when the suite has no such run", async () => {
+    put("suites/arena-x/runs.jsonl.gz", gz(`${JSON.stringify({ id: "r1" })}\n`));
+    const { fetch } = stubFetch(root);
+    await expect(loadRecordedRun("arena-x", "r9", { fetch })).rejects.toThrow("Run r9 is not in suite arena-x");
+  });
+
+  it("reads an example run from its own file under user-view/runs", async () => {
+    put("user-view/runs/ex-1.json", JSON.stringify({ id: "ex-1", status: "error" }));
+    const { fetch, requested } = stubFetch(root);
+    expect(await loadRecordedRun(USER_VIEW, "ex-1", { fetch })).toEqual({ id: "ex-1", status: "error" });
+    expect(requested).toEqual(["/evals/user-view/runs/ex-1.json"]);
+    await expect(loadRecordedRun(USER_VIEW, "ex-2", { fetch })).rejects.toThrow("/evals/user-view/runs/ex-2.json");
+  });
+
+  it("finds a real run in the shipped bundle, and a real example run", async () => {
+    const { fetch } = stubFetch(SHIPPED_BUNDLE);
+    const suite = shippedSuiteIds()[0];
+    const last = shippedRuns<{ id: string }>(suite).at(-1)!;
+    expect(await loadRecordedRun(suite, last.id, { fetch })).toEqual(last);
+    const ex = shippedJson<{ runId: string }[]>("user-view/runs-index.json")[0].runId;
+    expect(await loadRecordedRun(USER_VIEW, ex, { fetch })).toEqual(shippedJson(`user-view/runs/${ex}.json`));
   });
 });

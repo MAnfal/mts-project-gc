@@ -45,26 +45,34 @@ async function* gzipJsonLines<T>(res: Response, url: string): AsyncGenerator<T> 
   const reader = counted.pipeThrough(new DecompressionStream("gzip")).getReader();
   const text = new TextDecoder();
   let buf = "";
-  for (;;) {
-    let chunk: ReadableStreamReadResult<Uint8Array>;
-    try {
-      chunk = await reader.read();
-    } catch (e) {
-      // A 0-byte file is an empty trace; DecompressionStream rejects it as truncated gzip.
-      if (bytesIn === 0) return;
-      throw new Error(`Eval bundle: ${url} is not valid gzip (${(e as Error).message || "decompression failed"})`);
+  let finished = false;
+  try {
+    for (;;) {
+      let chunk: ReadableStreamReadResult<Uint8Array>;
+      try {
+        chunk = await reader.read();
+      } catch (e) {
+        finished = true;
+        // A 0-byte file is an empty trace; DecompressionStream rejects it as truncated gzip.
+        if (bytesIn === 0) return;
+        throw new Error(`Eval bundle: ${url} is not valid gzip (${(e as Error).message || "decompression failed"})`);
+      }
+      if (chunk.done) break;
+      buf += text.decode(chunk.value, { stream: true });
+      let nl: number;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl);
+        buf = buf.slice(nl + 1);
+        if (line.trim()) yield JSON.parse(line) as T;
+      }
     }
-    if (chunk.done) break;
-    buf += text.decode(chunk.value, { stream: true });
-    let nl: number;
-    while ((nl = buf.indexOf("\n")) >= 0) {
-      const line = buf.slice(0, nl);
-      buf = buf.slice(nl + 1);
-      if (line.trim()) yield JSON.parse(line) as T;
-    }
+    finished = true;
+    buf += text.decode();
+    if (buf.trim()) yield JSON.parse(buf) as T;
+  } finally {
+    // The consumer stopped early (found what it wanted, or threw): stop downloading the rest of the file.
+    if (!finished) await reader.cancel().catch(() => {});
   }
-  buf += text.decode();
-  if (buf.trim()) yield JSON.parse(buf) as T;
 }
 
 /** index.json, validated: every result number is labelled with split, run count and suite. */
@@ -79,6 +87,20 @@ export async function loadSuiteRuns(suiteId: string, opts: LoaderOptions = {}): 
   const runs: EvalRun[] = [];
   for await (const r of gzipJsonLines<EvalRun>(await get(url, opts), url)) runs.push(r);
   return runs;
+}
+
+/**
+ * One run record: an example run's own file (user-view/runs/<id>.json), or a suite run found by streaming the suite's
+ * runs.jsonl.gz and stopping at the match, so the rest of the file is not downloaded. Throws if the suite lacks it.
+ */
+export async function loadRecordedRun(suiteId: string, runId: string, opts: LoaderOptions = {}): Promise<EvalRun> {
+  if (suiteId === USER_VIEW) {
+    const res = await get(`${base(opts)}/user-view/runs/${encodeURIComponent(runId)}.json`, opts);
+    return (await res.json()) as EvalRun;
+  }
+  const url = `${base(opts)}/suites/${encodeURIComponent(suiteId)}/runs.jsonl.gz`;
+  for await (const r of gzipJsonLines<EvalRun>(await get(url, opts), url)) if (r.id === runId) return r;
+  throw new Error(`Run ${runId} is not in suite ${suiteId}`);
 }
 
 /** One run's trace events, lazily: each event is parsed only when the consumer pulls it. */
