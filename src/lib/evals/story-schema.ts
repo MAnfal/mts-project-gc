@@ -51,6 +51,33 @@ const CarlRowSchema = z.object({ text: Prose, link: z.enum(CARL_LINKS), linkLabe
 /** Every measure the page names: the scoreboard's rows and suiteReport's metrics. */
 const LABELLED_MEASURES = [...new Set([...SCOREBOARD_MEASURES, ...METRICS])] as [string, ...string[]];
 
+/**
+ * The Models page (chunk 10). Every number, model label and setup name is a {{models.*}} / {{judges.*}} /
+ * {{measures.*}} placeholder filled by modelsContext (story.ts) from index.json and config/judges.yaml.
+ */
+export const ModelsStorySchema = z
+  .object({
+    title: Prose,
+    description: Prose,
+    /** Under each table: which rows are highlighted and why the live setup itself is not among them. */
+    liveRule: Prose,
+    /** Shown for a suite that ran one model. */
+    singleModel: Prose,
+    why: z.object({ heading: Prose, intro: Prose, points: z.array(Prose).min(1), closing: Prose }).strict(),
+    caveats: z
+      .object({
+        /** `holds` when the lowest pipeline recall is exactly the other vendor's setups (computed), else `otherwise`. */
+        keyBias: z.object({ holds: Prose, otherwise: Prose }).strict(),
+        priceParity: Prose,
+        tuning: Prose,
+      })
+      .strict(),
+    /** The judge panel sentence; the judges' model ids are listed after it, from config/judges.yaml. */
+    judges: Prose,
+  })
+  .strict();
+export type ModelsStory = z.infer<typeof ModelsStorySchema>;
+
 export const EvalStorySchema = z
   .object({
     page: z.object({ title: Prose, description: Prose }).strict(),
@@ -73,6 +100,7 @@ export const EvalStorySchema = z
     measures: z.record(z.enum(LABELLED_MEASURES), Prose),
     /** Keyed by iteration id (public/evals/iterations/<id>). */
     iterations: z.record(z.string().regex(/^\d{2}-[a-z0-9-]+$/), IterationStorySchema),
+    models: ModelsStorySchema,
   })
   .strict();
 export type EvalStory = z.infer<typeof EvalStorySchema>;

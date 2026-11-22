@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { EvalTargets } from "@/lib/config/schemas";
-import { evidenceOnly, index, iteration, result } from "./__fixtures__/eval-index";
+import { evidenceOnly, index, iteration, result, suite } from "./__fixtures__/eval-index";
 import type { EvalStory } from "./story-schema";
-import { fillTemplate, formatValue, resolveQuote, storyContext } from "./story";
+import { fillTemplate, formatValue, modelsContext, modelsStory, resolveQuote, storyContext } from "./story";
 import { computeVerdict } from "./verdict";
 
 const TARGETS: EvalTargets = { recall: 0.9, precision: 0.8, datesRight: 1, tierAgreement: 1, relevanceAgreement: 0.9, beatsBaseline: true, nearMiss: 0.01 };
@@ -24,6 +24,24 @@ const STORY: EvalStory = {
     "02-b": { label: "B", outcome: "rejected", moved: [] },
     "03-c": { label: "C", outcome: "promoted", moved: [] },
     "04-next": { label: "Next", outcome: "next", moved: [] },
+  },
+  models: {
+    title: "Models",
+    description: "Compared within one suite",
+    liveRule: "Highlighted rows run {{models.live}}.",
+    singleModel: "Single model, no comparison",
+    why: {
+      heading: "Why {{models.live}}",
+      intro: "{{models.pair.live}} vs {{models.pair.other}} in {{models.suite}}",
+      points: ["{{measures.recall}}: {{models.recall.live}} vs {{models.recall.other}}, {{models.recall.diff}} ({{models.recall.runs}})"],
+      closing: "Rests on these.",
+    },
+    caveats: {
+      keyBias: { holds: "Only {{models.lowest.setups}} is lowest", otherwise: "Lowest: {{models.lowest.setups}} of {{models.pipeline.count}}" },
+      priceParity: "Parity checked {{models.suiteDate}}.",
+      tuning: "{{models.livePromptSet}} ran on {{models.livePromptSetModels}}; {{models.other}} ran {{models.otherPromptSets}}.",
+    },
+    judges: "{{judges.minAgree}} of {{judges.count}} must agree.",
   },
 };
 const IDX = index({
@@ -106,5 +124,68 @@ describe("resolveQuote (a moved item's number, quoted verbatim from the record)"
 
   it("throws when the record has no such field", () => {
     expect(() => resolveQuote({}, { from: "decision", start: "x" })).toThrow("no recorded decision");
+  });
+});
+
+// ── The Models page's prose (chunk 10): constructed indexes drive each branch off the shipped data ──
+
+describe("modelsContext / modelsStory", () => {
+  type Info = ReturnType<typeof index>["setups"][number];
+  const info = (key: string, model: string, method = "jev+llm", promptSet: string | null = null): Info => ({ key, label: key, model, modelLabel: model.split("/")[1], method, promptSet, suites: ["su1"] });
+  const at = (setup: string, v: Record<string, number | null>, runs = 18) => result(setup, v, { suite: ["arena-2026-11-21-18-40-su1"], runs });
+  const PANEL = { models: ["a/judge-1", "b/judge-2", "c/judge-3"], minAgree: 2 };
+  const build = (rows: [Info, ReturnType<typeof result>][]) =>
+    index({
+      setups: [info("live", "anthropic/sonnet", "jev+llm", "strict"), ...rows.map(([i]) => i)],
+      suites: [{ ...suite("arena-2026-11-21-18-40-su1", 2), createdAt: "2026-11-21T18:40:11.303Z" }],
+      suiteResults: rows.map(([, r]) => r),
+      live: result("live"),
+    });
+  const pair = build([
+    [info("s", "anthropic/sonnet"), at("s", { recall: 0.9, precision: 0.5, costPerRunUsd: 0.16 })],
+    [info("g", "openai/gpt"), at("g", { recall: 0.8, precision: 0.5, costPerRunUsd: 0.1 }, 17)],
+    [info("b", "anthropic/sonnet", "baseline"), at("b", { recall: 0.7 })],
+  ]);
+
+  it("fills the rationale from the like-for-like pair, with labels, signed differences and their run counts", () => {
+    const v = modelsStory(pair, PANEL, STORY);
+    expect(v.heading).toBe("Why sonnet");
+    expect(v.intro).toBe("s vs g in su1");
+    expect(v.points).toEqual(["Recall: 90% vs 80%, 10.0 pts higher (18 and 17 runs)"]);
+    expect(v.judges).toBe("2 of 3 must agree.");
+    expect(modelsStory(pair, { models: ["a/1", "b/2", "c/3", "d/4", "e/5"], minAgree: 3 }, STORY).judges).toBe("3 of 5 must agree.");
+    expect(v.caveats).toEqual(["Only g is lowest", "Parity checked 2026-11-21.", "strict ran on sonnet; gpt ran default."]);
+  });
+
+  it("phrases equal, lower and unmeasured differences, and cost in dollars", () => {
+    const c = modelsContext(pair, PANEL, STORY);
+    expect(c["models.precision.diff"]).toBe("the same");
+    expect(c["models.costPerRunUsd.diff"]).toBe("$0.060 higher");
+    expect(c["models.costPerRunUsd.runs"]).toBe("18 and 17 runs");
+    const lower = build([
+      [info("s", "anthropic/sonnet"), at("s", { recall: 0.7, judgePass: null })],
+      [info("g", "openai/gpt"), at("g", { recall: 0.8 })],
+    ]);
+    const d = modelsContext(lower, PANEL, STORY);
+    expect(d["models.recall.diff"]).toBe("10.0 pts lower");
+    expect(d["models.recall.runs"]).toBe("18 runs each");
+    expect(d["models.judgePass.diff"]).toBe("not comparable");
+  });
+
+  it("uses the plain key-bias sentence when the lowest pipeline is not only the other vendor's", () => {
+    const tie = build([
+      [info("s", "anthropic/sonnet"), at("s", { recall: 0.6 })],
+      [info("g", "openai/gpt"), at("g", { recall: 0.8 })],
+    ]);
+    expect(modelsStory(tie, PANEL, STORY).caveats[0]).toBe("Lowest: s of 2");
+  });
+
+  it("throws naming a pair placeholder when no suite has a like-for-like pair (nothing to rest the choice on)", () => {
+    const none = build([
+      [info("s", "anthropic/sonnet"), at("s", {})],
+      [info("g", "openai/gpt", "llm"), at("g", {})],
+    ]);
+    expect(modelsContext(none, PANEL, STORY)["models.pair.live"]).toBeUndefined();
+    expect(() => modelsStory(none, PANEL, STORY)).toThrow("Unknown placeholder {{models.pair.live}}");
   });
 });

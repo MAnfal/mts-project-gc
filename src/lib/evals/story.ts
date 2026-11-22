@@ -1,4 +1,5 @@
 import { METRICS, SPLITS, type EvalIndex } from "./index-schema";
+import { compareRows, COMPARED, isPipeline, likeForLike, lowestRecall, modelComparisons, type ModelComparisons } from "./models";
 import type { EvalStory, Quote } from "./story-schema";
 import { SCOREBOARD_MEASURES, type Verdict } from "./verdict";
 
@@ -9,6 +10,9 @@ import { SCOREBOARD_MEASURES, type Verdict } from "./verdict";
 
 /** "06-passages" → "06": the iteration's number, shown before its label. */
 export const iterationNumber = (id: string) => id.split("-")[0];
+
+/** "arena-2026-11-21-22-52-l92" → "l92": suites are named by their short id on screen, in full in tooltips. */
+export const shortSuite = (id: string) => id.split("-").at(-1) ?? id;
 
 /** A share as a percent with at most one decimal: 0.8981 → "89.8%", 1 → "100%". */
 export const formatShare = (v: number) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
@@ -108,4 +112,83 @@ export function resolveQuote(record: { decision?: string; notes?: string }, q: Q
     if (end < 0) throw new Error(`quote end "${q.before}" does not follow "${q.start}" in the recorded ${q.from}`);
   }
   return text.slice(at, end).replace(/[\s,;:]+$/, "");
+}
+
+// ── The Models page (chunk 10) ──
+
+/** The judge panel as config/judges.yaml defines it; the page reads it with judges() (src/lib/config.ts). */
+export type JudgePanel = { models: string[]; minAgree: number };
+
+/** How a difference reads: "11.9 pts higher", "$0.056 higher", "3 s lower", "the same", or "not comparable". */
+function formatDiff(measure: string, c: { diff: number | null; direction: "higher" | "lower" | "same" | null }): string {
+  if (c.diff === null || c.direction === null) return "not comparable";
+  if (c.direction === "same") return "the same";
+  const size = Math.abs(c.diff);
+  const amount = measure === "costPerRunUsd" ? `$${size.toFixed(3)}` : measure === "secondsPerRun" ? `${Math.round(size)} s` : formatPoints(size);
+  return `${amount} ${c.direction}`;
+}
+
+const runsPhrase = ([a, b]: [number, number]) => (a === b ? `${a} runs each` : `${a} and ${b} runs`);
+const listed = (xs: string[]) => [...new Set(xs)].join(" and ");
+
+/**
+ * Every placeholder the Models page's prose may use. The comparison keys (models.pair.*, models.<measure>.*,
+ * models.lowest.*, models.suite) come from the first suite with a like-for-like pair, and are absent when no suite
+ * has one, so a sentence that needs them fails loudly in fillTemplate rather than printing a made-up comparison.
+ */
+export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalStory, cmp: ModelComparisons = modelComparisons(index)): Record<string, string> {
+  const promptOf = (p: string | null) => p ?? "default";
+  const ctx: Record<string, string> = {
+    ...Object.fromEntries(Object.entries(story.measures).map(([m, label]) => [`measures.${m}`, label])),
+    "models.live": cmp.live.modelLabel,
+    "models.liveSetup": cmp.live.setup,
+    "models.livePromptSet": promptOf(cmp.live.promptSet),
+    "models.livePromptSetModels": listed(index.setups.filter((s) => promptOf(s.promptSet) === promptOf(cmp.live.promptSet)).map((s) => s.modelLabel)),
+    "judges.count": String(judges.models.length),
+    "judges.minAgree": String(judges.minAgree),
+  };
+  const group = cmp.groups.find((g) => likeForLike(g).length);
+  if (!group) return ctx;
+  const [{ live, other }] = likeForLike(group);
+  const c = compareRows(live.result, other.result);
+  for (const m of COMPARED) {
+    ctx[`models.${m}.live`] = formatValue(m, c[m].a);
+    ctx[`models.${m}.other`] = formatValue(m, c[m].b);
+    ctx[`models.${m}.diff`] = formatDiff(m, c[m]);
+    ctx[`models.${m}.runs`] = runsPhrase(c[m].runs);
+  }
+  const low = lowestRecall(group);
+  return {
+    ...ctx,
+    "models.suite": shortSuite(group.suite),
+    "models.suiteDate": group.createdAt.slice(0, 10),
+    "models.other": other.modelLabel,
+    "models.otherPromptSets": listed(index.setups.filter((s) => s.model === other.model).map((s) => promptOf(s.promptSet))),
+    "models.pair.live": live.setup,
+    "models.pair.other": other.setup,
+    "models.pair.method": live.method,
+    "models.pair.promptSet": promptOf(live.promptSet),
+    "models.pipeline.count": String(group.rows.filter(isPipeline).length),
+    "models.lowest.setups": listed(low.lowest.map((r) => r.setup)),
+    "models.lowest.recall": listed(low.lowest.map((r) => formatValue("recall", r.result.recall.all.value))),
+    "models.lowest.runs": listed(low.lowest.map((r) => `${r.result.recall.all.runs} runs`)),
+  };
+}
+
+/** The Models page's prose, filled. Throws (via fillTemplate) on a placeholder the data cannot fill. */
+export function modelsStory(index: EvalIndex, judges: JudgePanel, story: EvalStory, cmp: ModelComparisons = modelComparisons(index)) {
+  const ctx = modelsContext(index, judges, story, cmp);
+  const m = story.models;
+  const fill = (t: string) => fillTemplate(t, ctx);
+  const group = cmp.groups.find((g) => likeForLike(g).length);
+  const keyBias = group && lowestRecall(group).onlyOtherVendor ? m.caveats.keyBias.holds : m.caveats.keyBias.otherwise;
+  return {
+    heading: fill(m.why.heading),
+    intro: fill(m.why.intro),
+    points: m.why.points.map(fill),
+    closing: fill(m.why.closing),
+    caveats: [fill(keyBias), fill(m.caveats.priceParity), fill(m.caveats.tuning)],
+    judges: fill(m.judges),
+    liveRule: fill(m.liveRule),
+  };
 }

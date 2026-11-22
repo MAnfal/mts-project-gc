@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import type { EvalTargets } from "@/lib/config/schemas";
 import type { AgreementNumber, EvalIndex, LabelledNumber } from "@/lib/evals/index-schema";
 import type { EvalStory } from "@/lib/evals/story-schema";
-import { formatShare, formatValue } from "@/lib/evals/story";
+import { formatShare, formatValue, shortSuite } from "@/lib/evals/story";
 import { measureOf, SCOREBOARD_MEASURES, targetStatus, type TargetStatus } from "@/lib/evals/verdict";
 import { cn } from "@/lib/utils";
 
@@ -15,8 +15,8 @@ const STATUS_CLASS: Record<Exclude<TargetStatus, "unmeasured">, string> = {
 };
 const STATUS_TEXT: Record<TargetStatus, string> = { met: "met", near: "within a point", missed: "missed", unmeasured: "not measured" };
 
-/** "arena-2026-11-21-22-52-l92" → "l92": suites are named by their short id on screen, in full in tooltips. */
-export const shortSuite = (id: string) => id.split("-").at(-1) ?? id;
+/** Re-exported for the eval components that already import it from here; defined in story.ts (client-safe lib). */
+export { shortSuite };
 
 /** What a number was computed over: split, run count, suite(s); agreement numbers add their numerator. */
 export function provenance(n: LabelledNumber | AgreementNumber): string {
@@ -25,7 +25,7 @@ export function provenance(n: LabelledNumber | AgreementNumber): string {
   return `${ratio}${split} · ${n.runs} runs · ${n.suite.join(" + ")}`;
 }
 
-function Value({ measure, n, status }: { measure: string; n: LabelledNumber | AgreementNumber | undefined; status?: TargetStatus }) {
+export function Value({ measure, n, status }: { measure: string; n: LabelledNumber | AgreementNumber | undefined; status?: TargetStatus }) {
   if (!n || n.value === null) return <span className="text-caption">—</span>;
   const text = formatValue(measure, n.value);
   const badge = status && status !== "unmeasured" ? STATUS_CLASS[status] : null;
