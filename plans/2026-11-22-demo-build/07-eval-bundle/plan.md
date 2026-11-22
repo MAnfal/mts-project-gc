@@ -189,7 +189,7 @@ confirm it exits non-zero naming that file. Restore the file and confirm it pass
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed. It includes:
+- [x] `completion-report.md`, committed. It includes:
   - per-suite run, trace and byte counts;
   - the total size;
   - the `live` and `baseline` numbers with their split and run counts, side by side with
