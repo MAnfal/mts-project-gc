@@ -69,6 +69,16 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   to stage `poc/` via `git checkout poc --`, which leaks POC paths into history if any
   step is skipped; `git archive | tar -x` into scratch is the safe import.
 
+### Chunk 01 — Scaffold
+
+- Review i1 failed on guard coverage only (an untested `(root)` fallback, a dead
+  `.refine`): a rubric gap no implementer self-check caught, so the rubric's
+  "every guard has a constructed input" item earns its place.
+- Gotchas worth carrying forward: `next dev` writes `AGENTS.md` at the repo root (verify
+  under `pnpm start`); Next's `LayoutProps` exists only after a build, so a fresh-tree
+  `tsc` fails if you rely on it; a config path built from a variable makes Turbopack trace
+  the whole project, so keep `readYaml`'s base path static.
+
 
 ---
 
@@ -83,6 +93,15 @@ iteration; every line here skips one.
 - **Convention discoveries**: "Library X exports `<actual>`, not `<expected>`."
 - **Testing patterns**: "Component Y needs `<sequence>` in tests, not the naive one."
 - **Setup requirements**: "After install, also run `<command>` before the gates run clean."
+
+### Carried forward (this plan)
+
+- **Setup**: `bash scripts/bootstrap.sh` in a fresh worktree (install + `.env.local` with
+  `AI_GATEWAY_API_KEY` derived from the main checkout's `.env`, never printed).
+- **Helpers (01)**: `readYaml(relPath, schema)` at `src/lib/config/load.ts`; shell
+  primitives `AppShell`/`SidebarNav` in `src/components/shell/` (owned by 01: compose them,
+  don't edit them).
+- **Verify UI under `pnpm start`, not `next dev`** (dev writes `AGENTS.md` at the root).
 
 ---
 

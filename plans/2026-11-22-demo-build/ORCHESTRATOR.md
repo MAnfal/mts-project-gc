@@ -37,7 +37,7 @@ See `SPEC.md` in this directory.
 
 | Chunk | Story | Status | PR | Blocker |
 | ----- | ----- | ------ | -- | ------- |
-| 01 | Foundation | Not started | — | — |
+| 01 | Foundation | Merged | local merge e719139 | — |
 | 02 | US1 | Not started | — | — |
 | 03 | US1 | Not started | — | — |
 | 04 | US1 | Not started | — | — |
@@ -68,6 +68,13 @@ When every chunk is `Merged`, run `/plan:complete`.
 | Date | Event | Chunk | Detail |
 | ---- | ----- | ----- | ------ |
 | 2026-11-22 | user_checkpoint | — | User: execute all chunks autonomously into the plan branch; Vercel checks deferred to one deploy at the end; no `poc/` ever committed. Plan amended. |
+| 2026-11-22 | wave_started | 01 | Wave 0 |
+| 2026-11-22 | chunk_dispatched | 01 | implementer chunk-01 |
+| 2026-11-22 | gates_passed | 01 | lead re-run gates.sh all exit 0 |
+| 2026-11-22 | review_iteration | 01 | i1 FAIL: untested (root) fallback; dead refine; constants-only test |
+| 2026-11-22 | review_passed | 01 | i2 PASS |
+| 2026-11-22 | pr_merged | 01 | merged --no-ff into feat/plan--demo-build (e719139) |
+| 2026-11-22 | wave_merged | 01 | Wave 0 |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
