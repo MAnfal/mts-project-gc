@@ -41,7 +41,7 @@ See `SPEC.md` in this directory.
 | 02 | US1 | Merged | (pre-PR rule; branch pushed) local merge 64e9c4f | — |
 | 03 | US1 | Merged | [#1](https://github.com/MAnfal/mts-project-gc/pull/1) | — |
 | 04 | US1 | Merged | [#3](https://github.com/MAnfal/mts-project-gc/pull/3) | — |
-| 05 | US1 | Not started | — | — |
+| 05 | US1 | Merged | [#4](https://github.com/MAnfal/mts-project-gc/pull/4) | — |
 | 06 | US1 | Not started | — | — |
 | 07 | US2 | Merged | local merge 89e61d3 (pre-PR rule; branch pushed) | — |
 | 08 | US2 | Merged | [#2](https://github.com/MAnfal/mts-project-gc/pull/2) | — |
@@ -100,6 +100,11 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | review_passed | 04 | i1 PASS (+2 small follow-ups) |
 | 2026-11-23 | pr_created | 04 | #3 |
 | 2026-11-23 | pr_merged | 04 | #3 → 6215846; plan-tip gates exit 0 (keyless) |
+| 2026-11-23 | chunk_dispatched | 05 | implementer chunk-05 (plan amended at preflight, 15 points) |
+| 2026-11-23 | review_iteration | 09 | i1 FAIL: run-report link (lead's rubric not swept for amendment 2); untested CasesView logic |
+| 2026-11-23 | review_passed | 05 | i1 PASS |
+| 2026-11-23 | pr_created | 05 | #4 |
+| 2026-11-23 | pr_merged | 05 | #4 → 3118773; plan-tip gates exit 0 (keyless) |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,

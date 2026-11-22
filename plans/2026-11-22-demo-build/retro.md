@@ -155,6 +155,26 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   AbortSignal); a missing key shows "Something went wrong" because model resolution sits
   outside `withRetry` in 03's `RunCtx`.
 
+### Chunk 05 — New-run screen
+
+- Accepted deviation from the lead's amendment 4: an owner email follows the *person*,
+  not the row. Report grouping keys on email, so a renamed preset row must not inherit
+  another person's address.
+- Gate pitfall: Next serialises server props into the HTML as an escaped RSC payload
+  (`\"ledgerly\"`), so a quoted-needle grep for presence matches nothing on a
+  correct page. Use bare, case-insensitive words for absence and accept either quoting for
+  presence.
+- Chunk 09 found that `! cmd | grep -q x` can never fail under `set -e` (bash exempts
+  negated pipelines). Gate blocks must count explicitly.
+
+### Chunk 09 — review i1 (lead process gap)
+
+- Review i1 failed partly on the lead. Plan amendment 2 moved the run-report link to
+  chunk 06, but the rubric (regenerated before the amendment) still required it. That
+  breaks the "an amendment is a sweep" rule: the lead swept plan.md but not rubric.md.
+  Fix: after any preflight amendment, grep rubric.md for each struck item before
+  dispatch. Chunk 06 must now carry the eval-side "Open this run's report".
+
 
 ---
 
