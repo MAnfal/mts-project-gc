@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { createRunner, type Runner } from "@/lib/runs/reader";
 import { openRunStore } from "@/lib/runs/store";
-import type { RunRequest, StoredRun } from "@/lib/runs/types";
+import type { RunRequest, SavedProfile, StoredRun } from "@/lib/runs/types";
 import type { CompanyProfile } from "@/lib/types";
 
 // React's view of the browser's runs. The runner (src/lib/runs/reader.ts) owns every stream and the store; one
@@ -93,4 +93,25 @@ export function useRecentRuns(): { runs: StoredRun[]; persistent: boolean } {
     };
   }, [v]);
   return state;
+}
+
+/** This browser's saved company profiles, newest first (empty until IndexedDB answers). */
+export function useSavedProfiles(): SavedProfile[] {
+  const [profiles, setProfiles] = useState<SavedProfile[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void getRunner().then(async (r) => {
+      const list = await r.store.listProfiles();
+      if (!cancelled) setProfiles(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return profiles;
+}
+
+/** Saves one of the GC's own profiles so "Company profiles" offers it again. */
+export async function saveProfile(p: SavedProfile): Promise<void> {
+  await (await getRunner()).store.saveProfile(p);
 }

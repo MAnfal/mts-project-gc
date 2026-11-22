@@ -51,7 +51,7 @@ dev dependency `fake-indexeddb` (read from `node_modules/fake-indexeddb/package.
 | Language | `typescript` | 5.9.3 |
 | Styling | `tailwindcss` · `@tailwindcss/turbopack` · `tw-animate-css` | 4.3.3 · 4.3.3 · 1.4.0 |
 | Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
-| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08); tabs (chunk 04) — all via `pnpm exec shadcn add`, shadcn 4.23.0 | — |
+| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08); tabs (chunk 04); select, popover, input, textarea (chunk 05) — all via `pnpm exec shadcn add`, shadcn 4.23.0 | — |
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
@@ -154,7 +154,7 @@ one.
 | `src/app/api/**/route.ts` | `pnpm test`, `pnpm build`, `pnpm typecheck` | Server-only. Request input (query, body) is parsed with zod before use. No secrets or stack traces in responses. Exports only HTTP handlers and segment config (`runtime`, `maxDuration`); helpers live in a sibling module with their own test. | `.claude/resources/bibles/swe/testing.md` |
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
 | `src/lib/pipeline/**/*.ts`, `src/lib/fr.ts`, `src/lib/gateway.ts` | `pnpm test` (incl. `replay.test.ts`), `bash plans/2026-11-22-demo-build/03-pipeline/mutations.sh` | Decision expressions match `poc:poc/src/lib/pipeline/` (any difference is listed as intentional). Every public event is built from named fields, never by spreading an internal object. Every external call goes through `withRetry`; no SDK-level retries. Tests stub models with `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`) and stub `fetch`. | `.claude/resources/bibles/swe/patterns/migration-verification.md` |
-| `src/lib/runs/**/*.ts`, `src/components/gc/**/*.tsx` | `pnpm test`, `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh` | Browser code: no import of `@/lib/config`, a `server-only` module or a Node built-in, and only `import type { … }` from `pipeline/events` (Gate 4). Screen state comes from `reduceEvents`; sentences and counts shown to the GC are derived in `src/lib/runs/report.ts` with tests, not inside components. A new IndexedDB object store bumps the `reg-monitor` version and creates only the stores the old version lacks. | `.claude/resources/bibles/swe/testing.md` |
+| `src/lib/runs/**/*.ts`, `src/components/gc/**/*.tsx` | `pnpm test`, `bash plans/2026-11-22-demo-build/05-new-run-screen/gates.sh` (runs 04's `gates.sh` first) | Browser code: no import of `@/lib/config`, a `server-only` module or a Node built-in, and only `import type { … }` from `pipeline/events` (Gate 4). Screen state comes from `reduceEvents`; sentences and counts shown to the GC are derived in `src/lib/runs/report.ts` with tests, not inside components. A new IndexedDB object store bumps the `reg-monitor` version and creates only the stores the old version lacks. | `.claude/resources/bibles/swe/testing.md` |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
 | `src/app/evals/**`, `src/components/evals/**`, `config/eval-story.yaml` | `pnpm test`, `pnpm build`, `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | No metric number is typed in a component, page or the story YAML: numbers come from `index.json` via `loader.ts`, prose numbers via `{{placeholders}}` (`story.ts`) or verbatim quotes (`resolveQuote`). Every number shown names its split, runs and suite (tooltip or footnote). Server pages read YAML only; no server module reads `public/evals`. | `.claude/resources/bibles/swe/testing.md` |
 | `public/evals/**`, `scripts/*eval*`, `scripts/poc-src.sh` | `bash scripts/verify-eval-bundle.sh`, `pnpm build` | `public/evals/` is generated: a diff there comes from re-running `scripts/build-eval-bundle.sh`, never from a hand edit, and the verify gate passes on the result. No `poc/` path is committed. No route or server module imports `public/evals` (it ships as static files). POC grading code runs unmodified from the detached `poc-src` checkout. | — |
@@ -200,7 +200,9 @@ a follow-up.
 - **Live runs live in the browser.** `src/lib/runs/reader.ts` (`createRunner`) owns each run's stream, not a component,
   so a run started on one page keeps streaming after navigation; `src/components/gc/useRun.ts` holds one runner per page
   load. Every event is appended to the IndexedDB record (`src/lib/runs/store.ts`: database `reg-monitor`, store `runs`,
-  record `{id, createdAt, request, events, status, result, profile}`). A record still `running` that this page isn't
+  record `{id, createdAt, request, events, status, result, profile}`; version 2 (chunk 05) adds store `profiles`, record
+  `SavedProfile {key, savedAt, profile}`, the GC's own profiles keyed apart from `profile.id` because an edited preset
+  keeps the preset's id). A record still `running` that this page isn't
   streaming was cut off by a reload, so it is marked `interrupted`: it can be retried, never resumed. The record never
   holds the server's `RunConfig` or decisions (model ids, internal scores). Screen state always comes from
   `reduceEvents(run.events)` (`src/lib/runs/reduce.ts`), live or reopened.
@@ -211,7 +213,8 @@ a follow-up.
   `UNEXPECTED_MESSAGE`), never `error.message`: SDK errors name model ids. Internal detail goes to the server log
   (`[Pipeline]` prefix; the full internal trace with `DEBUG_PIPELINE=1`).
 - **Every external call is tried at most 3 times, through `withRetry`** (`src/lib/pipeline/retry.ts`: 2 s then
-  4 s). Model calls retry in `RunCtx`; Federal Register and govinfo fetches retry in `fr.ts` (thrown fetch, 5xx,
+  4 s). Model calls retry in `RunCtx` (and in `src/app/api/suggest-areas/suggest.ts`, which takes the policy as a
+  parameter so tests pass `{attempts: 3, delaysMs: [0, 0]}`); Federal Register and govinfo fetches retry in `fr.ts` (thrown fetch, 5xx,
   429 only) and report to the run through `withRetryScope`. The AI SDK's own retries are off (`maxRetries: 0`):
   setting them back would multiply the attempts past 3.
 - **Tests never call a model or the network.** `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`)
@@ -221,8 +224,8 @@ a follow-up.
 - **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
-  `use: eval` plus `app.yaml`) and to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
-  `app.yaml`). Compare hashes only between runs of this repo.
+  `use: eval` plus `app.yaml`), to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
+  `app.yaml`) and to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in
   `src/lib/fr.ts`), and runs persist in the browser. Gate:
@@ -230,6 +233,17 @@ a follow-up.
   `.ts`/`.tsx` under `src/` for calls to any fs API that creates, changes or deletes a file or folder
   (`writeFile`, `mkdir`, `rm`, `rename`, `copyFile`, `createWriteStream`, …). Tests may write temp
   fixtures under `os.tmpdir()`.
+- **UI-only settings live in `config/app.yaml`, never in a decision-path file** — UI-only prompts and model ids included
+  (`suggestAreas: {model, prompt}`, chunk 05). `prompts.yaml` and `experiment.yaml` must stay byte-identical to the POC.
+  Each key gets its own slice schema in `src/lib/config/schemas.ts` (`NewRunConfigSchema`, `SuggestAreasConfigSchema`),
+  so a page reads only the slice it needs; a page passes the browser single values as props, never a parsed slice that
+  names a model.
+- **The run window is checked by one function on both sides.** `validateWindow` / `windowDays` (inclusive count) in
+  `src/lib/runs/weeks.ts` serve the new-run screen and `src/app/api/run/request.ts`. "Today" for the week buttons is
+  New York's date (`todayInNewYork`), computed on the server and passed as a prop, so server and browser render the
+  same weeks.
+- **Server-component props reach the HTML as an escaped RSC payload** (`\"ledgerly\"`, measured on `/runs/new`), so a
+  gate grepping a page for a quoted id must accept both quotings for presence, and use a bare word for absence.
 - **`@/lib/config` is the module `src/lib/config.ts`; `@/lib/config/load` and
   `@/lib/config/schemas` are files in the `src/lib/config/` folder.** A file beats a folder in
   module resolution, and the folder has no `index.ts`. Don't add one: it would make `@/lib/config`
@@ -297,7 +311,8 @@ Where things live, and what belongs where.
 plans/                        Plan directories — one per plan, with SPEC, chunks and retro.
 config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
                               Everything but app.yaml is copied from poc:poc/config/ (see Conventions).
-  app.yaml                    App-wide settings (appName, maxWindowDays, evalTargets for /evals).
+  app.yaml                    App-wide settings (appName, maxWindowDays, evalTargets for /evals, defaultPreset and
+                              suggestAreas {model, prompt} for /runs/new).
   eval-story.yaml             The eval view's prose: verdict, CARL rows, measure labels, per-iteration label,
                               outcome and "what moved" items (EvalStorySchema; no typed numbers).
   prompts.yaml                Every prompt's wording, with {{placeholders}}.
@@ -322,7 +337,8 @@ public/evals/                 GENERATED eval bundle, served as static files (nev
 src/
   app/                        Next.js App Router.
     layout.tsx                Root layout: Inter via next/font, globals.css.
-    page.tsx                  `/` — GC shell with one "Run Ledgerly · Nov 2–6" button (DEMO_RUN) until chunk 05's form.
+    page.tsx                  `/` — redirects to /runs/new.
+    runs/new/page.tsx         The new-run screen (server page: presets, maxWindowDays and New York's date as props).
     runs/[id]/page.tsx        One run from this browser's IndexedDB (server page; renders the client RunView).
     evals/page.tsx            `/evals` — eval Summary (reviewer view, separate sidebar; the GC sidebar has no link).
     evals/iterations/[id]/    `/evals/iterations/<id>` — one iteration. Both read YAML per request; the
@@ -333,11 +349,16 @@ src/
     api/run/                  POST: one live run as NDJSON RunEvents (maxDuration 300). route.ts wires request.ts
                               (body validation), run-config.ts (RunConfig from experiment.yaml userView.setup) and
                               stream.ts (NDJSON sink: exactly one terminal event, no-op after disconnect).
+    api/suggest-areas/        POST {description} → {areas}: route.ts (wiring, fixed failure messages), suggest.ts
+                              (body guard, prompt from app.yaml, one structured model call through withRetry).
   components/
     shell/                    AppShell (three-pane layout) and SidebarNav parts. Owned by chunk 01.
     gc/                       GC screens: GcSidebar (recent runs from IndexedDB), RunView (Running / Report / Failed /
-                              Interrupted), RunSteps, ReportView, SourcesPanel, StartRunButton, useRun (the page's runner).
-    ui/                       shadcn primitives (button, badge, sheet, table, tabs, collapsible, tooltip, chart).
+                              Interrupted), RunSteps, ReportView, SourcesPanel, StartRunButton, useRun (the page's runner,
+                              saved profiles); new-run screen: NewRunForm, ProfilePicker, WeekPicker, ProfileEditor,
+                              OwnersTable (render only: decisions come from src/lib/runs/new-run.ts).
+    ui/                       shadcn primitives (button, badge, sheet, table, tabs, collapsible, tooltip, chart, select,
+                              popover, input, textarea).
     evals/                    Eval view: EvalSidebar, EvalSummary (+ useEvalIndex), CarlTable, Scoreboard,
                               ProgressChart (Recharts), IterationView, DiffSheet, ErrorAnalysisSheet.
   lib/
@@ -365,7 +386,10 @@ src/
     runs/                     Browser-side runs, pure and client-safe (no config/fs imports): types.ts (StoredRun,
                               RunRequest), store.ts (IndexedDB + in-memory fallback), reader.ts (NDJSON reader, runner:
                               start/retry/load/list), reduce.ts (events → screen state), report.ts (heading, summary,
-                              counts, why-tier, mailto drafts, .json download), sidebar-user.ts, demo.ts (DEMO_RUN).
+                              counts, why-tier, mailto drafts, .json download), sidebar-user.ts, weeks.ts (last full
+                              weeks, window check, New York today), profileForm.ts (form ⇄ CompanyProfile, owner emails),
+                              new-run.ts (picker options, switch-confirm reducer, what Run sends, screen sentences),
+                              suggest-client.ts (the browser's suggest-areas request, every outcome a value).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.

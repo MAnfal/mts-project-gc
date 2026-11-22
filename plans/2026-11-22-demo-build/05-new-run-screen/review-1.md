@@ -1,0 +1,5 @@
+# Chunk 05 review, iteration 1: PASS
+
+Re-run by reviewer at a9c6c42: `AI_GATEWAY_API_KEY= PORT=3511 bash .../05-new-run-screen/gates.sh` exit 0 ("chunk 05 gates: OK"); `pnpm test` twice, 491 passed, 40 files each; poc/ paths 0 in HEAD and in the range; no shell, companies or decision-path file in the diff (only config/app.yaml +19); app.yaml is not in parity.sh's set.
+Lead conclusions: (1) emails follow the person: mutations (drop byName.set; drop taken check) each red in profileForm.test.ts; accepted. (2) defaultPreset fine. (3) model id matches setups.yaml; keyless 503 plain, 400 plain; no model id / env var / suggestAreas in /runs/new HTML or responses. (4) no fs writes in src; profile only in run body + IndexedDB. (5) 390 px via CDP mobile emulation: innerWidth 390, scrollWidth 390, no element past right edge; screenshot stacked.
+Warnings: owner identity is the exact trimmed name (case or spacing variants of one person get separate placeholder emails); the picker detail line is described as loaded not live (reported by implementer); suggest prompt never run live.

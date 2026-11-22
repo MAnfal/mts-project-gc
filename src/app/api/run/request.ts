@@ -1,8 +1,9 @@
 import "server-only";
-import { differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { z } from "zod";
 import { CompanySchema } from "@/lib/config";
 import type { RunRequest } from "@/lib/runs/types";
+import { validateWindow } from "@/lib/runs/weeks";
 
 // Validates the body of POST /api/run before anything runs. Messages are plain sentences for the GC: no field
 // paths from the schema library, no config file names, no stack.
@@ -33,10 +34,9 @@ export function parseRunRequest(body: unknown, limits: { maxWindowDays: number; 
   }
   const { profileId, customProfile, windowStart, windowEnd } = parsed.data;
 
-  // Inclusive: Mon 2 → Fri 6 is 5 days.
-  const days = differenceInCalendarDays(parseISO(windowEnd), parseISO(windowStart)) + 1;
-  if (days < 1) return fail("The window ends before it starts.");
-  if (days > limits.maxWindowDays) return fail(`Pick a window of at most ${limits.maxWindowDays} days.`);
+  // The new-run screen runs the same check (and the same inclusive day count) before it enables Run.
+  const windowError = validateWindow(windowStart, windowEnd, limits.maxWindowDays);
+  if (windowError) return fail(windowError);
 
   if (profileId !== undefined && customProfile !== undefined) return fail("Send either a preset profileId or a customProfile, not both.");
   if (profileId !== undefined) {
