@@ -63,12 +63,14 @@ often as it passes a violation.
 
 ## Chunk-Specific Checks
 
-> **Convention Map: empty at generation time.** `.claude/resources/project.md` declared no
-> Convention Map rows when this rubric was generated, so no row matched a file this chunk
-> touches. The checks below are derived from the acceptance criteria, the test plan, the
-> verification gates and the chunk's stated constraints. If the map has rows by the time
-> this chunk is graded, also apply every row whose glob matches a touched file.
-
+- [ ] No `poc/` path is committed: `git ls-tree -r --name-only HEAD | grep '^poc/'` and
+      `git log --name-only --format= feat/plan--demo-build..HEAD | grep '^poc/'` both print
+      nothing. POC data reaches the tree only as generated files under `public/evals/`, and
+      the POC worktree used to build it is not committed
+- [ ] Every `src/lib/evals` module that gains logic has a test file beside it that asserts
+      the values a caller receives, not internal calls or that something merely ran —
+      `.claude/resources/bibles/swe/testing.md`
+- [ ] No file under `src/lib/evals/` imports React
 - [ ] Nothing is lost, verified by running the verify script: for every arena ID under
       `poc:poc/data/evals/`, the run count in `runs.jsonl.gz` equals the count of
       `runs/*.json` on `poc`, and every trace exists with identical bytes; every
@@ -95,8 +97,14 @@ often as it passes a violation.
 - [ ] `public/evals` ships as static files: no route or server module imports from it
       (grep and build output), `.gz` files are served as `application/gzip` and
       decompressed by the client, with no reliance on `Content-Encoding`
-- [ ] The loader is browser-side and fetch-based with no `fs` import; the build scripts are
-      build-time only and imported by no app code
+- [ ] The loader is browser-side and fetch-based with no `fs` or other `node:` import; it
+      reads no filesystem or secret, so it does not import `server-only` (the convention
+      requires that marker only on modules that do, and a client module carrying it fails
+      the build); the build scripts are build-time only and imported by no app code
+- [ ] Local stand-in for the deferred deploy check: under `pnpm build && pnpm start`,
+      `/evals/index.json` and one `.jsonl.gz` trace file are served, with the HTTP status
+      and `Content-Type` recorded in the report. The deployed-URL check is deferred to the
+      final PR and is not graded here
 - [ ] `build-eval-bundle.sh` is documented at the top, idempotent, creates the POC worktree
       only if absent, and removes nothing from it
 - [ ] The bundle stays under 150 MB (`du -sm public/evals`, recorded in the report)

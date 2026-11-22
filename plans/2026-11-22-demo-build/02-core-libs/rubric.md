@@ -75,12 +75,25 @@ often as it passes a violation.
 
 ## Chunk-Specific Checks
 
-> **Convention Map: empty at generation time.** `.claude/resources/project.md` declared no
-> Convention Map rows when this rubric was generated, so no row matched a file this chunk
-> touches. The checks below are derived from the acceptance criteria, the test plan, the
-> verification gates and the chunk's stated constraints. If the map has rows by the time
-> this chunk is graded, also apply every row whose glob matches a touched file.
-
+- [ ] No `poc/` path is committed: `git ls-tree -r --name-only HEAD | grep '^poc/'` and
+      `git log --name-only --format= feat/plan--demo-build..HEAD | grep '^poc/'` both print
+      nothing. POC files reach the tree only as copies at their destination paths
+      (`config/`, `src/lib/`), never through the index under `poc/`
+- [ ] Every `src/lib` module that gains logic has a test file beside it in `src/lib/` that
+      asserts the values a caller receives, not internal calls or that something merely ran
+      (test file names may follow the POC suites they were ported from) —
+      `.claude/resources/bibles/swe/testing.md`
+- [ ] No file under `src/lib/` imports React
+- [ ] Every `src/lib` module that reads the filesystem (config YAML, frozen weeks, keys) or
+      a secret imports `server-only`; modules that do neither (`tier.ts`, `verify.ts`) need
+      not. *Contradiction resolved:* adding `import "server-only"` to `config.ts` or
+      `fr.ts` is a runtime marker, not a decision expression, so it does not break the
+      "change no decision expression" item below
+- [ ] Every YAML kind under `config/` has a zod schema, in `src/lib/config/schemas.ts` or
+      in the owning module that loads it, and that schema accepts the committed files as
+      they are (including brightside's `use` value); a test loads the real committed files
+      and asserts a parsed value, not only that parsing did not throw —
+      `.claude/resources/bibles/swe/testing.md`
 - [ ] Decision-path config is byte-identical to the POC: `config/prompts.yaml`,
       `prompt-sets/*.yaml`, `pipeline.yaml`, `setups.yaml`, `judges.yaml`,
       `experiment.yaml`, `companies/{cornercare,hearth,ledgerly,skyhop}.yaml` and every
