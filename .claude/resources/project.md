@@ -57,6 +57,7 @@ dev dependency `fake-indexeddb` (read from `node_modules/fake-indexeddb/package.
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
 | Concurrency limits (pipeline stages) | `p-limit` | 7.3.3 |
 | Charts (eval view) | `recharts` (pinned; same version as the POC's `package.json`) | 3.8.0 |
+| Trace list virtualization (eval view) | `@tanstack/react-virtual` (pinned; pulls `@tanstack/virtual-core`) | 3.14.26 |
 | Server marker | `server-only` | 0.0.1 |
 | Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
 | IndexedDB in tests (dev only) | `fake-indexeddb` | 6.2.8 |
