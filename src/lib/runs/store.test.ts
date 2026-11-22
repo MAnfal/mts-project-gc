@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { RunEvent } from "../pipeline/events";
 import type { CompanyProfile } from "../types";
 import { openRunStore } from "./store";
-import type { SavedProfile, StoredRun } from "./types";
+import type { SavedProfile, StoredChat, StoredRun } from "./types";
 
 const profile: CompanyProfile = {
   id: "ledgerly",
@@ -213,5 +213,89 @@ describe("upgrading the database from version 1 (runs only)", () => {
     expect(reopened.persistent).toBe(true);
     expect((await reopened.listProfiles()).map((p) => p.key)).toEqual(["k1"]);
     expect((await reopened.list()).map((r) => r.id)).toEqual(["v1-run"]);
+  });
+});
+
+const chat = (id: string, n = 1): StoredChat => ({
+  id,
+  savedAt: "2026-11-23T10:00:00.000Z",
+  turns: Array.from({ length: n }, (_, i) => [
+    { role: "user" as const, content: `Question ${i + 1}` },
+    { role: "assistant" as const, content: `Answer ${i + 1}` },
+  ]).flat(),
+});
+
+describe("chat store (follow-up turns, keyed live:<id> or example:<id>)", () => {
+  it("saves a conversation and reads it back after a reopen, so the turns survive a reload", async () => {
+    const idb = new IDBFactory();
+    await (await openRunStore(idb)).saveChat(chat("live:r1"));
+    const reopened = await openRunStore(idb);
+    expect(reopened.persistent).toBe(true);
+    expect(await reopened.getChat("live:r1")).toEqual(chat("live:r1"));
+    expect(await reopened.getChat("live:nope")).toBeNull();
+  });
+
+  it("keeps a live run's chat and an example's chat apart, and never touches the run record", async () => {
+    const idb = new IDBFactory();
+    const store = await openRunStore(idb);
+    await store.save(run("r1", "2026-11-23T10:00:00.000Z", { status: "done" }));
+    await store.saveChat(chat("live:r1", 1));
+    await store.saveChat(chat("example:r1", 2));
+    const reopened = await openRunStore(idb);
+    expect((await reopened.getChat("live:r1"))?.turns).toHaveLength(2);
+    expect((await reopened.getChat("example:r1"))?.turns).toHaveLength(4);
+    expect(await reopened.get("r1")).toEqual(run("r1", "2026-11-23T10:00:00.000Z", { status: "done" }));
+  });
+
+  it("saving again replaces the conversation (a new turn pair, or a cleared chat)", async () => {
+    const store = await openRunStore(new IDBFactory());
+    await store.saveChat(chat("live:r1", 1));
+    await store.saveChat(chat("live:r1", 3));
+    expect((await store.getChat("live:r1"))?.turns).toHaveLength(6);
+    await store.saveChat({ ...chat("live:r1"), turns: [] });
+    expect((await store.getChat("live:r1"))?.turns).toEqual([]);
+  });
+
+  it("keeps chats in memory when IndexedDB is unavailable", async () => {
+    const store = await openRunStore(undefined);
+    await store.saveChat(chat("example:e1", 2));
+    expect(store.persistent).toBe(false);
+    expect(await store.getChat("example:e1")).toEqual(chat("example:e1", 2));
+    expect(await store.getChat("example:e2")).toBeNull();
+  });
+});
+
+describe("upgrading the database from version 2 (runs and profiles)", () => {
+  it("adds the chats store and keeps every run and profile saved under version 2", async () => {
+    const idb = new IDBFactory();
+    // A browser that ran chunk 05's app: database version 2 with the runs and profiles stores, one record in each.
+    await new Promise<void>((resolve, reject) => {
+      const req = idb.open("reg-monitor", 2);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore("runs", { keyPath: "id" });
+        req.result.createObjectStore("profiles", { keyPath: "key" });
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction(["runs", "profiles"], "readwrite");
+        tx.objectStore("runs").put(run("v2-run", "2026-11-22T10:00:00.000Z", { status: "done" }));
+        tx.objectStore("profiles").put(saved("v2-profile", "2026-11-22T10:00:00.000Z"));
+        tx.oncomplete = () => {
+          db.close(); // or the version-3 open below waits on this connection forever
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      req.onerror = () => reject(req.error);
+    });
+
+    const store = await openRunStore(idb);
+    expect(store.persistent).toBe(true);
+    await store.saveChat(chat("live:v2-run"));
+    const reopened = await openRunStore(idb);
+    expect(reopened.persistent).toBe(true);
+    expect((await reopened.get("v2-run"))?.status).toBe("done");
+    expect((await reopened.listProfiles()).map((p) => p.key)).toEqual(["v2-profile"]);
+    expect(await reopened.getChat("live:v2-run")).toEqual(chat("live:v2-run"));
   });
 });
