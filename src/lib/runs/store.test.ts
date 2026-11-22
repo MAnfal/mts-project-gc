@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { RunEvent } from "../pipeline/events";
 import type { CompanyProfile } from "../types";
 import { openRunStore } from "./store";
-import type { StoredRun } from "./types";
+import type { SavedProfile, StoredRun } from "./types";
 
 const profile: CompanyProfile = {
   id: "ledgerly",
@@ -135,5 +135,83 @@ describe("run store without IndexedDB", () => {
     expect(store.persistent).toBe(false);
     expect((await store.list()).map((r) => r.id)).toEqual(["after", "before"]);
     expect((await store.get("after"))?.id).toBe("after");
+  });
+});
+
+const saved = (key: string, savedAt: string, name = "Ledgerly Inc."): SavedProfile => ({ key, savedAt, profile: { ...profile, name } });
+
+describe("profile store (the GC's own profiles, listed under Company profiles)", () => {
+  it("saves a profile and reads it back by key, from IndexedDB after a reopen", async () => {
+    const idb = new IDBFactory();
+    const first = await openRunStore(idb);
+    const p = saved("k1", "2026-11-23T10:00:00.000Z");
+    await first.saveProfile(p);
+    const second = await openRunStore(idb); // a page reload: only IndexedDB can answer
+    expect(second.persistent).toBe(true);
+    expect(await second.getProfile("k1")).toEqual(p);
+    expect(await second.getProfile("nope")).toBeNull();
+  });
+
+  it("lists saved profiles newest first; saving under the same key replaces the old copy", async () => {
+    const idb = new IDBFactory();
+    const store = await openRunStore(idb);
+    await store.saveProfile(saved("a", "2026-11-23T10:00:00.000Z"));
+    await store.saveProfile(saved("b", "2026-11-23T11:00:00.000Z"));
+    await store.saveProfile(saved("a", "2026-11-23T12:00:00.000Z", "Ledgerly West"));
+    const reopened = await openRunStore(idb);
+    expect((await reopened.listProfiles()).map((p) => [p.key, p.profile.name])).toEqual([
+      ["a", "Ledgerly West"],
+      ["b", "Ledgerly Inc."],
+    ]);
+  });
+
+  it("an edited preset is saved beside the preset it came from: same profile id, its own key", async () => {
+    const store = await openRunStore(new IDBFactory());
+    await store.saveProfile(saved("k1", "2026-11-23T10:00:00.000Z"));
+    await store.saveProfile(saved("k2", "2026-11-23T11:00:00.000Z"));
+    expect((await store.listProfiles()).map((p) => [p.key, p.profile.id])).toEqual([
+      ["k2", "ledgerly"],
+      ["k1", "ledgerly"],
+    ]);
+  });
+
+  it("keeps profiles in memory, newest first, when IndexedDB is unavailable", async () => {
+    const store = await openRunStore(undefined);
+    await store.saveProfile(saved("old", "2026-11-23T10:00:00.000Z"));
+    await store.saveProfile(saved("new", "2026-11-23T11:00:00.000Z"));
+    expect(store.persistent).toBe(false);
+    expect((await store.listProfiles()).map((p) => p.key)).toEqual(["new", "old"]);
+    expect((await store.getProfile("old"))?.key).toBe("old");
+  });
+});
+
+describe("upgrading the database from version 1 (runs only)", () => {
+  it("adds the profiles store and keeps every run saved under version 1", async () => {
+    const idb = new IDBFactory();
+    // A browser that ran chunk 04's app: database version 1 with only the runs store, one run in it.
+    await new Promise<void>((resolve, reject) => {
+      const req = idb.open("reg-monitor", 1);
+      req.onupgradeneeded = () => req.result.createObjectStore("runs", { keyPath: "id" });
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction("runs", "readwrite");
+        tx.objectStore("runs").put(run("v1-run", "2026-11-20T10:00:00.000Z", { status: "done" }));
+        tx.oncomplete = () => {
+          db.close(); // or the version-2 open below waits on this connection forever
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      req.onerror = () => reject(req.error);
+    });
+
+    const store = await openRunStore(idb);
+    expect(store.persistent).toBe(true);
+    expect((await store.get("v1-run"))?.status).toBe("done");
+    await store.saveProfile(saved("k1", "2026-11-23T10:00:00.000Z"));
+    const reopened = await openRunStore(idb);
+    expect(reopened.persistent).toBe(true);
+    expect((await reopened.listProfiles()).map((p) => p.key)).toEqual(["k1"]);
+    expect((await reopened.list()).map((r) => r.id)).toEqual(["v1-run"]);
   });
 });

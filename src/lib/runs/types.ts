@@ -31,3 +31,15 @@ export interface StoredRun {
   /** The profile the run used, as it was when the run started (a preset or the GC's own). */
   profile: CompanyProfile;
 }
+
+/**
+ * A profile the GC edited or wrote, saved in this browser when a run used it, and offered again under "Company
+ * profiles". Keyed by `key`, not `profile.id`: an edited preset keeps the preset's id, and several edits of one
+ * preset can sit side by side.
+ */
+export interface SavedProfile {
+  key: string;
+  /** ISO timestamp of the last save; the picker lists newest first. */
+  savedAt: string;
+  profile: CompanyProfile;
+}

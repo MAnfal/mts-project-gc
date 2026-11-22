@@ -24,7 +24,7 @@ const firstName = (o: Owner) => ownerName(o).split(/\s+/)[0];
 
 const plural = (n: number, one: string, many = `${one}s`) => (n === 1 ? one : many);
 /** Ends `s` with one full stop: a company called "Ledgerly Inc." must not end a sentence with "..". */
-const stop = (s: string) => (s.endsWith(".") ? s : `${s}.`);
+export const stop = (s: string) => (s.endsWith(".") ? s : `${s}.`);
 
 const DOC_NOUN: Record<DocType, string> = { Rule: "rule", "Proposed Rule": "proposed rule", Notice: "notice", "Presidential Document": "presidential document" };
 
