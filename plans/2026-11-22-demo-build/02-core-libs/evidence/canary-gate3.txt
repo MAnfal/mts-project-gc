@@ -1,44 +1,44 @@
 ## clean before
-no-fs-writes: OK (9 server files under src/lib scanned)
+no-fs-writes: OK (17 non-test source files under src/ scanned)
 exit 0
-## canary: fs.writeFile("x", "y");
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { fs.writeFile("x", "y"); };
+## fires: fs.writeFile("x", "y")
+## fires: fs.writeFileSync("x", "y")
+## fires: fs.appendFile("x", "y")
+## fires: fs.appendFileSync("x", "y")
+## fires: fs.mkdir("x")
+## fires: fs.mkdirSync("x")
+## fires: mkdir("x")
+## fires: fsp.mkdir("x")
+## fires: fs.mkdtempSync("x")
+## fires: fs.createWriteStream("x")
+## fires: fs.rename("a", "b")
+## fires: fs.renameSync("a", "b")
+## fires: rm("x")
+## fires: fs.rmSync("x")
+## fires: fs.promises.rm("x")
+## fires: fs.rmdirSync("x")
+## fires: fs.copyFile("a", "b")
+## fires: fs.copyFileSync("a", "b")
+## fires: fs.cpSync("a", "b")
+## fires: fs.unlinkSync("x")
+## fires: fs.truncateSync("x")
+## fires: fs.symlinkSync("a", "b")
+## fires: await fsp.writeFile(file, s)
+## canary outside src/lib (route file): fs.writeFileSync
+FAIL: filesystem write in server code:
+src/app/zz-canary/route.ts:2:export function GET() { fs.writeFileSync("x", "y"); return new Response(""); }
 exit 1
-after removal exit 0
-## canary: fs.appendFile("x", "y");
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { fs.appendFile("x", "y"); };
-exit 1
-after removal exit 0
-## canary: fs.mkdirSync("x");
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { fs.mkdirSync("x"); };
-exit 1
-after removal exit 0
-## canary: fs.mkdir("x");
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { fs.mkdir("x"); };
-exit 1
-after removal exit 0
-## canary: fs.writeFileSync("x", "y");
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { fs.writeFileSync("x", "y"); };
-exit 1
-after removal exit 0
-## canary: await fsp.writeFile(file, s);
-FAIL: filesystem write in src/lib server code:
-src/lib/zz-canary.ts:1:export const canary = () => { await fsp.writeFile(file, s); };
-exit 1
-after removal exit 0
-## canary: a comment line only (must NOT fire)
-no-fs-writes: OK (10 server files under src/lib scanned)
+## control: comment line only (must NOT fire)
+no-fs-writes: OK (18 non-test source files under src/ scanned)
 exit 0
-## canary: a test file (must NOT fire)
-no-fs-writes: OK (9 server files under src/lib scanned)
+## control: identifier that merely contains a needle (must NOT fire)
+no-fs-writes: OK (18 non-test source files under src/ scanned)
+exit 0
+## control: a test file (must NOT fire)
+no-fs-writes: OK (17 non-test source files under src/ scanned)
 exit 0
 ## canary: POC fr.ts verbatim
-FAIL: filesystem write in src/lib server code:
+FAIL: filesystem write in server code:
 src/lib/fr.ts:36:  await fs.mkdir(CACHE, { recursive: true });
 src/lib/fr.ts:37:  await fs.writeFile(file, JSON.stringify(value));
 src/lib/fr.ts:130:  await fs.mkdir(CACHE, { recursive: true });
@@ -46,5 +46,5 @@ src/lib/fr.ts:131:  await fs.writeFile(file, JSON.stringify(text));
 exit 1
 fr.ts restored
 ## clean after
-no-fs-writes: OK (9 server files under src/lib scanned)
+no-fs-writes: OK (17 non-test source files under src/ scanned)
 exit 0

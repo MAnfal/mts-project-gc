@@ -8,6 +8,6 @@ pnpm lint
 pnpm test
 pnpm build
 bash "$DIR/parity.sh"        # Gate 2: decision-path parity with poc:poc/
-bash "$DIR/no-fs-writes.sh"  # Gate 3: no filesystem writes in src/lib server code
+bash "$DIR/no-fs-writes.sh"  # Gate 3: no filesystem writes in non-test code under src/
 pnpm typecheck
 echo "chunk 02 gates: OK"

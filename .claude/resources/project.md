@@ -185,8 +185,10 @@ a follow-up.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in
   `src/lib/fr.ts`), and runs persist in the browser. Gate:
-  `bash plans/2026-11-22-demo-build/02-core-libs/no-fs-writes.sh` (non-test files under `src/lib`;
-  tests may write temp fixtures under `os.tmpdir()`).
+  `bash plans/2026-11-22-demo-build/02-core-libs/no-fs-writes.sh`. It scans every non-test
+  `.ts`/`.tsx` under `src/` for calls to any fs API that creates, changes or deletes a file or folder
+  (`writeFile`, `mkdir`, `rm`, `rename`, `copyFile`, `createWriteStream`, …). Tests may write temp
+  fixtures under `os.tmpdir()`.
 - **`@/lib/config` is the module `src/lib/config.ts`; `@/lib/config/load` and
   `@/lib/config/schemas` are files in the `src/lib/config/` folder.** A file beats a folder in
   module resolution, and the folder has no `index.ts`. Don't add one: it would make `@/lib/config`
