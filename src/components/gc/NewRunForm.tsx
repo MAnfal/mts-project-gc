@@ -15,6 +15,7 @@ import {
   switchPrompt,
 } from "@/lib/runs/new-run";
 import { blankProfile, mergeSuggested } from "@/lib/runs/profileForm";
+import { requestSuggestions } from "@/lib/runs/suggest-client";
 import { lastFullWeeks, scanNote, validateWindow, type Window } from "@/lib/runs/weeks";
 import type { CompanyProfile } from "@/lib/types";
 import { OwnersTable } from "./OwnersTable";
@@ -54,19 +55,10 @@ export function NewRunForm({ presets, today, maxWindowDays, focusProfile }: { pr
   const suggest = async () => {
     setSuggesting(true);
     setSuggestError(null);
-    try {
-      const res = await fetch("/api/suggest-areas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ description: state.form.summary }) });
-      if (!res.ok) {
-        setSuggestError(await res.text());
-        return;
-      }
-      const { areas } = (await res.json()) as { areas: { id: string; description: string }[] };
-      edit({ ...state.form, areas: mergeSuggested(state.form.areas, areas, newId) });
-    } catch {
-      setSuggestError("Suggestions aren't available right now. Add the areas yourself, or try again later.");
-    } finally {
-      setSuggesting(false);
-    }
+    const r = await requestSuggestions(state.form.summary, (input, init) => fetch(input, init));
+    if (r.ok) edit({ ...state.form, areas: mergeSuggested(state.form.areas, r.areas, newId) });
+    else setSuggestError(r.message);
+    setSuggesting(false);
   };
 
   return (
