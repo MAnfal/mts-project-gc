@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { EvalTargets } from "@/lib/config/schemas";
+import { liveIterationId } from "@/lib/evals/cases";
 import { chartSeries } from "@/lib/evals/chartSeries";
 import type { EvalIndex } from "@/lib/evals/index-schema";
 import { loadIndex } from "@/lib/evals/loader";
@@ -50,7 +51,7 @@ function summaryView(index: EvalIndex, story: EvalStory, targets: EvalTargets) {
   const verdict = computeVerdict(index, targets);
   const ctx = storyContext(index, verdict, story);
   const series = chartSeries(index, story);
-  const liveId = index.iterations.findLast((i) => i.setup === index.live.setup)?.id ?? index.iterations[0].id;
+  const liveId = liveIterationId(index) ?? index.iterations[0].id;
   const rows = (["context", "action", "result", "learning"] as const).map((k) => ({
     title: k[0].toUpperCase() + k.slice(1),
     text: fillTemplate(story.carl[k].text, ctx),
