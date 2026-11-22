@@ -15,7 +15,7 @@ file-limit-reason: ""
 
 Chunk 02 ported config and the deterministic libraries. This chunk ports the pipeline
 itself from `poc:poc/src/lib/pipeline/` (`context.ts`, `stages.ts`, `run.ts`,
-`excerpts.ts`), plus the model layer from `poc:poc/src/lib/gateway.ts` and `models.ts`.
+`excerpts.ts`), plus the model layer from `poc:poc/src/lib/gateway.ts` (amendment 4: no `models.ts`).
 It ports only the live setup `jev-sonnet-strict-passages`; the baseline and arena paths
 stay on `poc`. The sequence is:
 
@@ -62,6 +62,40 @@ at least 1 item on a frozen week. Then replay it:
 - Assert that the filter decisions, `tier.assign`, `owner.assign` and the final items equal
   the trace's, **ignoring only the `reason` text the leak fix changed**.
 
+### Preflight amendment (lead, 2026-11-23)
+
+A preflight read of the POC sources found these gaps. They override the text below where
+they conflict:
+
+1. **The relevance cut lives in POC `run.ts` (~line 62), not `stages.ts`.** POC
+   `stages.ts:79`'s `>=` only feeds a summary count. Mutation tests of the cut must
+   target the ported `run.ts` comparison. Recorded traces have docs at exactly the
+   threshold, so the mutation can go red there.
+2. **The replay needs recorded primary-source text.** `getDoc`/`getRawText` hit the
+   network, the POC's `data/cache/` was never committed, and the trace holds only
+   `textChars` and chunk counts. Capture the FR and govinfo responses the replayed run needs,
+   from the free public APIs, once, for the chosen fixture's documents only. Commit
+   them under `src/lib/pipeline/__fixtures__/`, and stub `fetch` in the replay so the test
+   makes **no** network call. Check the captured text against the trace's per-document
+   `textChars`/chunk counts, and report any drift. Pick a small fixture: from
+   `runs/*.json` of `arena-2026-11-21-23-16-du8`, a `jev-sonnet-strict-passages` run on a
+   frozen week with ≥1 item. Candidates the preflight found: `vnem` (1 item) and `zxuc`
+   (3 items).
+3. **POC imports not in the plan:**
+   - `p-limit`: add it, pinned to the POC's version, and record it in Stack.
+   - `majority` from `../grade`: only the voting setups reach it. Port only what the
+     live setup's code path needs. If `stages.ts` still imports it, port `majority`
+     verbatim into the smallest module that satisfies the import, and say so. Chunk 09
+     ports the rest of `grade.ts`.
+4. **`models.ts` is not needed.** `languageModel`, `decisionModel` and `gatewayCost` all
+   live in POC `gateway.ts`. T005 creates `src/lib/gateway.ts` only.
+5. **Gateway conventions win over the POC.** No dotenv, no `../.env`, and no throw at
+   import time. Read `AI_GATEWAY_API_KEY`, which the AI SDK reads natively, and fail
+   with a clear message only when a call is made without it.
+6. **`run.ts` keeps the POC's decision logic verbatim**: the threshold cut and the
+   verdict merge. "Wiring only" means no *new* rules go there.
+7. **Reason fallback test:** `src/lib/pipeline/reason.test.ts` (added to T002).
+
 ## Acceptance Criteria
 
 - Given the replay fixture, When the ported pipeline runs with the stubbed model layer,
@@ -89,6 +123,8 @@ at least 1 item on a frozen week. Then replay it:
   - `src/lib/pipeline/replay.test.ts`: the parity contract above. It fails until the
     stages are ported, because stub stages produce no decisions to compare.
   - `src/lib/pipeline/retry.test.ts`: a counting stub, with fake timers for the delays.
+  - `src/lib/pipeline/reason.test.ts`: an item with no LLM reason gets
+    "Flagged as relevant to your profile" (amendment 7).
   - `src/lib/pipeline/events.test.ts`: the no-internal-names scan over the replay run's
     events, plus a constructed event carrying `model:"typesafe-ai/jev"` that must make the
     sanitizer throw.
@@ -111,7 +147,7 @@ at least 1 item on a frozen week. Then replay it:
     contract.
 - [ ] T004 — create `src/lib/pipeline/retry.ts`: `withRetry(fn, {attempts:3,
   delaysMs:[2000,4000]}, onRetry)`: 3 attempts, 2 waits. Each constant carries a one-line reason comment.
-- [ ] T005 — create `src/lib/gateway.ts` and `src/lib/models.ts`, ported from the POC with
+- [ ] T005 — create `src/lib/gateway.ts` (no `models.ts`; see amendment 4), ported from the POC with
   only `languageModel`, `decisionModel` and `gatewayCost`. Read the key from the env var
   named in `project.md` Conventions.
 - [ ] T006 — create `src/lib/pipeline/context.ts`, ported `RunCtx`:
@@ -161,7 +197,7 @@ installed package before relying on them; the POC used them at `ai@^7.0.179`.
 
 ## Reuse Audit
 
-Reuse: porting the POC's `pipeline/*.ts`, `gateway.ts` and `models.ts`; chunk 02's
+Reuse: porting the POC's `pipeline/*.ts` and `gateway.ts`; chunk 02's
 `config`, `fr`, `verify`, `tier` and `prompts`. New: `events.ts` (public events and
 labels) and `retry.ts`. Nothing equivalent exists in the POC, which never retried.
 
@@ -195,8 +231,8 @@ if grep -rnE "saveRun|spentUsd|budgetUsd|spend-ledger" src/lib/pipeline; then
   echo "FAIL: POC persistence/ledger ported" >&2; exit 1; fi
 ```
 
-Mutation check for the parity contract: change the Jev threshold comparison in
-`stages.ts` from `>=` to `>`. Confirm `replay.test.ts` fails, revert, and confirm it
+Mutation check for the parity contract: change the relevance-cut comparison in the
+ported `run.ts` (POC `run.ts` ~line 62; see amendment 1) from `>=` to `>`. Confirm `replay.test.ts` fails, revert, and confirm it
 passes. Record both runs.
 
 ## Deliverables
