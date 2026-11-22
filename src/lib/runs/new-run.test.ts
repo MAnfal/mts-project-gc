@@ -204,3 +204,12 @@ describe("areasNote (under the owners table)", () => {
     expect(areasNote(initialState(all()).form)).toBe("Items outside these areas go to Jordan Blake, the general counsel.");
   });
 });
+
+describe("an untouched 'New company…'", () => {
+  it("has no edits to lose: picking a preset next switches at once", () => {
+    const blank = newRunReducer(initialState(all()), { type: "pick", value: "new", profile: blankProfile("custom-9") });
+    const s = newRunReducer(blank, { type: "pick", value: "preset:hearth", profile: hearth() });
+    expect(s.pending).toBeNull();
+    expect(s.choice).toBe("preset:hearth");
+  });
+});

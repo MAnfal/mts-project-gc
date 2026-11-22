@@ -144,6 +144,9 @@ function deepEqual(a: unknown, b: unknown): boolean {
 
 /** True once the form no longer describes the profile it was loaded from (an unfinished, invalid edit included). */
 export function isEdited(form: ProfileForm): boolean {
+  // Fields exactly as loaded: not edited, even when the profile can't run yet (an untouched "New company…").
+  const fields = (f: ProfileForm) => ({ ...f, base: undefined, areas: f.areas.map(({ area, covers, owner }) => ({ area, covers, owner })) });
+  if (deepEqual(fields(form), fields(profileToForm(form.base)))) return false;
   if (Object.keys(formErrors(form)).length) return true;
   const p = formToProfile(form);
   // Area order counts too: it is the order the table shows and the prompts list them in.
