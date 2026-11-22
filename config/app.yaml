@@ -13,3 +13,22 @@ evalTargets:
   relevanceAgreement: 0.9
   beatsBaseline: true
   nearMiss: 0.01
+# The preset the new-run screen opens on (a `use: demo` company id). Validated by NewRunConfigSchema.
+defaultPreset: ledgerly
+# "Suggest from description" on the new-run screen: one model call that proposes owner areas from the company
+# description, for the GC to review; owners are always left for the GC to fill in. UI-only, so it lives here and never
+# in prompts.yaml or experiment.yaml (both on the decision path). Validated by SuggestAreasConfigSchema.
+suggestAreas:
+  model: anthropic/claude-sonnet-5.5
+  prompt: |
+    A General Counsel is setting up a weekly triage of new federal rules for their company. Each rule that affects
+    the company is routed to one area of the business, and each area has one owner.
+
+    Propose between 3 and 8 areas for the company described below: the parts of the business that federal rules
+    could plausibly touch. For each area give:
+    - id: a short name a lawyer would recognise (2 to 4 words, for example "Consumer payments" or "Product safety");
+    - description: one line naming the rules or regulators it covers.
+    Do not propose owners, and do not invent business lines the description doesn't mention.
+
+    Company description:
+    {{description}}

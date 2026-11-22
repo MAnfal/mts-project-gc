@@ -30,3 +30,19 @@ export type EvalTargets = z.infer<typeof EvalTargetsSchema>;
 
 /** The slice of config/app.yaml the eval view reads. */
 export const EvalAppConfigSchema = z.object({ evalTargets: EvalTargetsSchema });
+
+/** config/app.yaml → defaultPreset: the preset the new-run screen opens on, and whose general counsel the sidebar shows. */
+export const NewRunConfigSchema = z.object({ defaultPreset: z.string().min(1) });
+
+/**
+ * config/app.yaml → suggestAreas: "Suggest from description" on the new-run screen (one model call, server-side only).
+ * UI-only, so it lives in app.yaml: prompts.yaml and experiment.yaml are on the decision path and stay as the POC's.
+ * The prompt must use {{description}}, or the model would be asked about no company at all.
+ */
+export const SuggestAreasConfigSchema = z.object({
+  suggestAreas: z.object({
+    model: z.string().min(1),
+    prompt: z.string().refine((s) => s.includes("{{description}}"), "prompt must contain the {{description}} placeholder"),
+  }),
+});
+export type SuggestAreasConfig = z.infer<typeof SuggestAreasConfigSchema>["suggestAreas"];
