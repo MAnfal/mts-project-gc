@@ -38,7 +38,7 @@ See `SPEC.md` in this directory.
 | Chunk | Story | Status | PR | Blocker |
 | ----- | ----- | ------ | -- | ------- |
 | 01 | Foundation | Merged | local merge e719139 | — |
-| 02 | US1 | Not started | — | — |
+| 02 | US1 | Merged | local merge 64e9c4f | — |
 | 03 | US1 | Not started | — | — |
 | 04 | US1 | Not started | — | — |
 | 05 | US1 | Not started | — | — |
@@ -75,6 +75,12 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-22 | review_passed | 01 | i2 PASS |
 | 2026-11-22 | pr_merged | 01 | merged --no-ff into feat/plan--demo-build (e719139) |
 | 2026-11-22 | wave_merged | 01 | Wave 0 |
+| 2026-11-22 | wave_started | 02,07 | Wave 1 (rubrics regenerated against Convention Map) |
+| 2026-11-22 | chunk_dispatched | 02 | implementer chunk-02 |
+| 2026-11-22 | chunk_dispatched | 07 | implementer chunk-07 |
+| 2026-11-22 | review_iteration | 02 | i1 FAIL: untested config.ts defensive branches; no malformed-config test |
+| 2026-11-22 | review_passed | 02 | i2 PASS |
+| 2026-11-23 | pr_merged | 02 | merged --no-ff into feat/plan--demo-build (64e9c4f); plan-tip gates exit 0 |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,

@@ -79,6 +79,24 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   `tsc` fails if you rely on it; a config path built from a variable makes Turbopack trace
   the whole project, so keep `readYaml`'s base path static.
 
+### Chunk 02 — Core libs
+
+- Plan claim falsified: `presets.test.ts` "fails today" was false, because the POC schema
+  already defaults `use` to `eval`. `use: eval` is a guard against future change with no
+  behaviour change today. Plan gap: a "fails today because…" line written without
+  running the schema.
+- configHash: `9a0f857741` (POC) → `a113914a72` (demo). The difference comes only from
+  brightside's `use: eval` plus chunk 01's `config/app.yaml` being hashed. Every later
+  config file moves it again, so the demo hash will never equal the recorded runs' hash.
+  Decision-path parity is proved by the byte diff in `02-core-libs/parity.sh`, not by
+  the hash.
+- Review i1 failed on untested defensive branches again (the same category as 01). That
+  is two for two, so implementers should be briefed up front: "every throw/guard you
+  write or port needs an off-fixture test".
+- Open warnings to absorb into 03: pin `pool: "forks"` in vitest config (the `chdir`
+  tests break under threads); remaining untested ported branches in `config.ts`
+  (validateAll model/method/areas checks) and `fr.ts:43` (the `!res.ok` throw).
+
 
 ---
 
@@ -102,6 +120,13 @@ iteration; every line here skips one.
   primitives `AppShell`/`SidebarNav` in `src/components/shell/` (owned by 01: compose them,
   don't edit them).
 - **Verify UI under `pnpm start`, not `next dev`** (dev writes `AGENTS.md` at the root).
+- **Helpers (02)**: `@/lib/config` → `src/lib/config.ts` (companies, presets(), prompts,
+  render, frozenWeek, loadKey, configHash, validateAll); `@/lib/config/load` → `readYaml`.
+  `src/lib/fr.ts` (in-memory cache), `verify.ts`, `tier.ts`, `prompts.ts` (byte-identical
+  to POC). Decision-path parity gate: `bash plans/2026-11-22-demo-build/02-core-libs/parity.sh`
+  — every later chunk that touches `config/` runs it. Temp-config test helper in
+  `src/lib/config-validation.test.ts`.
+- **Every throw/guard needs an off-fixture test**: reviews 01 and 02 both failed i1 on this.
 
 ---
 

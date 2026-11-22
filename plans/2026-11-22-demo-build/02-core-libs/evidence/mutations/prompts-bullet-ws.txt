@@ -1,0 +1,179 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+
+ ❯ src/lib/config.test.ts (9 tests | 3 failed) 69ms
+   ❯ prompts rebuilt from config/prompts.yaml match what the arena sent (3)
+     × baseline task 5ms
+     × LLM filter, first batch of the LLM-only run (from the frozen week input) 2ms
+     × action writing 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/config.test.ts > prompts rebuilt from config/prompts.yaml match what the arena sent > baseline task
+AssertionError: expected 'Company: Brightside Foods Co.\n\nUS m…' to be 'Company: Brightside Foods Co.\n\nUS m…' // Object.is equality
+
+- Expected
++ Received
+
+  Company: Brightside Foods Co.
+
+  US mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.
+
+  Rules that APPLY:
+- - FDA food additive and color additive rules (dyes in candy, casings, meat)
++ -  FDA food additive and color additive rules (dyes in candy, casings, meat)
+- - Food labeling and food safety rules for packaged food and meat products
++ -  Food labeling and food safety rules for packaged food and meat products
+- - EPA pesticide residue limits on crops we buy (pecans, apples, corn)
++ -  EPA pesticide residue limits on crops we buy (pecans, apples, corn)
+- - USDA marketing orders and grading for pecans and apples
++ -  USDA marketing orders and grading for pecans and apples
+- - SNAP rules that change what shoppers can buy or who qualifies (affects demand)
++ -  SNAP rules that change what shoppers can buy or who qualifies (affects demand)
+- - Workplace safety and labor rules for food plants; trucking safety rules for our fleet
++ -  Workplace safety and labor rules for food plants; trucking safety rules for our fleet
+
+  Rules that DO NOT apply:
+- - Aviation, airspace, aircraft airworthiness
++ -  Aviation, airspace, aircraft airworthiness
+- - Banking, securities, crypto, sanctions
++ -  Banking, securities, crypto, sanctions
+- - Medicare/Medicaid payment rules, medical devices
++ -  Medicare/Medicaid payment rules, medical devices
+- - Mining, offshore oil and gas, fisheries
++ -  Mining, offshore oil and gas, fisheries
+- - Broadcast/TV licensing
++ -  Broadcast/TV licensing
+
+  Affected areas and owners:
+- - food-safety: Additives, dyes, labeling, food safety → Maria Chen (Food Safety & Regulatory)
++ -  food-safety: Additives, dyes, labeling, food safety → Maria Chen (Food Safety & Regulatory)
+- - sourcing: Ingredients from farms, pesticide limits, crop rules → Tom Alvarez (Sourcing)
++ -  sourcing: Ingredients from farms, pesticide limits, crop rules → Tom Alvarez (Sourcing)
+- - sales: Retail channels, SNAP, pricing → Aisha Grant (Sales Compliance)
++ -  sales: Retail channels, SNAP, pricing → Aisha Grant (Sales Compliance)
+- - operations: Plant safety, labor, trucking fleet → Ben Kowalski (Operations)
++ -  operations: Plant safety, labor, trucking fleet → Ben Kowalski (Operations)
+
+  Task: Find every US Federal Register document published between 2026-11-09 and 2026-11-13 (inclusive) that affects this company. For each, give the Federal Register document number, title, federalregister.gov URL, the key deadline, a tier (Critical if it is a rule or proposed rule with a deadline less than 90 days after 2026-11-13, or a final rule that took effect within the 30 days before 2026-11-13; otherwise High for final rules, Medium for proposed rules and for notices with a deadline, Low for anything else), the owner area, a one-line reason, and a one-line action. Only include items you found via search. Return an empty list if none.
+
+ ❯ src/lib/config.test.ts:28:58
+     26|   it("baseline task", () => {
+     27|     const cfg = recorded.baselineTask.config as RunConfig;
+     28|     expect(baselineTask(getCompany(cfg.profileId), cfg)).toBe(recorded…
+       |                                                          ^
+     29|   });
+     30|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/lib/config.test.ts > prompts rebuilt from config/prompts.yaml match what the arena sent > LLM filter, first batch of the LLM-only run (from the frozen week input)
+AssertionError: expected 'Company: Brightside Foods Co.\n\nUS m…' to be 'Company: Brightside Foods Co.\n\nUS m…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,23 +1,23 @@
+  Company: Brightside Foods Co.
+
+  US mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.
+
+  Rules that APPLY:
+- - FDA food additive and color additive rules (dyes in candy, casings, meat)
++ -  FDA food additive and color additive rules (dyes in candy, casings, meat)
+- - Food labeling and food safety rules for packaged food and meat products
++ -  Food labeling and food safety rules for packaged food and meat products
+- - EPA pesticide residue limits on crops we buy (pecans, apples, corn)
++ -  EPA pesticide residue limits on crops we buy (pecans, apples, corn)
+- - USDA marketing orders and grading for pecans and apples
++ -  USDA marketing orders and grading for pecans and apples
+- - SNAP rules that change what shoppers can buy or who qualifies (affects demand)
++ -  SNAP rules that change what shoppers can buy or who qualifies (affects demand)
+- - Workplace safety and labor rules for food plants; trucking safety rules for our fleet
++ -  Workplace safety and labor rules for food plants; trucking safety rules for our fleet
+
+  Rules that DO NOT apply:
+- - Aviation, airspace, aircraft airworthiness
++ -  Aviation, airspace, aircraft airworthiness
+- - Banking, securities, crypto, sanctions
++ -  Banking, securities, crypto, sanctions
+- - Medicare/Medicaid payment rules, medical devices
++ -  Medicare/Medicaid payment rules, medical devices
+- - Mining, offshore oil and gas, fisheries
++ -  Mining, offshore oil and gas, fisheries
+- - Broadcast/TV licensing
++ -  Broadcast/TV licensing
+
+  === DOCUMENTS (20) ===
+
+  [2026-22729] Notice — Transportation Department; Federal Aviation Administration
+  Title: Noise Compatibility Program for Seattle-Tacoma International Airport, King County, Washington
+
+ ❯ src/lib/config.test.ts:33:58
+     31|   it("LLM filter, first batch of the LLM-only run (from the frozen wee…
+     32|     const docs = frozenWeek("2026-11-09", "2026-11-13")!.slice(0, 20);
+     33|     expect(filterPrompt(getCompany("brightside"), docs)).toBe(recorded…
+       |                                                          ^
+     34|   });
+     35|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/lib/config.test.ts > prompts rebuilt from config/prompts.yaml match what the arena sent > action writing
+AssertionError: expected 'Company: Brightside Foods Co.\n\nUS m…' to be 'Company: Brightside Foods Co.\n\nUS m…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,23 +1,23 @@
+  Company: Brightside Foods Co.
+
+  US mid-size packaged food company (~900 employees, plants in Ohio and Georgia). Makes hot dogs and sausages, brightly colored gummy candy, and pecan-and-apple snack bars. Buys pecans, apples and corn from US farms. Sells through grocery chains and convenience stores (many customers pay with SNAP / food stamps). Runs its own fleet of 40 delivery trucks. No restaurants, no alcohol, no exports.
+
+  Rules that APPLY:
+- - FDA food additive and color additive rules (dyes in candy, casings, meat)
++ -  FDA food additive and color additive rules (dyes in candy, casings, meat)
+- - Food labeling and food safety rules for packaged food and meat products
++ -  Food labeling and food safety rules for packaged food and meat products
+- - EPA pesticide residue limits on crops we buy (pecans, apples, corn)
++ -  EPA pesticide residue limits on crops we buy (pecans, apples, corn)
+- - USDA marketing orders and grading for pecans and apples
++ -  USDA marketing orders and grading for pecans and apples
+- - SNAP rules that change what shoppers can buy or who qualifies (affects demand)
++ -  SNAP rules that change what shoppers can buy or who qualifies (affects demand)
+- - Workplace safety and labor rules for food plants; trucking safety rules for our fleet
++ -  Workplace safety and labor rules for food plants; trucking safety rules for our fleet
+
+  Rules that DO NOT apply:
+- - Aviation, airspace, aircraft airworthiness
++ -  Aviation, airspace, aircraft airworthiness
+- - Banking, securities, crypto, sanctions
++ -  Banking, securities, crypto, sanctions
+- - Medicare/Medicaid payment rules, medical devices
++ -  Medicare/Medicaid payment rules, medical devices
+- - Mining, offshore oil and gas, fisheries
++ -  Mining, offshore oil and gas, fisheries
+- - Broadcast/TV licensing
++ -  Broadcast/TV licensing
+
+  [2026-22769] Notice: Pesticides; Notice of Receipt of Requests to Voluntarily Cancel Certain Pesticide Registrations and/or Amend Registrations To Terminate Certain Uses With a 30-Day Comment Period (June 2026)
+  Tier: Medium (notice with comment deadline in 26 days)
+  Owner: Tom Alvarez (Sourcing)
+  Why relevant: EPA notice of voluntary cancellation/use termination of pesticide registrations could affect pesticides used on pecans, apples, or corn that Brightside buys; supplier practices and tolerances may be affected.
+
+ ❯ src/lib/config.test.ts:37:99
+     35|
+     36|   it("action writing", () => {
+     37|     expect(actionsPrompt(getCompany("brightside"), recorded.actionsPro…
+       |                                                                                                   ^
+     38|   });
+     39| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 6 passed (9)
+   Start at  23:42:52
+   Duration  996ms (import 88%, tests 8%, transform 3%)
+
