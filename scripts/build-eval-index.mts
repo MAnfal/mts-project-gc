@@ -32,6 +32,8 @@ import zlib from "node:zlib";
 import YAML from "yaml";
 import {
   appendSkippedRuns,
+  bandControl,
+  iterationRuns,
   keepManifest,
   keyTotals,
   metricOf,
@@ -39,7 +41,9 @@ import {
   pickBaselineSetup,
   poolSetupRuns,
   repeatAgreement,
+  requireKeys,
   runCountsOf,
+  splitOfEvalset,
   type AgreementCounts,
   type AnswerKey,
   type SetupReport,
@@ -169,22 +173,17 @@ function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: str
     return { s, panelRuns: runs.filter((r) => r.status === "done" && r.panel).length };
   };
   const reports = { all: per("all"), dev: per("dev"), test: per("test") };
-  const agreement = repeatAgreement(pooled, keyOf, (e) => {
-    const split = splitOfSet(e);
-    if (!split) throw new Error(`eval set ${e} is not in the manifest`);
-    return split;
-  });
+  const agreement = repeatAgreement(pooled, keyOf, (e) => splitOfEvalset(sets, e));
   const ratio = (c: AgreementCounts, which: "relevance" | "tier", sp: Split) => {
     const { numerator, denominator } = c[which];
     return { value: denominator ? numerator / denominator : null, numerator, denominator, split: sp, runs: c.runs, suite: suites };
   };
   const bySplit = <T,>(f: (sp: Split) => T) => Object.fromEntries(SPLITS.map((sp) => [sp, f(sp)])) as Record<Split, T>;
   const metrics = Object.fromEntries(METRICS.map((m) => [m, bySplit((sp) => ({ ...metricOf(reports[sp], m), split: sp, suite: suites }))]));
-  const label = reports.all.s?.label;
-  if (!label) throw new Error(`no ${setup} runs in ${suites.join(", ")}`);
   return {
     setup,
-    label,
+    // poolSetupRuns has already thrown if the setup has no runs, so the all-weeks row exists.
+    label: reports.all.s?.label ?? setup,
     suite: suites,
     runCounts: bySplit((sp) => runCountsOf(reports[sp].s)),
     ...metrics,
@@ -336,22 +335,17 @@ async function main() {
 
   const iterations = iterationFiles(bundle);
   const measured = (it: (typeof iterations)[number]["summary"]) => {
-    if (it.evidenceOnly) return null;
-    if (!it.setup || !it.suite) throw new Error(`iteration ${it.id} has no setup or suite`);
-    return { candidate: inSuite(it.setup, it.suite), comparedTo: it.comparedTo ? inSuite(it.comparedTo, it.suite) : null };
+    const r = iterationRuns(it);
+    return r && { candidate: inSuite(r.setup, r.suite), comparedTo: r.comparedTo ? inSuite(r.comparedTo, r.suite) : null };
   };
   // Noise: the setup the live iteration replaced, re-run unchanged in both live suites.
-  const control = iterations.find((i) => i.summary.setup === liveSetup)?.summary.comparedTo ?? null;
+  const control = bandControl(iterations.map((i) => i.summary), liveSetup);
   const [la, lb] = LIVE_SUITES;
   const band =
     control === null
       ? null
       : noiseBand(control, ranIn(control, la) ? inSuite(control, la) : null, ranIn(control, lb) ? inSuite(control, lb) : null);
-  const keys = allEvalsets.map((e) => {
-    const k = keyOf(e);
-    if (!k) throw new Error(`no answer key for eval set ${e}`);
-    return k;
-  });
+  const keys = requireKeys(allEvalsets, keyOf);
   for (const it of iterations) files.set(`iterations/${it.id}/iteration.json`, json(it.record));
   const uv = UserViewIndexSchema.parse(userViewIndex(bundle));
   files.set("user-view/index.json", json(uv));

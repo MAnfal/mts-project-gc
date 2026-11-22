@@ -194,3 +194,35 @@ export function keyTotals(keys: AnswerKey[]): { relevant: number; traps: number 
     { relevant: 0, traps: 0 },
   );
 }
+
+// ── Lookups the index build depends on (chunk 08) ──
+
+/** An eval set's split as the manifest records it. Throws for an eval set the manifest does not list. */
+export function splitOfEvalset(sets: { id: string; split: "dev" | "test" }[], id: string): "dev" | "test" {
+  const split = sets.find((e) => e.id === id)?.split;
+  if (!split) throw new Error(`eval set ${id} is not in the manifest`);
+  return split;
+}
+
+/**
+ * The setups an iteration's results are measured on: its own setup and the one it replaced, over its suite.
+ * Null for an evidence-only iteration; throws when a recorded iteration lacks a setup or a suite.
+ */
+export function iterationRuns(it: { id: string; evidenceOnly: boolean; setup: string | null; suite: string | null; comparedTo: string | null }) {
+  if (it.evidenceOnly) return null;
+  if (!it.setup || !it.suite) throw new Error(`iteration ${it.id} has no setup or suite`);
+  return { setup: it.setup, comparedTo: it.comparedTo, suite: it.suite };
+}
+
+/** The answer key of every listed eval set, in order. Throws naming each eval set that has none. */
+export function requireKeys<K>(evalsetIds: string[], keyOf: (evalset: string) => K | null): K[] {
+  const keys = evalsetIds.map((e) => [e, keyOf(e)] as const);
+  const missing = keys.filter(([, k]) => k === null).map(([e]) => e);
+  if (missing.length) throw new Error(`no answer key for eval sets: ${missing.join(", ")}`);
+  return keys.map(([, k]) => k as K);
+}
+
+/** The noise band's control: what the last iteration that ran the live setup was compared to, or null. */
+export function bandControl(iterations: { setup: string | null; comparedTo: string | null }[], liveSetup: string): string | null {
+  return iterations.findLast((i) => i.setup === liveSetup)?.comparedTo ?? null;
+}

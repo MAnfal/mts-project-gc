@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   appendSkippedRuns,
+  bandControl,
+  iterationRuns,
   keepManifest,
   keyTotals,
   metricOf,
@@ -8,7 +10,9 @@ import {
   pickBaselineSetup,
   poolSetupRuns,
   repeatAgreement,
+  requireKeys,
   runCountsOf,
+  splitOfEvalset,
   type SetupReport,
 } from "./bundle-build";
 import { METRICS } from "./index-schema";
@@ -245,5 +249,55 @@ describe("noiseBand (the control's spread between two identical suites)", () => 
 describe("keyTotals (rules that matter and look-alikes across the answer keys)", () => {
   it("sums relevant docs and traps, traps given as a list or a map", () => {
     expect(keyTotals([KEYS.e1, KEYS.e2])).toEqual({ relevant: 3, traps: 3 });
+  });
+});
+
+describe("splitOfEvalset (an eval set's split from the manifest)", () => {
+  const sets = [{ id: "e1", split: "dev" as const }, { id: "e2", split: "test" as const }];
+  it("returns the manifest split", () => {
+    expect(splitOfEvalset(sets, "e2")).toBe("test");
+  });
+  it("throws for an eval set the manifest does not list", () => {
+    expect(() => splitOfEvalset(sets, "e9")).toThrow("eval set e9 is not in the manifest");
+  });
+});
+
+describe("iterationRuns (which setups an iteration's results are measured on)", () => {
+  const it0 = { id: "06-x", evidenceOnly: false, setup: "cand", suite: "s1", comparedTo: "ctl" };
+  it("names the candidate, the setup it replaced, and the suite", () => {
+    expect(iterationRuns(it0)).toEqual({ setup: "cand", comparedTo: "ctl", suite: "s1" });
+    expect(iterationRuns({ ...it0, comparedTo: null })).toEqual({ setup: "cand", comparedTo: null, suite: "s1" });
+  });
+  it("is null for an evidence-only iteration", () => {
+    expect(iterationRuns({ id: "07-next", evidenceOnly: true, setup: null, suite: null, comparedTo: null })).toBeNull();
+  });
+  it("throws when a recorded iteration has no setup or no suite", () => {
+    expect(() => iterationRuns({ ...it0, setup: null })).toThrow("iteration 06-x has no setup or suite");
+    expect(() => iterationRuns({ ...it0, suite: null })).toThrow("iteration 06-x has no setup or suite");
+  });
+});
+
+describe("requireKeys (every manifest eval set has an answer key)", () => {
+  it("returns the keys in manifest order", () => {
+    expect(requireKeys(["e2", "e1"], (e) => KEYS[e] ?? null)).toEqual([KEYS.e2, KEYS.e1]);
+  });
+  it("throws naming every eval set without a key", () => {
+    expect(() => requireKeys(["e1", "e7", "e8"], (e) => KEYS[e] ?? null)).toThrow("no answer key for eval sets: e7, e8");
+  });
+});
+
+describe("bandControl (the setup whose re-runs give the noise band)", () => {
+  const its = [
+    { setup: "a", comparedTo: null },
+    { setup: "live", comparedTo: "old-ctl" },
+    { setup: "b", comparedTo: "a" },
+    { setup: "live", comparedTo: "ctl" },
+  ];
+  it("is what the last iteration that ran the live setup was compared to", () => {
+    expect(bandControl(its, "live")).toBe("ctl");
+  });
+  it("is null when no iteration ran the live setup, or it was compared to nothing", () => {
+    expect(bandControl(its, "other")).toBeNull();
+    expect(bandControl([{ setup: "live", comparedTo: null }], "live")).toBeNull();
   });
 });

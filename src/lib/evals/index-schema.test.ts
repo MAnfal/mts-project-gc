@@ -179,6 +179,15 @@ describe("the shipped public/evals bundle", () => {
     expect(it06?.evidence).toEqual({ systemDiff: true, configDiff: true, errorAnalysis: true });
   });
 
+  it("index.json gives a dev-only suite's setups a null held-out split over 0 runs", () => {
+    const idx = EvalIndexSchema.parse(readJson("index.json"));
+    const devOnly = idx.suiteResults.filter((r) => r.suite[0] === "arena-2026-11-21-21-04-ly9");
+    expect(devOnly.map((r) => r.setup)).toEqual(["jev-sonnet-strict-vote3"]);
+    expect(devOnly[0].recall.test).toEqual({ value: null, split: "test", runs: 0, suite: ["arena-2026-11-21-21-04-ly9"] });
+    expect(devOnly[0].runCounts.test).toEqual({ total: 0, finished: 0, graded: 0 });
+    expect(devOnly[0].recall.dev.runs).toBe(1);
+  });
+
   it("index.json names the noise band's control and its two suites", () => {
     const idx = EvalIndexSchema.parse(readJson("index.json"));
     expect(idx.noiseBand?.setup).toBe("jev-sonnet-strict");
