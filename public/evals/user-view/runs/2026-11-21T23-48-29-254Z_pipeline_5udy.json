@@ -1,0 +1,2986 @@
+{
+  "id": "2026-11-21T23-48-29-254Z_pipeline_5udy",
+  "createdAt": "2026-11-21T23:48:29.254Z",
+  "config": {
+    "profileId": "ledgerly",
+    "windowStart": "2026-10-19",
+    "windowEnd": "2026-10-23",
+    "asOf": "2026-10-23",
+    "mode": "pipeline",
+    "model": "anthropic/claude-sonnet-5.5",
+    "filter": "jev+llm",
+    "jevThreshold": 0.1,
+    "webLeads": false,
+    "promptSet": "strict",
+    "filterExcerpts": {
+      "topN": 20,
+      "chunkChars": 1200,
+      "perDoc": 3,
+      "maxChunks": 300
+    },
+    "group": "user-view",
+    "cell": "jev-sonnet-strict-passages"
+  },
+  "configHash": "9a0f857741",
+  "status": "done",
+  "stages": [
+    {
+      "name": "scan:federal-register",
+      "ms": 0,
+      "costUsd": 0,
+      "outCount": 469
+    },
+    {
+      "name": "filter:jev",
+      "ms": 34716,
+      "costUsd": 0.014447118000000004,
+      "inCount": 469,
+      "outCount": 31,
+      "note": "threshold 0.1"
+    },
+    {
+      "name": "filter:passages",
+      "ms": 56271,
+      "costUsd": 0.03170391000000001,
+      "inCount": 20,
+      "outCount": 20,
+      "note": "top 20 by Jev · 3 passages each"
+    },
+    {
+      "name": "filter:llm",
+      "ms": 10330,
+      "costUsd": 0.08996000000000001,
+      "inCount": 31,
+      "outCount": 2,
+      "note": "0 unanswered after retry"
+    },
+    {
+      "name": "verify+tier",
+      "ms": 2745,
+      "costUsd": 0.013682,
+      "inCount": 2,
+      "outCount": 2,
+      "note": "0 unverified dates dropped from tiering"
+    },
+    {
+      "name": "output:actions",
+      "ms": 2026,
+      "costUsd": 0.004282000000000008,
+      "outCount": 2
+    }
+  ],
+  "calls": [
+    {
+      "stage": "filter-llm#1",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 7050,
+      "costUsd": 0.03358,
+      "inputTokens": 12180,
+      "outputTokens": 922,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (11) ===\n\n[2026-21629] Notice — Commerce Department; Census Bureau\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Annual Business Survey\nAction: Notice of Information Collection, request for comment.\nAbstract: The Department of Commerce, in accordance with the Paperwork Reduction Act (PRA) of 1995, invites the general public and other Federal agencies to comment on proposed, and continuing information collections, which helps us assess the impact of our information collection requirements and minimize the public's reporting burden. The purpose of this notice is to allow for 60 days of public comment on the proposed revision to the Annual Business Survey prior to the submission of this information collection request (ICR) to OMB for approval.\n\n[2026-21630] Notice — Federal Trade Commission\nTitle: Granting of Requests for Early Termination of the Waiting Period under the Premerger Notification Rules\nAbstract: (none)\n\n[2026-21643] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Trump Accounts Qualified Class Contribution Application\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collection listed below, in accordance with the Paperwork Reduction Act of 1995.\n\n[2026-21658] Proposed Rule — Agriculture Department; Food and Nutrition Administration\nTitle: Supplemental Nutrition Assistance Program: Electronic Benefits Transfer Card Security Measures\nAction: Proposed rule.\nAbstract: The Food and Nutrition Administration (FNA or the Agency), an agency of the U.S. Department of Agriculture (USDA or the Department), is issuing a rule proposing changes to Supplemental Nutrition Assistance Program (SNAP, the Program) regulations to modernize Electronic Benefit Transfer (EBT) technology and align EBT with consumer payment processing industry standards, improving both Program integrity and convenience for SNAP clients. These proposed changes will protect SNAP benefits from thieves and ensure benefits are accessible by approved households.\nKey passages from the full text (selected for this company):\n- \"Support SNAP EBT Chip Cards (i) The following are the requirements for SNAP-authorized retailers to support NFC-enabled SNAP chip cards. (A) SNAP chip cards will include a new service code (220), informing the POS terminal that the card has a chip. (B) The payment application on the chip will use a new Application ID (AID): A0000000044542. POS providers, acquirers, and TPPs must assist retailers in updating their POS devices and systems accordingly. (C) The application identifier (AID) encoded in the chip indicates to the POS terminal what type of card is being used. POS terminals are also coded to accept specific AIDs. For a chip card transaction to be successful, the card and the terminal need matching AIDs, meaning that all POS terminals must be updated with the new EBT chip AID in order to process EBT chip card transactions. (D) The AID is composed of two parts, the registered application provider identifier (RID) and the proprietary application identifier extension (PIX). EBT chip cards will include the unique AID A0000000044542. The unique AID will allow POS terminals to support SNAP processing rules (e.g., PIN entry required, fallback rules) via standard terminal action\"\n- \"achieve compliance will vary. Each organization must identify and document the methods they will use to achieve PCI compliance, and must continually upgrade and improve their methods. (iii) Generally, best practices to achieve PCI compliance include: (A) Tokenization (replacing sensitive data like card numbers with unique, random strings of digits to protect against data breaches during transactions). (B) Device fingerprinting (comparing current hardware/software characteristics to a user's previous usage, including comparing their physical device, browser version, internet Protocol [IP]) address, app vs. browser usage, etc.). (C) Use of secure sockets layer (SSL) technology or other strong firewall configurations. (D) Minimum browser standards (requiring certain browser versions, 128-binary digit (bit) encryption, etc.). (E) Required use of login IDs and passwords for internal and external access to website. [[Page 66993]] (F) Strong policies for ID and password format and handling of forgotten IDs and passwords. (G) Establishing system user roles that restrict users from updating or extracting PII and card data, based on whether they legitimately need to access such information.\"\n- \"pickup fees for SNAP households. (B) Internet retailers may offer to waive or discount fees in their membership or discount clubs for SNAP households. (r) Mobile Payments (1) A digital wallet (or electronic wallet) is a software-based system or an application that runs on any connected device. It stores your payment information and passwords of numerous payment methods and websites. Digital wallets run primarily on smartphones, but may be accessible from a computer--mobile wallets, which are a subset, are primarily used on mobile devices. (2) Mobile payments require the use of a Token Service Provider (TSP) that manages and issues payment tokens, which are unique identifiers that replace the PAN with a Device Primary Account number (DPAN) which is a token that is stored on the device after the card is provisioned (i.e., added, saved, or stored) to the wallet. (3) Mobile payments work using similar technology as ``contactless'' or ``tap'' cards (i.e., NFC-enabled chip cards). The same AID will be used for chip cards and mobile payments. (4) Adding a Card (i) When a card is added to Wallet, a digital representation (token) of that card is created and linked to a single device.\"\n\n[2026-21692] Notice — Federal Reserve System\nTitle: Notice of Proposals To Engage in or To Acquire Companies Engaged in Permissible Nonbanking Activities\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 204 (Friday, October 23, 2026) [Federal Register Volume 91, Number 204 (Friday, October 23, 2026)] [Notices] [Pages 66841-66842] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21692] ----------------------------------------------------------------------- FEDERAL RESERVE SYSTEM Notice of Proposals To Engage in or To Acquire Companies Engaged in Permissible Nonbanking Activities The companies listed in this notice have given notice under section 4 of the Bank Holding Company Act (12 U.S.C. 1843) (BHC Act) and Regulation Y, (12 CFR part 225) to engage de novo, or to acquire or control voting securities or assets of a company, including the companies listed below, that engages either directly or through a subsidiary or other company, in a nonbanking activity that is listed in Sec. 225.28 of Regulation Y (12 CFR 225.28) or that the Board has determined by Order to be closely related to banking and permissible for bank holding companies. Unless otherwise noted, these activities will be conducted throughout the United States. The public portions of the applications listed below, as well as other\"\n- \"related filings required by the Board, if any, are available for immediate inspection at the Federal Reserve Bank(s) indicated below and at the offices of the Board of Governors. This information may also be obtained on an expedited basis, upon request, by contacting the appropriate Federal Reserve Bank and from the Board's Freedom of Information Office at https://www.federalreserve.gov/foia/request.htm . Interested persons may express their views in writing on the question whether the proposal complies with the standards of section 4 of the BHC Act. [[Page 66842]] Comments received are subject to public disclosure. In general, comments received will be made available without change and will not be modified to remove personal or business information including confidential, contact, or other identifying information. Comments should not include any information such as confidential information that would not be appropriate for public disclosure. Unless otherwise noted, comments regarding the applications must be received at the Reserve Bank indicated or the offices of the Board of Governors, Benjamin W. McDonough, Secretary of the Board, 20th Street and Constitution Avenue NW,\"\n- \"Washington, DC 20551-0001, not later than November 9, 2026. A. Federal Reserve Bank of Kansas City (Jeffrey Imgarten, Assistant Vice President) 1 Memorial Drive, Kansas City, Missouri 64198-0001. Comments can also be sent electronically to [email&#160;protected] : 1. Security Bancshares Corporation, Wewoka, Oklahoma; to engage in lending activities pursuant to section 225.28(b)(1) of Regulation Y, and acquiring debt in default pursuant to section 225.28(b)(vii) of Regulation Y. Board of Governors of the Federal Reserve System. Michele Taylor Fennell, Associate Secretary of the Board. [FR Doc. 2026-21692 Filed 10-22-26; 8:45 am] BILLING CODE P\"\n\n[2026-21695] Notice — State Department\nTitle: Privacy Act of 1974; System of Records\nAction: Notice of a modified system of records.\nAbstract: This system maintains information that is used to establish the U.S. nationality and identity of persons for a variety of legal purposes including, but not limited to, the adjudication of passport applications and requests for related services, social security benefits, voter eligibility, employment applications, estate settlements, and Federal and state law enforcement and counterterrorism purposes.\n\n[2026-21701] Notice — State Department\nTitle: Notice of Department of State Action\nAction: Notice of Department of State Sanctions Actions Pursuant to the Executive Order Imposing Sanctions on the International Criminal Court.\nAbstract: The Department of State is publishing the names of one or more persons that have been placed on the Department of the Treasury's List of Specially Designated Nationals and Blocked Persons (SDN List) administered by the Office of Foreign Assets Control (OFAC).\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 204 (Friday, October 23, 2026) [Federal Register Volume 91, Number 204 (Friday, October 23, 2026)] [Notices] [Page 66910] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21701] ----------------------------------------------------------------------- DEPARTMENT OF STATE [Public Notice: 13153] Notice of Department of State Action ACTION: Notice of Department of State Sanctions Actions Pursuant to the Executive Order Imposing Sanctions on the International Criminal Court. ----------------------------------------------------------------------- SUMMARY: The Department of State is publishing the names of one or more persons that have been placed on the Department of the Treasury's List of Specially Designated Nationals and Blocked Persons (SDN List) administered by the Office of Foreign Assets Control (OFAC). DATES: See SUPPLEMENTARY INFORMATION section for applicable dates. FOR FURTHER INFORMATION CONTACT: Samuel Parker, Deputy Assistant Secretary, Division for Counter Threat Finance and Sanctions, Bureau of Economic, Energy & Business Affairs, Department of State, Washington, DC 20520, tel.: (202)\"\n- \"647 6981, email: [email&#160;protected] . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning sanctions programs are available on OFAC's website, https://ofac.treasury.gov/sanctions-programs-and-country-information/international-criminal-court-related-sanctions . Notice of Department of State Actions Acting pursuant to the authority of, and in accordance with, Executive Order 14203, the Secretary of State, in consultation with the Secretary of the Treasury and the Attorney General, determined that the following persons met the E.O. criteria referenced below. As a result, these persons have been added to the SDN List as of August 18, 2026, and all property and interests in property subject to U.S. jurisdiction of those persons are blocked. Individuals 1. AKANE, Tomoko, The Hague, Netherlands; DOB 28 Jun 1956; POB Aichi, Japan; nationality Japan; Gender Female; Passport RA3001686 (Japan) expires 17 Nov 2027. Designated pursuant to section 1(a)(ii)(A) of E.O. 14203 for having directly engaged in any effort by the ICC to investigate, arrest, detain, or prosecute a protected person without consent of that person's country of nationality.\"\n- \"2. SEYE, Abdoulaye, The Hague, Netherlands; DOB 09 May 1967; POB Dakar, Senegal; nationality Senegal; Gender Male; Passport A04447087 (Senegal) expires 23 Jul 2030. Designated pursuant to section 1(a)(ii)(A) of E.O. 14203 for having directly engaged in any effort by the ICC to investigate, arrest, detain, or prosecute a protected person without consent of that person's country of nationality. Acting pursuant to the authority of, and in accordance with, E.O. 14203, the Secretary of State determined, in consultation with the Secretary of the Treasury and the Attorney General, that the following person met the E.O. criteria referenced below. As a result, this person has been added to the SDN List as of October 9, 2026, and all property and interests in property subject to U.S. jurisdiction of that person are blocked. Entity 1. INTERNATIONAL CRIMINAL COURT, Oude Waalsdorperweg 10 2597 AK, The Hague, Netherlands; V.A.T. Number NL810956822 (Netherlands); Organization Established Date 01 Jul 2002. Designated pursuant to section 1(a)(ii)(A) of E.O. 14203 for having directly engaged in any effort by the ICC to investigate, arrest, detain, or prosecute a protected person without consent of\"\n\n[2026-21704] Notice — Treasury Department; Comptroller of the Currency\nTitle: Agency Information Collection Activities: Proposed Information Collection; Submission for OMB Review; Applications for Licensing or Registration To Issue Payment Stablecoins Under the GENIUS Act\nAction: Notice and request for comment.\nAbstract: The OCC, as part of its continuing effort to reduce paperwork and respondent burden, invites comment on a new information collection, as required by the Paperwork Reduction Act of 1995 (PRA). In accordance with the requirements of the PRA, the OCC may not conduct or sponsor, and the respondent is not required to respond to, an information collection unless it displays a currently valid Office of Management and Budget (OMB) control number. The OCC is proposing a new information collection to comply with the Guiding and Establishing National Innovation for U.S. Stablecoins Act (GENIUS Act or the Act) requirement for entities seeking to issue payment stablecoins in the United States, titled \"Applications for Licensing or Registration to Issue Payment Stablecoins Under the GENIUS Act.\" The OCC is seeking a new OMB control number for this information collection and is giving notice that it has sent the collection to OMB for review.\nKey passages from the full text (selected for this company):\n- \"without change, including any business or personal information provided, such as name and address information, email addresses, or phone numbers. Comments received, including attachments and other supporting materials, are part of the public record and subject to public disclosure. Do not include any information in your comment or supporting materials that you consider confidential or inappropriate for public disclosure. Written comments and recommendations for the proposed information collection should also be sent within 30 days of publication of this notice to www.reginfo.gov/public/do/PRAMain . You can find this information collection by selecting ``Currently under 30-day Review-- Open for Public Comments'' or by using the search function. You may review comments and other related materials that pertain to this information collection following the close of the 30-day comment period for this notice by the method set forth in the next bullet. Viewing Comments Electronically: Go to www.reginfo.gov . Hover over the ``Information Collection Review'' tab and click on ``Information Collection Review'' from the drop-down menu. From the ``Currently under Review'' drop-down menu, select\"\n- \"1320.3(c) to include agency requests or requirements that members of the public submit reports, keep records, or provide information to a third party. The OCC asks the OMB to approve the collection of information in this notice. Title: Applications for Licensing or Registration to Issue Payment Stablecoins Under the GENIUS Act. OMB Control No.: 1557-NEW. Type of Review: Regular. Affected Public: Businesses or other for-profit. Description: The GENIUS Act \\1\\ was enacted on July 18, 2025. The Act will be effective on January 18, 2026. The Act establishes a regulatory framework for payment stablecoin activities. On [[Page 66940]] March 2, 2026, the OCC issued a proposed rule that would implement requirements of the Act with respect to the issuance of payment stablecoins and certain related activities by entities subject to the OCC's jurisdiction (the proposed rule).\\2\\ The Act generally prohibits any person other than a permitted payment stablecoin issuer (PPSI) from issuing payment stablecoins in the United States. Further, the Act prohibits a foreign payment stablecoin issuer from offering, selling, or otherwise making available in the United States a payment stablecoin unless,\"\n- \"commenter noted that existing businesses may face additional burdens and that the OCC should consider using its waiver authority under section 5(f) of the GENIUS Act. The OCC will use its waiver authority, as appropriate. Comments continue to be invited on: (a) Whether the collection of information is necessary for the proper performance of the functions of the OCC, including whether the information has practical utility; (b) The accuracy of the OCC's estimate of the burden of the collection of information; (c) Ways to enhance the quality, utility, and clarity of the information to be collected; (d) Ways to minimize the burden of the collection on respondents, including through the use of automated collection techniques or other forms of information technology; and (e) Estimates of capital or start-up costs and costs of operation, maintenance, and purchase of services to provide information. Sarah E. Turney, Assistant Director, Office of the Comptroller of the Currency. [FR Doc. 2026-21704 Filed 10-22-26; 8:45 am] BILLING CODE 4810-33-P\"\n\n[2026-21705] Notice — Treasury Department; Comptroller of the Currency\nTitle: Agency Information Collection Activities: Proposed Information Collection; Submission for OMB Review; Reporting Forms and Instructions for Permitted Payment Stablecoin Issuers Subject to the Jurisdiction of the Office of the Comptroller of the Currency\nAction: Notice and request for comment.\nAbstract: The OCC, as part of its continuing effort to reduce paperwork and respondent burden, invites comment on a new information collection, as required by the Paperwork Reduction Act of 1995 (PRA). In accordance with the requirements of the PRA, the OCC may not conduct or sponsor, and the respondent is not required to respond to an information collection unless it displays a currently valid Office of Management and Budget (OMB) control number. The OCC is proposing a new information collection titled \"Reporting Forms and Instructions for Permitted Payment Stablecoin Issuers Subject to the Jurisdiction of the Office of the Comptroller of the Currency,\" that would include weekly and quarterly reporting forms that must be completed by permitted payment stablecoin issuers and foreign payment stablecoin issuers. The OCC is seeking a new OMB control number for this information collection. The OCC also is giving notice that it has sent the collection to OMB for review.\nKey passages from the full text (selected for this company):\n- \"Under the PRA (44 U.S.C. 3501 et seq.), Federal agencies must obtain approval from the OMB for each collection of information that they conduct or sponsor. ``Collection of information'' is defined in 44 U.S.C. 3502(3) and 5 CFR 1320.3(c) to include agency requests or requirements that members of the public submit reports, keep records, or provide information to a third party. The OCC asks the OMB to approve the collection in this notice. Title: Reporting Forms and Instructions for Permitted Payment Stablecoin Issuers Subject to the Jurisdiction of the Office of the Comptroller of the Currency. OMB Control No.: 1557-NEW. Type of Review: Regular. Affected Public: Businesses or other for-profit. Description: The Guiding and Establishing National Innovation for U.S. Stablecoins Act (12 U.S.C. 5901 et seq.) (GENIUS Act or the Act) was enacted on July 18, 2025. The GENIUS Act establishes a regulatory framework for payment stablecoin activities. On March 2, 2026, the Office of the Comptroller of the Currency (OCC) issued a proposed rule that would implement requirements of the Act with respect to the issuance of payment stablecoins and certain related activities by entities subject to the\"\n- \"stablecoin and whether they are issued to be considered part of outstanding issuance value. If a restricted payment stablecoin remains a liability of the permitted payment stablecoin issuer because the payment stablecoin may be redeemed in the future, then the payment stablecoin is part of the permitted payment stablecoin issuer's outstanding issuance value and a permitted payment stablecoin issuer must maintain reserves backing the outstanding stablecoin and the associated liability. --------------------------------------------------------------------------- \\17\\ See 12 CFR 15.2. --------------------------------------------------------------------------- Another commenter stated that the OCC should consider collecting instrument-level detail for tokenized reserve assets. The commenter explained that a tokenized claim can trade away from the value of the asset it references, which bears on fair-value reserve coverage. The OCC concurs with this recommendation and has updated the reporting forms, as discussed below, to require a permitted payment stablecoin issuer to indicate if a reserve asset is tokenized. The OCC believes collecting this information is necessary to understand a\"\n- \"the total payment stablecoins that were redeemed, but not reported in either Column G (Payment stablecoins redeemed through reserve assets) or Column H (Payment stablecoins redeemed through non- reserve assets). Column J requires permitted payment stablecoin issuers to report all payment stablecoins held in issuer-controlled wallets, commonly known as ``Treasury,'' ``corporate held,'' or ``minted but not issued'' stablecoins. Column K requires permitted payment stablecoin issuers to report all temporarily nonredeemable payment stablecoins, including, but not limited to temporary access restricted and time-locked stablecoins. The instructions define ``temporary access-restricted payment stablecoins'' to mean those payment stablecoins that are currently held in wallets or smart contracts subject to temporary freezes or administrative blocks (e.g., blacklist functions). The instructions further define ``time- locked payment stablecoins'' to mean payment stablecoin on each specified blockchain that are held in issuer-imposed smart contracts or vesting schedules that are solely controlled by the issuer, and that prevent transfer or liquidation until a specific future timestamp or block\"\n\n[2026-21706] Rule — Treasury Department; Comptroller of the Currency\nTitle: Implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act for the Issuance of Stablecoins by Entities Subject to the Jurisdiction of the Office of the Comptroller of the Currency\nAction: Final rule.\nAbstract: The Office of the Comptroller of the Currency (OCC) is issuing regulations implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act regarding the issuance of payment stablecoins and certain related activities by entities subject to the OCC's jurisdiction.\nKey passages from the full text (selected for this company):\n- \"or (iii) security, as defined in section 2 of the Securities Act of 1933 (15 U.S.C. 77b), section 3 of the Securities Exchange Act of 1934 (15 U.S.C. 78c), or section 2 of the Investment Company Act of 1940 (15 U.S.C. 80a-2). The GENIUS Act's definition of ``payment stablecoin'' also contains language clarifying that ``no bond, note, evidence of indebtedness, or investment contract that was issued by a permitted payment stablecoin issuer shall qualify as a security solely [because the issuer satisfies] the conditions in [paragraph (1) of the proposed ``payment stablecoin'' definition], consistent with section 17 of the Act.'' The GENIUS Act provides that this language was included ``for the avoidance of doubt.'' The OCC determined that it was not necessary to include this language in the proposed ``payment stablecoin'' definition because section 17 of the GENIUS Act includes amendments to the cited Federal statutes that clarify that payment stablecoins are not securities. The OCC received several comments addressing the definition of ``payment stablecoin.'' Commenters generally sought a definition that more clearly distinguished payment stablecoins covered by the Act from other\"\n- \"requirements of the Act, including, for example, whether the requirements of subpart C could nonetheless apply if, for example, an entity controls or holds itself out as controlling such payment stablecoins or private keys, or provides, or holds itself out as providing safekeeping or custodial services, including services that are ancillary or incidental to its custodial powers, for such payment stablecoins or private keys. In the alternative, the OCC sought comment on whether an OCC-supervised institution could provide ancillary custodial services to a user of such hardware or software while avoiding the minimum, principles-based requirements of the proposal. Several commenters recommended that the OCC clarify that the exclusion be applied on the basis of various factors that in essence mirror the control standard proposed in Sec. 15.21(b)(2). The OCC agrees and is clarifying Sec. 15.23 in accordance with these comments to prevent the section from being used to evade the custodial requirements of subpart C. Third-party services may in practice resemble the types of custody arrangements that the Act intended to be performed only by covered custodians. A simple non-control\"\n- \"result in new costs for covered custodial activities for non- OCC supervised entities. --------------------------------------------------------------------------- \\246\\ Specifically, the final rule imposes requirements relating to the custody of ``covered assets'' which include payment stablecoin reserves, payment stablecoins used as collateral, and private keys used to issue payment stablecoins, as well as cash and other property received in the course of the provision of custodial or safekeeping services for such assets. --------------------------------------------------------------------------- With respect to OCC-supervised bank-affiliated permitted payment stablecoin issuers, OCC-regulated banks were previously allowed to provide custody services for crypto-assets, as confirmed in Interpretive Letters 1170, 1183, and 1184. The OCC does not expect that OCC banks would incur new costs as a result of the custody services mandates in the final rule because OCC banks providing custody services for crypto-assets generally followed industry best practices and guidance governing non-fiduciary custody activities. Therefore, the OCC concluded that OCC-regulated bank-affiliated permitted\"\n\n[2026-21715] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; U.S. Information Returns and Related Forms, Schedules, Attachments, and Published Guidance\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury will submit the following information collection request to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, on or after the date of publication of this notice. The public is invited to submit comments on this request.\nKey passages from the full text (selected for this company):\n- \"comments and recommendations for the proposed information collection should be sent within 30 days of publication of this notice to www.reginfo.gov/public/do/PRAMain . Find this particular information collection by selecting ``Currently under 30-day Review-- Open for Public Comments'' or by using the search function. FOR FURTHER INFORMATION CONTACT: View the latest drafts of the tax forms related to the information collection listed in this notice at https://www.irs.gov/draft-tax-forms . Requests for additional information or copies of this collection should be directed to Kerry Dennis, (202) 317-5751. SUPPLEMENTARY INFORMATION: Change in Paperwork Reduction Act (PRA) Approval for Information Returns Under the PRA, the Office of Management and Budget (OMB) assigned a control number to each ``collection of information'' that it reviews and approves for use by an agency. A single information collection may consist of one or more forms, recordkeeping requirements, and/or third- party disclosure requirements. Under the PRA and OMB regulations, agencies have the discretion to seek separate OMB approvals for forms, recordkeeping requirements, and third-party reporting requirements or to\"\n- \"or with preparer assistance. In this current reporting environment, in which many taxpayers' activities are no longer directly associated with particular forms, estimating burden on a form-by-form basis is not an appropriate method of estimating taxpayer burden. The RAAS Taxpayer Burden Model methodology, which takes into account broader and more comprehensive taxpayer characteristics and activities, provides a much more accurate and useful estimate of taxpayer burden. --------------------------------------------------------------------------- \\1\\ Inclusion or exclusion of forms in this collection is not a legal determination that a form is or is not an information return as defined by Section 7434. Information return is used here only as a general descript of the most prevalent forms by filing numbers included in this collection (e.g., Form 1099 and Form 1098). --------------------------------------------------------------------------- Currently, there are 51 forms used by information return issuers when complying with Federal tax laws. These include Forms 1098, 1099-B, 1099-DA, 1099-DIV, 1099-INT, 1099-MISC, 1099-NEC, 1099-R, 5498, W-9 and their schedules. For most of these\"\n- \"Vehicle Loan Interest Statement................ 1545-2334 1099-A......................................... Acquisition or Abandonment of Secured Property. 1545-0877 1099-B......................................... Proceeds From Broker and Barter Exchange 1545-0715 Transactions. 1099-C......................................... Cancellation of Debt........................... 1545-1424 1099-CAP....................................... Changes in Corporate Control and Capital 1545-1814 Structure. 1099-DA........................................ Digital Asset Proceeds From Broker Transactions 1545-2330 1099-DIV....................................... Dividends and Distributions.................... 1545-0110 1099-G......................................... Certain Government Payments.................... 1545-0120 1099-INT....................................... Interest Income................................ 1545-0112 1099-K......................................... Payment Card and Third Party Network 1545-2205 Transactions. 1099-LS........................................ Reportable Life Insurance Sale................. 1545-2281 1099-LTC....................................... Long-Term Care and\"",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21629",
+            "relevant": false,
+            "reason": "Census Annual Business Survey information collection; no duty on Ledgerly's money transmission, remittance or wallet lines.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21630",
+            "relevant": false,
+            "reason": "FTC early termination of HSR waiting periods for unrelated mergers; imposes nothing on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21643",
+            "relevant": false,
+            "reason": "Treasury Trump Accounts contribution application collection; unrelated to Ledgerly's payments, remittance or crypto wallet business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21658",
+            "relevant": false,
+            "reason": "USDA SNAP EBT chip card and retailer POS rules; Ledgerly is not a SNAP retailer, acquirer or EBT processor, and its debit card is not an EBT product.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21692",
+            "relevant": false,
+            "reason": "Fed BHC Act section 4 notice about an Oklahoma bank holding company's lending; does not touch Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21695",
+            "relevant": false,
+            "reason": "State Department Privacy Act system of records notice for passport records; creates no duty for Ledgerly's privacy program.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21701",
+            "relevant": false,
+            "reason": "Individual SDN designations (ICC-related); per policy, sanctions actions matter only via the screening program, not individually.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21704",
+            "relevant": false,
+            "reason": "OCC PRA notice for GENIUS Act stablecoin issuer license applications; Ledgerly only holds and transmits USDC as a custodian and does not issue stablecoins, so no new duty.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21705",
+            "relevant": false,
+            "reason": "OCC PRA notice for reporting forms for permitted payment stablecoin issuers; Ledgerly is not an issuer and has no duty to file them.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21706",
+            "relevant": true,
+            "reason": "OCC final GENIUS Act rule sets custody requirements for payment stablecoin reserves and private keys and bars evading them via third-party services. Ledgerly's custodial wallet holds USDC, and its issuer counterparties will be affected.",
+            "areas": [
+              "crypto"
+            ]
+          },
+          {
+            "document_number": "2026-21715",
+            "relevant": true,
+            "reason": "Treasury/IRS information returns collection covers Form 1099-K and 1099-DA. These apply to Ledgerly as a payment app and digital asset platform, though it is a paperwork notice.",
+            "areas": [
+              "tax"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "stage": "filter-llm#0",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 10328,
+      "costUsd": 0.05638,
+      "inputTokens": 20310,
+      "outputTokens": 1576,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (20) ===\n\n[2026-21267] Rule — Treasury Department; Internal Revenue Service\nTitle: Regulations Regarding Payment of Tax by Commercially Acceptable Means\nAction: Final rule.\nAbstract: This document contains final regulations regarding the payment of tax by commercially acceptable means. The final regulations reflect changes to the law made by the Taxpayer First Act that would allow the IRS to directly accept payments of tax by credit or debit card, without having to connect taxpayers to third-party payment processors. These final regulations remove restrictions on the payment of any fee by the IRS under any contracts related to payment of taxes by credit, debit, or charge card, and on the IRS imposing any fee or charge on persons paying taxes by credit or debit card.\nKey passages from the full text (selected for this company):\n- \"related to payment of taxes by credit, debit, or charge card, and on the IRS imposing any fee or charge on persons paying taxes by credit or debit card. DATES: Effective date: These final regulations are effective on October 19, 2026. Applicability date: For date of applicability, see Sec. 301.6311- (g). FOR FURTHER INFORMATION CONTACT: Crystal Jackson-Kaloz of the Office of the Associate Chief Counsel (Procedure and Administration), (202) 317- 5191 (not a toll-free number). SUPPLEMENTARY INFORMATION: Authority This document contains amendments to the Procedure and Administration Regulations (26 CFR part 301) issued by the Secretary of the Treasury or the Secretary's delegate (Secretary) under the authority granted by sections 6311 and 7805(a) of the Internal Revenue Code (Code) regarding the payment of internal revenue taxes by commercially acceptable means. Section 6311(a) provides an express delegation of authority to the Secretary, stating that the Secretary may receive payment of internal revenue taxes by any commercially accepted means under conditions provided by regulations prescribed by the Secretary. Section 6311(d)(1)(A) directs the Secretary to prescribe regulations as\"\n- \"State, local, or Tribal governments, or by the private sector in excess of that threshold. IV. Executive Order 13132: Federalism Executive Order 13132 (Federalism) prohibits an agency from publishing any rule that has federalism implications if the rule either imposes substantial, direct compliance costs on State and local governments, and is not required by statute, or preempts State law, unless the agency meets the consultation and funding requirements of section 6 of the Executive order. These regulations do not have federalism implications and do not impose substantial direct compliance costs on State and local governments or preempt State law within the meaning of the Executive order. V. Small Business Administration Pursuant to section 7805(f) of the Code, the notice of proposed rulemaking preceding this regulation was submitted to the Chief Counsel for the Office of Advocacy of the Small Business Administration for comment on its impact on small business, and no comments were received. VI. Congressional Review Act Pursuant to the Congressional Review Act (5 U.S.C. 801 et seq.), the Office of Information and Regulatory Affairs designated this rule as not a major rule, as\"\n- \"redesignated paragraph (g). The revisions read as follows: Sec. 301.6311-2 Payment by credit card and debit card. * * * * * [[Page 65982]] (d) Resolution of errors relating to the credit card or debit card account--(1) In general. Payments of taxes by credit card or debit card, and payments of reimbursement fees referred to in paragraph (e)(2) of this section, are subject to the applicable error resolution procedures of section 161 of the Truth in Lending Act (15 U.S.C. 1666), section 908 of the Electronic Fund Transfer Act (15 U.S.C. 1693f), or any similar provisions of State or local law, for the purpose of resolving errors relating to the credit card or debit card account, but not for the purpose of resolving any errors, disputes or adjustments relating to the underlying tax liability. * * * * * (e) Authority to enter into contracts--(1) In general. The Commissioner may enter into contracts related to receiving payments of tax by credit card or debit card if such contracts are cost beneficial to the government. The determination of whether the contract is cost beneficial will be based on an analysis appropriate for the contract at issue and at a level of detail appropriate to\"\n\n[2026-21310] Rule — Postal Service\nTitle: Customs Requirements and Payment Procedures for Certain Customs Charges\nAction: Interim final rule.\nAbstract: The Postal Service is revising Mailing Standards of the United States Postal Service, International Mail Manual (IMM[supreg]), in various sections, to update mailer responsibilities with respect to customs requirements and to establish procedures for the payment, or reimbursement, of any customs charges that are assessed, including after the purchase of postage.\n\n[2026-21357] Notice — Commerce Department; Economic Analysis Bureau\nTitle: Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Services Surveys: BE-125, Quarterly Survey of Transactions in Selected Services and Intellectual Property With Foreign Persons\nAction: Notice of Information Collection, request for comment.\nAbstract: The Department of Commerce, in accordance with the Paperwork Reduction Act of 1995 (PRA), invites the general public and other Federal agencies to comment on proposed and continuing information collections, which helps us assess the impact of our information collection requirements and minimize the public's reporting burden. The purpose of this notice is to allow for 60 days of public comment preceding submission of the collection to OMB.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Notices] [Pages 66076-66077] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21357] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF COMMERCE Bureau of Economic Analysis Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Services Surveys: BE-125, Quarterly Survey of Transactions in Selected Services and Intellectual Property With Foreign Persons AGENCY: Bureau of Economic Analysis, Commerce. ACTION: Notice of Information Collection, request for comment. ----------------------------------------------------------------------- SUMMARY: The Department of Commerce, in accordance with the Paperwork Reduction Act of 1995 (PRA), invites the general public and other Federal agencies to comment on proposed and continuing information collections, which helps us assess the impact of our information collection\"\n- \"requirements and minimize the public's reporting burden. The purpose of this notice is to allow for 60 days of public comment preceding submission of the collection to OMB. DATES: To ensure consideration, comments regarding this proposed information collection must be received on or before December 18, 2026. ADDRESSES: Interested persons are invited to submit written comments to Christopher Stein, Chief, Services Surveys Branch, Bureau of Economic Analysis, by email to [email&#160;protected] or [email&#160;protected] . Please reference OMB Control Number 0608-0067 in the subject line of your comments. Do not submit Confidential Business Information or otherwise sensitive or protected information. FOR FURTHER INFORMATION CONTACT: Requests for additional information or specific questions related to collection activities should be directed to Christopher Stein, Chief, Services Surveys Branch, Bureau of Economic Analysis; 301-278-9189; or via email at [email&#160;protected] . SUPPLEMENTARY INFORMATION: I. Abstract The Quarterly Survey of Transactions in Selected Services and Intellectual Property with Foreign Persons (Form BE-125) is an ongoing survey that collects data from U.S.\"\n- \"persons who engage in covered transactions in selected services or intellectual property with foreign persons. A U.S. person means any individual, branch, partnership, associated group, association, estate, trust, corporation, or other organization (whether or not organized under the laws of any State), resident in the United States or subject to the jurisdiction of the United States. A U.S. person must report if they had combined sales of covered services or intellectual property to foreign persons that exceeded $6 million for the previous fiscal year, or are expected to exceed that amount during the current fiscal year, or if they had combined purchases of covered services or intellectual property from foreign persons that exceeded $4 million for the previous fiscal year, or are expected to exceed that amount during the current fiscal year. The data are needed to monitor U.S. trade in services, to analyze the impact of these cross-border services on the U.S. and foreign economies, to compile and improve the U.S. economic accounts, to support U.S. commercial policy on trade in services, to conduct trade promotion, and to improve the ability of U.S. businesses to identify and\"\n\n[2026-21430] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Presidential Documents] [Page 66277] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21430] [[Page 66275]] Vol. 91 Monday, No. 200 October 19, 2026 Part III The President ----------------------------------------------------------------------- Notice of October 15, 2026--Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia Notice of October 15, 2026--Continuation of the National Emergency With Respect to Sudan Notice of October 15, 2026--Continuation of the National Emergency With Respect to the Democratic Republic of the Congo \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 200 / Monday, October 19, 2026 / Presidential Documents\u0000\u0000 \u0000___________________________________________________________________ \u0000Title 3-- \u0000The President [[Page 66277]] Notice of October 15, 2026 Continuation of the National Emergency With Respect to Significant Narcotics Traffickers Centered in Colombia On October 21, 1995, by Executive Order 12978,\"\n- \"the President declared a national emergency pursuant to the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.) to deal with the unusual and extraordinary threat to the national security, foreign policy, and economy of the United States constituted by the actions of significant narcotics traffickers centered in Colombia and the extreme level of violence, corruption, and harm such actions cause in the United States and abroad. The actions of significant narcotics traffickers centered in Colombia continue to pose an unusual and extraordinary threat to the national security, foreign policy, and economy of the United States and cause an extreme level of violence, corruption, and harm in the United States and abroad. For this reason, the national emergency declared in Executive Order 12978 of October 21, 1995, must continue in effect beyond October 21, 2026. Therefore, in accordance with section 202(d) of the National Emergencies Act (50 U.S.C. 1622(d)), I am continuing for 1 year the national emergency with respect to significant narcotics traffickers centered in Colombia declared in Executive Order 12978. This notice shall be published in the Federal Register and\"\n- \"transmitted to the Congress. (Presidential Sig.) THE WHITE HOUSE, October 15, 2026. [FR Doc. 2026-21430 Filed 10-16-26; 11:15 am] Billing code 3395-F4-P\"\n\n[2026-21431] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to Sudan\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Presidential Documents] [Pages 66279-66280] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21431] \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 200 / Monday, October 19, 2026 / Presidential Documents\u0000\u0000 [[Page 66279]] Notice of October 15, 2026 Continuation of the National Emergency With Respect to Sudan On November 3, 1997, by Executive Order 13067, the President declared a national emergency with respect to Sudan pursuant to the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.) and took related steps to deal with the unusual and extraordinary threat to the national security and foreign policy of the United States posed by the actions and policies of the Government of Sudan. On April 26, 2006, by Executive Order 13400, the President determined that the conflict in Sudan's Darfur region posed an unusual and extraordinary threat to the national security and foreign policy of the United States, expanded the scope of the national emergency declared in\"\n- \"section 1 of Executive Order 13761. On October 12, 2017, pursuant to Executive Order 13761, as amended by Executive Order 13804, sections 1 and 2 of Executive Order 13067 and the entirety of Executive Order 13412 were revoked. On May 4, 2023, by Executive Order 14098, the President further expanded the scope of the national emergency declared in Executive Order 13067, finding that the situation in Sudan, including the military's seizure of power in October 2021 and the outbreak of inter-service fighting in April 2023, constituted an unusual and extraordinary threat to the national security and foreign policy of the United States. The crisis that led to the declaration of a national emergency in Executive Order 13067 of November 3, 1997; the expansion of the scope of that emergency in Executive Order 13400 of April 26, 2006; the taking of additional steps with respect to that emergency in Executive Order 13412 of October 13, 2006, Executive Order 13761 of January 13, 2017, and Executive Order 13804 of July 11, 2017; and the further expansion of the scope of that emergency in Executive Order 14098 of May 4, 2023, has not been resolved. The policies and actions of the Government of\"\n- \"Sudan, and the situation in Sudan and Darfur, continue to pose an unusual and extraordinary threat to the national security and foreign policy of the United States. For this reason, the national emergency declared in Executive Order 13067, [[Page 66280]] as expanded by Executive Orders 13400 and 14098, must continue in effect beyond November 3, 2026. This notice shall be published in the Federal Register and transmitted to the Congress. (Presidential Sig.) THE WHITE HOUSE, October 15, 2026. [FR Doc. 2026-21431 Filed 10-16-26; 11:15 am] Billing code 3395-F4-P\"\n\n[2026-21432] Presidential Document — Executive Office of the President\nTitle: Continuation of the National Emergency With Respect to the Democratic Republic of the Congo\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 200 (Monday, October 19, 2026) [Federal Register Volume 91, Number 200 (Monday, October 19, 2026)] [Presidential Documents] [Page 66281] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21432] \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 200 / Monday, October 19, 2026 / Presidential Documents\u0000\u0000 [[Page 66281]] Notice of October 15, 2026 Continuation of the National Emergency With Respect to the Democratic Republic of the Congo On October 27, 2006, by Executive Order 13413, the President declared a national emergency pursuant to the International Emergency Economic Powers Act (50 U.S.C. 1701 et seq.) to deal with the unusual and extraordinary threat to the foreign policy of the United States constituted by the situation in or in relation to the Democratic Republic of the Congo, which has been marked by widespread violence and atrocities that continue to threaten regional stability. The President took additional steps to address this national emergency in Executive Order 13671 of July 8, 2014. The situation in or in relation to the Democratic Republic of the Congo continues\"\n- \"to pose an unusual and extraordinary threat to the foreign policy of the United States. For this reason, the national emergency declared in Executive Order 13413 of October 27, 2006, as amended by Executive Order 13671 of July 8, 2014, must continue in effect beyond October 27, 2026. Therefore, in accordance with section 202(d) of the National Emergencies Act (50 U.S.C. 1622(d)), I am continuing for 1 year the national emergency with respect to the situation in or in relation to the Democratic Republic of the Congo declared in Executive Order 13413, as amended by Executive Order 13671. This notice shall be published in the Federal Register and transmitted to the Congress. (Presidential Sig.) THE WHITE HOUSE, October 15, 2026. [FR Doc. 2026-21432 Filed 10-16-26; 11:15 am] Billing code 3395-F4-P\"\n\n[2026-21394] Notice — State Department\nTitle: Determination and Certification With Respect to the Child Soldiers Prevention Act (CPSA) of 2008\nAbstract: (none)\n\n[2026-21398] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Pages 66395-66402] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21398] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Office of Foreign Assets Control Notice of OFAC Sanctions Action AGENCY: Office of Foreign Assets Control, Treasury. ACTION: Notice. ----------------------------------------------------------------------- SUMMARY: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them. DATES: This action was issued on October 15, 2026. See SUPPLEMENTARY INFORMATION for relevant dates. FOR FURTHER\"\n- \"INFORMATION CONTACT: OFAC: Associate Director for Global Targeting, 202-622-2420; Assistant Director for Licensing, 202-622- 2480; Assistant Director for Sanctions Compliance, 202-622-2490; or https://ofac.treasury.gov/contact-ofac . SUPPLEMENTARY INFORMATION: Electronic Availability The SDN List and additional information concerning OFAC sanctions programs are available on OFAC's website: https://ofac.treasury.gov . Notice of OFAC Actions On October 15, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. BILLING CODE 4810-AL-P [[Page 66396]] [GRAPHIC] [TIFF OMITTED] TN20OC26.028 [[Page 66397]] [GRAPHIC] [TIFF OMITTED] TN20OC26.029 [[Page 66398]] [GRAPHIC] [TIFF OMITTED] TN20OC26.030 [[Page 66399]] [GRAPHIC] [TIFF OMITTED] TN20OC26.031 [[Page 66400]] [GRAPHIC] [TIFF OMITTED] TN20OC26.032 [[Page 66401]] [GRAPHIC] [TIFF OMITTED] TN20OC26.033 [[Page 66402]] [GRAPHIC] [TIFF OMITTED] TN20OC26.034 (Authority: E.O. 13902.) Bradley T. Smith, Director, Office of Foreign Assets Control. [FR Doc. 2026-21398 Filed 10-19-26; 8:45 am] BILLING CODE 4810-AL-C\"\n\n[2026-21400] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Submission for OMB Review; Comment Request; Application for Extension of Time To Furnish Recipient Statements\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury will submit the following information collection requests to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, on or after the date of publication of this notice. The public is invited to submit comments on these requests.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 201 (Tuesday, October 20, 2026) [Federal Register Volume 91, Number 201 (Tuesday, October 20, 2026)] [Notices] [Page 66404] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21400] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Agency Information Collection Activities; Submission for OMB Review; Comment Request; Application for Extension of Time To Furnish Recipient Statements AGENCY: Internal Revenue Service (IRS), Treasury. ACTION: Notice of information collection; request for comment. ----------------------------------------------------------------------- SUMMARY: The Department of the Treasury will submit the following information collection requests to the Office of Management and Budget (OMB) for review and clearance in accordance with the Paperwork Reduction Act of 1995, on or after the date of publication of this notice. The public is invited to submit comments on these requests. DATES: Comments should be received on or before November 19, 2026 to be assured of consideration. ADDRESSES: Written comments and recommendations for the\"\n- \"proposed information collection should be sent within 30 days of publication of this notice to www.reginfo.gov/public/do/PRAMain . Find this particular information collection by selecting ``Currently under 30-day Review-- Open for Public Comments'' or by using the search function. FOR FURTHER INFORMATION CONTACT: Copies of the submissions may be obtained from Spencer W. Clark by emailing [email&#160;protected] , calling (202) 927-5331, or viewing the entire information collection request at www.reginfo.gov . SUPPLEMENTARY INFORMATION: Internal Revenue Service (IRS) Title: Application for Extension of Time to Furnish Recipient Statements. OMB Control Number: 1545-2313. Type of Request: Extension without change of a currently approved collection. Description: The Secretary may grant an extension of time in which to furnish to employees/contractors the statements required by law. Currently, regulations allow the taxpayer to request an extension of time via letter. This form provides taxpayers with a more structured way of making the request. This will ease the burden on the taxpayers and improve IRS processing time. Form: 15397. Affected Public: Business or other for-profit\"\n- \"organizations. Estimated Number of Respondents: 35,000. Frequency of Response: Annually. Estimated Total Number of Annual Responses: 35,000. Estimated Time per Response: 0.72 hours. Estimated Total Annual Burden Hours: 25,200. Authority: 44 U.S.C. 3501 et seq. Juliana L. Pearson, Treasury PRA Clearance Officer. [FR Doc. 2026-21400 Filed 10-19-26; 8:45 am] BILLING CODE 4831-GV-P\"\n\n[2026-21423] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Actions\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons whose property and interests in property have been unblocked and who have been removed from the SDN List.\nKey passages from the full text (selected for this company):\n- \"jurisdiction of the following persons are unblocked and they have been removed from the SDN List. 1. BOMATTER, Hans Peter, La Zubia, Spain; DOB 19 May 1965; POB Schattdorf, Switzerland; nationality Switzerland; Gender Male; Secondary sanctions risk: See Section 11 of Executive Order 14024.; Passport F3848406 (Switzerland) (individual) [RUSSIA-EO14024] (Linked To: TAMYNA AG). 2. VEGA SANCHEZ, Jose Raul, c/o AGRICOLA GAXIOLA S.A. DE C.V., Hermosillo, Sonora, Mexico; c/o INMUEBLES SIERRA VISTA S.A. DE C.V., Hermosillo, Sonora, Mexico; c/o TEMPLE DEL PITIC S.A. DE C.V., Hermosillo, Sonora, Mexico; DOB 19 Oct 1956; POB Cananea, Sonora, Mexico; nationality Mexico; citizen Mexico; C.U.R.P. VESR561019HSRGNL09 (Mexico); alt. C.U.R.P. VEXR561019HSRGXL05 (Mexico) (individual) [SDNTK]. 3. MODULSAN MAKINA KESICI TAKIM VE DISLI SANAYI TICARET LIMITED SIRKETI, 1CA Blok, 1575. Sokak No. 1 CA/2, Akcaburgaz Mahallesi, Esenyurt 34522, Turkey; website www.modulsan.com ; Secondary sanctions risk: See Section 11 of Executive Order 14024.; Organization Established Date 09 Oct 2006; Tax ID No. 3340494281 (Turkey); Identification Number 0334049428100019 (Turkey); Registration Number 602993 (Turkey)\"\n- \"[RUSSIA-EO14024]. C. On September 17, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are unblocked and they have been removed from the SDN List. [[Page 66403]] [GRAPHIC] [TIFF OMITTED] TN20OC26.040 2. LAKOKRASKA OAO (a.k.a. LAKOKRASKA OPEN JOINT-STOCK COMPANY), 71 Ignatova Street, Grodnenskaya Region, Lida 231300, Belarus; ul. Ignatova, 71, Grodnenskaya oblast, Lida 231300, Belarus [BELARUS]. D. On September 23, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are unblocked and they have been removed from the SDN List. 1. OLENGA, Francois (Latin: OLENGA, Fran[ccedil]ois) (a.k.a. OKUNJI, Francois (Latin: OKUNJI, Fran[ccedil]ois); a.k.a. OLENGA TATE, Francois; a.k.a. OLENGA TETE, Francois (Latin: OLENGA TETE, Fran[ccedil]ois); a.k.a. OTSHUNDI, Francois (Latin: OTSHUNDI, Fran[ccedil]ois)), Kinshasa, Congo, Democratic Republic of the; DOB 09 Oct 1948; alt. DOB 10 Sep 1948; alt. DOB 10 Jul 1949; POB Kindu, Maniema, Democratic Republic of the Congo; nationality Congo, Democratic Republic of the; citizen Congo, Democratic Republic of the; Gender\"\n- \"Male; General; Chef de la Maison Militaire; Head of the Military House of the President (individual) [DRCONGO]. 2. SAFARI CLUB (a.k.a. CENTRE DE LOISIR SAFARI CLUB; a.k.a. ``SAFARI BEACH''), Nsele, Kinshasa, Congo, Democratic Republic of the; Gombe, Kinshasa, Congo, Democratic Republic of the; Registration ID 1322 (Congo, Democratic Republic of the) [DRCONGO] (Linked To: OLENGA, Francois). E. On September 30, 2026, OFAC determined that the property and interests in property subject to U.S. jurisdiction of the following persons are unblocked and they have been removed from the SDN List. 1. PROTOPOVICH, Tatyana (a.k.a. PROTOPOVICH, Tayuana), Praspiekt Dziarzynsakaha, 82, Flat 227, Minsk 22089, Belarus; DOB 24 Mar 1996; nationality Belarus; Gender Female; Passport MP4133985 (Belarus); National ID No. 4240396A013PB6 (Belarus) (individual) [BELARUS-EO14038] (Linked To: CENTURONIC LTD). 2. PATRACA, S.A. DE C.V. (a.k.a. BOUTIQUE PATRACA), Calle Miguel Hgo No. 302, Col. Centro, Culiacan, Sinaloa, Mexico; Ave. Alvaro Obregon No. 1800, 74M, Col. Colinas de San Miguel, Culiacan, Sinaloa 80228, Mexico; Col. Proyecto Urbano Tres Rios, Culiacan, Sinaloa, Mexico; Calle Benito Juarez, No. 302,\"\n\n[2026-21445] Notice — Treasury Department; Foreign Assets Control Office\nTitle: Notice of OFAC Sanctions Action\nAction: Notice.\nAbstract: The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) is publishing the names of one or more persons that have been placed on OFAC's Specially Designated Nationals and Blocked Persons List (SDN List) based on OFAC's determination that one or more applicable legal criteria were satisfied. All property and interests in property subject to U.S. jurisdiction of these persons are blocked, and U.S. persons are generally prohibited from engaging in transactions with them.\nKey passages from the full text (selected for this company):\n- \"Commit, Threaten to Commit, or Support Terrorism,'' 66 FR 49079, as amended by Executive Order 13886 of September 9, 2019, ``Modernizing Sanctions To Combat Terrorism,'' 84 FR 48041 (collectively, ``E.O. 13224, as amended''). As a result, the property and interests in property subject to U.S. jurisdiction of the following persons are blocked under the relevant sanctions authorities listed below. Individuals 1. GUAJARDO ALVAREZ, Pablo Cesar (a.k.a. ``El Takia''), Mexico; DOB 29 Dec 1998; POB Tamaulipas, Mexico; nationality Mexico; Gender Male; Secondary sanctions risk: section 1(b) of Executive Order 13224, as amended by Executive Order 13886; C.U.R.P. GUAP981229HTSJLB08 (Mexico) (individual) [SDGT] [ILLICIT-DRUGS-EO14059] (Linked To: CARTEL DEL NORESTE). Sanctioned pursuant to section 1(b)(iii) of E.O. 14059 for having acted or purported to act for or on behalf of, directly or indirectly, Cartel del Noreste, a sanctioned person pursuant to E.O. 14059. Designated pursuant to section 1(a)(iii)(A) of E.O. 13224, as amended, for having acted or purported to act for or on behalf of, directly or indirectly, Cartel del Noreste, a person whose property and interests in property are blocked\"\n- \"pursuant to E.O. 13224, as amended. 2. GARZA GARCIA, Gamaliel, Anahuac, Nuevo Leon, Mexico; DOB 23 Oct 1974; POB Nuevo Leon, Mexico; nationality Mexico; Gender Male; Secondary sanctions risk: section 1(b) of Executive Order 13224, as amended by Executive Order 13886; C.U.R.P. GAGG741023HNLRRM06 (Mexico) (individual) [SDGT] [ILLICIT-DRUGS-EO14059] (Linked To: CARTEL DEL NORESTE). Sanctioned pursuant to section 1(b)(i) of E.O. 14059 for having provided, or attempted to provide, financial, material, or technological support of, or goods or services in support of, Cartel del Noreste, a sanctioned person pursuant to E.O. 14059. Designated pursuant to section 1(a)(iii)(C) of E.O. 13224, as amended, for having materially assisted, sponsored, or provided financial, material, or technological support for, or goods or services to or in support of, Cartel del Noreste, a person whose property and interests in property are blocked pursuant to E.O. 13224, as amended. 3. GARZA ELIAS, Gamaliel, Anahuac, Nuevo Leon, Mexico; DOB 10 Jul 1997; POB Nuevo Laredo, Tamaulipas, Mexico; nationality Mexico; Gender Male; Secondary sanctions risk: section 1(b) of Executive Order 13224, as amended by Executive\"\n- \"Order 13886; C.U.R.P. GAEG970710HTSRLM04 (Mexico) (individual) [SDGT] [ILLICIT-DRUGS-EO14059] (Linked To: CONSTRUCCIONES Y EDIFICACIONES GARZA ELIAS, S.A. DE C.V.). Sanctioned pursuant to section 1(b)(iii) of E.O. 14059 for having acted or purported to act for or on behalf of, directly or indirectly, Construcciones y Edificaciones Garza Elias, S.A. de C.V., a sanctioned person pursuant to E.O. 14059. Designated pursuant to section 1(a)(iii)(A) of E.O. 13224, as amended, for having acted or purported to act for or on behalf of, directly or indirectly, Construcciones y Edificaciones Garza Elias, S.A. de C.V., a person whose property and interests in property are blocked pursuant to E.O. 13224, as amended. 4. INZUNZA PARTIDA, Francisco Javier (a.k.a. AMADOR INZUNZA, Francisco; a.k.a. ``Pancho Amador''), Mexico; DOB 21 Nov 1986; POB Coahuila, Mexico; nationality Mexico; Gender Male; C.U.R.P. IUPF861121HCLNRR09 (Mexico) (individual) [ILLICIT-DRUGS-EO14059]. Sanctioned pursuant to section 1(a)(i) of E.O. 14059 for having engaged in, or attempted to engage in, activities or transactions that have materially contributed to, or pose a significant risk of materially contributing to, the\"\n\n[2026-21447] Notice — Homeland Security Department\nTitle: Notice of Order Regarding Exclusion and Removal of DeepSeek Products From Federal Civilian Executive Branch Information Technology Systems and Procurements\nAction: Notice of order.\nAbstract: The Department of Homeland Security is publishing notice of the Secretary of Homeland Security's issuance of an order (1) excluding information technology products and services developed by Hangzhou DeepSeek Artificial Intelligence Co., Ltd (DeepSeek), to include affiliated entities as defined in applicable regulations, from federal civilian agency procurements; and, (2) removing all DeepSeek and DeepSeek-affiliate products, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology.\n\n[2026-21500] Notice — Justice Department\nTitle: Agency Information Collection Activities; Proposed eCollection eComments Requested; Extension of a Previously Approved Collection; Title-Lawful Access Data Collection (LADC)\nAction: 30-Day notice.\nAbstract: The Criminal Justice Information Services (CJIS) Division, FBI, DOJ, will be submitting the following information collection request to the Office of Management and Budget (OMB) for review and approval in accordance with the Paperwork Reduction Act of 1995. The proposed information collection was previously published in the Federal Register on September 19, 2026, allowing a 60-day comment period.\n\n[2026-21502] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; RESTORE Act Grants\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collections listed below, in accordance with the Paperwork Reduction Act of 1995.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 202 (Wednesday, October 21, 2026) [Federal Register Volume 91, Number 202 (Wednesday, October 21, 2026)] [Notices] [Pages 66622-66623] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21502] ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Agency Information Collection Activities; Proposed Collection; Comment Request; RESTORE Act Grants AGENCY: Departmental Offices, U.S. Department of the Treasury. ACTION: Notice of information collection; request for comment. ----------------------------------------------------------------------- SUMMARY: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collections listed below, in accordance with the Paperwork Reduction Act of 1995. DATES: Written comments must be received on or before December 21, 2026. ADDRESSES: Send comments regarding the burden estimate, or any other aspect of the information collection, including suggestions for reducing the burden, to\"\n- \"U.S. Department of the Treasury, Attention: Treasury PRA Clearance Officer, 1500 Suite #8100, JBAB, 250 Murray Lane SW, Bldg. 410/Door 123, Washington, DC 20222, or email at [email&#160;protected] . FOR FURTHER INFORMATION CONTACT: Copies of the submissions may be obtained from Spencer W. Clark by emailing [email&#160;protected] , calling (202) 927-5331, or viewing the entire information collection request at www.reginfo.gov . SUPPLEMENTARY INFORMATION: Title: Application, Reports, and Recordkeeping for the Direct Component and the Centers of Excellence Research Grants Program under the RESTORE Act. OMB Control Number: 1505-0250. Type of Review: Extension without change to the currently approved collection. Description: The Department of the Treasury administers the Direct Component and the Centers of Excellence Research Grants Programs authorized under the RESTORE Act. Treasury makes grants to eligible entities under these two programs with proceeds from administrative and civil penalties paid after July 6, 2012, under the Federal Water Pollution Control Act relating to the Deepwater Horizon Oil Spill and deposited into the Gulf Coast Restoration Trust Fund. Direct Component\"\n- \"per Response: 11.2 hours. Estimated Total Annual Burden Hours: 6,310. Request For Comments: Comments submitted in response to this notice will be summarized and included in the request for Office of Management and Budget approval. All comments will become a matter of public record. Comments are invited on: (a) whether the collection of information is necessary for the proper performance of the functions of the agency, including whether the information shall have practical utility; (b) the accuracy of the agency's estimate of the burden of the collection of information; (c) ways to enhance the quality, utility, and clarity of the information to be collected; (d) ways to minimize the burden of the collection of information on respondents, including through the use of technology; and (e) estimates of capital or start-up costs and costs of operation, maintenance, and purchase of services required to provide information. (Authority: 44 U.S.C. 3501 et seq.) Juliana L. Pearson, Treasury PRA Clearance Officer. [FR Doc. 2026-21502 Filed 10-20-26; 8:45 am] BILLING CODE 4810-AK-P\"\n\n[2026-21510] Proposed Rule — Federal Trade Commission\nTitle: Petition for Rulemaking of Jason Plotzker\nAction: Receipt of petition; request for comment.\nAbstract: Please take notice that the Federal Trade Commission (\"Commission\") received a petition for rulemaking from Jason Plotzker and has published that petition online at https://www.regulations.gov. The Commission invites written comments concerning the petition. Publication of this petition is pursuant to the Commission's Rules of Practice and Procedure and does not affect the legal status of the petition or its final disposition.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 202 (Wednesday, October 21, 2026) [Federal Register Volume 91, Number 202 (Wednesday, October 21, 2026)] [Proposed Rules] [Pages 66539-66540] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21510] ======================================================================= ----------------------------------------------------------------------- FEDERAL TRADE COMMISSION 16 CFR Part 1 [File No. R707000] Petition for Rulemaking of Jason Plotzker AGENCY: Federal Trade Commission. ACTION: Receipt of petition; request for comment. ----------------------------------------------------------------------- SUMMARY: Please take notice that the Federal Trade Commission (``Commission'') received a petition for rulemaking from Jason Plotzker and has published that petition online at https://www.regulations.gov . The Commission invites written comments concerning the petition. Publication of this petition is pursuant to the Commission's Rules of Practice and Procedure and does not affect the legal status of the petition or its final disposition. DATES: Comments must identify the petition docket number and be filed\"\n- \"by November 20, 2026. ADDRESSES: You may view the petition, identified by docket number FTC- 2026-1618, and submit written comments concerning its merits by using the Federal eRulemaking Portal at https://www.regulations.gov . Follow the online instructions for submitting comments. Do not submit sensitive or confidential information. You may read background documents or comments received at https://www.regulations.gov at any time. FOR FURTHER INFORMATION CONTACT: Office of the Secretary (phone: 202- 326-2514, email: [email&#160;protected] ), Federal Trade Commission, 600 Pennsylvania Avenue NW, Washington, DC 20580. SUPPLEMENTARY INFORMATION: Pursuant to section 18(a)(1)(B) of the Federal Trade Commission Act, 15 U.S.C. 57a(1)(B), and FTC Rule 1.31(f), 16 CFR [[Page 66540]] 1.31(f), notice is hereby given that the above-captioned petition has been filed with the Secretary of the Commission and placed on the public record for a period of 30 days. Any person may submit comments in support of or opposition to the petition. All timely and responsive comments submitted in connection with this petition will become part of the public record. This petition requests the issuance of rules\"\n- \"You are also solely responsible for making sure your comment does not include any sensitive health information, such as medical records or other individually identifiable health information. In addition, your comment should not include any ``trade secret or any commercial or financial information which . . . is privileged or confidential''--as provided by section 6(f) of the FTC Act, 15 U.S.C. 46(f), and FTC Rule 4.10(a)(2), 16 CFR 4.10(a)(2). Authority: 15 U.S.C. 46; 15 U.S.C. 57a; 5 U.S.C. 601 note. April J. Tabor, Secretary. [FR Doc. 2026-21510 Filed 10-20-26; 8:45 am] BILLING CODE 6750-01-P\"\n\n[2026-21511] Notice — Consumer Financial Protection Bureau\nTitle: Privacy Act of 1974; System of Records\nAction: Notice of a modified system of records.\nAbstract: In accordance with the Privacy Act of 1974, as amended, the Consumer Financial Protection Bureau (CFPB or Bureau) proposes to modify a current Privacy Act System of Records Notice (SORN) titled, \"CFPB.001--Freedom of Information Act/Privacy Act System.\" This modification clarifies the purpose of the SORN, the categories of records and individuals, the legal authorities, the system manager, the system location address, and the records retention schedule, and introduces a new routine use to permit the disclosure of records to the National Archives and Records Administration (NARA) or other Federal agencies for records inspection purposes.\n\n[2026-21599] Presidential Document — Executive Office of the President\nTitle: Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026\nAbstract: (none)\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 202 (Wednesday, October 21, 2026) [Federal Register Volume 91, Number 202 (Wednesday, October 21, 2026)] [Presidential Documents] [Pages 66627-66630] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21599] [[Page 66625]] Vol. 91 Wednesday, No. 202 October 21, 2026 Part II The President ----------------------------------------------------------------------- Executive Order 14436--Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026 \u0000 \u0000 \u0000 Presidential Documents \u0000 \u0000 \u0000\u0000Federal Register / Vol. 91 , No. 202 / Wednesday, October 21, 2026 / Presidential Documents\u0000\u0000 \u0000___________________________________________________________________ \u0000Title 3-- \u0000The President [[Page 66627]] Executive Order 14436 of October 16, 2026 Implementing the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026 By the authority vested in me as President by the Constitution and the laws of the United States of America, including the Lindsey O. Graham Sanctioning Russia and Iran Act of 2026 (22 U.S.C. 10802 et seq.) (Graham Act), and section 301 of title 3, United States Code, I hereby determine and order:\"\n- \"102(e)(1), 103(a), 103(b), 103(d), 104(b), 110(a), 110(c), and 116(a) to the Secretary of the Treasury, in consultation with the Secretary of State; (iv) section 111(a) to the Secretary of Energy, in consultation with the Secretary of State, the Secretary of Commerce, and the Secretary of the Treasury; (v) section 112 to the Trade Representative, in consultation with the Secretary of State and the Secretary of the Treasury; (vi) section 113(a) to the Trade Representative, in consultation with the Secretary of State, the Secretary of the Treasury, and the Secretary of Energy; (vii) section 117(a), with respect to the termination of the application of any sanction with respect to a foreign person or any restriction with respect to a person, to the Secretary of State, in consultation with the Secretary of the Treasury; and to the Secretary of the Treasury, in consultation with the Secretary of State; and (viii) section 117(a), with respect to the termination of any duty, to the Trade Representative, in consultation with the Secretary of State, the Secretary of Energy, and the Secretary of the Treasury. (b) The delegations in this section shall apply to any provisions of any future\"\n- \"public laws that are the same or substantially the same as the provisions referenced in this section. (c) The Secretary of State, the Secretary of the Treasury, the Trade Representative, and the Secretary of Energy may, consistent with applicable law, redelegate within their respective departments any of the functions or authorities delegated to them by this order. All executive departments and agencies shall take all appropriate measures within their authority to carry out the provisions of this order. (d) Any reference in this section to the Graham Act shall be deemed to be a reference to the Graham Act as amended from time to time. Sec. 6. Severability. If any provision of this order or the application of any provision of this order to any individual or circumstance is held to be invalid, the remainder of this order and the application of its provisions to any other individuals or circumstances shall not be affected. Sec. 7. General Provisions. (a) Nothing in this order shall be construed to impair or otherwise affect: (i) the authority granted by law to an executive department or agency, or the head thereof; or (ii) the functions of the Director of the Office of Management and\"\n\n[2026-21566] Notice — Small Business Administration\nTitle: Administrative Declaration of a Disaster for the State of New York\nAction: Notice.\nAbstract: This is notice of an Administrative declaration of a disaster for the state of New York dated October 19, 2026. Incident: Severe Storms and Flooding.\n\n[2026-21578] Notice — Treasury Department\nTitle: Agency Information Collection Activities; Proposed Collection; Comment Request; Fraud.gov Tip Intake and Referral Form\nAction: Notice of information collection; request for comment.\nAbstract: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collection listed below, in accordance with the Paperwork Reduction Act of 1995.\nKey passages from the full text (selected for this company):\n- \"Federal Register, Volume 91 Issue 203 (Thursday, October 22, 2026) [Federal Register Volume 91, Number 203 (Thursday, October 22, 2026)] [Notices] [Page 66774] From the Federal Register Online via the Government Publishing Office [ www.gpo.gov ] [FR Doc No: 2026-21578] ======================================================================= ----------------------------------------------------------------------- DEPARTMENT OF THE TREASURY Agency Information Collection Activities; Proposed Collection; Comment Request; Fraud.gov Tip Intake and Referral Form AGENCY: Departmental Offices, U.S. Department of the Treasury. ACTION: Notice of information collection; request for comment. ----------------------------------------------------------------------- SUMMARY: The Department of the Treasury, as part of its continuing effort to reduce paperwork and respondent burden, invites the general public and other federal agencies to comment on the proposed information collection listed below, in accordance with the Paperwork Reduction Act of 1995. DATES: Written comments must be received on or before December 21, 2026. ADDRESSES: Send comments regarding the burden estimate, or any other aspect of\"\n- \"Individuals and Households. Estimated Number of Respondents: 80,000. Frequency of Response: Once. Estimated Total Number of Annual Responses: 80,000. Estimated Time per Response: 30 minutes. Estimated Total Annual Burden Hours: 40,000. Request for Comments: Comments submitted in response to this notice will be summarized and included in the request for Office of Management and Budget approval. All comments will become a matter of public record. Comments are invited on: (a) whether the collection of information is necessary for the proper performance of the functions of the agency, including whether the information shall have practical utility; (b) the accuracy of the agency's estimate of the burden of the collection of information; (c) ways to enhance the quality, utility, and clarity of the information to be collected; (d) ways to minimize the burden of the collection of information on respondents, including through the use of technology; and (e) estimates of capital or start-up costs and costs of operation, maintenance, and purchase of services required to provide information. (Authority: 44 U.S.C. 3501 et seq.) Spencer W. Clark, Treasury PRA Clearance Officer. [FR Doc.\"\n- \"2026-21578 Filed 10-21-26; 8:45 am] BILLING CODE 4810-AK-P\"\n\n[2026-21600] Rule — Homeland Security Department; U.S. Customs and Border Protection\nTitle: Indefinite Suspension of the De Minimis Exemption for Mail Shipments and New Postal Informal Entry Process; Delayed Compliance Extension\nAction: Final rule; extension of compliance date.\nAbstract: This document announces that U.S. Customs and Border Protection (CBP) will extend the compliance date for the regulatory provisions mandating the formal entry of merchandise arriving through the international postal network that is subject to partner government agency requirements, subject to duties under Chapter 98 or Chapter 99 of the Harmonized Tariff Schedule of the United States (HTSUS), or for which duty-free treatment is claimed under Chapter 98 of the HTSUS or pursuant to a Free Trade Agreement, which were published in the Federal Register on June 24, 2026. We believe the public will benefit from more time to prepare for compliance with these changes.",
+      "output": {
+        "decisions": [
+          {
+            "document_number": "2026-21267",
+            "relevant": false,
+            "reason": "IRS rule lets the IRS accept card payments of tax directly and lifts fee restrictions; it imposes no duty on Ledgerly's P2P, card, remittance or crypto wallet lines, and the Reg E reference only restates existing error-resolution procedures.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21310",
+            "relevant": false,
+            "reason": "USPS international mail customs charges rule concerns mailers and postage; no effect on Ledgerly's payment, remittance or crypto services.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21357",
+            "relevant": false,
+            "reason": "BEA BE-125 survey information collection renewal with a comment deadline; it creates no new duty and concerns trade in services/IP, not Ledgerly's regulated payment activities.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21430",
+            "relevant": false,
+            "reason": "Annual continuation of the Colombia narcotics traffickers national emergency; it changes nothing for Ledgerly beyond the existing OFAC screening program.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21431",
+            "relevant": false,
+            "reason": "Annual continuation of the Sudan national emergency; it adds no new screening obligation beyond the existing OFAC program.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21432",
+            "relevant": false,
+            "reason": "Annual continuation of the DRC national emergency; it creates no new requirement for Ledgerly's existing sanctions screening.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21394",
+            "relevant": false,
+            "reason": "State Department Child Soldiers Prevention Act determination concerns foreign military assistance; no link to Ledgerly's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21398",
+            "relevant": false,
+            "reason": "Individual OFAC SDN designation notice; sanctions actions matter only via the screening program and impose nothing new on Ledgerly itself.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21400",
+            "relevant": false,
+            "reason": "Paperwork renewal without change for IRS Form 15397 (extension to furnish recipient statements); no new duty for Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21423",
+            "relevant": false,
+            "reason": "OFAC delisting notice; routine SDN list removals handled through the existing screening program, with no new obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21445",
+            "relevant": false,
+            "reason": "Individual OFAC SDN designations of Mexican cartel-linked persons; covered by existing screening, no standalone obligation.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21447",
+            "relevant": false,
+            "reason": "DHS order excludes DeepSeek products from federal civilian agency IT and procurement; Ledgerly is not a federal agency or supplier.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21500",
+            "relevant": false,
+            "reason": "DOJ/FBI information collection notice on lawful access data; it imposes nothing on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21502",
+            "relevant": false,
+            "reason": "Treasury RESTORE Act grants information collection renewal; unrelated to Ledgerly's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21510",
+            "relevant": false,
+            "reason": "FTC receipt of a rulemaking petition for comment; it creates no obligation, and the petition's subject is not shown to touch payment apps.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21511",
+            "relevant": false,
+            "reason": "CFPB Privacy Act system of records notice about the Bureau's own FOIA/Privacy records; it imposes nothing on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21599",
+            "relevant": false,
+            "reason": "Executive order delegating authority to implement the Graham Russia/Iran sanctions act; it does not itself impose sanctions on Ledgerly and only delegates functions between agencies, so any impact comes later via OFAC.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21566",
+            "relevant": false,
+            "reason": "SBA disaster declaration for New York; unrelated to Ledgerly's business.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21578",
+            "relevant": false,
+            "reason": "Treasury Fraud.gov tip intake form information collection; it applies to individuals reporting fraud and imposes no duty on Ledgerly.",
+            "areas": []
+          },
+          {
+            "document_number": "2026-21600",
+            "relevant": false,
+            "reason": "CBP compliance-date extension for postal de minimis/informal entry rules on goods shipped by mail; unrelated to Ledgerly's payment and crypto services.",
+            "areas": []
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-21715",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1094,
+      "costUsd": 0.006594,
+      "inputTokens": 2967,
+      "outputTokens": 66,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2026-11-23",
+            "kind": "comment",
+            "quote": "DATES: Comments should be received on or before November 23, 2026 to be assured of consideration."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "extract-dates:2026-21706",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 1790,
+      "costUsd": 0.007088,
+      "inputTokens": 3284,
+      "outputTokens": 52,
+      "output": {
+        "deadlines": [
+          {
+            "date": "2027-01-18",
+            "kind": "effective",
+            "quote": "The final rule is effective on January 18, 2027."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "output-actions",
+      "model": "anthropic/claude-sonnet-5.5",
+      "ms": 2026,
+      "costUsd": 0.004282,
+      "inputTokens": 1306,
+      "outputTokens": 167,
+      "prompt": "Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n[2026-21706] Rule: Implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act for the Issuance of Stablecoins by Entities Subject to the Jurisdiction of the Office of the Comptroller of the Currency\nTier: Critical (effective deadline in 87 days (< 90))\nOwner: Sam Okafor (Digital Assets Counsel)\nWhy relevant: OCC final GENIUS Act rule sets custody requirements for payment stablecoin reserves and private keys and bars evading them via third-party services. Ledgerly's custodial wallet holds USDC, and its issuer counterparties will be affected.\n\n[2026-21715] Notice: Agency Information Collection Activities; Submission for OMB Review; Comment Request; U.S. Information Returns and Related Forms, Schedules, Attachments, and Published Guidance\nTier: Medium (notice with comment deadline in 31 days)\nOwner: Ravi Menon (Tax)\nWhy relevant: Treasury/IRS information returns collection covers Form 1099-K and 1099-DA. These apply to Ledgerly as a payment app and digital asset platform, though it is a paperwork notice.",
+      "output": {
+        "actions": [
+          {
+            "document_number": "2026-21706",
+            "action": "Have Sam Okafor review the new stablecoin custody rule against how Ledgerly safeguards USDC reserves and wallet private keys, and confirm no third-party arrangements sidestep it."
+          },
+          {
+            "document_number": "2026-21715",
+            "action": "Have Ravi Menon review the proposed tax reporting form changes for 1099-K and 1099-DA and decide whether Ledgerly should comment on added reporting burdens."
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 0.15407502800000003,
+  "totalMs": 109570,
+  "scanned": 469,
+  "decisions": [
+    {
+      "document_number": "2026-21237",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21238",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21241",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21242",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21243",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21244",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21245",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21246",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21247",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21248",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21249",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21251",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21252",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21254",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21255",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21256",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21257",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21258",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21259",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21260",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21262",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21263",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21264",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21265",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21266",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21267",
+      "relevant": false,
+      "jevProbability": 0.15,
+      "llm": {
+        "document_number": "2026-21267",
+        "relevant": false,
+        "reason": "IRS rule lets the IRS accept card payments of tax directly and lifts fee restrictions; it imposes no duty on Ledgerly's P2P, card, remittance or crypto wallet lines, and the Reg E reference only restates existing error-resolution procedures.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21268",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21269",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21270",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21271",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21272",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21273",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21274",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21275",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21276",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21277",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21278",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21279",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21280",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21281",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21282",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21283",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21284",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21285",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21286",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21287",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21288",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21289",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21290",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21291",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21292",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21293",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21294",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21295",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21296",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21297",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21298",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21299",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21300",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21301",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21302",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21303",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21304",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21305",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21306",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21307",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21308",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21310",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21310",
+        "relevant": false,
+        "reason": "USPS international mail customs charges rule concerns mailers and postage; no effect on Ledgerly's payment, remittance or crypto services.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21311",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21312",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21313",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21314",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21315",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21316",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21317",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21318",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21319",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21320",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21321",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21322",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21323",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21324",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21325",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21326",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21327",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21328",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21329",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21330",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21331",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21332",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21333",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21334",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21335",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21336",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21337",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21338",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21339",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21340",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21341",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21342",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21343",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21344",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21345",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21346",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21347",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21348",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21349",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21350",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21351",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21352",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21353",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21354",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21355",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21357",
+      "relevant": false,
+      "jevProbability": 0.2,
+      "llm": {
+        "document_number": "2026-21357",
+        "relevant": false,
+        "reason": "BEA BE-125 survey information collection renewal with a comment deadline; it creates no new duty and concerns trade in services/IP, not Ledgerly's regulated payment activities.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21358",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21359",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21360",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21361",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21362",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21363",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21364",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21365",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21366",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21367",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21368",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21369",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21370",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21371",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21372",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21373",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21374",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21375",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21376",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21377",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21378",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21379",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21380",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21381",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21383",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21384",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21387",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21399",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21430",
+      "relevant": false,
+      "jevProbability": 0.28,
+      "llm": {
+        "document_number": "2026-21430",
+        "relevant": false,
+        "reason": "Annual continuation of the Colombia narcotics traffickers national emergency; it changes nothing for Ledgerly beyond the existing OFAC screening program.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21431",
+      "relevant": false,
+      "jevProbability": 0.6,
+      "llm": {
+        "document_number": "2026-21431",
+        "relevant": false,
+        "reason": "Annual continuation of the Sudan national emergency; it adds no new screening obligation beyond the existing OFAC program.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21432",
+      "relevant": false,
+      "jevProbability": 0.38,
+      "llm": {
+        "document_number": "2026-21432",
+        "relevant": false,
+        "reason": "Annual continuation of the DRC national emergency; it creates no new requirement for Ledgerly's existing sanctions screening.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "C1-2026-12067",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21382",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21385",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21386",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21388",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21389",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21390",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21391",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21392",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21393",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21394",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21394",
+        "relevant": false,
+        "reason": "State Department Child Soldiers Prevention Act determination concerns foreign military assistance; no link to Ledgerly's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21395",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21396",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21397",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21398",
+      "relevant": false,
+      "jevProbability": 0.79,
+      "llm": {
+        "document_number": "2026-21398",
+        "relevant": false,
+        "reason": "Individual OFAC SDN designation notice; sanctions actions matter only via the screening program and impose nothing new on Ledgerly itself.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21400",
+      "relevant": false,
+      "jevProbability": 0.48,
+      "llm": {
+        "document_number": "2026-21400",
+        "relevant": false,
+        "reason": "Paperwork renewal without change for IRS Form 15397 (extension to furnish recipient statements); no new duty for Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21401",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21402",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21403",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21404",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21405",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21406",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21407",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21408",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21409",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21410",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21411",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21412",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21413",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21414",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21415",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21416",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21417",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21418",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21419",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21420",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21421",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21422",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21423",
+      "relevant": false,
+      "jevProbability": 0.56,
+      "llm": {
+        "document_number": "2026-21423",
+        "relevant": false,
+        "reason": "OFAC delisting notice; routine SDN list removals handled through the existing screening program, with no new obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21424",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21425",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21426",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21427",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21429",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21433",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21434",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21435",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21436",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21437",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21438",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21439",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21440",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21441",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21442",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21443",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21444",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21445",
+      "relevant": false,
+      "jevProbability": 0.79,
+      "llm": {
+        "document_number": "2026-21445",
+        "relevant": false,
+        "reason": "Individual OFAC SDN designations of Mexican cartel-linked persons; covered by existing screening, no standalone obligation.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21446",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21447",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21447",
+        "relevant": false,
+        "reason": "DHS order excludes DeepSeek products from federal civilian agency IT and procurement; Ledgerly is not a federal agency or supplier.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21448",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21449",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21450",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21451",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21452",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21453",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21454",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21455",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21456",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21457",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21458",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21459",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21460",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21461",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21462",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21463",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21464",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21465",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21466",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21467",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21468",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21469",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21474",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "C1-2026-20360",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21470",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21471",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21472",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21473",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21475",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21476",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21477",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21478",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21479",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21480",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21481",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21482",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21483",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21484",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21485",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21486",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21487",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21488",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21489",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21490",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21491",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21492",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21493",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21494",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21495",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21496",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21497",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21498",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21499",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21500",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21500",
+        "relevant": false,
+        "reason": "DOJ/FBI information collection notice on lawful access data; it imposes nothing on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21501",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21502",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21502",
+        "relevant": false,
+        "reason": "Treasury RESTORE Act grants information collection renewal; unrelated to Ledgerly's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21504",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21505",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21506",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21507",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21508",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21509",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21510",
+      "relevant": false,
+      "jevProbability": 0.51,
+      "llm": {
+        "document_number": "2026-21510",
+        "relevant": false,
+        "reason": "FTC receipt of a rulemaking petition for comment; it creates no obligation, and the petition's subject is not shown to touch payment apps.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21511",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21511",
+        "relevant": false,
+        "reason": "CFPB Privacy Act system of records notice about the Bureau's own FOIA/Privacy records; it imposes nothing on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21512",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21513",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21514",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21515",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21516",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21517",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21518",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21519",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21520",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21521",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21522",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21523",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21524",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21525",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21526",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21527",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21528",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21529",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21556",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21568",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21599",
+      "relevant": false,
+      "jevProbability": 0.76,
+      "llm": {
+        "document_number": "2026-21599",
+        "relevant": false,
+        "reason": "Executive order delegating authority to implement the Graham Russia/Iran sanctions act; it does not itself impose sanctions on Ledgerly and only delegates functions between agencies, so any impact comes later via OFAC.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "C1-2026-14614",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "C1-2026-20311",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21530",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21531",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21532",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21533",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21534",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21535",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21536",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21537",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21538",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21539",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21540",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21541",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21542",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21543",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21544",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21545",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21546",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21547",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21548",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21549",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21550",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21551",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21552",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21553",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21554",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21555",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21557",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21558",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21559",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21560",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21561",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21562",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21563",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21564",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21565",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21566",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21566",
+        "relevant": false,
+        "reason": "SBA disaster declaration for New York; unrelated to Ledgerly's business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21567",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21570",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21571",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21572",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21573",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21574",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21575",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21576",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21577",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21578",
+      "relevant": false,
+      "jevProbability": 0.18,
+      "llm": {
+        "document_number": "2026-21578",
+        "relevant": false,
+        "reason": "Treasury Fraud.gov tip intake form information collection; it applies to individuals reporting fraud and imposes no duty on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21579",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21581",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21583",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21585",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21586",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21587",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21588",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21589",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21590",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21591",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21592",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21593",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21594",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21595",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21596",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21597",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21598",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21600",
+      "relevant": false,
+      "jevProbability": 0.12,
+      "llm": {
+        "document_number": "2026-21600",
+        "relevant": false,
+        "reason": "CBP compliance-date extension for postal de minimis/informal entry rules on goods shipped by mail; unrelated to Ledgerly's payment and crypto services.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21601",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21602",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21603",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21604",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21605",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21606",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21607",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21608",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21609",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21610",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21611",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21612",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21613",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21614",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21615",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21616",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21617",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21618",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21619",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21620",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21621",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21622",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21623",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21624",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21625",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21626",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21627",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21628",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21629",
+      "relevant": false,
+      "jevProbability": 0.13,
+      "llm": {
+        "document_number": "2026-21629",
+        "relevant": false,
+        "reason": "Census Annual Business Survey information collection; no duty on Ledgerly's money transmission, remittance or wallet lines.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21630",
+      "relevant": false,
+      "jevProbability": 0.1,
+      "llm": {
+        "document_number": "2026-21630",
+        "relevant": false,
+        "reason": "FTC early termination of HSR waiting periods for unrelated mergers; imposes nothing on Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21636",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21666",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21631",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21632",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21633",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21634",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21635",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21637",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21638",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21639",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21640",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21641",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21642",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21643",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21643",
+        "relevant": false,
+        "reason": "Treasury Trump Accounts contribution application collection; unrelated to Ledgerly's payments, remittance or crypto wallet business.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21644",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21645",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21646",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21647",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21649",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21650",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21651",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21652",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21653",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21654",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21655",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21656",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21657",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21658",
+      "relevant": false,
+      "jevProbability": 0.14,
+      "llm": {
+        "document_number": "2026-21658",
+        "relevant": false,
+        "reason": "USDA SNAP EBT chip card and retailer POS rules; Ledgerly is not a SNAP retailer, acquirer or EBT processor, and its debit card is not an EBT product.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21659",
+      "relevant": false,
+      "jevProbability": 0.09
+    },
+    {
+      "document_number": "2026-21660",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21661",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21662",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21663",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21664",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21667",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21668",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21669",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21670",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21671",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21672",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21673",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21674",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21675",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21676",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21677",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21678",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21679",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21680",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21681",
+      "relevant": false,
+      "jevProbability": 0.07
+    },
+    {
+      "document_number": "2026-21682",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21683",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21684",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21685",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21686",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21687",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21688",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21689",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21690",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21691",
+      "relevant": false,
+      "jevProbability": 0.06
+    },
+    {
+      "document_number": "2026-21692",
+      "relevant": false,
+      "jevProbability": 0.17,
+      "llm": {
+        "document_number": "2026-21692",
+        "relevant": false,
+        "reason": "Fed BHC Act section 4 notice about an Oklahoma bank holding company's lending; does not touch Ledgerly.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21693",
+      "relevant": false,
+      "jevProbability": 0.08
+    },
+    {
+      "document_number": "2026-21694",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21695",
+      "relevant": false,
+      "jevProbability": 0.11,
+      "llm": {
+        "document_number": "2026-21695",
+        "relevant": false,
+        "reason": "State Department Privacy Act system of records notice for passport records; creates no duty for Ledgerly's privacy program.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21696",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21697",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21698",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21699",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21700",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21701",
+      "relevant": false,
+      "jevProbability": 0.74,
+      "llm": {
+        "document_number": "2026-21701",
+        "relevant": false,
+        "reason": "Individual SDN designations (ICC-related); per policy, sanctions actions matter only via the screening program, not individually.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21702",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21703",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21704",
+      "relevant": false,
+      "jevProbability": 0.45,
+      "llm": {
+        "document_number": "2026-21704",
+        "relevant": false,
+        "reason": "OCC PRA notice for GENIUS Act stablecoin issuer license applications; Ledgerly only holds and transmits USDC as a custodian and does not issue stablecoins, so no new duty.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21705",
+      "relevant": false,
+      "jevProbability": 0.34,
+      "llm": {
+        "document_number": "2026-21705",
+        "relevant": false,
+        "reason": "OCC PRA notice for reporting forms for permitted payment stablecoin issuers; Ledgerly is not an issuer and has no duty to file them.",
+        "areas": []
+      }
+    },
+    {
+      "document_number": "2026-21706",
+      "relevant": true,
+      "jevProbability": 0.36,
+      "llm": {
+        "document_number": "2026-21706",
+        "relevant": true,
+        "reason": "OCC final GENIUS Act rule sets custody requirements for payment stablecoin reserves and private keys and bars evading them via third-party services. Ledgerly's custodial wallet holds USDC, and its issuer counterparties will be affected.",
+        "areas": [
+          "crypto"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-21707",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21708",
+      "relevant": false,
+      "jevProbability": 0.04
+    },
+    {
+      "document_number": "2026-21710",
+      "relevant": false,
+      "jevProbability": 0.05
+    },
+    {
+      "document_number": "2026-21711",
+      "relevant": false,
+      "jevProbability": 0.01
+    },
+    {
+      "document_number": "2026-21712",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21713",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21714",
+      "relevant": false,
+      "jevProbability": 0.03
+    },
+    {
+      "document_number": "2026-21715",
+      "relevant": true,
+      "jevProbability": 0.53,
+      "llm": {
+        "document_number": "2026-21715",
+        "relevant": true,
+        "reason": "Treasury/IRS information returns collection covers Form 1099-K and 1099-DA. These apply to Ledgerly as a payment app and digital asset platform, though it is a paperwork notice.",
+        "areas": [
+          "tax"
+        ]
+      }
+    },
+    {
+      "document_number": "2026-21729",
+      "relevant": false,
+      "jevProbability": 0.02
+    },
+    {
+      "document_number": "2026-21730",
+      "relevant": false,
+      "jevProbability": 0.02
+    }
+  ],
+  "dropped": [],
+  "items": [
+    {
+      "document_number": "2026-21706",
+      "title": "Implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act for the Issuance of Stablecoins by Entities Subject to the Jurisdiction of the Office of the Comptroller of the Currency",
+      "type": "Rule",
+      "agencies": [
+        "Treasury Department",
+        "Comptroller of the Currency"
+      ],
+      "tier": "Critical",
+      "tierReason": "effective deadline in 87 days (< 90)",
+      "deadline": {
+        "date": "2027-01-18",
+        "kind": "effective",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "datesShown": [
+        {
+          "date": "2027-01-18",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "deadlines": [
+        {
+          "date": "2027-01-18",
+          "kind": "effective",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "owner": {
+        "name": "Sam Okafor (Digital Assets Counsel)",
+        "email": "crypto@ledgerly.example"
+      },
+      "areas": [
+        "crypto"
+      ],
+      "reason": "OCC final GENIUS Act rule sets custody requirements for payment stablecoin reserves and private keys and bars evading them via third-party services. Ledgerly's custodial wallet holds USDC, and its issuer counterparties will be affected.",
+      "action": "Have Sam Okafor review the new stablecoin custody rule against how Ledgerly safeguards USDC reserves and wallet private keys, and confirm no third-party arrangements sidestep it.",
+      "citation": "91 FR 67000",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/10/23/2026-21706/implementing-the-guiding-and-establishing-national-innovation-for-us-stablecoins-act-for-the",
+      "sourceTag": "[Federal Register]"
+    },
+    {
+      "document_number": "2026-21715",
+      "title": "Agency Information Collection Activities; Submission for OMB Review; Comment Request; U.S. Information Returns and Related Forms, Schedules, Attachments, and Published Guidance",
+      "type": "Notice",
+      "agencies": [
+        "Treasury Department"
+      ],
+      "tier": "Medium",
+      "tierReason": "notice with comment deadline in 31 days",
+      "deadline": {
+        "date": "2026-11-23",
+        "kind": "comment",
+        "source": "fr_field",
+        "verified": true,
+        "verifyNote": "matches FR API field on re-fetch"
+      },
+      "datesShown": [
+        {
+          "date": "2026-11-23",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "deadlines": [
+        {
+          "date": "2026-11-23",
+          "kind": "comment",
+          "source": "fr_field",
+          "verified": true,
+          "verifyNote": "matches FR API field on re-fetch"
+        }
+      ],
+      "owner": {
+        "name": "Ravi Menon (Tax)",
+        "email": "tax@ledgerly.example"
+      },
+      "areas": [
+        "tax"
+      ],
+      "reason": "Treasury/IRS information returns collection covers Form 1099-K and 1099-DA. These apply to Ledgerly as a payment app and digital asset platform, though it is a paperwork notice.",
+      "action": "Have Ravi Menon review the proposed tax reporting form changes for 1099-K and 1099-DA and decide whether Ledgerly should comment on added reporting burdens.",
+      "citation": "91 FR 66942",
+      "citationVerified": true,
+      "url": "https://www.federalregister.gov/documents/2026/10/23/2026-21715/agency-information-collection-activities-submission-for-omb-review-comment-request-us-information",
+      "sourceTag": "[Federal Register]"
+    }
+  ],
+  "markdown": "# Regulatory triage — Ledgerly Inc.\nWindow 2026-10-19 → 2026-10-23 · as of 2026-10-23 · 2 items\n\n## Critical (1)\n\n- **Implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act for the Issuance of Stablecoins by Entities Subject to the Jurisdiction of the Office of the Comptroller of the Currency** [Federal Register]\n  - Have Sam Okafor review the new stablecoin custody rule against how Ledgerly safeguards USDC reserves and wallet private keys, and confirm no third-party arrangements sidestep it.\n  - Dates: effective 2027-01-18 ✓ · Owner: Sam Okafor (Digital Assets Counsel) · Areas: crypto\n  - 91 FR 67000 ✓ · https://www.federalregister.gov/documents/2026/10/23/2026-21706/implementing-the-guiding-and-establishing-national-innovation-for-us-stablecoins-act-for-the\n\n## Medium (1)\n\n- **Agency Information Collection Activities; Submission for OMB Review; Comment Request; U.S. Information Returns and Related Forms, Schedules, Attachments, and Published Guidance** [Federal Register]\n  - Have Ravi Menon review the proposed tax reporting form changes for 1099-K and 1099-DA and decide whether Ledgerly should comment on added reporting burdens.\n  - Dates: comment 2026-11-23 ✓ · Owner: Ravi Menon (Tax) · Areas: tax\n  - 91 FR 66942 ✓ · https://www.federalregister.gov/documents/2026/10/23/2026-21715/agency-information-collection-activities-submission-for-omb-review-comment-request-us-information\n"
+}

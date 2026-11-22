@@ -89,6 +89,8 @@ All commands run from the repository root.
 | Build | `pnpm build` (`next build`) |
 | Run a monitor pass | N/A |
 | Run the evals | N/A |
+| Rebuild the eval bundle (needs the `poc` branch; writes `public/evals/`) | `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh` |
+| Verify the shipped eval bundle | `bash scripts/verify-eval-bundle.sh` |
 
 Local production server for runtime checks: `pnpm start -p <port>` after `pnpm build`. Use ports
 3101 and up, and stop the server afterwards.
@@ -149,6 +151,7 @@ one.
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
 | `src/lib/pipeline/**/*.ts`, `src/lib/fr.ts`, `src/lib/gateway.ts` | `pnpm test` (incl. `replay.test.ts`), `bash plans/2026-11-22-demo-build/03-pipeline/mutations.sh` | Decision expressions match `poc:poc/src/lib/pipeline/` (any difference is listed as intentional). Every public event is built from named fields, never by spreading an internal object. Every external call goes through `withRetry`; no SDK-level retries. Tests stub models with `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`) and stub `fetch`. | `.claude/resources/bibles/swe/patterns/migration-verification.md` |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
+| `public/evals/**`, `scripts/*eval*`, `scripts/poc-src.sh` | `bash scripts/verify-eval-bundle.sh`, `pnpm build` | `public/evals/` is generated: a diff there comes from re-running `scripts/build-eval-bundle.sh`, never from a hand edit, and the verify gate passes on the result. No `poc/` path is committed. No route or server module imports `public/evals` (it ships as static files). POC grading code runs unmodified from the detached `poc-src` checkout. | — |
 
 **Anything under `.claude/` is governed by the prompt-engineering bible** whether or not a
 row above matches it. `generate-chunk-rubric` adds those citations on its own — see that
@@ -232,6 +235,29 @@ a follow-up.
 - **`next dev` writes `AGENTS.md`** at the repo root when it detects a coding agent
   (`node_modules/next/dist/server/lib/generate-agent-files.js`). Use `pnpm build && pnpm start`
   for runtime checks, or commit the file if it appears.
+- **The eval bundle is generated: never hand-edit `public/evals/`; rebuild it from `poc`** with
+  `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh`. The verify script
+  recomputes `index.json` with the POC's `suiteReport` and byte-compares every run, trace and
+  iteration against the `poc` branch, so a hand edit fails it. A rebuild from an unchanged `poc`
+  leaves `git status` clean: `export.mts` stamps a fresh `exportedAt` on each `manifest.json`, and
+  the build keeps the committed manifest when that stamp is the only change
+  (`keepManifest` in `src/lib/evals/bundle-build.ts`).
+- **POC code runs only from `<main checkout>/.worktrees/poc-src`**, a detached checkout of `poc` that
+  `scripts/poc-src.sh` creates and checks (HEAD equals `poc`, no edits to tracked files). It sits
+  outside every chunk worktree, so no `poc/` path can be staged. Run POC scripts with that
+  checkout's own `poc/node_modules/.bin/tsx`; this repo has no `tsx` dependency. The app's build
+  and runtime never read it.
+- **Eval numbers come from `index.json`, labelled.** Every live/baseline number is
+  `{value, split, runs, suite}` (`src/lib/evals/index-schema.ts`). `runs` is the denominator
+  `suiteReport` used: graded runs for key-graded metrics, finished runs for `traceChecks` and
+  `secondsPerRun`, all runs for `costPerRunUsd`, and runs carrying a judge panel for `judgePass`.
+  The POC judges only the first repeat, so `judgePass` rests on about a third of the runs (live: 24
+  of 69). Live pools both iteration-06 suites; baseline pools `w0i` + `cb0`, because neither suite
+  alone covers all four weeks.
+- **Read the bundle in the browser with `src/lib/evals/loader.ts`.** `.gz` files are served as
+  `application/gzip` with no `Content-Encoding` (measured under `pnpm start`), so the loader gunzips
+  them with `DecompressionStream`. Traces stream as an async iterator; never `res.json()` a `.gz`.
+  No route imports `public/evals`, so the files ship as static assets, not inside function bundles.
 
 ## Layout
 
@@ -251,6 +277,16 @@ config/                       Runtime YAML, validated by zod at load, shipped in
   evalsets/                   manifest.yaml, weeks/ (frozen Federal Register input), keys/ (answer keys).
   README.md                   The POC's guide to these files (mentions POC-only pinConfig).
 scripts/bootstrap.sh          Fresh-worktree setup: install + .env.local with AI_GATEWAY_API_KEY.
+scripts/build-eval-bundle.sh  Rebuilds public/evals/ from `poc` with the POC's own export.mts.
+scripts/build-eval-index.mts  Derives index.json, iteration.json, user-view/index.json (POC suiteReport).
+scripts/verify-eval-bundle.sh Nothing-lost check against `poc` + index recompute (--check).
+scripts/poc-src.sh            Sourced by the two eval scripts: the detached poc checkout and its tsx.
+public/evals/                 GENERATED eval bundle, served as static files (never hand-edit):
+  index.json                  suites, setups, iterations, live, baseline, counts (index-schema.ts).
+  config/                     One copy of poc/config, answer keys included.
+  suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz.
+  user-view/                  index.json, runs/<runId>.json, traces/<runId>.jsonl.gz (all 22, failed too).
+  iterations/<NN-slug>/       iteration.json + the POC's files verbatim (spec, record, diffs, evidence, config/).
 src/
   app/                        Next.js App Router.
     layout.tsx                Root layout: Inter via next/font, globals.css.
@@ -278,6 +314,9 @@ src/
     prompts.ts                Prompt builders that render config/prompts.yaml (POC, verbatim).
     types.ts                  Shared shapes (FrDoc, CompanyProfile, ActionItem, RunRecord, …).
     __fixtures__/             recorded-prompts.json: prompts the POC arena sent (golden prompt parity).
+    evals/                    index-schema.ts (zod contract for public/evals/index.json),
+                              loader.ts (browser fetch + gunzip reader for the bundle) and
+                              bundle-build.ts (pure decisions of scripts/build-eval-index.mts, no fs).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.

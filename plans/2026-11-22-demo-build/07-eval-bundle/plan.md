@@ -86,17 +86,17 @@ suite}`.
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/evals/index-schema.test.ts`: the zod schema accepts a minimal valid index and
     rejects a number missing `split` or `runs`.
   - `src/lib/evals/loader.test.ts`: `loadIndex()`, `loadSuiteRuns(id)` and
     `loadTrace(suiteId, runId)` against a small constructed bundle in a temp dir.
     `loadTrace` must decompress a `.jsonl.gz` and parse lines lazily, as an async
     iterator.
-- [ ] T002 — create `src/lib/evals/index-schema.ts` (types + zod) and
+- [x] T002 — create `src/lib/evals/index-schema.ts` (types + zod) and
   `src/lib/evals/loader.ts`. The loader is browser-side and fetch-based, using
   `DecompressionStream("gzip")`; see the POC README "For the real build".
-- [ ] T003 — create `scripts/build-eval-bundle.sh`. It is idempotent and documented at
+- [x] T003 — create `scripts/build-eval-bundle.sh`. It is idempotent and documented at
   the top:
   1. `git worktree add .worktrees/poc-src poc` if absent, then `pnpm install` inside its
      `poc/` dir.
@@ -110,18 +110,18 @@ suite}`.
   If `export.mts`'s `arenaRuns()` skips any run file (e.g. superseded runs), also copy
   those raw records into `runs.jsonl.gz` with a `superseded: true` flag. Losing data is the
   failure this chunk exists to prevent.
-- [ ] T004 — create `scripts/build-eval-index.mts`. Run it inside the POC worktree (it
+- [x] T004 — create `scripts/build-eval-index.mts`. Run it inside the POC worktree (it
   imports the POC's `suiteReport`). It writes `index.json`: suites with their setups and
   evalset weeks, iterations from `iteration.json` (id, title, decision, setup, comparedTo,
   results), `live`, `baseline`, and `counts{suites, runs, traces, userViewRuns,
   iterations}`.
-- [ ] T005 — create `scripts/verify-eval-bundle.sh` with a non-zero exit on any mismatch.
+- [x] T005 — create `scripts/verify-eval-bundle.sh` with a non-zero exit on any mismatch.
   It runs:
   - the count and byte-equality checks from the acceptance criteria, against `poc`;
   - the `live` recompute, inside the POC worktree, over runs decoded from the shipped
     `public/evals/suites/*/runs.jsonl.gz`.
-- [ ] T006 — run `scripts/build-eval-bundle.sh` and commit `public/evals/**`.
-- [ ] T007 — edit `.claude/resources/project.md`. **This chunk runs in parallel with 02,**
+- [x] T006 — run `scripts/build-eval-bundle.sh` and commit `public/evals/**`.
+- [x] T007 — edit `.claude/resources/project.md`. **This chunk runs in parallel with 02,**
   so do **not** edit Stack or Commands. Put the Commands addition in the completion
   report for the lead:
   `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh` ("Rebuild the
@@ -189,20 +189,20 @@ confirm it exits non-zero naming that file. Restore the file and confirm it pass
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed. It includes:
+- [x] `completion-report.md`, committed. It includes:
   - per-suite run, trace and byte counts;
   - the total size;
   - the `live` and `baseline` numbers with their split and run counts, side by side with
     the POC README's figures, explaining any difference;
   - the Commands line for the lead.
-- [ ] **Local stand-in for user checkpoint 2** (amended 2026-11-22; the deployed check is
+- [x] **Local stand-in for user checkpoint 2** (amended 2026-11-22; the deployed check is
       deferred to the final PR): under `pnpm build && pnpm start`, `/evals/index.json` and
       one trace file are served, with the status and content-type recorded.
 
 ## Artifacts Checklist
 
-- ☐ New tests
+- ☑ New tests
 - — Existing tests: none affected
-- ☐ Docs / conventions updated
-- ☐ Generated output committed (`public/evals/**`)
-- ☐ `.claude/resources/project.md` updated (Layout, Conventions; Commands via the lead)
+- ☑ Docs / conventions updated
+- ☑ Generated output committed (`public/evals/**`)
+- ☑ `.claude/resources/project.md` updated (Layout, Conventions; Commands via the lead)

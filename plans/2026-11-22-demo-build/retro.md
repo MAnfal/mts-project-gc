@@ -97,6 +97,24 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   tests break under threads); remaining untested ported branches in `config.ts`
   (validateAll model/method/areas checks) and `fr.ts:43` (the `!res.ok` throw).
 
+### Chunk 07 — Eval bundle
+
+- Decision (lead-approved mid-chunk): the baseline is pooled over w0i+cb0, not taken from
+  the "latest suite" only. No single suite ran the baseline on all 4 weeks, and the latest
+  alone gives 0.444/0.444 on half the weeks. Pooled gives 0.633/0.691, matching the README.
+  Recognition signal: a "latest X" rule in a plan, applied to data recorded in partial
+  slices.
+- Bundle is 111 MB, not ~97. The 94.6% relevance-agreement figure has no POC code behind
+  it; chunk 07 reproduced it (a keyed doc agrees when all finished repeats flag it or none
+  do; 335/354). Lead decision: chunk 08 computes it with that definition and labels it.
+- Live cost per run is $0.1918 (suiteReport divides by all 72 runs) vs the README's $0.20
+  (69 finished). The index keeps suiteReport's value.
+- User-view run JSONs carry model ids, so chunk 06 needs a projection (Decision 9).
+- Review i1 failed on idempotence plus untested script branches. The fix pattern that
+  worked: move the pure logic into `src/lib/evals/bundle-build.ts` and unit-test it.
+- Parallel-wave merge: `project.md` Layout conflicted between 02 and 07. Resolved by
+  keeping both blocks (lead).
+
 
 ---
 
@@ -127,6 +145,11 @@ iteration; every line here skips one.
   — every later chunk that touches `config/` runs it. Temp-config test helper in
   `src/lib/config-validation.test.ts`.
 - **Every throw/guard needs an off-fixture test**: reviews 01 and 02 both failed i1 on this.
+- **Eval bundle (07)**: `public/evals/` is generated (never hand-edit). Contract:
+  `src/lib/evals/index-schema.ts`; browser loader `src/lib/evals/loader.ts` (`loadIndex`,
+  `loadSuiteRuns`, `loadTrace`, async gunzip). Every number is `{value, split, runs, suite}`.
+  Baseline pools w0i+cb0; live pools l92+du8. POC checkout for rebuilds:
+  `<main>/.worktrees/poc-src` (detached `poc`).
 
 ---
 
