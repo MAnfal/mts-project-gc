@@ -39,7 +39,8 @@ disk, and run each command before writing it into the table.
 Measured 2026-11-22 by chunk 01 of `2026-11-22-demo-build`: each version below was read from
 `node_modules/<pkg>/package.json`, and `package.json` pins every one exactly (no ranges). The set
 matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `date-fns` the same way
-(read from `node_modules/date-fns/package.json`, same version as the POC's lockfile).
+(read from `node_modules/date-fns/package.json`, same version as the POC's lockfile), and chunk 03 added `p-limit`
+(read from `node_modules/p-limit/package.json`; the POC's lockfile resolves `^7.3.3` to 7.3.3).
 
 | Layer | Package | Version |
 | ----- | ------- | ------- |
@@ -52,6 +53,7 @@ matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
+| Concurrency limits (pipeline stages) | `p-limit` | 7.3.3 |
 | Server marker | `server-only` | 0.0.1 |
 | Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
 
@@ -83,7 +85,7 @@ All commands run from the repository root.
 | Bootstrap a fresh worktree | `bash scripts/bootstrap.sh` — runs `pnpm install --frozen-lockfile`, then provides `.env.local`: symlinks the main checkout's `.env.local` if it exists, else writes `AI_GATEWAY_API_KEY` from the main checkout's `.env` (renaming the POC's `VERCEL_AI_GATEWAY_API_KEY`). Never prints the key. |
 | Type check | `pnpm typecheck` (`tsc --noEmit`) |
 | Lint | `pnpm lint` (`eslint`) |
-| Unit tests | `pnpm test` (`vitest run`; discovers `src/**/*.test.ts`) |
+| Unit tests | `pnpm test` (`vitest run`; discovers `src/**/*.test.ts`; `pool: "forks"`, because some tests call `process.chdir`, which worker threads reject) |
 | Build | `pnpm build` (`next build`) |
 | Run a monitor pass | N/A |
 | Run the evals | N/A |
@@ -145,6 +147,7 @@ one.
 | `src/lib/**/*.ts` | `pnpm test`, `pnpm lint`, `pnpm typecheck` | Pure logic has a colocated `*.test.ts` that asserts what a caller receives. No React imports. Modules that touch the filesystem or secrets import `server-only`. | `.claude/resources/bibles/swe/testing.md` |
 | `src/app/api/**/route.ts` | `pnpm test`, `pnpm build`, `pnpm typecheck` | Server-only. Request input (query, body) is parsed with zod before use. No secrets or stack traces in responses. Exports only HTTP handlers and segment config (`runtime`, `maxDuration`); helpers live in a sibling module with their own test. | `.claude/resources/bibles/swe/testing.md` |
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
+| `src/lib/pipeline/**/*.ts`, `src/lib/fr.ts`, `src/lib/gateway.ts` | `pnpm test` (incl. `replay.test.ts`), `bash plans/2026-11-22-demo-build/03-pipeline/mutations.sh` | Decision expressions match `poc:poc/src/lib/pipeline/` (any difference is listed as intentional). Every public event is built from named fields, never by spreading an internal object. Every external call goes through `withRetry`; no SDK-level retries. Tests stub models with `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`) and stub `fetch`. | `.claude/resources/bibles/swe/patterns/migration-verification.md` |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
 
 **Anything under `.claude/` is governed by the prompt-engineering bible** whether or not a
@@ -177,7 +180,24 @@ a follow-up.
   `src/lib/{tier,verify,prompts}.ts`. The one recorded difference is `use: eval` in
   `companies/brightside.yaml` (chunk 02). Check with
   `bash plans/2026-11-22-demo-build/02-core-libs/parity.sh`, which diffs every one against the `poc`
-  branch.
+  branch. The pipeline (`src/lib/pipeline/{run,stages,excerpts}.ts`) is on the decision path too, but carries
+  intentional non-decision changes, so it is checked by behaviour instead: `src/lib/pipeline/replay.test.ts`
+  replays a recorded POC run (`__fixtures__/replay-06*`) and requires every decision, prompt, tier, owner and item
+  to match.
+- **GC-facing text comes only from `STEP_LABELS` and item fields; `assertPublic` guards every event**
+  (`src/lib/pipeline/events.ts`). `RunCtx.emit` runs it on each event, so a leak fails the run instead of reaching
+  the browser. Build events from named fields: a `FilterDecision` carries the internal relevance score, and stage
+  ids contain the internal model's name. A failure's text is a fixed message (`TIMEOUT_MESSAGE`,
+  `UNEXPECTED_MESSAGE`), never `error.message`: SDK errors name model ids. Internal detail goes to the server log
+  (`[Pipeline]` prefix; the full internal trace with `DEBUG_PIPELINE=1`).
+- **Every external call is tried at most 3 times, through `withRetry`** (`src/lib/pipeline/retry.ts`: 2 s then
+  4 s). Model calls retry in `RunCtx`; Federal Register and govinfo fetches retry in `fr.ts` (thrown fetch, 5xx,
+  429 only) and report to the run through `withRetryScope`. The AI SDK's own retries are off (`maxRetries: 0`):
+  setting them back would multiply the attempts past 3.
+- **Tests never call a model or the network.** `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`)
+  swaps the gateway for the AI SDK's mock models through `setModelsForTests`; tests stub `fetch`. `fr.ts` caches
+  listings and texts in memory per module, so a test that runs the pipeline twice uses `vi.resetModules()` or
+  distinct windows and document numbers.
 - **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
@@ -246,7 +266,14 @@ src/
     config.ts                 POC config port: schemas for the POC files, companies/presets, prompts and
                               prompt sets, render, frozenWeek/loadKey, validateAll, configHash.
     fr.ts                     Federal Register + govinfo client; frozen weeks read from config/, live
-                              windows fetched, responses cached in memory per process.
+                              windows fetched (transient failures retried), responses cached in memory per process.
+    gateway.ts                AI Gateway model resolution (key checked at call time) and the test seam.
+    grade.ts                  majority() only, for the LLM filter's vote.
+    pipeline/                 The live pipeline, ported from the POC: run.ts (runPipeline: wiring and the
+                              relevance cut), stages.ts, excerpts.ts, context.ts (RunCtx: retries, trace, emit),
+                              events.ts (RunEvent, STEP_LABELS, assertPublic; no server imports), retry.ts.
+      __fixtures__/           replay-06*: a recorded POC run, the FR/govinfo responses it read, its report.
+                              harness.ts / replay.ts: model and fetch stubs for tests.
     tier.ts · verify.ts       Deterministic tiering and quoted-date verification (POC, verbatim).
     prompts.ts                Prompt builders that render config/prompts.yaml (POC, verbatim).
     types.ts                  Shared shapes (FrDoc, CompanyProfile, ActionItem, RunRecord, …).

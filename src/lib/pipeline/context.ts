@@ -85,7 +85,7 @@ export class RunCtx {
     try {
       r = await fn();
     } catch (e) {
-      throw e instanceof StepFailed ? e : new StepFailed(step.step, step.label, e);
+      throw new StepFailed(step.step, step.label, e);
     }
     const log = { name, ms: Date.now() - t0, costUsd: this.totalCostUsd - costBefore, ...(counts?.(r) ?? {}) };
     this.trace.emit("stage.end", { stage: name, ms: log.ms, costUsd: log.costUsd, inCount: log.inCount, outCount: log.outCount, note: log.note, runCostSoFar: this.totalCostUsd });

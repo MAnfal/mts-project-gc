@@ -105,7 +105,7 @@ export async function runReplay(): Promise<ReplayResult> {
 }
 
 /** `e` without the given fields. */
-export const omit = (e: TraceEvent, keys: string[]) => Object.fromEntries(Object.entries(e).filter(([k]) => !keys.includes(k)));
+export const omit = (e: Record<string, unknown>, keys: string[]) => Object.fromEntries(Object.entries(e).filter(([k]) => !keys.includes(k)));
 
 /** Drop the POC trace's envelope fields, which differ on every run. */
 export const body = (e: TraceEvent) => omit(e, ["seq", "ts", "runId"]);

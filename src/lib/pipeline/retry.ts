@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 
 export interface RetryPolicy {
   attempts: number;
+  /** The wait before try 2, 3, …: one entry per retry (attempts - 1 entries). */
   delaysMs: number[];
 }
 
@@ -40,7 +41,7 @@ export async function withRetry<T>(fn: () => Promise<T>, policy: RetryPolicy = R
       return await fn();
     } catch (error) {
       if (attempt >= policy.attempts || stopped()) throw new RetriesExhausted(attempt, error);
-      const delayMs = policy.delaysMs[attempt - 1] ?? policy.delaysMs.at(-1) ?? 0;
+      const delayMs = policy.delaysMs[attempt - 1];
       onRetry({ attempt: attempt + 1, delayMs, error });
       await sleep(delayMs);
     }

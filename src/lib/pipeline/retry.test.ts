@@ -83,6 +83,18 @@ describe("withRetry", () => {
   });
 });
 
+describe("RunCtx retry reporting", () => {
+  it("reports a retry as step.retry only while a step is running", async () => {
+    const { RunCtx } = await import("./context");
+    const events: RunEvent[] = [];
+    const ctx = new RunCtx({ config: synConfig() }, "Ledgerly Inc.", (e) => events.push(e), { emit: () => {} });
+    ctx.onRetry({ attempt: 2, delayMs: 2000, error: new Error("x") });
+    expect(events).toEqual([]);
+    await ctx.stage("filter:jev", async () => ctx.onRetry({ attempt: 2, delayMs: 2000, error: new Error("x") }));
+    expect(events.filter((e) => e.type === "step.retry")).toEqual([{ type: "step.retry", step: "rank", attempt: 2, delayMs: 2000 }]);
+  });
+});
+
 // ───────────── Through the pipeline: the events a GC's browser receives ─────────────
 
 describe("retries inside a run", () => {

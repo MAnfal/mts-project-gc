@@ -79,4 +79,4 @@ export function screenedOut(docs: FrDoc[], decisions: Map<string, FilterDecision
 
 /** Relevant documents that failed verification, with the reason in the GC's words. */
 export const heldBack = (docs: FrDoc[], dropped: { document_number: string; why: string }[]): DocNote[] =>
-  dropped.map((x) => ({ document_number: x.document_number, title: docs.find((d) => d.document_number === x.document_number)?.title ?? x.document_number, reason: x.why }));
+  dropped.map((x) => ({ document_number: x.document_number, title: docs.find((d) => d.document_number === x.document_number)!.title, reason: x.why }));

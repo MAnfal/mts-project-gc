@@ -1,0 +1,204 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/03-pipeline
+
+stdout | src/lib/pipeline/stages.test.ts > failing runs > writes the internal trace to the server log only when DEBUG_PIPELINE is set
+[Pipeline] done: 1 scanned, 1 items, $0.000, 7 ms
+
+ ❯ src/lib/pipeline/stages.test.ts (24 tests | 1 failed) 296ms
+   ❯ failing runs (4)
+     × writes the internal trace to the server log only when DEBUG_PIPELINE is set 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/pipeline/stages.test.ts > failing runs > writes the internal trace to the server log only when DEBUG_PIPELINE is set
+AssertionError: expected "debug" to not be called at all, but actually been called 24 times
+
+Received:
+
+  1st debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"scan:federal-register"}",
+    ]
+
+  2nd debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"scan:federal-register","ms":0,"costUsd":0,"outCount":1,"runCostSoFar":0}",
+    ]
+
+  3rd debug call:
+
+    Array [
+      "[Pipeline] scan.result",
+      "{"count":1,"documents":[{"document_number":"2026-90001","type":"Rule","title":"Synthetic rule 2026-90001"}]}",
+    ]
+
+  4th debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"filter:jev"}",
+    ]
+
+  5th debug call:
+
+    Array [
+      "[Pipeline] jev.call",
+      "{"stage":"filter:jev","model":"typesafe-ai/jev","document_number":"2026-90001","question":"Would the general counsel of this company need to know about this federal document because it could create, change or remove a compliance obligation or material legal risk for the company's actual business lines? Routine filings for other industries are not relevant.","state":"Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n--- DOCUMENT ---\n[2026-90001] Rule — Consumer Financial Protection Bureau\nTitle: Synthetic rule 2026-90001\nAction: Final rule.\nAbstract: Abstract of 2026-90001.","probability":0.9,"costUsd":0,"ms":1}",
+    ]
+
+  6th debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"filter:jev","ms":1,"costUsd":0,"inCount":1,"outCount":1,"note":"threshold 0.1","runCostSoFar":0}",
+    ]
+
+  7th debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"filter:passages"}",
+    ]
+
+  8th debug call:
+
+    Array [
+      "[Pipeline] jev.call",
+      "{"stage":"filter:jev","model":"typesafe-ai/jev","document_number":"2026-90001#p0","question":"Would the general counsel of this company need to know about this federal document because it could create, change or remove a compliance obligation or material legal risk for the company's actual business lines? Routine filings for other industries are not relevant.","state":"Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n--- DOCUMENT ---\n[2026-90001] Rule — Consumer Financial Protection Bureau\nTitle: Synthetic rule 2026-90001\nAction: Final rule.\nAbstract: Effective January 15, 2027.","probability":0.9,"costUsd":0,"ms":0}",
+    ]
+
+  9th debug call:
+
+    Array [
+      "[Pipeline] filter.passages",
+      "{"document_number":"2026-90001","chunks":1,"picked":[{"index":0,"p":0.9,"text":"Effective January 15, 2027."}]}",
+    ]
+
+  10th debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"filter:passages","ms":0,"costUsd":0,"inCount":1,"outCount":1,"note":"top 20 by Jev · 3 passages each","runCostSoFar":0}",
+    ]
+
+  11th debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"filter:llm"}",
+    ]
+
+  12th debug call:
+
+    Array [
+      "[Pipeline] llm.call",
+      "{"stage":"filter-llm#0","model":"test/model","system":"You are an in-house regulatory analyst triaging the Federal Register for one company. Be strict: mark relevant only if the document itself creates, changes or removes something this company (or its direct suppliers or customers) must do, pay, stop or decide.\nMark NOT relevant when the document:\n- covers a different product, model, plant, industry or place than the company's (check models and names exactly);\n- has a comment period or deadline that already passed and creates nothing new;\n- is withdrawn or terminated, a meeting or hearing notice, a paperwork/information-collection renewal with no new duty, or a correction that changes nothing material;\n- only mentions the company's topic without imposing anything.\nReturn exactly one decision per document number given — no more, no fewer.\n\nAffected areas:\n- aml-bsa: AML/BSA program, FinCEN, Travel Rule, SARs\n- sanctions: OFAC screening and sanctions compliance\n- consumer-payments: Reg E, remittances, prepaid, CFPB supervision, UDAAP\n- crypto: Custodial wallet, stablecoins, CVC-specific rules\n- privacy: Privacy, data security, open banking / 1033\n- tax: Information reporting (1099-K, 1099-DA)","prompt":"Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n=== DOCUMENTS (1) ===\n\n[2026-90001] Rule — Consumer Financial Protection Bureau\nTitle: Synthetic rule 2026-90001\nAction: Final rule.\nAbstract: Abstract of 2026-90001.\nKey passages from the full text (selected for this company):\n- \"Effective January 15, 2027.\"","tools":[],"output":{"decisions":[{"document_number":"2026-90001","relevant":true,"reason":"Changes how Ledgerly handles 2026-90001.","areas":["consumer-payments"]}]},"steps":1,"usage":{"inputTokens":1,"inputTokenDetails":{"noCacheTokens":1},"outputTokens":1,"outputTokenDetails":{"textTokens":1},"totalTokens":2},"costUsd":0,"ms":0}",
+    ]
+
+  13th debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"filter:llm","ms":0,"costUsd":0,"inCount":1,"outCount":1,"note":"0 unanswered after retry","runCostSoFar":0}",
+    ]
+
+  14th debug call:
+
+    Array [
+      "[Pipeline] filter.decision",
+      "{"document_number":"2026-90001","jevProbability":0.9,"jevThreshold":0.1,"passedJev":true,"llm":{"document_number":"2026-90001","relevant":true,"reason":"Changes how Ledgerly handles 2026-90001.","areas":["consumer-payments"]},"relevant":true}",
+    ]
+
+  15th debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"verify+tier"}",
+    ]
+
+  16th debug call:
+
+    Array [
+      "[Pipeline] llm.call",
+      "{"stage":"extract-dates:2026-90001","model":"test/model","system":"Extract every dated obligation or deadline (comment due, effective, compliance) stated in the text. Quote the sentence verbatim. If none, return an empty list.","prompt":"Document 2026-90001: Synthetic rule 2026-90001\n\nEffective January 15, 2027.\n\n   Effective January 15, 2027.   ","tools":[],"output":{"deadlines":[]},"steps":1,"usage":{"inputTokens":1,"inputTokenDetails":{"noCacheTokens":1},"outputTokens":1,"outputTokenDetails":{"textTokens":1},"totalTokens":2},"costUsd":0,"ms":0}",
+    ]
+
+  17th debug call:
+
+    Array [
+      "[Pipeline] verify.doc",
+      "{"document_number":"2026-90001","refetched":true,"fields":{"comments_close_on":null,"effective_on":"2027-01-15","citation":"91 FR 90001"},"textSource":"cache","textChars":33,"fieldChecks":[{"date":"2027-01-15","kind":"effective","source":"fr_field","verified":true,"verifyNote":"matches FR API field on re-fetch"}],"extracted":[],"extractedDuplicatesOfFields":[],"citationVerified":true}",
+    ]
+
+  18th debug call:
+
+    Array [
+      "[Pipeline] tier.assign",
+      "{"document_number":"2026-90001","docType":"Rule","tier":"Critical","reason":"effective deadline in 38 days (< 90)","deadline":{"date":"2027-01-15","kind":"effective","source":"fr_field","verified":true,"verifyNote":"matches FR API field on re-fetch"},"rules":{"criticalWindowDays":90,"recentlyEffectiveDays":30,"criticalDocTypes":["Rule","Proposed Rule"]},"asOf":"2026-12-08"}",
+    ]
+
+  19th debug call:
+
+    Array [
+      "[Pipeline] owner.assign",
+      "{"document_number":"2026-90001","areas":["consumer-payments"],"owner":{"name":"Dana Ortiz (Consumer Compliance)","email":"consumer@ledgerly.example"},"rule":"first area \"consumer-payments\" → its owner"}",
+    ]
+
+  20th debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"verify+tier","ms":1,"costUsd":0,"inCount":1,"outCount":1,"note":"0 unverified dates dropped from tiering","runCostSoFar":0}",
+    ]
+
+  21st debug call:
+
+    Array [
+      "[Pipeline] stage.start",
+      "{"stage":"output:actions"}",
+    ]
+
+  22nd debug call:
+
+    Array [
+      "[Pipeline] llm.call",
+      "{"stage":"output-actions","model":"test/model","system":"Write one action item per document for a busy general counsel: an imperative sentence (≤ 25 words) saying what the owner should do and why, in plain English a non-lawyer understands — spell out acronyms, no regulatory jargon. Do NOT write any dates or citations — those are rendered separately from verified data.","prompt":"Company: Ledgerly Inc.\n\nUS mid-size fintech (~600 employees). Licensed money transmitter in 48 states. Consumer app offering P2P payments, debit card (issued via a partner bank), cross-border remittances to 30 countries, and a custodial crypto wallet (buy/sell/send BTC, ETH, USDC). Small-business invoicing. No lending, no securities brokerage, not a bank.\n\nRules that APPLY:\n- Bank Secrecy Act / AML, FinCEN rules for MSBs, Travel Rule, CVC rules\n- OFAC sanctions screening (customers and counterparties, incl. crypto addresses)\n- CFPB rules: Reg E (EFTA), remittance rule, prepaid rule, UDAAP, larger-participant rules for payment apps\n- Consumer data privacy / GLBA, open banking (1033)\n- FTC consumer protection that touches payment apps\n- Stablecoin / digital asset regulation affecting custodial wallets\n\nRules that DO NOT apply:\n- SEC rules for exchanges, broker-dealers, investment companies, SRO rule filings\n- Bank capital rules, bank holding company filings, deposit insurance assessments\n- CFTC derivatives market rules (DCMs, swaps)\n- Tax rules unless they create information reporting for payment platforms or digital assets\n- Sanctions actions only matter via the screening program, not individually\n\n[2026-90001] Rule: Synthetic rule 2026-90001\nTier: Critical (effective deadline in 38 days (< 90))\nOwner: Dana Ortiz (Consumer Compliance)\nWhy relevant: Changes how Ledgerly handles 2026-90001.","tools":[],"output":{"actions":[{"document_number":"2026-90001","action":"Review 2026-90001."}]},"steps":1,"usage":{"inputTokens":1,"inputTokenDetails":{"noCacheTokens":1},"outputTokens":1,"outputTokenDetails":{"textTokens":1},"totalTokens":2},"costUsd":0,"ms":0}",
+    ]
+
+  23rd debug call:
+
+    Array [
+      "[Pipeline] action.write",
+      "{"document_number":"2026-90001","raw":"Review 2026-90001.","final":"Review 2026-90001.","stripped":false,"missingFromModel":false}",
+    ]
+
+  24th debug call:
+
+    Array [
+      "[Pipeline] stage.end",
+      "{"stage":"output:actions","ms":0,"costUsd":0,"outCount":1,"runCostSoFar":0}",
+    ]
+
+
+Number of calls: 24
+
+ ❯ src/lib/pipeline/stages.test.ts:286:25
+    284|     try {
+    285|       await run({ docs: [synDoc("2026-90001")] });
+    286|       expect(debug).not.toHaveBeenCalled();
+       |                         ^
+    287|       vi.stubEnv("DEBUG_PIPELINE", "1");
+    288|       await run({ docs: [synDoc("2026-90001")] });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  00:34:10
+   Duration  1.27s (import 71%, tests 25%, transform 4%)
+

@@ -72,12 +72,14 @@ describe("filter modes other than the live one", () => {
   });
 
   it("llm only: every scanned document goes to the LLM filter and none is ranked or cut", async () => {
-    const { calls, done, result } = await run({ docs: [synDoc("2026-90001"), synDoc("2026-90002")], config: { filter: "llm" }, filter: (ds) => ds.map((n) => (n.endsWith("1") ? yes(n) : no(n))) });
+    const docs = [synDoc("2026-90001"), synDoc("2026-90002"), synDoc("2026-90003")];
+    const { calls, done, result } = await run({ docs, config: { filter: "llm" }, filter: (ds) => ds.map((n) => (n.endsWith("1") ? yes(n) : no(n))) });
     expect(calls.jev).toHaveLength(0);
-    expect(docsInPrompt(calls.llm.find((c) => c.kind === "filter")!.prompt)).toEqual(["2026-90001", "2026-90002"]);
-    expect(result.decisions.map((d) => d.jevProbability)).toEqual([undefined, undefined]);
+    expect(docsInPrompt(calls.llm.find((c) => c.kind === "filter")!.prompt)).toEqual(["2026-90001", "2026-90002", "2026-90003"]);
+    expect(result.decisions.map((d) => d.jevProbability)).toEqual([undefined, undefined, undefined]);
     expect(done.notReviewedCount).toBe(0);
-    expect(done.screenedOut.map((s) => s.document_number)).toEqual(["2026-90002"]);
+    // No relevance scores to rank by: the rejected documents keep their scan order.
+    expect(done.screenedOut.map((s) => s.document_number)).toEqual(["2026-90002", "2026-90003"]);
   });
 
   it("relevance cut: a document scoring below the threshold is never sent to the LLM and is counted as not reviewed", async () => {
@@ -266,6 +268,29 @@ describe("failing runs", () => {
     const events: RunEvent[] = [];
     await expect(runPipeline(synConfig({ profileId: "no-such-company" }), (e) => events.push(e))).rejects.toBeInstanceOf(RunFailed);
     expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry runs it again with the same settings." }]);
+  });
+
+  it("a failure outside any step (a run.start that would leak) ends with run.failed only, no step.failed", async () => {
+    vi.stubGlobal("fetch", synFetch([], () => ""));
+    const { getCompany } = await import("../config");
+    const events: RunEvent[] = [];
+    const customProfile = { ...getCompany("ledgerly"), name: "Jev Labs" };
+    await expect(runPipeline(synConfig({ customProfile }), (e) => events.push(e))).rejects.toBeInstanceOf(RunFailed);
+    expect(events).toEqual([{ type: "run.failed", step: null, message: "Something went wrong in this step. Retry runs it again with the same settings." }]);
+  });
+
+  it("writes the internal trace to the server log only when DEBUG_PIPELINE is set", async () => {
+    const debug = vi.spyOn(console, "debug").mockImplementation(() => {});
+    try {
+      await run({ docs: [synDoc("2026-90001")] });
+      expect(debug).not.toHaveBeenCalled();
+      vi.stubEnv("DEBUG_PIPELINE", "1");
+      await run({ docs: [synDoc("2026-90001")] });
+      expect(debug.mock.calls.map(([tag]) => tag)).toContain("[Pipeline] filter.decision");
+    } finally {
+      vi.unstubAllEnvs();
+      debug.mockRestore();
+    }
   });
 
   it("once the run has failed, calls still queued give up at once instead of trying 3 times each", async () => {

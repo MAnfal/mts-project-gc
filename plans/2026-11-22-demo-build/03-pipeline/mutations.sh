@@ -59,5 +59,11 @@ mutate no-http-retry src/lib/fr.ts 's/if \(res\.status >= 500 \|\| res\.status =
 mutate key-at-import src/lib/gateway.ts 's/(let gw: ReturnType<typeof createGateway> \| undefined;)/$1\nif (!process.env.AI_GATEWAY_API_KEY) throw new Error("Missing key");/' src/lib/gateway.test.ts
 # The filter's missing-answer retry dropped.
 mutate no-filter-retry src/lib/pipeline/stages.ts 's/attempt < 2 && pending\.length/attempt < 1 \&\& pending.length/' src/lib/pipeline/stages.test.ts
+# The internal trace always printed to the server log.
+mutate debug-always-on src/lib/pipeline/context.ts 's/if \(process\.env\.DEBUG_PIPELINE\) console\.debug/if (true) console.debug/' src/lib/pipeline/stages.test.ts
+# A retry reported with no step running (an event with no step).
+mutate retry-without-step src/lib/pipeline/context.ts 's/if \(this\.current\) this\.emit\(\{ type: "step\.retry", step: this\.current\.step,/this.emit({ type: "step.retry", step: this.current?.step as never,/' src/lib/pipeline/retry.test.ts
+# run.start emitted outside the failure handling: a leak there escapes as a raw error with no run.failed.
+mutate start-outside-try src/lib/pipeline/run.ts 's/(  try \{\n)(    ctx\.emit\(\{\n      type: "run\.start",[\s\S]*?\n    \}\);\n)/$2$1/' src/lib/pipeline/stages.test.ts
 
 echo "mutations: OK (logs in $LOG_DIR)"
