@@ -139,3 +139,28 @@ iterations:
     label: "Next"
     outcome: next
     moved: []
+
+# The Models page (/evals/models). Models are compared only within one suite. Placeholders come from
+# modelsContext (src/lib/evals/story.ts): {{models.*}} from index.json (the like-for-like pair: same method and
+# prompt, the live model against another), {{judges.*}} from config/judges.yaml, {{measures.*}} from above.
+models:
+  title: "Models"
+  description: "Which model the pipeline runs, and why · models are compared only within one suite, on the same eval set and answer keys"
+  liveRule: "Highlighted rows run the live model, {{models.live}}. The live setup itself ({{models.liveSetup}}) came later and never ran beside another model, so these rows are earlier setups on each model."
+  singleModel: "Single model, no comparison"
+  why:
+    heading: "Why {{models.live}}"
+    intro: "In suite {{models.suite}}, two setups differ only in the model: {{models.pair.live}} on {{models.live}} and {{models.pair.other}} on {{models.other}}, both the {{models.pair.method}} method with the {{models.pair.promptSet}} prompt, over all of the suite's weeks."
+    points:
+      - "{{measures.recall}}: {{models.recall.live}} vs {{models.recall.other}}, {{models.recall.diff}} on {{models.live}} ({{models.recall.runs}})."
+      - "{{measures.precision}}: {{models.precision.live}} vs {{models.precision.other}}, {{models.precision.diff}} on {{models.live}} ({{models.precision.runs}})."
+      - "{{measures.costPerRunUsd}}: {{models.costPerRunUsd.live}} vs {{models.costPerRunUsd.other}}, {{models.costPerRunUsd.diff}} on {{models.live}} ({{models.costPerRunUsd.runs}})."
+    closing: "No recorded decision explains the choice in words; these measured differences are what it rests on."
+  caveats:
+    keyBias:
+      holds: "Possible key bias. The answer keys were drafted by Claude models. Among the {{models.pipeline.count}} pipeline setups in suite {{models.suite}}, the lowest recall, {{models.lowest.recall}} ({{models.lowest.runs}}), is held by {{models.lowest.setups}}. Pipeline setups at that recall: {{models.lowest.count}}; pipeline setups on a non-Claude model: {{models.otherVendor.count}}, the same ones. The single-prompt baseline is not a pipeline and is left out of this ranking; its recall is in the table."
+      otherwise: "Possible key bias. The answer keys were drafted by Claude models. Among the {{models.pipeline.count}} pipeline setups in suite {{models.suite}}, the lowest recall, {{models.lowest.recall}} ({{models.lowest.runs}}), is held by {{models.lowest.setups}}. The single-prompt baseline is not a pipeline and is left out of this ranking; its recall is in the table."
+    priceParity: "Price parity. The arena config (a comment in config/setups.yaml) records that the models were chosen at the same AI Gateway list price per token, checked on {{models.priceCheckedOn}}. The same price per token is not the same cost per run: the table shows each setup's measured cost."
+    oneSuite: "One suite. The rationale above rests on suite {{models.suite}} alone: {{models.suiteWeeks}} weeks, {{models.suiteEvalsets}} company-weeks."
+    tuning: "Tuned on one model. The live setup's {{models.livePromptSet}} prompt ran only on {{models.livePromptSetModels}}; {{models.other}} ran only with the {{models.otherPromptSets}} prompt."
+  judges: "The judge panel is a separate use of models. It grades the wording of every setup's actions alike, so it played no part in choosing the pipeline's model. A verdict needs {{judges.minAgree}} of the {{judges.count}} judges to agree:"

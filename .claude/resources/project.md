@@ -243,7 +243,9 @@ a follow-up.
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
   `use: eval` plus `app.yaml`), to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
-  `app.yaml`) and to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`). Compare hashes only between runs of this repo.
+  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `bc2b5bdec1` at chunk 10
+  (the `models` section of `eval-story.yaml`; measured on chunk 10's branch, so a later merge that also edits config moves it
+  again). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in
   `src/lib/fr.ts`), and runs persist in the browser. Gate:
@@ -310,6 +312,14 @@ a follow-up.
   the iteration's recorded `decision`/`notes` by number-free `start`/`before` anchors. Targets are
   `config/app.yaml` → `evalTargets`; the headline is computed by `computeVerdict` (`src/lib/evals/verdict.ts`).
   To add an iteration, add its entry to `eval-story.yaml`: `story-schema.test.ts` fails until the ids match.
+- **Models are compared only within one suite** (`/evals/models`, chunk 10). `modelComparisons` (`src/lib/evals/models.ts`)
+  groups each suite's own `suiteResults` entries (never a pooled one) and compares a suite only when it ran more than one model;
+  rows are setups, not models. Model labels carry digits, so prose names them through `{{models.*}}` placeholders
+  (`modelsContext` in `story.ts`), as it does the price-parity date (`index.json` → `priceParity`), the like-for-like pair (same method and prompt, the live model against another),
+  each difference's direction and the lowest pipeline recall. The judge panel is read with `judges()` (`src/lib/config.ts`).
+  In the shipped bundle only `w0i` ran two models, and the live setup never ran in it, so the page highlights the live
+  *model's* rows. A suite that lists a setup with no result of its own is an error, not a smaller table. The Cases page opens one setup in one suite with `?suite=&setup=`; `?iteration=` wins when both are given
+  (`casesState.ts`).
 - **Agreement and noise are computed by the bundle builder, not the browser.** `relevanceAgreement` and
   `tierAgreement` (`repeatAgreement` in `bundle-build.ts`) group finished, non-superseded repeats by suite and
   eval set and skip groups with fewer than two. `tierAgreement` is repeat-to-repeat; `tierRight` is against the
@@ -346,7 +356,8 @@ config/                       Runtime YAML, validated by zod at load, shipped in
   app.yaml                    App-wide settings (appName, maxWindowDays, evalTargets for /evals, defaultPreset and
                               suggestAreas {model, prompt} for /runs/new).
   eval-story.yaml             The eval view's prose: verdict, CARL rows, measure labels, per-iteration label,
-                              outcome and "what moved" items (EvalStorySchema; no typed numbers).
+                              outcome and "what moved" items, and the Models page (models) (EvalStorySchema; no typed
+                              numbers).
   prompts.yaml                Every prompt's wording, with {{placeholders}}.
   prompt-sets/                Partial prompt overrides a setup opts into (strict, strict-v2, strict-v3).
   pipeline.yaml               Tier rules (90 / 30 days, critical doc types), batch sizes, text limits.
@@ -363,7 +374,8 @@ scripts/build-examples.{sh,mts}  Rebuilds public/examples/ from public/evals/use
                               condition for `server-only`). Idempotent, no timestamps.
 public/evals/                 GENERATED eval bundle, served as static files (never hand-edit):
   index.json                  suites, setups, iterations (+ measured, evidence), live, baseline, suiteResults,
-                              noiseBand, evalSet, counts (index-schema.ts).
+                              noiseBand, evalSet, counts, priceParity (the check date config/setups.yaml's comment
+                              records; bundle-build.ts → priceParity) (index-schema.ts).
   config/                     One copy of poc/config, answer keys included.
   suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz,
                               runs-index.json (one small row per run, for the Runs page).
@@ -385,7 +397,10 @@ src/
     evals/iterations/[id]/    `/evals/iterations/<id>` — one iteration. Both read YAML per request; the
                               bundle loads client-side.
     evals/cases/              `/evals/cases?iteration=<id>` — cases one iteration changed + run panel (default:
-                              the live iteration). Company/week/split names come from config/ (evalsetInfo.ts).
+                              the live iteration); `?suite=<arenaId>&setup=<key>` — one setup's cases in one suite (from
+                              Models). Company/week/split names come from config/ (evalsetInfo.ts).
+    evals/models/             `/evals/models` — why the live model, one table per multi-model suite, single-model suites,
+                              caveats, judge panel (prose from eval-story.yaml, panel from judges.yaml).
     evals/runs/               `/evals/runs` — every suite run and example run, each with a raw-trace link.
     evals/traces/[suiteId]/[runId]/  One run's raw trace (`suiteId` = arena id or `user-view`).
     evals/reports/[suiteId]/[runId]/ One run's read-only report (RecordedReport → ReportView readOnly; failed runs show
@@ -410,7 +425,7 @@ src/
     evals/                    Eval view: EvalSidebar, EvalSummary (+ useEvalIndex), CarlTable, Scoreboard,
                               ProgressChart (Recharts), IterationView, DiffSheet, ErrorAnalysisSheet;
                               CasesView, CasesTable, RunPanel, RunsView, TraceViewer (@tanstack/react-virtual),
-                              RecordedReport (one run's report).
+                              RecordedReport (one run's report); ModelTable (+ ModelsView, the Models page).
   lib/
     config/                   load.ts (readYaml) and schemas.ts (zod schemas for config/*.yaml).
     config.ts                 POC config port: schemas for the POC files, companies/presets, prompts and
@@ -437,7 +452,8 @@ src/
                               verdict.ts · story.ts · chartSeries.ts (pure, client-safe view logic),
                               cases.ts (per-case hits, subset grading) · casesState.ts (Cases page states),
                               runFacts.ts (filter reason, judges, passages) · traceIndex.ts (trace filter/search),
-                              runList.ts (Runs page rows),
+                              runList.ts (Runs page rows), models.ts (Models page: per-suite model groups, the
+                              like-for-like pair, lowest pipeline recall),
                               evalsetInfo.ts (server-only: eval-set names from config/),
                               story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts,
                               __fixtures__/shipped.ts (node reads of public/evals + stubFetch for tests).
@@ -456,4 +472,6 @@ vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.t
 components.json               shadcn settings.
 ```
 
-Tests sit next to the module they cover as `*.test.ts`.
+Tests sit next to the module they cover as `*.test.ts`. A component render test is a `.ts` file too (vitest runs in node and
+discovers only `*.test.ts`): it builds elements with `createElement` and renders them with `react-dom/server`'s
+`renderToStaticMarkup` (`src/components/evals/ModelTable.test.ts`).

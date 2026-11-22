@@ -73,6 +73,27 @@ describe("casesForIteration on the shipped 06 suite", () => {
   });
 });
 
+describe("the Models page's drill-down: one setup in a multi-model suite (w0i, jev-gpt)", () => {
+  const W0I = "arena-2026-11-21-18-40-w0i";
+  const runs = shippedRuns<CaseRun>(W0I);
+  const rows = casesForIteration(runs, { setup: "jev-gpt", comparedTo: null }, keysOf(runs));
+  const gpt = runs.filter((r) => r.config.cell === "jev-gpt" && !r.superseded);
+
+  it("tallies only that setup's repeats, every one of them on each of its eval sets, even though the suite ran five setups", () => {
+    expect(new Set(runs.map((r) => r.config.cell)).size).toBe(5);
+    for (const r of rows) {
+      const own = gpt.filter((x) => x.config.evalset === r.evalset).map((x) => x.id).sort();
+      expect({ id: r.id, repeats: r.after.repeats.map((x) => x.id).sort() }).toEqual({ id: r.id, repeats: own });
+    }
+    expect(rows.every((r) => r.before === null && r.change === null)).toBe(true);
+  });
+
+  it("its hits on Flag rows sum to report.json's true positives for jev-gpt", () => {
+    const report = shippedJson<Report>(`suites/${W0I}/report.json`).setups.find((s) => s.key === "jev-gpt")!;
+    expect(rows.filter((r) => r.expected === "flag").reduce((n, r) => n + r.after.hits, 0)).toBe(report.counts.tp);
+  });
+});
+
 describe("per-case sums reproduce each suite's report.json (subset grading)", () => {
   for (const suite of shippedSuiteIds()) {
     it(`${suite}: every setup's tp / fn / trapHit / tn, unlabeled, recall and precision`, () => {
