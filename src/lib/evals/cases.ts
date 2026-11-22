@@ -169,3 +169,6 @@ export function setupTotals(runs: CaseRun[], setup: string, keys: Record<string,
 /** The iteration that ran the live setup last (the one the summary calls live), or null if none did. */
 export const liveIterationId = (index: Pick<EvalIndex, "live" | "iterations">): string | null =>
   index.iterations.findLast((i) => i.setup === index.live.setup)?.id ?? null;
+
+/** How a split reads on the eval pages. */
+export const SPLIT_WORD: Record<"dev" | "test", string> = { dev: "tuning", test: "held out" };
