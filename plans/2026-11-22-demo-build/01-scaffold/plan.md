@@ -236,8 +236,8 @@ the gate is broken, not the tree.
 
 ## Artifacts Checklist
 
-- ☐ New tests for new behavior
+- ☑ New tests for new behavior
 - — Existing tests updated: none exist on the base
-- ☐ Docs / conventions updated: `project.md`, `CLAUDE.md`
+- ☑ Docs / conventions updated: `project.md`, `CLAUDE.md`
 - — Generated code: n/a
-- ☐ `.claude/resources/project.md` updated (Stack, Commands, Principles, Convention Map, Conventions, Layout)
+- ☑ `.claude/resources/project.md` updated (Stack, Commands, Principles, Convention Map, Conventions, Layout)

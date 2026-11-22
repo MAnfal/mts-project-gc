@@ -3,8 +3,13 @@
 Branch `feat/demo-build--scaffold`, cut from `feat/plan--demo-build` at `5ebffc7`. Every captured
 output quoted below lives under the session scratch dir
 `/private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-01/`
-(written `$S/` below). The quoted blocks were produced by one script that greps those files
-(`$S/evidence.md`), not typed by hand.
+(written `$S/` below). Two exceptions were not saved to files:
+- the browser measurements (Chrome DevTools `evaluate_script` results in the session);
+- the ad-hoc `grep -c` counts quoted inline.
+
+The test, gate, canary and runtime outputs in the tables below are excerpts of the captured files.
+The full script-generated excerpt (`$S/evidence.md`) is appended verbatim under "Appendix: captured
+evidence", so it survives the scratch dir being cleared.
 
 ## What changed
 
@@ -21,7 +26,7 @@ output quoted below lives under the session scratch dir
 | `src/app/api/probe/stream/route.ts` | created | `runtime = "nodejs"`, `maxDuration = 300`. Streams `tick N` once a second, then `done`. |
 | `src/app/api/probe/stream/seconds.ts` | created | `parseSeconds`: zod coerce, floor, clamp 1–120, default 5. It's a sibling module because `route.ts` should export only handlers and segment config. |
 | `src/app/api/probe/stream/route.test.ts` | created | Clamp table, `maxDuration`, and a real 1-second stream through `GET`. |
-| `src/app/globals.css` | created | GC AI tokens in shadcn's variable names, plus heading/caption, 7 status pairs, navy shadows, and an explicit 4/6/12/16 radius scale. Light only. |
+| `src/app/globals.css` | created | GC AI tokens in shadcn's variable names, plus heading/caption, 7 status pairs, navy shadows, and an explicit 4/6/12/16 radius scale. Light only: `@custom-variant dark (&:is(.dark *))` keeps `dark:` utilities inert. |
 | `src/app/layout.tsx` | created | Inter via `next/font/google` (`--font-inter`). |
 | `src/app/page.tsx` | created | Placeholder in `AppShell`: `appName` and `maxWindowDays` read per request (`await connection()`), a navy button, one badge per tone, a probe link, and a right panel. |
 | `src/components/shell/AppShell.tsx`, `SidebarNav.tsx` | created | The three-pane shell and the sidebar parts (`SidebarNav`, `SidebarWordmark`, `SidebarNavItem`, `SidebarSectionLabel`). |
@@ -38,7 +43,7 @@ output quoted below lives under the session scratch dir
 | Criterion | Met | Evidence |
 | --------- | --- | -------- |
 | Fresh clone: `pnpm install && pnpm build` succeeds, with no model call | yes | Throwaway `git worktree add --detach $S/fresh 82986a8` → `bash scripts/bootstrap.sh` → `gates.sh all` printed `ALL GATES PASSED` (`$S/fresh-gates.txt`). No code imports `ai` or `@ai-sdk/gateway`: `grep -rn "from \"ai\"\|@ai-sdk" src/` gives 0 hits. Worktree removed afterwards. |
-| `/` renders a placeholder in the GC shell (cream sidebar with "Reg Monitor", floating white panel) using the tokens, and shows a value read from `config/app.yaml` on the server | yes | In Chrome under `pnpm start`: body bg `rgb(244,245,241)`; `main` bg `rgb(254,254,255)`, radius `12px`, shadow `rgba(23,60,81,0.06) 0 1px 2px`; button `rgb(23,60,81)` / 6px radius / 34px tall / 14px 500; h1 `rgb(23,60,81)`; font `Inter`. Per request: editing `maxWindowDays` 7→9 under a running server changed the HTML (see Runtime config). |
+| `/` renders a placeholder in the GC shell (cream sidebar with "Reg Monitor", floating white panel) using the tokens, and shows a value read from `config/app.yaml` on the server | yes (under `pnpm start`, not the dev server; see Deviations) | In Chrome under `pnpm start`: body bg `rgb(244,245,241)`; `main` bg `rgb(254,254,255)`, radius `12px`, shadow `rgba(23,60,81,0.06) 0 1px 2px`; button `rgb(23,60,81)` / 6px radius / 34px tall / 14px 500; h1 `rgb(23,60,81)`; font `Inter`. Per request: editing `maxWindowDays` 7→9 under a running server changed the HTML (see Runtime config). |
 | `GET /api/probe/stream?seconds=90` streams one line per second for 90 s, then `done`; `maxDuration = 300` | yes (locally) | `curl -sN` under `pnpm start`: `200 90.124297`, 91 lines, 90 `tick` lines, last line `done` (`$S/probe-90.txt`). `maxDuration` is asserted in `route.test.ts`. The deployed check is deferred to the user (last section). |
 | A malformed `config/app.yaml` makes the loader throw naming the file and field | yes | Test `rejects a wrong type with an error naming the file and the field`. Live: with `appName: 42` the server logged `Config error in config/app.yaml: appName: Invalid input: expected string, received number` and `/` returned 500. |
 | `project.md`: Stack/Commands/Convention Map/Layout describe what's installed; harness line replaced with reason; Principles ratified | yes | Versions were read with `node -p "require('./node_modules/<p>/package.json').version"` for 23 packages. Each command in the table was run (gate 1). Gate 3 needle C is 0 on the finished tree. |
@@ -84,7 +89,7 @@ Each mutated file was copied aside and copied back; `diff -q` was clean after ea
 | 2 config ships with the bundle | `… gates.sh 2` | `gate 2 OK` | yes: exit 1, `FAIL: config/app.yaml missing` |
 | 3 harness line / measured stack | `… gates.sh 3` | `gate 3 OK` | yes: exit 1, `FAIL: CLAUDE.md still claims Flue` |
 | 4 probe streams locally | `… gates.sh 4` (port 3101) | `gate 4 OK` | yes: exit 1, `FAIL: no package.json — nothing to start` |
-| all | `… gates.sh all` | `ALL GATES PASSED` (`$S/final-gates.txt`; the output has no `warn`/`error` lines) | — |
+| all | `… gates.sh all` | `ALL GATES PASSED` (`$S/final-gates.txt`; the output has no `warn`/`error` lines). Re-run after the last edit: `$S/final-gates-last.txt`. | — |
 
 How the base run was done: `git archive 5ebffc7 | tar -x -C $S/base`, then `bash $S/gates.sh <n>` from inside it. Nothing was checked out or stashed. The base error text differs from the finished-tree text for every gate.
 
@@ -96,6 +101,7 @@ Per-assertion controls, run on the finished tree (`$S/canary-*.txt`, `$S/base-ga
   - Base: needle A (`Harness: Flue`) present at `CLAUDE.md:11`; needle B (new line) count 0; needle C (`Not yet measured`) present at `project.md:39`.
   - Finished tree: `A=0 B=1 C=0`.
 - **Gate 4, probe that never says `done`** (`"done\n"`→`"fin\n"`, rebuilt): `FAIL: probe did not finish: tick 1 tick 2 tick 3 fin`. Nothing was listening on 3101 afterwards. Restored, rebuilt: `gate 4 OK`.
+- **Lint, seen red.** I appended `export function Unused() { let x: any = 1; return x; }` to a copied-aside `page.tsx`. `pnpm lint` exited 1 with `✖ 2 problems (2 errors, 0 warnings)` (`prefer-const`, `@typescript-eslint/no-explicit-any`; `$S/lint-red.txt`). Restored (`diff -q` clean), then lint exited 0.
 - **Gate 4, busy port.** `python3 -m http.server 3101` running: `FAIL: port 3101 already in use`, exit 1.
 
 **Baseline:** the base tree has no `package.json`, so type check, lint and tests cannot run there. There is nothing to diff against: zero pre-existing diagnostics. On the finished tree, lint reports 0 problems, `tsc` reports 0 errors, and the build prints 0 warnings, after fixing the Turbopack "Dynamic filesystem access" warning (see Deviations).
@@ -137,8 +143,11 @@ Per-assertion controls, run on the finished tree (`$S/canary-*.txt`, `$S/base-ga
   - It runs `pnpm install --frozen-lockfile`.
   - It finds the main checkout through `git rev-parse --git-common-dir`, not a hard-coded path.
   - Then the first match wins: an existing `.env.local` is left alone; else the main checkout's `.env.local` is symlinked; else `AI_GATEWAY_API_KEY` (or the POC's `VERCEL_AI_GATEWAY_API_KEY`, renamed) is copied from the main checkout's `.env` into a mode-600 `.env.local`. The value is never printed.
-  - **What was tested:** in this worktree and in the throwaway one it took the third branch (the main checkout has only `.env`). Result: `.env.local` with 1 `AI_GATEWAY_API_KEY=` line and 0 `VERCEL` lines, ignored by git.
-  - **What wasn't tested:** the symlink branch. Testing it would mean creating a file in the user's main checkout.
+  - **Copy branch, tested:** in this worktree and in the throwaway one it took the third branch (the main checkout has only `.env`). Result: `.env.local` with 1 `AI_GATEWAY_API_KEY=` line and 0 `VERCEL` lines, ignored by git.
+  - **Symlink branch, tested without touching the user's checkout:** I built a scratch `git init` repo holding `package.json`, the lockfile, the script and a dummy `.env.local`, plus a worktree of it.
+    - In the worktree: `bootstrap: symlinked .env.local -> …/bootrepo/.env.local`, and `ls -l` shows a symlink (`$S/bootstrap-symlink.txt`).
+    - A second run printed `.env.local already present`. Run in the main repo itself, it left `.env.local` alone.
+    - The scratch repo was removed afterwards.
 - **The placeholder page has a right panel.** It exercises `AppShell`'s optional `aside`; otherwise that branch would ship unrendered.
 - **The probe link sits in the sidebar under a "Diagnostics" label.** This exercises `SidebarSectionLabel` the way "RECENT RUNS" will.
 
@@ -151,6 +160,11 @@ Per-assertion controls, run on the finished tree (`$S/canary-*.txt`, `$S/base-ga
 - **`LayoutProps` swapped for an explicit `Readonly<{children: ReactNode}>`.** `pnpm typecheck` before any build failed with `src/app/layout.tsx(12,50): error TS2304: Cannot find name 'LayoutProps'`, because that global is generated by `next build`. With the explicit type, typecheck passes on a fresh tree before any build (`$S/fresh-typecheck-prebuild.txt`, exit 0).
 - **The loader's file path is computed in two static shapes.** The first version, `path.join(dir, relPath)`, made Turbopack warn: "Dynamic filesystem access causes tracing of the whole project". After the change the build prints no warnings.
 - **`server-only` added as a dependency** (not in the plan's list). The plan asks for a server-only loader, and Next resolves the package's `react-server` condition to an empty module. Vitest needed an alias to it.
+- **The `/` acceptance criterion says "dev server"; I verified it under `pnpm build && pnpm start`.** `next dev` writes `AGENTS.md` at the repo root when it detects a coding agent (`node_modules/next/dist/server/lib/generate-agent-files.js`, dev-only via `syncAgentRulesForDev`). That would leave an untracked file in the chunk.
+- **Removing the POC's dark token blocks also removed its `@custom-variant dark` line, which I restored.**
+  - Without that line, the build compiled shadcn's `dark:` classes under `@media (prefers-color-scheme:dark)` (e.g. `.dark\:border-input`). So the copied Button/Badge, and every shadcn component added later, would switch styles in OS dark mode.
+  - After restoring it: 0 `dark:` rules under the media query, and 17 under `:is(.dark *)` (`$S/dark-variant-check.txt`).
+  - In Chrome emulating dark mode (`prefersDark: true`), the body stays `rgb(244,245,241)`, the button `rgb(23,60,81)` and the main panel `rgb(254,254,255)`.
 - **Gate 3 has an extra positive needle, and gate 2 checks the traces.** A bare `grep outputFileTracingIncludes` would pass on a comment.
 
 ## Left alone
@@ -158,8 +172,141 @@ Per-assertion controls, run on the finished tree (`$S/canary-*.txt`, `$S/base-ga
 - **No `favicon.ico`.** The POC has one, but the plan doesn't ask for it.
 - **`README.md` still reads `TBD`.** Not in this chunk's scope.
 - **No status-badge or tone component.** The page maps tones to token classes inline. Chunk 04 owns the report badges and may want a shared `StatusBadge`; that would be a new file, not an edit to `shell/*`.
-- **The bootstrap script's symlink branch is untested** (see above).
 - **Teal is not tokenised.** `gcai-ui-notes.md` measures a teal pair, but T005 lists seven tones, and I added exactly those seven.
+
+## Appendix: captured evidence
+
+Generated by a script from the files in `$S/`; paths are shortened to `$S` and `<repo>`.
+
+```text
+### red-0 (import errors, no modules)
+Error: Cannot find module './load' imported from <repo>/.worktrees/01-scaffold/src/lib/config/load.test.ts
+Error: Cannot find module './route' imported from <repo>/.worktrees/01-scaffold/src/app/api/probe/stream/route.test.ts
+ Test Files  2 failed (2)
+      Tests  no tests
+
+### red-1 (plausible-wrong stubs: unvalidated yaml.parse, unclamped Number(), empty route)
+     × seconds=0 becomes 1 5ms
+     × seconds=-3 becomes 1 1ms
+     × seconds=500 becomes 120 0ms
+     × seconds=abc becomes 5 0ms
+     × seconds= becomes 5 1ms
+     × seconds=null becomes 5 0ms
+     × seconds=2.7 becomes 2 0ms
+     × streams one tick line per second, then done 16ms
+     × rejects a wrong type with an error naming the file and the field 9ms
+     × names the nested field path, not just the top-level key 3ms
+     × reports a YAML syntax error against the file 2ms
+     × reports a missing file against the file 1ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected '' to match /^Config error in …/app\.yaml: appName: 
+AssertionError: expected [Function] to throw an error
+AssertionError: expected [Function] to throw error matching /^Config error in config\/a…/app\.yaml:  but got 'Flow sequence in block collection mus…'
+AssertionError: expected [Function] to throw error matching /^Config error in confi…/missing\.yaml:  but got 'ENOENT: no such file or directory, op…'
+AssertionError: expected +0 to be 1 // Object.is equality
+AssertionError: expected -3 to be 1 // Object.is equality
+AssertionError: expected 500 to be 120 // Object.is equality
+AssertionError: expected NaN to be 5 // Object.is equality
+AssertionError: expected +0 to be 5 // Object.is equality
+AssertionError: expected 2.7 to be 2 // Object.is equality
+AssertionError: expected '' to be 'tick 1\ndone\n' // Object.is equality
+      Tests  12 failed | 5 passed (17)
+
+### red-2 ({} stub)
+     × returns the typed object for a valid file 7ms
+     × reads config/ under process.cwd() by default, and the repo's app.yaml is valid 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected {} to deeply equal { appName: 'Reg Monitor', …(1) }
+AssertionError: expected undefined to be 'Reg Monitor' // Object.is equality
+      Tests  2 failed | 4 skipped (6)
+
+### green
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+
+### mut-1-noschema
+     × rejects a wrong type with an error naming the file and the field 10ms
+     × names the nested field path, not just the top-level key 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected '' to match /^Config error in …/app\.yaml: appName: 
+AssertionError: expected [Function] to throw an error
+      Tests  2 failed | 4 passed (6)
+### mut-2-nofield
+     × rejects a wrong type with an error naming the file and the field 10ms
+     × names the nested field path, not just the top-level key 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 'Config error in config/app.yaml: Inva…' to match /^Config error in …/app\.yaml: appName: 
+AssertionError: expected [Function] to throw error matching /^Config error in config\/neste…/nested\ but got 'Config error in config/nested/thing.y…'
+      Tests  2 failed | 4 passed (6)
+### mut-3-noclamp
+     × seconds=500 becomes 120 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 500 to be 120 // Object.is equality
+      Tests  1 failed | 10 passed (11)
+
+### base gates
+gate 1:  ERR_PNPM_NO_PKG_MANIFEST  No package.json found in $S/base
+gate 2: FAIL: config/app.yaml missing
+gate 3: FAIL: CLAUDE.md still claims Flue
+gate 4: FAIL: no package.json — nothing to start
+
+### gate 3 needles
+needle A (Flue claim) on base:
+11:(code) → Output (LLM) → `report.json`/`.md`. Harness: Flue (https://flueframework.com/),  
+needle B (new harness line) on base count: 0
+needle C (unmeasured) on base:
+39:**Not yet measured — nothing is installed.** Chunk 01 of the bootstrap plan scaffolds the
+finished tree: A=0 B=1 C=0
+
+### canaries
+canary-gate2-include: FAIL: config/app.yaml not traced into .next/server/app/api/probe/stream/route.js.nft.json 
+canary-gate2-nokey: FAIL: next.config.ts declares no outputFileTracingIncludes 
+canary-gate4: FAIL: probe did not finish: tick 1 tick 2 tick 3 fin 
+
+### runtime config
+meta (status time): before=200 0.008276 edited=200 0.006963 bad=500 0.011825
+1c1
+< config-max-window-days">7<!-- --> days<
+---
+> config-max-window-days">9<!-- --> days<
+diff exit 1
+Config error in config/app.yaml: appName: Invalid input: expected string, received number
+
+### probe-90
+meta: 200 90.124297
+lines=91 ticks=90 last=done
+
+### lint canary
+  80:32  error  'x' is never reassigned. Use 'const' instead  prefer-const
+  80:35  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+✖ 2 problems (2 errors, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
+### dark variant
+after fix: dark: utilities under prefers-color-scheme = 0
+dark: utilities under .dark class = 17
+remaining prefers-color-scheme rules (shadcn .shimmer only): 
+before fix (built CSS at commit 5951ab2): '@media (prefers-color-scheme:dark){.dark\:border-input{border-color:var(--input)}' present
+
+### bootstrap symlink branch
+bootstrap: symlinked .env.local -> $S/bootrepo/.env.local
+
+### final gates (after last code edit)
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+gate 2 OK
+gate 3 OK
+gate 4 OK
+ALL GATES PASSED
+
+### fresh worktree (commit 82986a8)
+bootstrap: wrote AI_GATEWAY_API_KEY to .env.local from <repo>/.env
+      Tests  17 passed (17)
+gate 2 OK
+gate 3 OK
+gate 4 OK
+ALL GATES PASSED
+```
 
 ## For the user: Vercel setup
 
