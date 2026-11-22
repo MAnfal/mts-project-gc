@@ -119,6 +119,22 @@ describe("POST /api/run: a server-side config problem", () => {
     cwd = tmp = undefined;
   });
 
+  it("a config file the validation needs can't be read: a plain 500, no file name, no run", async () => {
+    cwd = process.cwd();
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), "run-route-"));
+    fs.cpSync(path.join(cwd, "config"), path.join(tmp, "config"), { recursive: true });
+    fs.writeFileSync(path.join(tmp, "config/app.yaml"), "appName: Reg Monitor\nmaxWindowDays: seven\n");
+    process.chdir(tmp);
+    vi.resetModules();
+    const route = await import("./route");
+    const res = await route.POST(new Request("http://localhost/api/run", { method: "POST", body: JSON.stringify({ profileId: "ledgerly", windowStart: "2026-11-02", windowEnd: "2026-11-06" }) }));
+    expect(res.status).toBe(500);
+    expect(res.headers.get("content-type")).toBe("text/plain; charset=utf-8");
+    const text = await res.text();
+    expect(text).toBe("The server couldn't read its settings, so the run didn't start. Try again later.");
+    expect(pipeline.calls).toBe(0);
+  });
+
   it("arrives as one run.failed event with no step and a fixed message, never a 500 with a stack", async () => {
     cwd = process.cwd();
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), "run-route-"));

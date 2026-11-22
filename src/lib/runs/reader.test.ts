@@ -144,6 +144,7 @@ describe("createRunner: a stream that never reaches run.done or run.failed is sa
     ["fetch rejects (offline)", () => Promise.reject(new TypeError("Failed to fetch")), 0],
     ["the response is not OK (a plain-text 400)", () => new Response("Pick a window of at most 7 days.", { status: 400 }), 0],
     ["the response is not OK even though its body parses as JSON (a platform error page)", () => new Response('{"error":{"code":"504"}}\n', { status: 504 }), 0],
+    ["the response has no body", () => new Response(null, { status: 200 }), 0],
     ["reading the body fails mid-stream", () => ndjson(EVENTS, 13, { failAfter: 4 }), -1],
     ["the body ends cleanly with no terminal event (function timeout)", () => ndjson(EVENTS.slice(0, 3)), 3],
   ];
@@ -195,6 +196,17 @@ describe("createRunner: retry", () => {
 });
 
 describe("createRunner: load", () => {
+  it("reopens a finished run after a reload from the store alone, with no network call", async () => {
+    const idb = new IDBFactory();
+    const before = await setup(() => ndjson(EVENTS), idb);
+    const { id, finished } = await before.runner.start(request, profile);
+    await finished;
+    const after = await setup(() => ndjson(EVENTS), idb);
+    expect(await after.runner.load(id)).toMatchObject({ status: "done", events: EVENTS });
+    expect(await after.runner.list()).toHaveLength(1);
+    expect(after.calls).toHaveLength(0);
+  });
+
   it("marks a run left 'running' by a previous page (reload mid-run) as interrupted", async () => {
     const idb = new IDBFactory();
     const before = await setup(() => new Promise<Response>(() => {}), idb); // never answers
@@ -202,6 +214,7 @@ describe("createRunner: load", () => {
     const after = await setup(() => ndjson(EVENTS), idb);
     expect((await after.runner.load(id))?.status).toBe("interrupted");
     expect((await after.store.get(id))?.status).toBe("interrupted");
+    expect(after.calls).toHaveLength(0); // reopening a saved run never touches the network
   });
 
   it("returns a run streaming in this page as it is, without marking it", async () => {

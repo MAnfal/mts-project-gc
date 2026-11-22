@@ -84,6 +84,11 @@ describe("buildRunConfig on a broken config", () => {
     expect(() => build(req)).toThrow('setups.yaml: setup "jev-sonnet-strict-passages" uses method "jev+llm", which is not listed under methods');
   });
 
+  it("carries filterVotes only when the setup votes more than once", async () => {
+    const build = await withConfig((file) => editYaml(file("experiment.yaml"), (d) => ((d.userView as { setup: string }).setup = "jev-sonnet-strict-vote3")));
+    expect(build(req).filterVotes).toBe(3);
+  });
+
   it("throws when userView.setup is a baseline (the live route runs only the pipeline)", async () => {
     const build = await withConfig((file) => editYaml(file("experiment.yaml"), (d) => ((d.userView as { setup: string }).setup = "baseline-sonnet")));
     expect(() => build(req)).toThrow('experiment.yaml userView.setup "baseline-sonnet" is not a pipeline setup');

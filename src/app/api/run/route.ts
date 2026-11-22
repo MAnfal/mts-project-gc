@@ -23,7 +23,15 @@ export async function POST(req: Request): Promise<Response> {
   } catch {
     body = undefined;
   }
-  const parsed = parseRunRequest(body, { maxWindowDays: readYaml("app.yaml", AppConfigSchema).maxWindowDays, presetIds: presets().map((p) => p.id) });
+  let limits: { maxWindowDays: number; presetIds: string[] };
+  try {
+    limits = { maxWindowDays: readYaml("app.yaml", AppConfigSchema).maxWindowDays, presetIds: presets().map((p) => p.id) };
+  } catch (e) {
+    // A broken config file: the name and field go to the log, never to the browser.
+    console.error("[Pipeline] run not started, config unreadable:", e);
+    return plain("The server couldn't read its settings, so the run didn't start. Try again later.", 500);
+  }
+  const parsed = parseRunRequest(body, limits);
   if (!parsed.ok) return plain(parsed.message, 400);
   const { request } = parsed;
   console.info(`[Pipeline] run requested: ${"profileId" in request ? request.profileId : "custom profile"}, ${request.windowStart}..${request.windowEnd}`);

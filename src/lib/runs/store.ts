@@ -31,9 +31,8 @@ const done = <T>(req: IDBRequest<T>) =>
 function openDb(factory: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = factory.open(DB, VERSION);
-    req.onupgradeneeded = () => {
-      if (!req.result.objectStoreNames.contains(RUNS)) req.result.createObjectStore(RUNS, { keyPath: "id" });
-    };
+    // Version 1 has one store. A later version that adds a store must create only what the old version lacks.
+    req.onupgradeneeded = () => req.result.createObjectStore(RUNS, { keyPath: "id" });
     req.onsuccess = () => {
       const db = req.result;
       // Let another tab upgrade or delete the database; our next call then fails over to memory.

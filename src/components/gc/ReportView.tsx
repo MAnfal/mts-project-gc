@@ -104,6 +104,7 @@ function ItemRow({ item, n }: { item: ActionItem; n: number }) {
           </a>
         </div>
         <div className="mt-1 text-muted-foreground">{item.action || item.reason}</div>
+        {!item.citationVerified ? <div className="mt-1 text-[13px] text-status-orange-fg">Citation not matched against the Federal Register: check the source before forwarding.</div> : null}
         <button type="button" aria-expanded={why} onClick={() => setWhy(!why)} className="mt-1.5 inline-flex items-center gap-1 rounded-sm text-[13px] text-caption hover:text-foreground">
           Why {item.tier}?
           <ChevronRight aria-hidden="true" className={cn("size-3 transition-transform", why && "rotate-90")} />

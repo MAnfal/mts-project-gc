@@ -175,6 +175,13 @@ describe("draftEmails", () => {
     expect(decode(d.href).body).toContain("Fees & charges #4 ?ok");
   });
 
+  it("doesn't call an unverified deadline verified", () => {
+    const [d] = draftEmails([item(1, { deadline: { ...verified("2026-11-14"), verified: false } })], ctx);
+    const body = new URL(d.href).searchParams.get("body") ?? "";
+    expect(body).toContain("   Comments due Nov 14, 2026\n");
+    expect(body).not.toContain("verified");
+  });
+
   it("drafts nothing for no items", () => {
     expect(draftEmails([], ctx)).toEqual([]);
   });
