@@ -49,7 +49,9 @@ export type NewRunAction =
   | { type: "pick"; value: Choice; profile: CompanyProfile }
   | { type: "discard" }
   | { type: "keep" }
-  | { type: "edit"; form: ProfileForm };
+  | { type: "edit"; form: ProfileForm }
+  /** Replaces the whole state: the form filled from a stored run (prefillState), which arrives after the first render. */
+  | { type: "load"; state: NewRunState };
 
 /** Opens on the first preset (callers order them with `orderPresets`), every field filled from it. */
 export function initialState(presets: CompanyProfile[]): NewRunState {
@@ -73,7 +75,27 @@ export function newRunReducer(state: NewRunState, action: NewRunAction): NewRunS
       return { ...state, pending: null };
     case "edit":
       return { ...state, form: action.form };
+    case "load":
+      return action.state;
   }
+}
+
+/**
+ * The form filled from a stored run ("Edit settings" → /runs/new?from=<runId>): the run's own profile, picked under the
+ * entry it came from. That is the preset or saved profile with the run's profile id (presets first, then saved,
+ * newest first), so an edited preset reads "(edited)" and a saved profile's rerun replaces it. A company this browser
+ * no longer has, or a preset since removed from config, opens as "New company…" with the run's fields.
+ */
+export function prefillState(presets: CompanyProfile[], saved: SavedProfile[], run: { request: RunRequest; profile: CompanyProfile }): NewRunState {
+  const home = pickerOptions(presets, saved).find((o) => o.profile?.id === run.profile.id);
+  if (!home?.profile) return { choice: NEW, form: profileToForm(run.profile), pending: null };
+  return { choice: home.value, form: { ...profileToForm(run.profile), base: home.profile }, pending: null };
+}
+
+/** The week buttons' choice for a stored run's window: the button with that exact window, else custom dates. */
+export function prefillWeek(weeks: Window[], request: Pick<RunRequest, "windowStart" | "windowEnd">): { choice: number | "custom"; custom: Window } {
+  const i = weeks.findIndex((w) => w.start === request.windowStart && w.end === request.windowEnd);
+  return i >= 0 ? { choice: i, custom: weeks[i] } : { choice: "custom", custom: { start: request.windowStart, end: request.windowEnd } };
 }
 
 /** The picker's closed label: the profile's name, with "(edited)" once it differs from what was picked. */

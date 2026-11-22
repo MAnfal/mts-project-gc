@@ -4,6 +4,7 @@ import { readYaml } from "@/lib/config/load";
 import { NewRunConfigSchema } from "@/lib/config/schemas";
 import type { CompanyProfile } from "../types";
 import {
+  NEW,
   caresAboutTitle,
   initialState,
   newRunReducer,
@@ -15,6 +16,8 @@ import {
   runSummary,
   switchPrompt,
   areasNote,
+  prefillState,
+  prefillWeek,
   type NewRunState,
 } from "./new-run";
 import { blankProfile, profileToForm } from "./profileForm";
@@ -211,5 +214,76 @@ describe("an untouched 'New company…'", () => {
     const s = newRunReducer(blank, { type: "pick", value: "preset:hearth", profile: hearth() });
     expect(s.pending).toBeNull();
     expect(s.choice).toBe("preset:hearth");
+  });
+});
+
+// Amendment 6: "Edit settings" on a failed run opens /runs/new?from=<runId>, filled from that run as IndexedDB holds
+// it ({request, profile}). Profiles are the real presets; the stored runs are constructed the way the runner saves them.
+describe("prefillState: the form filled from a stored run", () => {
+  const window = { windowStart: "2026-11-02", windowEnd: "2026-11-06" };
+  const weekOf = { start: "2026-11-02", end: "2026-11-06" };
+
+  it("a preset run reopens on that preset, unedited, and Run sends the same request", () => {
+    const s = prefillState(all(), [], { request: { profileId: "hearth", ...window }, profile: hearth() });
+    expect(s.choice).toBe("preset:hearth");
+    expect(pickerLabel(s, all(), [])).toBe(hearth().name);
+    expect(runFor(s, weekOf).request).toEqual({ profileId: "hearth", ...window });
+  });
+
+  it("an edited preset reopens on that preset marked edited, and Run sends the run's own profile", () => {
+    const edited = { ...ledgerly(), summary: "Only crypto custody now." };
+    const s = prefillState(all(), [], { request: { customProfile: edited, ...window }, profile: edited });
+    expect(s.choice).toBe("preset:ledgerly");
+    expect(pickerLabel(s, all(), [])).toBe(`${ledgerly().name} (edited)`);
+    expect(runFor(s, weekOf).request).toEqual({ customProfile: edited, ...window });
+  });
+
+  it("a saved profile's run reopens on that saved profile, and a rerun replaces it rather than saving a copy", () => {
+    const mine = { ...blankProfile("custom-1"), name: "SmileBright Dental", summary: "Dental clinics." };
+    const list = [saved("k1", mine)];
+    const s = prefillState(all(), list, { request: { customProfile: mine, ...window }, profile: mine });
+    expect(s.choice).toBe("saved:k1");
+    expect(runFor(s, weekOf)).toMatchObject({ request: { customProfile: mine, ...window }, savedKey: "k1" });
+  });
+
+  it("a company this browser no longer has reopens as a new company with the run's fields", () => {
+    // As the form saves one (formToProfile): a profile with no areas gets the catch-all area owned by the GC.
+    const blank = blankProfile("custom-9");
+    const gone = { ...blank, name: "Gone Co", summary: "Sells things.", areas: { general: { description: "Everything", owner: blank.generalCounsel } } };
+    const s = prefillState(all(), [], { request: { customProfile: gone, ...window }, profile: gone });
+    expect(s.choice).toBe(NEW);
+    expect(s.form.name).toBe("Gone Co");
+    expect(runFor(s, weekOf).request).toEqual({ customProfile: gone, ...window });
+  });
+
+  it("a preset run whose preset was removed from config reopens as a new company with the run's profile", () => {
+    const removed = { ...hearth(), id: "oldpreset", name: "Old Preset Co" };
+    const s = prefillState(all(), [], { request: { profileId: "oldpreset", ...window }, profile: removed });
+    expect(s.choice).toBe(NEW);
+    expect(runFor(s, weekOf).request).toEqual({ customProfile: removed, ...window });
+  });
+
+  it("the reducer's load action replaces the whole state, pending switch included", () => {
+    const pending = newRunReducer(edit(initialState(all()), { summary: "changed" }), { type: "pick", value: "preset:hearth", profile: hearth() });
+    expect(pending.pending).not.toBeNull();
+    const next = prefillState(all(), [], { request: { profileId: "hearth", ...window }, profile: hearth() });
+    expect(newRunReducer(pending, { type: "load", state: next })).toBe(next);
+  });
+});
+
+describe("prefillWeek", () => {
+  const weeks = [
+    { start: "2026-11-16", end: "2026-11-20" },
+    { start: "2026-11-09", end: "2026-11-13" },
+    { start: "2026-11-02", end: "2026-11-06" },
+  ];
+
+  it("selects the week button that matches the run's window", () => {
+    expect(prefillWeek(weeks, { windowStart: "2026-11-09", windowEnd: "2026-11-13" })).toEqual({ choice: 1, custom: weeks[1] });
+  });
+
+  it("selects custom dates for a window no button covers", () => {
+    expect(prefillWeek(weeks, { windowStart: "2026-10-19", windowEnd: "2026-10-23" })).toEqual({ choice: "custom", custom: { start: "2026-10-19", end: "2026-10-23" } });
+    expect(prefillWeek(weeks, { windowStart: "2026-11-09", windowEnd: "2026-11-12" })).toEqual({ choice: "custom", custom: { start: "2026-11-09", end: "2026-11-12" } });
   });
 });
