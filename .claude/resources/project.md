@@ -383,7 +383,7 @@ src/
                               loader.ts (browser fetch + gunzip reader for the bundle, loadIteration/File),
                               bundle-build.ts (pure decisions of scripts/build-eval-index.mts, no fs),
                               verdict.ts · story.ts · chartSeries.ts (pure, client-safe view logic),
-                              cases.ts (per-case hits, subset grading) · runFacts.ts (filter reason, judges,
+                              cases.ts (per-case hits, subset grading) · casesState.ts (Cases page states) · runFacts.ts (filter reason, judges,
                               passages) · traceIndex.ts (trace filter/search) · runList.ts (Runs page rows),
                               evalsetInfo.ts (server-only: eval-set names from config/),
                               story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts,

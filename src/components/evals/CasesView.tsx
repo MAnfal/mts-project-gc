@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/shell/AppShell";
-import { caseCounts, casesForIteration, filterCases, liveIterationId, type CaseFilter, type CaseKey, type CaseRun } from "@/lib/evals/cases";
+import { filterCases, type CaseFilter, type CaseKey, type CaseRun } from "@/lib/evals/cases";
+import { activeFilter, casesPageState, computeCases, filterChoices, selectedRow } from "@/lib/evals/casesState";
 import type { EvalDirectory } from "@/lib/evals/evalsetInfo";
 import type { EvalIndex } from "@/lib/evals/index-schema";
 import { loadAnswerKey, loadSuiteRuns, loadTraceChecks, loadWeekDocs, type TraceCheck } from "@/lib/evals/loader";
 import type { FactRun } from "@/lib/evals/runFacts";
 import type { EvalStory } from "@/lib/evals/story-schema";
 import { cn } from "@/lib/utils";
-import { CaseFilters, CasesTable, caseWhere, type FilterChoice } from "./CasesTable";
+import { CaseFilters, CasesTable, caseWhere } from "./CasesTable";
 import { iterationNumber } from "./EvalSidebar";
 import { LoadState, useEvalIndex } from "./EvalSummary";
 import { RunPanel } from "./RunPanel";
@@ -90,23 +91,13 @@ function Body({ children }: { children: ReactNode }) {
  */
 export function CasesView({ sidebar, iterationId, directory, story }: { sidebar: ReactNode; iterationId: string | null; directory: EvalDirectory; story: EvalStory }) {
   const { index, error } = useEvalIndex();
-  const id = iterationId ?? (index ? liveIterationId(index) : null);
-  const it = index?.iterations.find((i) => i.id === id) ?? null;
-  const suite = (it?.suite && index?.suites.find((s) => s.id === it.suite)) || null;
-  const loaded = useSuiteData(it && !it.evidenceOnly ? suite : null, directory);
+  const st = useMemo(() => (index ? casesPageState(index, iterationId) : null), [index, iterationId]);
+  const it = st?.kind === "iteration" ? st : null;
+  const suite = (it && index?.suites.find((s) => s.id === it.suite)) || null;
+  const loaded = useSuiteData(suite, directory);
   const [filter, setFilter] = useState<CaseFilter | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-
-  // casesForIteration throws for a run without an eval set or an eval set without a key: show that, not a blank page.
-  const computed = useMemo(() => {
-    if (!it?.setup || !loaded?.data) return { rows: null, error: null };
-    try {
-      return { rows: casesForIteration(loaded.data.runs, { setup: it.setup, comparedTo: it.comparedTo }, loaded.data.keys), error: null };
-    } catch (e) {
-      return { rows: null, error: (e as Error).message };
-    }
-  }, [it, loaded]);
-  const rows = computed.rows;
+  const computed = useMemo(() => (it ? computeCases(it, loaded?.data ?? null) : { rows: null, error: null }), [it, loaded]);
   const runsById = useMemo(() => new Map((loaded?.data?.runs ?? []).map((r) => [r.id, r])), [loaded]);
 
   const shell = (main: ReactNode, aside?: ReactNode) => (
@@ -115,66 +106,55 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
     </AppShell>
   );
 
-  if (!index) return shell(<Body><LoadState error={error} /></Body>);
-  if (!it || !id)
+  if (!index || !st) return shell(<Body><LoadState error={error} /></Body>);
+  if (st.kind === "unknown" || st.kind === "error")
     return shell(
       <>
         <Header title="Cases" sub="Each rule an iteration's setup was graded on, with how often its repeats flagged it." />
         <Body>
-          <p className="m-0">There is no iteration “{iterationId}” in the recorded evaluation. Pick one:</p>
+          {st.kind === "error" ? <LoadState error={st.message} /> : <p className="m-0">There is no iteration “{st.requested}” in the recorded evaluation. Pick one:</p>}
           <IterationNav index={index} current="" />
         </Body>
       </>,
     );
-
-  const no = iterationNumber(it.id);
-  const label = story.iterations[it.id]?.label ?? it.title ?? it.id;
-  if (it.evidenceOnly)
+  if (st.kind === "evidenceOnly")
     return shell(
       <>
-        <Header title={`Iteration ${no} has no cases`} sub={label} />
+        <Header title={`Iteration ${st.no} has no cases`} sub={story.iterations[st.id]?.label ?? st.id} />
         <Body>
-          <IterationNav index={index} current={it.id} />
+          <IterationNav index={index} current={st.id} />
           <p className="m-0 max-w-[70ch] leading-relaxed">
-            Iteration {no} is evidence only: it records the error analysis behind the next change, but no setup was run for it, so no case was graded.
+            Iteration {st.no} is evidence only: it records the error analysis behind the next change, but no setup was run for it, so no case was graded.
           </p>
-          <Link href={`/evals/iterations/${it.id}`} className="self-start">
-            Open iteration {no}&apos;s evidence
+          <Link href={`/evals/iterations/${st.id}`} className="self-start">
+            Open iteration {st.no}&apos;s evidence
           </Link>
         </Body>
       </>,
     );
 
-  const setupLabel = (key: string | null) => (key ? (index.setups.find((s) => s.key === key)?.label ?? key) : null);
-  const after = setupLabel(it.setup);
-  const before = setupLabel(it.comparedTo);
-  const title = it.comparedTo ? `Cases that changed in ${no}` : `Cases in ${no}`;
-  const sub = it.comparedTo
-    ? `Repeats that flagged each rule, out of each setup's finished repeats · After = ${after}, Before = ${before} · suite ${it.suite ? shortSuite(it.suite) : "—"} · held-out weeks are scored, never tuned on`
-    : `Repeats that flagged each rule, out of the setup's finished repeats · ${after} · suite ${it.suite ? shortSuite(it.suite) : "—"} · the reference point: nothing to compare it with`;
+  const setupLabel = (key: string) => index.setups.find((s) => s.key === key)?.label ?? key;
+  const sub = st.comparedTo
+    ? `Repeats that flagged each rule, out of each setup's finished repeats · After = ${setupLabel(st.setup)}, Before = ${setupLabel(st.comparedTo)} · suite ${shortSuite(st.suite)} · held-out weeks are scored, never tuned on`
+    : `Repeats that flagged each rule, out of the setup's finished repeats · ${setupLabel(st.setup)} · suite ${shortSuite(st.suite)} · the reference point: nothing to compare it with`;
+  const rows = computed.rows;
 
-  if (!loaded || !rows)
+  if (!loaded?.data || !rows)
     return shell(
       <>
-        <Header title={title} sub={sub} />
+        <Header title={st.title} sub={sub} />
         <Body>
-          <IterationNav index={index} current={it.id} />
+          <IterationNav index={index} current={st.id} />
           {loaded?.error || computed.error ? <LoadState error={loaded?.error ?? computed.error} /> : <p className="m-0 text-muted-foreground" aria-live="polite">Loading the suite&apos;s runs and answer keys…</p>}
         </Body>
       </>,
     );
 
-  const counts = caseCounts(rows);
-  const choices: FilterChoice[] = [
-    ...(it.comparedTo ? [{ id: "changed" as const, label: `Changed in ${no}`, count: counts.changed }] : []),
-    { id: "stillMissed", label: "Still missed", count: counts.stillMissed },
-    { id: "trapsFlagged", label: "Traps flagged", count: counts.trapsFlagged },
-    { id: "all", label: "All", count: counts.all },
-  ];
-  const active = filter && choices.some((c) => c.id === filter) ? filter : choices[0].id;
+  const choices = filterChoices(rows, st.no, !!st.comparedTo);
+  const active = activeFilter(filter, choices);
   const shown = filterCases(rows, active);
-  const sel = shown.find((r) => r.id === selected) ?? shown[0] ?? null;
-  const titles = loaded.data!.titles;
+  const sel = selectedRow(shown, selected);
+  const { titles, checks } = loaded.data;
   // Below md the run panel stacks under the table, so bring it into view when a case is picked.
   const select = (rowId: string) => {
     setSelected(rowId);
@@ -183,17 +163,17 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
 
   return shell(
     <>
-      <Header title={title} sub={sub} />
+      <Header title={st.title} sub={sub} />
       <Body>
-        <IterationNav index={index} current={it.id} />
+        <IterationNav index={index} current={st.id} />
         <CaseFilters choices={choices} value={active} onChange={setFilter} />
         {shown.length ? (
-          <CasesTable rows={shown} titles={titles} evalsets={directory.evalsets} showBefore={!!it.comparedTo} selected={sel?.id ?? null} onSelect={select} />
+          <CasesTable rows={shown} titles={titles} evalsets={directory.evalsets} showBefore={!!st.comparedTo} selected={sel?.id ?? null} onSelect={select} />
         ) : (
           <p className="m-0 rounded-md bg-status-neutral-surface px-3 py-2 text-status-neutral-fg">No case matches this filter.</p>
         )}
         <p className="m-0 text-xs text-muted-foreground">
-          After and Before count finished repeats; a repeat that failed is listed in the run panel but not counted. Suite {it.suite}.
+          After and Before count finished repeats; a repeat that failed is listed in the run panel but not counted. Suite {st.suite}.
         </p>
       </Body>
     </>,
@@ -203,10 +183,10 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
         row={sel}
         title={titles.get(sel.doc) ?? sel.doc}
         where={caseWhere(directory.evalsets[sel.evalset], sel.evalset)}
-        iteration={no}
-        suiteId={it.suite!}
+        iteration={st.no}
+        suiteId={st.suite}
         runsById={runsById}
-        checks={loaded.data!.checks}
+        checks={checks}
       />
     ) : undefined,
   );

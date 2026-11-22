@@ -1,6 +1,7 @@
 "use client";
 
 import { formatTally, SPLIT_WORD, type CaseFilter, type CaseRow } from "@/lib/evals/cases";
+import type { FilterChoice } from "@/lib/evals/casesState";
 import type { EvalsetInfo } from "@/lib/evals/evalsetInfo";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +34,6 @@ function WhatHappened({ row: r }: { row: CaseRow }) {
   );
 }
 
-export type FilterChoice = { id: CaseFilter; label: string; count: number };
 
 /** The filter buttons: at most four choices, each with its computed count ("All N cases" reads as a link). */
 export function CaseFilters({ choices, value, onChange }: { choices: FilterChoice[]; value: CaseFilter; onChange: (f: CaseFilter) => void }) {

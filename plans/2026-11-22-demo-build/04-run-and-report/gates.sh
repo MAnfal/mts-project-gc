@@ -57,7 +57,10 @@ for (const spec of process.env.GC_ROUTES.split(/\s+/).filter(Boolean)) {
   const optional = spec.endsWith("?");
   const route = optional ? spec.slice(0, -1) : spec;
   const file = path.join(".next/server/app", `${route}_client-reference-manifest.js`);
-  if (!fs.existsSync(file)) { if (optional) continue; die(`GC route ${route} has no ${file}`); }
+  if (!fs.existsSync(file)) {
+    if (optional) { console.error(`Gate 5: optional GC route /${route.replace(/\/?page$/, "")} has no build output yet; skipped`); continue; }
+    die(`GC route ${route} has no ${file}`);
+  }
   const ctx = {}; ctx.globalThis = ctx;
   vm.runInNewContext(fs.readFileSync(file, "utf8"), ctx);
   const man = ctx.__RSC_MANIFEST?.[`/${route}`];

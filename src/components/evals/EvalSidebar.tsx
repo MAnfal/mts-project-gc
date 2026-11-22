@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SidebarNav, SidebarNavItem, SidebarSectionLabel, SidebarWordmark } from "@/components/shell/SidebarNav";
 import { Badge } from "@/components/ui/badge";
 import type { EvalStory, Outcome } from "@/lib/evals/story-schema";
+import { iterationNumber } from "@/lib/evals/story";
 import { cn } from "@/lib/utils";
 
 /** How each outcome reads in the iteration list (design/HiEvalSummary.dc.html: kept in green, the rest muted). */
@@ -16,8 +17,8 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
 };
 const KEPT: ReadonlySet<Outcome> = new Set(["kept", "promoted"]);
 
-/** "06-passages" → "06": the iteration's number, shown before its label. */
-export const iterationNumber = (id: string) => id.split("-")[0];
+/** Re-exported for the eval components that already import it from here; defined in story.ts (client-safe lib). */
+export { iterationNumber };
 
 /**
  * The reviewer-facing sidebar: Summary, Iterations, Cases, Runs, and the iteration log with each outcome. Marked
