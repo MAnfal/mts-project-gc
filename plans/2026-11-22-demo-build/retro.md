@@ -129,6 +129,20 @@ Every one of these is a candidate for `.claude/resources/project.md`.
 - `assertPublic` is case-sensitive on `\bJEV\b`, so a live title containing "JEV" would
   fail the run. This was accepted.
 
+### Chunk 08 — Eval summary and iterations
+
+- Preflight found that roughly half the plan's "from the index" numbers did not exist in
+  the index. Amending the builder (not the page) kept every number data-derived.
+- The implementer corrected the lead's amendment twice, with evidence: the baseline has 3
+  repeats, and datesRight is against the key, not the source. A lead's preflight
+  amendment is a claim too; the implementer's "proceeding unless you object" pattern
+  handled it cheaply.
+- Decision 10 paid off: the computed noise band says 06's precision gain is *beyond*
+  noise, contrary to the mockup and the POC's own decision text (which used a four-suite
+  band). The page states both bands.
+- configHash keeps moving with every config edit (now `242bd91ef7`); parity is the byte
+  diff, not the hash.
+
 
 ---
 
@@ -169,6 +183,11 @@ iteration; every line here skips one.
   only); `withRetry` in `retry.ts`; `src/lib/gateway.ts` (`AI_GATEWAY_API_KEY`). Run config
   must be built like the POC's `api/try` + `cellConfig`. A doc the filter never answered is
   in neither `screenedOut` nor `notReviewedCount`. Gate: `bash plans/2026-11-22-demo-build/03-pipeline/gates.sh`.
+- **Eval pages (08)**: `/evals` and `/evals/iterations/[id]`; server page reads
+  `config/eval-story.yaml` per request, client loads bundle via `loader.ts`
+  (`loadIndex`, `loadIteration`, `loadIterationFile`, …). Eval sidebar component in
+  `src/components/evals/` lists Summary, Iterations, Cases (09 builds `/evals/cases`;
+  10 adds Models). Gate: `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh`.
 - **Chunks land via GitHub PR** into `feat/plan--demo-build` (`gh pr create` → `gh pr merge --merge`).
 
 ---

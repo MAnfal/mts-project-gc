@@ -1,0 +1,146 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/bundle-build.test.ts (34 tests | 9 failed) 18ms
+   ❯ splitOfEvalset (an eval set's split from the manifest) (2)
+     × returns the manifest split 3ms
+     × throws for an eval set the manifest does not list 4ms
+   ❯ iterationRuns (which setups an iteration's results are measured on) (3)
+     × names the candidate, the setup it replaced, and the suite 0ms
+     × is null for an evidence-only iteration 0ms
+     × throws when a recorded iteration has no setup or no suite 1ms
+   ❯ requireKeys (every manifest eval set has an answer key) (2)
+     × returns the keys in manifest order 0ms
+     × throws naming every eval set without a key 1ms
+   ❯ bandControl (the setup whose re-runs give the noise band) (2)
+     × is what the last iteration that ran the live setup was compared to 0ms
+     × is null when no iteration ran the live setup, or it was compared to nothing 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > splitOfEvalset (an eval set's split from the manifest) > returns the manifest split
+TypeError: splitOfEvalset is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:258:12
+    256|   const sets = [{ id: "e1", split: "dev" as const }, { id: "e2", split…
+    257|   it("returns the manifest split", () => {
+    258|     expect(splitOfEvalset(sets, "e2")).toBe("test");
+       |            ^
+    259|   });
+    260|   it("throws for an eval set the manifest does not list", () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > splitOfEvalset (an eval set's split from the manifest) > throws for an eval set the manifest does not list
+AssertionError: expected [Function] to throw error including 'eval set e9 is not in the manifest' but got '(0 , __vite_ssr_import_1__.splitOfEva…'
+
+Expected: "eval set e9 is not in the manifest"
+Received: "(0 , __vite_ssr_import_1__.splitOfEvalset) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:261:46
+    259|   });
+    260|   it("throws for an eval set the manifest does not list", () => {
+    261|     expect(() => splitOfEvalset(sets, "e9")).toThrow("eval set e9 is n…
+       |                                              ^
+    262|   });
+    263| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > iterationRuns (which setups an iteration's results are measured on) > names the candidate, the setup it replaced, and the suite
+TypeError: iterationRuns is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:268:12
+    266|   const it0 = { id: "06-x", evidenceOnly: false, setup: "cand", suite:…
+    267|   it("names the candidate, the setup it replaced, and the suite", () =…
+    268|     expect(iterationRuns(it0)).toEqual({ setup: "cand", comparedTo: "c…
+       |            ^
+    269|     expect(iterationRuns({ ...it0, comparedTo: null })).toEqual({ setu…
+    270|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > iterationRuns (which setups an iteration's results are measured on) > is null for an evidence-only iteration
+TypeError: iterationRuns is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:272:12
+    270|   });
+    271|   it("is null for an evidence-only iteration", () => {
+    272|     expect(iterationRuns({ id: "07-next", evidenceOnly: true, setup: n…
+       |            ^
+    273|   });
+    274|   it("throws when a recorded iteration has no setup or no suite", () =…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > iterationRuns (which setups an iteration's results are measured on) > throws when a recorded iteration has no setup or no suite
+AssertionError: expected [Function] to throw error including 'iteration 06-x has no setup or suite' but got '(0 , __vite_ssr_import_1__.iterationR…'
+
+Expected: "iteration 06-x has no setup or suite"
+Received: "(0 , __vite_ssr_import_1__.iterationRuns) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:275:58
+    273|   });
+    274|   it("throws when a recorded iteration has no setup or no suite", () =…
+    275|     expect(() => iterationRuns({ ...it0, setup: null })).toThrow("iter…
+       |                                                          ^
+    276|     expect(() => iterationRuns({ ...it0, suite: null })).toThrow("iter…
+    277|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > requireKeys (every manifest eval set has an answer key) > returns the keys in manifest order
+TypeError: requireKeys is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:282:12
+    280| describe("requireKeys (every manifest eval set has an answer key)", ()…
+    281|   it("returns the keys in manifest order", () => {
+    282|     expect(requireKeys(["e2", "e1"], (e) => KEYS[e] ?? null)).toEqual(…
+       |            ^
+    283|   });
+    284|   it("throws naming every eval set without a key", () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > requireKeys (every manifest eval set has an answer key) > throws naming every eval set without a key
+AssertionError: expected [Function] to throw error including 'no answer key for eval sets: e7, e8' but got '(0 , __vite_ssr_import_1__.requireKey…'
+
+Expected: "no answer key for eval sets: e7, e8"
+Received: "(0 , __vite_ssr_import_1__.requireKeys) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:285:75
+    283|   });
+    284|   it("throws naming every eval set without a key", () => {
+    285|     expect(() => requireKeys(["e1", "e7", "e8"], (e) => KEYS[e] ?? nul…
+       |                                                                           ^
+    286|   });
+    287| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > bandControl (the setup whose re-runs give the noise band) > is what the last iteration that ran the live setup was compared to
+TypeError: bandControl is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:297:12
+    295|   ];
+    296|   it("is what the last iteration that ran the live setup was compared …
+    297|     expect(bandControl(its, "live")).toBe("ctl");
+       |            ^
+    298|   });
+    299|   it("is null when no iteration ran the live setup, or it was compared…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > bandControl (the setup whose re-runs give the noise band) > is null when no iteration ran the live setup, or it was compared to nothing
+TypeError: bandControl is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:300:12
+    298|   });
+    299|   it("is null when no iteration ran the live setup, or it was compared…
+    300|     expect(bandControl(its, "other")).toBeNull();
+       |            ^
+    301|     expect(bandControl([{ setup: "live", comparedTo: null }], "live"))…
+    302|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  9 failed | 40 passed (49)
+   Start at  01:09:51
+   Duration  259ms (import 44%, tests 28%, transform 25%, worker 2%)
+

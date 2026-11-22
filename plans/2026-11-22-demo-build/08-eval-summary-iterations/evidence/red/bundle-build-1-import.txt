@@ -1,0 +1,198 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/bundle-build.test.ts (25 tests | 13 failed) 18ms
+   ❯ metricOf (one suiteReport row → a value and the run count it averages over) (3)
+     × uses graded runs for key-graded metrics, finished for trace checks and time, all runs for cost, panel runs for judges 3ms
+     × gives null over 0 runs for a split the suite never ran (dev-only suites have no test row) 0ms
+     × keeps a null time as null rather than dividing it 0ms
+   ❯ repeatAgreement (same relevance call / same tier across a setup's repeats) (6)
+     × counts a keyed doc as agreeing when every repeat flags it or none does 0ms
+     × checks tier only on docs flagged in every repeat, keyed or not 0ms
+     × groups by suite and eval set, and pools splits into all 0ms
+     × leaves out failed and superseded runs, and groups left with fewer than two repeats 0ms
+     × throws when an eval set has no answer key 4ms
+     × throws when a run names no suite or eval set 1ms
+   ❯ noiseBand (the control's spread between two identical suites) (3)
+     × is the absolute difference per measure, naming both suites and their run counts 0ms
+     × has no value for a measure either suite could not measure 0ms
+     × is null when the control did not run in both suites 0ms
+   ❯ keyTotals (rules that matter and look-alikes across the answer keys) (1)
+     × sums relevant docs and traps, traps given as a list or a map 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > uses graded runs for key-graded metrics, finished for trace checks and time, all runs for cost, panel runs for judges
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:123:12
+    121|   it("uses graded runs for key-graded metrics, finished for trace chec…
+    122|     const r = { s: report(), panelRuns: 12 };
+    123|     expect(metricOf(r, "recall")).toEqual({ value: 0.9, runs: 34 });
+       |            ^
+    124|     expect(metricOf(r, "score")).toEqual({ value: 0.93, runs: 34 });
+    125|     expect(metricOf(r, "traceChecks")).toEqual({ value: 1, runs: 35 });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > gives null over 0 runs for a split the suite never ran (dev-only suites have no test row)
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:132:12
+    130|
+    131|   it("gives null over 0 runs for a split the suite never ran (dev-only…
+    132|     expect(metricOf({ s: null, panelRuns: 0 }, "recall")).toEqual({ va…
+       |            ^
+    133|     expect(metricOf({ s: null, panelRuns: 0 }, "costPerRunUsd")).toEqu…
+    134|     expect(runCountsOf(null)).toEqual({ total: 0, finished: 0, graded:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > keeps a null time as null rather than dividing it
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:138:12
+    136|
+    137|   it("keeps a null time as null rather than dividing it", () => {
+    138|     expect(metricOf({ s: report({ msMean: null }), panelRuns: 0 }, "se…
+       |            ^
+    139|   });
+    140| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > counts a keyed doc as agreeing when every repeat flags it or none does
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:161:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > checks tier only on docs flagged in every repeat, keyed or not
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:172:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > groups by suite and eval set, and pools splits into all
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:181:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > leaves out failed and superseded runs, and groups left with fewer than two repeats
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:197:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > throws when an eval set has no answer key
+AssertionError: expected [Function] to throw error including 'no answer key for eval set e7' but got '(0 , __vite_ssr_import_1__.repeatAgre…'
+
+Expected: "no answer key for eval set e7"
+Received: "(0 , __vite_ssr_import_1__.repeatAgreement) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:210:69
+    208|
+    209|   it("throws when an eval set has no answer key", () => {
+    210|     expect(() => agree([arun("a", "e7", []), arun("b", "e7", [])])).to…
+       |                                                                     ^
+    211|   });
+    212|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > throws when a run names no suite or eval set
+AssertionError: expected [Function] to throw error including 'run a has no arena or eval set' but got '(0 , __vite_ssr_import_1__.repeatAgre…'
+
+Expected: "run a has no arena or eval set"
+Received: "(0 , __vite_ssr_import_1__.repeatAgreement) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:214:79
+    212|
+    213|   it("throws when a run names no suite or eval set", () => {
+    214|     expect(() => agree([arun("a", "e1", [], { config: { evalset: "e1" …
+       |                                                                               ^
+    215|     expect(() => agree([arun("a", "e1", [], { config: { arena: "s1" } …
+    216|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > is the absolute difference per measure, naming both suites and their run counts
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:226:18
+    224|
+    225|   it("is the absolute difference per measure, naming both suites and t…
+    226|     const band = noiseBand("ctl", res("A", 0.9, 35), res("B", 0.85, 35…
+       |                  ^
+    227|     expect(band?.setup).toBe("ctl");
+    228|     expect(band?.suites).toEqual(["A", "B"]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > has no value for a measure either suite could not measure
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:236:12
+    234|
+    235|   it("has no value for a measure either suite could not measure", () =…
+    236|     expect(noiseBand("ctl", res("A", null, 35), res("B", 0.85, 35))?.m…
+       |            ^
+    237|   });
+    238|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > is null when the control did not run in both suites
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:240:12
+    238|
+    239|   it("is null when the control did not run in both suites", () => {
+    240|     expect(noiseBand("ctl", null, res("B", 0.85, 35))).toBeNull();
+       |            ^
+    241|     expect(noiseBand("ctl", res("A", 0.9, 35), null)).toBeNull();
+    242|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > keyTotals (rules that matter and look-alikes across the answer keys) > sums relevant docs and traps, traps given as a list or a map
+TypeError: keyTotals is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:247:12
+    245| describe("keyTotals (rules that matter and look-alikes across the answ…
+    246|   it("sums relevant docs and traps, traps given as a list or a map", (…
+    247|     expect(keyTotals([KEYS.e1, KEYS.e2])).toEqual({ relevant: 3, traps…
+       |            ^
+    248|   });
+    249| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 12 passed (25)
+   Start at  00:34:55
+   Duration  292ms (import 53%, transform 28%, tests 16%, worker 3%)
+

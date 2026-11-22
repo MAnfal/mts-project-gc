@@ -10,7 +10,9 @@
 // trace checks), and keys + manifest from config/ (POC_CONFIG_DIR). So the numbers it writes are a
 // recomputation from what ships, not a copy of anything the POC printed. Writes (or, with --check, compares
 // byte for byte against what is there and exits 1 on any difference):
-//   index.json                         suites, setups, iterations, live, baseline, counts
+//   index.json                         suites, setups, iterations (each with its measured candidate and
+//                                      comparedTo, and which evidence files exist), live, baseline,
+//                                      suiteResults (every setup in every suite), noiseBand, evalSet, counts
 //   iterations/<id>/iteration.json     spec.yaml merged with iteration.yaml (07-next: evidence only)
 //   user-view/index.json               one row per example run, failed ones included
 // and checks that suites/<id>/report.json equals suiteReport() over that suite's shipped runs.
@@ -28,8 +30,25 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import YAML from "yaml";
-import { appendSkippedRuns, keepManifest, pickBaselineSetup, poolSetupRuns } from "../src/lib/evals/bundle-build";
-import { EvalIndexSchema, METRICS, UserViewIndexSchema, type EvalIndex, type Metric, type Split } from "../src/lib/evals/index-schema";
+import {
+  appendSkippedRuns,
+  bandControl,
+  iterationRuns,
+  keepManifest,
+  keyTotals,
+  metricOf,
+  noiseBand,
+  pickBaselineSetup,
+  poolSetupRuns,
+  repeatAgreement,
+  requireKeys,
+  runCountsOf,
+  splitOfEvalset,
+  type AgreementCounts,
+  type AnswerKey,
+  type SetupReport,
+} from "../src/lib/evals/bundle-build";
+import { EvalIndexSchema, METRICS, SPLITS, UserViewIndexSchema, type EvalIndex, type Split } from "../src/lib/evals/index-schema";
 
 // ── Which runs the headline numbers pool ──
 // Live: the live setup (config/experiment.yaml → userView.setup) over both iteration-06 suites: the suite
@@ -47,29 +66,14 @@ type Run = {
   status: "running" | "done" | "error";
   configHash?: string;
   superseded?: boolean;
-  items?: unknown[];
+  items?: { document_number: string; tier: string }[];
   /** Judge-panel verdicts; the POC judges only the first repeat of each eval set (arena.ts). */
   panel?: unknown;
   config: { profileId: string; windowStart: string; windowEnd: string; evalset?: string; cell?: string; arena?: string };
 };
-type SetupReport = {
-  key: string;
-  label: string;
-  model: string;
-  modelLabel: string;
-  method: string;
-  runs: number;
-  finished: number;
-  failed: number;
-  graded: number;
-  score: number | null;
-  costPerRun: number;
-  msMean: number | null;
-  config: { promptSet: string } | null;
-  metrics: Record<"recall" | "precision" | "trapAvoidance" | "datesRight" | "tierRight" | "ownerRight" | "judgePass" | "consistency" | "traceChecks", number | null>;
-};
 type SuiteReport = { setups: SetupReport[] };
 type EvalSet = { id: string; company: string; windowStart: string; split: "dev" | "test"; weekId: string };
+type SetupResult = EvalIndex["live"];
 type Poc = {
   suiteReport: (runs: Run[]) => SuiteReport;
   evalsets: () => EvalSet[];
@@ -149,47 +153,48 @@ async function loadPoc(pocDir: string, configDir: string): Promise<Poc> {
 /** Which runs suiteReport receives, mirroring export.mts: everything arenaRuns() returned, nothing appended here. */
 const graded = (runs: Run[]) => runs.filter((r) => !r.superseded);
 
-function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: string) => Run[]) {
+/**
+ * One setup's results over the named suites, per split, as suiteReport computes them, plus agreement across
+ * repeats. `evalsetIds` are the eval sets the pooled runs must cover (all 12 for live and baseline; the suite's
+ * own for a single suite). A split the runs never touch is null over 0 runs.
+ */
+function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: string) => Run[], evalsetIds: string[], keyOf: (evalset: string) => AnswerKey | null): SetupResult {
   const sets = poc.evalsets();
-  const splitOf = (r: Run) => {
-    const id = r.config.evalset ?? sets.find((e) => e.company === r.config.profileId && e.windowStart === r.config.windowStart)?.id;
-    return sets.find((e) => e.id === id)?.split;
-  };
-  const pooled = poolSetupRuns(setup, suites, (id) => graded(runsOf(id)), sets.map((e) => e.id));
+  const evalsetOf = (r: Run) => r.config.evalset ?? sets.find((e) => e.company === r.config.profileId && e.windowStart === r.config.windowStart)?.id;
+  const splitOfSet = (id: string | undefined) => sets.find((e) => e.id === id)?.split;
+  const pooled = poolSetupRuns(setup, suites, (id) => graded(runsOf(id)), evalsetIds);
 
   const per = (split: Split) => {
-    const runs = split === "all" ? pooled : pooled.filter((r) => splitOf(r) === split);
+    const runs = split === "all" ? pooled : pooled.filter((r) => splitOfSet(evalsetOf(r)) === split);
+    if (!runs.length) return { s: null, panelRuns: 0 };
     const s = poc.suiteReport(runs).setups.find((x) => x.key === setup);
     if (!s) throw new Error(`suiteReport has no ${setup} row for split ${split}`);
     // panelSummary pools the verdicts of finished runs, but only first-repeat runs carry a panel.
     return { s, panelRuns: runs.filter((r) => r.status === "done" && r.panel).length };
   };
   const reports = { all: per("all"), dev: per("dev"), test: per("test") };
-  // The run count each metric is an average over, as suiteReport computes it.
-  const valueOf = ({ s, panelRuns }: ReturnType<typeof per>, m: Metric): { value: number | null; runs: number } => {
-    if (m === "score") return { value: s.score, runs: s.graded };
-    if (m === "costPerRunUsd") return { value: s.costPerRun, runs: s.runs };
-    if (m === "secondsPerRun") return { value: s.msMean === null ? null : s.msMean / 1000, runs: s.finished };
-    if (m === "judgePass") return { value: s.metrics[m], runs: panelRuns };
-    if (m === "traceChecks") return { value: s.metrics[m], runs: s.finished };
-    return { value: s.metrics[m], runs: s.graded };
+  const agreement = repeatAgreement(pooled, keyOf, (e) => splitOfEvalset(sets, e));
+  const ratio = (c: AgreementCounts, which: "relevance" | "tier", sp: Split) => {
+    const { numerator, denominator } = c[which];
+    return { value: denominator ? numerator / denominator : null, numerator, denominator, split: sp, runs: c.runs, suite: suites };
   };
-  const metrics = Object.fromEntries(
-    METRICS.map((m) => [m, Object.fromEntries((["all", "dev", "test"] as const).map((sp) => [sp, { ...valueOf(reports[sp], m), split: sp, suite: suites }]))]),
-  );
-  const counts = (s: SetupReport) => ({ total: s.runs, finished: s.finished, graded: s.graded });
+  const bySplit = <T,>(f: (sp: Split) => T) => Object.fromEntries(SPLITS.map((sp) => [sp, f(sp)])) as Record<Split, T>;
+  const metrics = Object.fromEntries(METRICS.map((m) => [m, bySplit((sp) => ({ ...metricOf(reports[sp], m), split: sp, suite: suites }))]));
   return {
     setup,
-    label: reports.all.s.label,
+    // poolSetupRuns has already thrown if the setup has no runs, so the all-weeks row exists.
+    label: reports.all.s?.label ?? setup,
     suite: suites,
-    runCounts: { all: counts(reports.all.s), dev: counts(reports.dev.s), test: counts(reports.test.s) },
+    runCounts: bySplit((sp) => runCountsOf(reports[sp].s)),
     ...metrics,
-  };
+    relevanceAgreement: bySplit((sp) => ratio(agreement[sp], "relevance", sp)),
+    tierAgreement: bySplit((sp) => ratio(agreement[sp], "tier", sp)),
+  } as SetupResult;
 }
 
 function iterationFiles(bundle: string) {
   const root = path.join(bundle, "iterations");
-  const out: { id: string; record: Record<string, unknown>; summary: EvalIndex["iterations"][number] }[] = [];
+  const out: { id: string; record: Record<string, unknown>; summary: Omit<EvalIndex["iterations"][number], "measured"> }[] = [];
   for (const id of fs.readdirSync(root).filter((d) => fs.statSync(path.join(root, d)).isDirectory()).sort()) {
     const yaml = (f: string) => {
       const p = path.join(root, id, f);
@@ -215,6 +220,11 @@ function iterationFiles(bundle: string) {
         suite: str("suite"),
         results: results && typeof results === "object" ? (results as Record<string, unknown>) : null,
         evidenceOnly,
+        evidence: {
+          systemDiff: fs.existsSync(path.join(root, id, "system.diff")),
+          configDiff: fs.existsSync(path.join(root, id, "config.diff")),
+          errorAnalysis: fs.existsSync(path.join(root, id, "error-analysis.json")),
+        },
       },
     });
   }
@@ -313,8 +323,29 @@ async function main() {
 
   const liveSetup = poc.experiment().userView.setup;
   const baselineSetup = pickBaselineSetup(poc.setups().setups);
+  const keysDir = path.join(bundle, "config", "evalsets", "keys");
+  const keyOf = (evalset: string): AnswerKey | null => {
+    const f = path.join(keysDir, `${evalset}.json`);
+    return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, "utf8")) as AnswerKey) : null;
+  };
+  const allEvalsets = sets.map((e) => e.id);
+  const suiteEvalsets = (id: string) => suites.find((s) => s.id === id)!.evalsets;
+  const ranIn = (setup: string, suite: string) => suites.find((s) => s.id === suite)!._report.setups.some((x) => x.key === setup);
+  const inSuite = (setup: string, suite: string) => setupResult(poc, setup, [suite], runsOf, suiteEvalsets(suite), keyOf);
 
   const iterations = iterationFiles(bundle);
+  const measured = (it: (typeof iterations)[number]["summary"]) => {
+    const r = iterationRuns(it);
+    return r && { candidate: inSuite(r.setup, r.suite), comparedTo: r.comparedTo ? inSuite(r.comparedTo, r.suite) : null };
+  };
+  // Noise: the setup the live iteration replaced, re-run unchanged in both live suites.
+  const control = bandControl(iterations.map((i) => i.summary), liveSetup);
+  const [la, lb] = LIVE_SUITES;
+  const band =
+    control === null
+      ? null
+      : noiseBand(control, ranIn(control, la) ? inSuite(control, la) : null, ranIn(control, lb) ? inSuite(control, lb) : null);
+  const keys = requireKeys(allEvalsets, keyOf);
   for (const it of iterations) files.set(`iterations/${it.id}/iteration.json`, json(it.record));
   const uv = UserViewIndexSchema.parse(userViewIndex(bundle));
   files.set("user-view/index.json", json(uv));
@@ -328,9 +359,20 @@ async function main() {
       return rest;
     }),
     setups: [...setupInfo.values()],
-    iterations: iterations.map((i) => i.summary),
-    live: setupResult(poc, liveSetup, LIVE_SUITES, runsOf),
-    baseline: setupResult(poc, baselineSetup, BASELINE_SUITES, runsOf),
+    iterations: iterations.map((i) => ({ ...i.summary, measured: measured(i.summary) })),
+    live: setupResult(poc, liveSetup, LIVE_SUITES, runsOf, allEvalsets, keyOf),
+    baseline: setupResult(poc, baselineSetup, BASELINE_SUITES, runsOf, allEvalsets, keyOf),
+    suiteResults: suites.flatMap((s) => s._report.setups.map((x) => inSuite(x.key, s.id))),
+    noiseBand: band,
+    evalSet: {
+      companies: uniq(sets.map((e) => e.company)).length,
+      weeks: {
+        dev: uniq(sets.filter((e) => e.split === "dev").map((e) => e.weekId)).length,
+        test: uniq(sets.filter((e) => e.split === "test").map((e) => e.weekId)).length,
+      },
+      evalsets: sets.length,
+      ...keyTotals(keys),
+    },
     counts: {
       suites: suites.length,
       runs: suites.reduce((a, s) => a + s.runs, 0),
@@ -358,6 +400,8 @@ async function main() {
   console.log(
     `live ${live.setup} over ${live.suite.join(" + ")}: recall ${live.recall.all.value} (${live.recall.all.runs} graded of ${live.runCounts.all.total} runs)`,
   );
+  const ra = live.relevanceAgreement.all;
+  console.log(`live relevance agreement: ${ra.numerator}/${ra.denominator} keyed docs over ${ra.runs} runs`);
   if (problems.length) {
     for (const p of problems) console.error(`FAIL: ${p}`);
     process.exit(1);

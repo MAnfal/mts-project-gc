@@ -1,0 +1,60 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/bundle-build.test.ts (25 tests | 2 failed) 15ms
+   ❯ repeatAgreement (same relevance call / same tier across a setup's repeats) (6)
+     × counts a keyed doc as agreeing when every repeat flags it or none does 6ms
+     × groups by suite and eval set, and pools splits into all 1ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 passed (25)
+   Start at  01:01:39
+   Duration  207ms (import 53%, transform 27%, tests 16%, worker 3%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > counts a keyed doc as agreeing when every repeat flags it or none does
+AssertionError: expected { numerator: 1, denominator: 4 } to deeply equal { numerator: 2, denominator: 4 }
+
+- Expected
++ Received
+
+  {
+    "denominator": 4,
+-   "numerator": 2,
++   "numerator": 1,
+  }
+
+ ❯ src/lib/evals/bundle-build.test.ts:166:31
+    164|       arun("c", "e1", [["r1", "Critical"], ["x9", "Low"]]),
+    165|     ]);
+    166|     expect(out.dev.relevance).toEqual({ numerator: 2, denominator: 4 }…
+       |                               ^
+    167|     expect(out.dev.runs).toBe(3);
+    168|     expect(out.test).toEqual({ relevance: { numerator: 0, denominator:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > groups by suite and eval set, and pools splits into all
+AssertionError: expected { numerator: 1, denominator: 8 } to deeply equal { numerator: 7, denominator: 8 }
+
+- Expected
++ Received
+
+  {
+    "denominator": 8,
+-   "numerator": 7,
++   "numerator": 1,
+  }
+
+ ❯ src/lib/evals/bundle-build.test.ts:190:31
+    188|     ]);
+    189|     // s1/e1: 4 keyed agree. s2/e1: r1 disagrees, 3 agree. s1/e2: 2 ke…
+    190|     expect(out.dev.relevance).toEqual({ numerator: 7, denominator: 8 }…
+       |                               ^
+    191|     expect(out.test.relevance).toEqual({ numerator: 2, denominator: 2 …
+    192|     expect(out.all.relevance).toEqual({ numerator: 9, denominator: 10 …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

@@ -1,0 +1,141 @@
+# The eval view's prose (/evals). Validated by EvalStorySchema (src/lib/evals/story-schema.ts).
+#
+# Reword anything here freely, but type no numbers: the schema rejects a digit outside {{placeholders}}.
+# Every number on the page is either
+#   - a {{placeholder}} filled from public/evals/index.json (names: src/lib/evals/story.ts → storyContext), or
+#   - a quote resolved verbatim from an iteration's recorded decision or notes: `start` is where the quote
+#     begins, `before` is where it stops (both number-free; `start` must appear once).
+
+page:
+  title: "Evaluation summary"
+  description: "Frozen eval set · graded by code against hand-checked answer keys"
+
+verdict:
+  beatsAll: "Beats a single-prompt baseline on every measure, and meets {{verdict.met}} of {{verdict.total}} targets"
+  beatsSome: "Beats a single-prompt baseline on {{verdict.wins}} of {{verdict.compared}} measures, and meets {{verdict.met}} of {{verdict.total}} targets"
+  sub: "{{verdict.misses}} On the held-out weeks ({{live.runs.test}} runs), precision is {{live.precision.test}} and recall {{live.recall.test}}."
+  miss: "{{measure}} is {{gap}} short of its {{target}} target over all weeks ({{runs}} runs)."
+  allMet: "Every target is met."
+
+carl:
+  context:
+    text: "{{evalSet.companies}} companies × {{evalSet.weeks}} frozen weeks of real Federal Register data. {{evalSet.relevant}} rules that matter, {{evalSet.traps}} look-alikes that don't. {{evalSet.devWeeks}} weeks to tune on, {{evalSet.testWeeks}} held out."
+    link: cases
+    linkLabel: "Eval set"
+  action:
+    text: "A baseline, then {{iterations.changes}} changes one at a time, each chosen from error analysis on the tuning weeks. {{iterations.kept}} were kept."
+    link: iterations
+    linkLabel: "Iteration log"
+  result:
+    text: "All weeks, {{baseline.runs.all}} baseline runs vs {{live.runs.all}} live: recall {{baseline.recall.all}} → {{live.recall.all}}, precision {{baseline.precision.all}} → {{live.precision.all}}, dates matching the answer key {{baseline.datesRight.all}} → {{live.datesRight.all}}, at {{cost.liveShareOfBaseline}} of the baseline's cost per run."
+    link: scoreboard
+    linkLabel: "Scoreboard"
+  learning:
+    text: "Telling the model what does not count was the prompt change that moved precision most. Reading the most relevant passages of the full text, not just the abstract, found the rule every earlier run had missed."
+    link: live-iteration
+    linkLabel: "Findings"
+
+measures:
+  recall: "Found what matters (recall)"
+  precision: "Flags that were right (precision)"
+  datesRight: "Dates match the answer key"
+  tierAgreement: "Same tier across repeats"
+  relevanceAgreement: "Same relevance call across repeats"
+  costPerRunUsd: "Cost per run"
+  trapAvoidance: "Look-alikes left alone"
+  tierRight: "Tier right vs answer key"
+  ownerRight: "Owner right vs answer key"
+  judgePass: "Judge panel passed the action"
+  consistency: "Right in every repeat (pass^k)"
+  traceChecks: "Trace checks passed"
+  score: "Weighted score"
+  secondsPerRun: "Time per run"
+
+iterations:
+  00-baseline:
+    label: "Baseline"
+    outcome: reference
+    moved:
+      - tag: worse
+        text: "Missed rules that directly change what a company must do."
+        quote: { from: decision, start: "it missed", before: ", and it is" }
+      - tag: worse
+        text: "The only setup failing trace checks."
+        quote: { from: decision, start: "it is the only setup failing trace checks", before: ". This is what" }
+  01-first-pipeline:
+    label: "First pipeline"
+    outcome: kept
+    moved:
+      - tag: better
+        text: "Found far more of what matters than the baseline."
+        quote: { from: decision, start: "Recall", before: ", but precision" }
+      - tag: worse
+        text: "Fell for look-alike rules."
+        quote: { from: decision, start: "but precision only", before: ". Next:" }
+  02-strict-prompt:
+    label: "Strict prompt"
+    outcome: kept
+    moved:
+      - tag: better
+        text: "Far fewer false alarms."
+        quote: { from: decision, start: "Precision", before: ", recall" }
+      - tag: worse
+        text: "A little recall given up."
+        quote: { from: decision, start: "recall", before: ". Held up" }
+      - tag: better
+        text: "Held up on the held-out week."
+        quote: { from: decision, start: "Held up on the held-out test week", before: ". Still" }
+  03-strict-v2:
+    label: "Prompt fixes"
+    outcome: rejected
+    moved:
+      - tag: worse
+        text: "More false alarms on the tuning weeks."
+        quote: { from: decision, start: "precision fell", before: ". strict-v" }
+      - tag: fixed
+        text: "Every verified date now shows on the card; that part was kept."
+        quote: { from: decision, start: "Kept: the every-verified-date card", before: " and the eval fixes" }
+  04-filter-vote:
+    label: "Majority vote"
+    outcome: rejected
+    moved:
+      - tag: better
+        text: "Steadier and more precise on the tuning weeks."
+        quote: { from: decision, start: "Dev: recall tied", before: ". Test does not hold" }
+      - tag: worse
+        text: "The gain did not hold on the held-out weeks."
+        quote: { from: decision, start: "Test does not hold", before: ". Suite consistency" }
+      - tag: worse
+        text: "More than double the cost per run."
+        quote: { from: decision, start: "Cost per run", before: ". Judge pass" }
+  05-strict-v3:
+    label: "Exclusions"
+    outcome: not promoted
+    moved:
+      - tag: worse
+        text: "The targeted documents did not move."
+        quote: { from: decision, start: "Mechanism check on the targeted docs", before: ". The control already" }
+      - tag: better
+        text: "Fewer trap hits on the tuning weeks, but not on the targeted documents."
+        quote: { from: decision, start: "The dev trap-hit gap", before: "; the control's own" }
+  06-passages:
+    label: "Passages"
+    outcome: promoted
+    noiseNote: "The recorded decision below measured noise differently: the control's swing across all four of its identical-config suites, per eighteen runs. That wider band is why the decision calls the overall gains inside the noise, while this table, using only the two suites shown, puts the precision gap beyond it."
+    moved:
+      - tag: fixed
+        text: "The power-bank rule, missed by every earlier run, is now found."
+        quote: { from: decision, start: "the targeted gain is", before: ". Trade-off found" }
+      - tag: better
+        text: "Fewer held-out misses and trap hits, pooled over both suites."
+        quote: { from: decision, start: "Pooled over suite", before: "; dev misses" }
+      - tag: worse
+        text: "The DEA quota rules are sometimes dropped when the passages put the duty on manufacturers."
+        quote: { from: decision, start: "with passages the filter sometimes drops", before: "likely because" }
+      - tag: worse
+        text: "Each run costs more."
+        quote: { from: decision, start: "Cost per run", before: ". Rule difference" }
+  07-next:
+    label: "Next"
+    outcome: next
+    moved: []

@@ -1,0 +1,73 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/chartSeries.test.ts (12 tests | 2 failed) 15ms
+   ❯ chartSeries (one point per iteration with results, broken where the eval set changed size) (6)
+     × starts a new segment where the iteration's suite has a different eval-set count 8ms
+     × puts each point's values only in its own segment's keys, so no line joins 02 to 03 2ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  01:01:33
+   Duration  227ms (import 53%, transform 29%, tests 15%, worker 3%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/chartSeries.test.ts > chartSeries (one point per iteration with results, broken where the eval set changed size) > starts a new segment where the iteration's suite has a different eval-set count
+AssertionError: expected [ [ '00-base', 6, +0 ], …(4) ] to deeply equal [ [ '00-base', 6, +0 ], …(4) ]
+
+- Expected
++ Received
+
+@@ -15,13 +15,13 @@
+      0,
+    ],
+    [
+      "03-c",
+      12,
+-     1,
++     0,
+    ],
+    [
+      "04-d",
+      12,
+-     1,
++     0,
+    ],
+  ]
+
+ ❯ src/lib/evals/chartSeries.test.ts:34:64
+     32|   it("starts a new segment where the iteration's suite has a different…
+     33|     const s = chartSeries(idx(), STORY);
+     34|     expect(s.points.map((p) => [p.id, p.evalsets, p.segment])).toEqual…
+       |                                                                ^
+     35|       ["00-base", 6, 0],
+     36|       ["01-a", 6, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/evals/chartSeries.test.ts > chartSeries (one point per iteration with results, broken where the eval set changed size) > puts each point's values only in its own segment's keys, so no line joins 02 to 03
+AssertionError: expected { id: '03-c', recall_0: 0.88, …(1) } to deeply equal { id: '03-c', recall_1: 0.88, …(1) }
+
+- Expected
++ Received
+
+  {
+    "id": "03-c",
+-   "precision_1": 0.79,
+-   "recall_1": 0.88,
++   "precision_0": 0.79,
++   "recall_0": 0.88,
+  }
+
+ ❯ src/lib/evals/chartSeries.test.ts:48:21
+     46|     const { rows } = chartSeries(idx(), STORY);
+     47|     expect(rows[2]).toEqual({ id: "02-b", recall_0: 0.93, precision_0:…
+     48|     expect(rows[3]).toEqual({ id: "03-c", recall_1: 0.88, precision_1:…
+       |                     ^
+     49|     expect("recall_1" in rows[2]).toBe(false);
+     50|     expect("recall_0" in rows[3]).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

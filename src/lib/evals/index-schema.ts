@@ -50,19 +50,56 @@ export const METRICS = [
 ] as const;
 export type Metric = (typeof METRICS)[number];
 
+/**
+ * A share of cases where a setup's repeats agreed (chunk 08): `numerator` of `denominator` cases, over `runs`
+ * finished repeats. `value` is exactly numerator / denominator, or null when there was nothing to compare.
+ */
+export const AgreementNumberSchema = z
+  .object({
+    value: z.number().nullable(),
+    numerator: z.number().int().nonnegative(),
+    denominator: z.number().int().nonnegative(),
+    split: SplitSchema,
+    runs: z.number().int().nonnegative(),
+    suite: z.array(z.string().min(1)).min(1),
+  })
+  .strict()
+  .superRefine((v, ctx) => {
+    const want = v.denominator ? v.numerator / v.denominator : null;
+    if (v.value !== want) ctx.addIssue({ code: "custom", path: ["value"], message: `value ${v.value} is not ${v.numerator}/${v.denominator}` });
+  });
+export type AgreementNumber = z.infer<typeof AgreementNumberSchema>;
+
+export const SplitAgreementSchema = z
+  .object({ all: AgreementNumberSchema, dev: AgreementNumberSchema, test: AgreementNumberSchema })
+  .strict()
+  .superRefine((v, ctx) => {
+    for (const s of SPLITS)
+      if (v[s].split !== s) ctx.addIssue({ code: "custom", path: [s, "split"], message: `slot "${s}" holds a "${v[s].split}" number` });
+  });
+
 const RunCountsSchema = z.object({
   total: z.number().int().nonnegative(),
   finished: z.number().int().nonnegative(),
   graded: z.number().int().nonnegative(),
 });
 
-/** One setup's pooled results over one or more suites (the live setup, the baseline). */
+/**
+ * One setup's pooled results over one or more suites (the live setup, the baseline, each iteration, each
+ * suite). Besides suiteReport's metrics, two agreement measures across finished repeats of the same eval set
+ * in the same suite (scripts/build-eval-index.mts → repeatAgreement):
+ *  - relevanceAgreement: keyed docs (relevant ∪ traps) every repeat flagged or none did;
+ *  - tierAgreement: docs flagged in every repeat that got the same tier in each. Not `tierRight`, which grades
+ *    tier against the answer key.
+ */
 export const SetupResultSchema = z.object({
   setup: z.string().min(1),
   label: z.string(),
   suite: z.array(z.string().min(1)).min(1),
   runCounts: z.object({ all: RunCountsSchema, dev: RunCountsSchema, test: RunCountsSchema }),
   ...(Object.fromEntries(METRICS.map((m) => [m, SplitNumbersSchema])) as Record<Metric, typeof SplitNumbersSchema>),
+  relevanceAgreement: SplitAgreementSchema,
+  tierAgreement: SplitAgreementSchema,
 });
 export type SetupResult = z.infer<typeof SetupResultSchema>;
 
@@ -111,7 +148,34 @@ export const IterationSummarySchema = z.object({
   /** iteration.yaml → results, as recorded by the POC's scripts/iteration.mts (suite-1 figures for that iteration). */
   results: z.record(z.string(), z.unknown()).nullable(),
   evidenceOnly: z.boolean(),
+  /**
+   * The iteration's setup (`candidate`) and the setup it was compared to, recomputed by suiteReport over the
+   * iteration's own suite. Shown instead of `results`. Null for an evidence-only iteration; `comparedTo` is
+   * null for the reference point (00).
+   */
+  measured: z.object({ candidate: SetupResultSchema, comparedTo: SetupResultSchema.nullable() }).nullable(),
+  /** Which evidence files ship in iterations/<id>/. */
+  evidence: z.object({ systemDiff: z.boolean(), configDiff: z.boolean(), errorAnalysis: z.boolean() }),
 });
+
+/**
+ * Run-to-run noise: the control setup (the live iteration's comparedTo) re-run with identical config in the two
+ * live suites. Per measure, the absolute difference of its all-weeks values, with both values and run counts.
+ */
+export const NoiseBandSchema = z.object({
+  setup: z.string().min(1),
+  suites: z.tuple([z.string().min(1), z.string().min(1)]),
+  /** zod 4: a record keyed by an enum requires every key, so each metric has an entry. */
+  measures: z.record(
+    z.enum(METRICS),
+    z.object({
+      value: z.number().nonnegative().nullable(),
+      values: z.tuple([z.number().nullable(), z.number().nullable()]),
+      runs: z.tuple([z.number().int().nonnegative(), z.number().int().nonnegative()]),
+    }),
+  ),
+});
+export type NoiseBandData = z.infer<typeof NoiseBandSchema>;
 
 export const EvalIndexSchema = z.object({
   schemaVersion: z.literal(1),
@@ -122,6 +186,18 @@ export const EvalIndexSchema = z.object({
   iterations: z.array(IterationSummarySchema),
   live: SetupResultSchema,
   baseline: SetupResultSchema,
+  /** Every setup in every suite, over that suite alone (one entry per suite × setup). */
+  suiteResults: z.array(SetupResultSchema),
+  /** Null when the control did not run in both live suites: the band is then omitted, never invented. */
+  noiseBand: NoiseBandSchema.nullable(),
+  /** The frozen eval set: manifest companies and weeks per split, and the answer keys' totals. */
+  evalSet: z.object({
+    companies: z.number().int().nonnegative(),
+    weeks: z.object({ dev: z.number().int().nonnegative(), test: z.number().int().nonnegative() }),
+    evalsets: z.number().int().nonnegative(),
+    relevant: z.number().int().nonnegative(),
+    traps: z.number().int().nonnegative(),
+  }),
   counts: z.object({
     suites: z.number().int().nonnegative(),
     runs: z.number().int().nonnegative(),
@@ -131,6 +207,7 @@ export const EvalIndexSchema = z.object({
   }),
 });
 export type EvalIndex = z.infer<typeof EvalIndexSchema>;
+export type IterationSummary = EvalIndex["iterations"][number];
 
 /** public/evals/user-view/index.json: every example run, failed ones included. */
 export const UserViewIndexSchema = z.array(

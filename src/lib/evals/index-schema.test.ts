@@ -9,6 +9,16 @@ const num = (value: number | null, split: "all" | "dev" | "test", runs = 34) => 
 const bySplit = (value: number | null) => ({ all: num(value, "all", 69), dev: num(value, "dev"), test: num(value, "test", 35) });
 const counts = { total: 36, finished: 35, graded: 35 };
 
+const ratio = (numerator: number, denominator: number, split: "all" | "dev" | "test") => ({
+  value: denominator ? numerator / denominator : null,
+  numerator,
+  denominator,
+  split,
+  runs: 34,
+  suite: [SUITE],
+});
+const agreement = () => ({ all: ratio(9, 10, "all"), dev: ratio(4, 5, "dev"), test: ratio(5, 5, "test") });
+
 function setupResult(setup: string) {
   const metrics = Object.fromEntries(METRICS.map((m) => [m, bySplit(0.9)])) as Record<Metric, ReturnType<typeof bySplit>>;
   return {
@@ -17,6 +27,8 @@ function setupResult(setup: string) {
     suite: [SUITE],
     runCounts: { all: { total: 72, finished: 69, graded: 69 }, dev: counts, test: counts },
     ...metrics,
+    relevanceAgreement: agreement(),
+    tierAgreement: agreement(),
   };
 }
 
@@ -40,10 +52,25 @@ function minimalIndex() {
     ],
     setups: [{ key: "jev-sonnet-strict-passages", label: "Passages", model: "m", modelLabel: "M", method: "jev+llm", promptSet: "strict", suites: [SUITE] }],
     iterations: [
-      { id: "07-next", title: null, date: null, decision: null, setup: null, comparedTo: null, suite: null, results: null, evidenceOnly: true },
+      {
+        id: "07-next",
+        title: null,
+        date: null,
+        decision: null,
+        setup: null,
+        comparedTo: null,
+        suite: null,
+        results: null,
+        evidenceOnly: true,
+        measured: null,
+        evidence: { systemDiff: false, configDiff: false, errorAnalysis: true },
+      },
     ],
     live: setupResult("jev-sonnet-strict-passages"),
     baseline: setupResult("baseline-sonnet"),
+    suiteResults: [setupResult("jev-sonnet-strict-passages")],
+    noiseBand: null,
+    evalSet: { companies: 3, weeks: { dev: 2, test: 2 }, evalsets: 12, relevant: 20, traps: 157 },
     counts: { suites: 1, runs: 72, traces: 72, userViewRuns: 22, iterations: 1 },
   };
 }
@@ -85,6 +112,28 @@ describe("EvalIndexSchema", () => {
     expect(EvalIndexSchema.safeParse(idx).success).toBe(false);
   });
 
+  it("rejects an agreement value that is not its numerator over its denominator", () => {
+    const idx = minimalIndex();
+    idx.live.relevanceAgreement.all = { ...ratio(9, 10, "all"), value: 0.95 };
+    const res = EvalIndexSchema.safeParse(idx);
+    expect(res.success).toBe(false);
+    expect(res.error?.issues.map((i) => i.path.join("."))).toContain("live.relevanceAgreement.all.value");
+  });
+
+  it("rejects an agreement number missing its denominator", () => {
+    const idx = minimalIndex();
+    const { denominator: _d, ...noDen } = idx.live.tierAgreement.test;
+    void _d;
+    (idx.live.tierAgreement as Record<string, unknown>).test = noDen;
+    expect(EvalIndexSchema.safeParse(idx).success).toBe(false);
+  });
+
+  it("accepts a null agreement over an empty denominator", () => {
+    const idx = minimalIndex();
+    idx.live.tierAgreement.test = ratio(0, 0, "test");
+    expect(EvalIndexSchema.parse(idx).live.tierAgreement.test.value).toBeNull();
+  });
+
   it("rejects a number that names no suite", () => {
     const idx = minimalIndex();
     idx.live.recall.test = { ...num(0.9, "test"), suite: [] };
@@ -104,6 +153,46 @@ describe("the shipped public/evals bundle", () => {
     expect(idx.live.recall.all.split).toBe("all");
     expect(idx.counts.suites).toBe(9);
     expect(idx.counts.userViewRuns).toBe(22);
+  });
+
+  it("index.json carries live relevance agreement over both iteration-06 suites (335 of 354 keyed docs)", () => {
+    const idx = EvalIndexSchema.parse(readJson("index.json"));
+    const a = idx.live.relevanceAgreement.all;
+    expect([a.numerator, a.denominator]).toEqual([335, 354]);
+    expect(a.suite).toEqual(["arena-2026-11-21-22-52-l92", "arena-2026-11-21-23-16-du8"]);
+    expect(a.runs).toBe(69);
+  });
+
+  it("index.json gives every iteration with a record its measured candidate over its own suite", () => {
+    const idx = EvalIndexSchema.parse(readJson("index.json"));
+    for (const it of idx.iterations) {
+      if (it.evidenceOnly) {
+        expect(it.measured).toBeNull();
+        continue;
+      }
+      expect(it.measured?.candidate.setup).toBe(it.setup);
+      expect(it.measured?.candidate.suite).toEqual([it.suite]);
+      expect(it.measured?.comparedTo?.setup ?? null).toBe(it.comparedTo);
+    }
+    const it06 = idx.iterations.find((i) => i.id === "06-passages");
+    expect(it06?.measured?.candidate.recall.all.runs).toBe(35);
+    expect(it06?.evidence).toEqual({ systemDiff: true, configDiff: true, errorAnalysis: true });
+  });
+
+  it("index.json gives a dev-only suite's setups a null held-out split over 0 runs", () => {
+    const idx = EvalIndexSchema.parse(readJson("index.json"));
+    const devOnly = idx.suiteResults.filter((r) => r.suite[0] === "arena-2026-11-21-21-04-ly9");
+    expect(devOnly.map((r) => r.setup)).toEqual(["jev-sonnet-strict-vote3"]);
+    expect(devOnly[0].recall.test).toEqual({ value: null, split: "test", runs: 0, suite: ["arena-2026-11-21-21-04-ly9"] });
+    expect(devOnly[0].runCounts.test).toEqual({ total: 0, finished: 0, graded: 0 });
+    expect(devOnly[0].recall.dev.runs).toBe(1);
+  });
+
+  it("index.json names the noise band's control and its two suites", () => {
+    const idx = EvalIndexSchema.parse(readJson("index.json"));
+    expect(idx.noiseBand?.setup).toBe("jev-sonnet-strict");
+    expect(idx.noiseBand?.suites).toEqual(["arena-2026-11-21-22-52-l92", "arena-2026-11-21-23-16-du8"]);
+    expect(idx.evalSet).toEqual({ companies: 3, weeks: { dev: 2, test: 2 }, evalsets: 12, relevant: 20, traps: 157 });
   });
 
   it("user-view/index.json validates and keeps the failed runs", () => {

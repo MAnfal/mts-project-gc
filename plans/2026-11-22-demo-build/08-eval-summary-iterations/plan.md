@@ -155,29 +155,29 @@ below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/evals/verdict.test.ts`: `computeVerdict(index, targets)` counts targets met.
     Build a constructed index where precision is 0.79, and check it returns 4 of 6.
   - `src/lib/evals/story.test.ts`: templates fill from the index, and a missing
     placeholder throws.
   - `src/lib/evals/chartSeries.test.ts`: the series breaks where the evalset count
     changes, and the noise band is null when the control isn't in both suites.
-- [ ] T002 — create `src/lib/evals/verdict.ts`, `story.ts` and `chartSeries.ts`, all pure.
-- [ ] T003 — create `config/eval-story.yaml` with its zod schema in
+- [x] T002 — create `src/lib/evals/verdict.ts`, `story.ts` and `chartSeries.ts`, all pure.
+- [x] T003 — create `config/eval-story.yaml` with its zod schema in
   `src/lib/evals/story-schema.ts`, which the eval track owns. Add `evalTargets` to
   `config/app.yaml`, with its schema in `src/lib/config/schemas.ts`. That is the only edit
   this chunk makes to `schemas.ts`.
-- [ ] T004 [P] — create `src/components/evals/EvalSidebar.tsx`. It composes chunk 01's
+- [x] T004 [P] — create `src/components/evals/EvalSidebar.tsx`. It composes chunk 01's
   `SidebarNav`; do not edit `src/components/shell/*`.
-- [ ] T005 [P] — create `src/components/evals/Scoreboard.tsx`, `CarlTable.tsx` and
+- [x] T005 [P] — create `src/components/evals/Scoreboard.tsx`, `CarlTable.tsx` and
   `ProgressChart.tsx`. The chart uses Recharts, as the POC did; port what helps from
   `git show poc:poc/src/components/ProgressChart.tsx`. Use GC AI palette tokens: recall
   navy `#173c51`, precision amber `#99652d`.
-- [ ] T006 — create `src/app/evals/page.tsx` (Summary) and
+- [x] T006 — create `src/app/evals/page.tsx` (Summary) and
   `src/app/evals/iterations/[id]/page.tsx`. Rendering per amendment 5: server page reads
   config per request, a client component loads the bundle via `loader.ts`; no
   `generateStaticParams`.
-- [ ] T007 — create `src/components/evals/DiffSheet.tsx` and `ErrorAnalysisSheet.tsx`,
+- [x] T007 — create `src/components/evals/DiffSheet.tsx` and `ErrorAnalysisSheet.tsx`,
   using shadcn `Sheet`.
 
 ## Test Plan
@@ -235,7 +235,7 @@ Gate 2 passes on the base commit because those directories don't exist yet. Plan
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots of the Summary, iteration 06,
+- [x] `completion-report.md`, committed, with screenshots of the Summary, iteration 06,
       iteration 03 (dropped), and the 390 px width view. It includes the computed verdict
       and noise band, with the data they came from.
 
