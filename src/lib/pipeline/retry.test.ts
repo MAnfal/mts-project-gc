@@ -215,9 +215,9 @@ describe("retries inside a run", () => {
       type: "step.failed",
       step: "screen",
       label: "Screened them against Ledgerly Inc.'s profile",
-      message: "No response after 3 tries. Retry runs this step again with the same settings.",
+      message: "No response after 3 tries. Retry starts the run again from the beginning, with the same settings.",
     });
-    expect(tail[1]).toEqual({ type: "run.failed", step: "screen", message: "No response after 3 tries. Retry runs this step again with the same settings." });
+    expect(tail[1]).toEqual({ type: "run.failed", step: "screen", message: "No response after 3 tries. Retry starts the run again from the beginning, with the same settings." });
     expect(calls.llm.filter((c) => c.kind === "filter")).toHaveLength(3);
     expect(calls.llm.filter((c) => c.kind !== "filter")).toHaveLength(0);
     const started = events.flatMap((e) => (e.type === "step.start" ? [e.step] : []));
@@ -276,7 +276,7 @@ describe("retries inside a run", () => {
     const events: RunEvent[] = [];
     // Its own window: fr.ts keeps a listed window in memory, and the other tests listed 2026-12-07..08 already.
     await settle(runPipeline(synConfig({ windowStart: "2026-12-09", windowEnd: "2026-12-10", asOf: "2026-12-10" }), (e) => events.push(e)));
-    expect(events.at(-1)).toEqual({ type: "run.failed", step: "read", message: "Something went wrong in this step. Retry runs it again with the same settings." });
+    expect(events.at(-1)).toEqual({ type: "run.failed", step: "read", message: "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings." });
     expect(JSON.stringify(events)).not.toMatch(/jev/i);
   });
 });

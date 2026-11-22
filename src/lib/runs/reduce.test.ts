@@ -10,7 +10,7 @@ beforeAll(async () => {
   events = (await runReplay()).events;
 }, 60_000);
 
-const TIMEOUT = "No response after 3 tries. Retry runs this step again with the same settings.";
+const TIMEOUT = "No response after 3 tries. Retry starts the run again from the beginning, with the same settings.";
 
 const startEvent = (steps: StepKey[]): RunEvent => ({
   type: "run.start",
@@ -119,7 +119,7 @@ describe("reduceEvents on constructed failures", () => {
   });
 
   it("keeps a run-level failure (step null) apart from the steps, and stops the step that was running", () => {
-    const msg = "Something went wrong in this step. Retry runs it again with the same settings.";
+    const msg = "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings.";
     const view = reduceEvents([...head, { type: "run.failed", step: null, message: msg }]);
     expect(view.status).toBe("failed");
     expect(view.failedStep).toBeNull();

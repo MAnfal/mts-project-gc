@@ -53,8 +53,9 @@ export function stepOf(stage: string, company: string): { step: StepKey; label: 
   return { step: s.step, label: s.label.replaceAll("{company}", company) };
 }
 
-export const TIMEOUT_MESSAGE = "No response after 3 tries. Retry runs this step again with the same settings.";
-export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry runs it again with the same settings.";
+// Retry re-posts the whole run (src/lib/runs/reader.ts), so no copy may promise that only the failed step reruns.
+export const TIMEOUT_MESSAGE = "No response after 3 tries. Retry starts the run again from the beginning, with the same settings.";
+export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry starts the run again from the beginning, with the same settings.";
 
 // The component's name as a word or a camelCase part (filter:jev, jevProbability, passedJev, JEV), and id prefixes.
 // Inside an ordinary word it is let through, so a document about Sarajevo or the Jevons paradox still is.
