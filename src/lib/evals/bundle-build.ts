@@ -229,3 +229,32 @@ export function requireKeys<K>(evalsetIds: string[], keyOf: (evalset: string) =>
 export function bandControl(iterations: { setup: string | null; comparedTo: string | null }[], liveSetup: string): string | null {
   return iterations.findLast((i) => i.setup === liveSetup)?.comparedTo ?? null;
 }
+
+// ── Run listings (chunk 09) ──
+
+export type ListedRun = {
+  id: string;
+  status: string;
+  superseded?: boolean;
+  config: { profileId?: string; windowStart?: string; windowEnd?: string; cell?: string; repeatIndex?: number };
+};
+
+/**
+ * One row per run for runs-index.json, in record order: the fields the Runs page names a run by. Throws naming
+ * the run when it records no company or window. (The schema in index-schema.ts rejects an unknown status.)
+ */
+export function runsIndex(runs: ListedRun[]) {
+  return runs.map((r) => {
+    const { profileId, windowStart, windowEnd, cell, repeatIndex } = r.config;
+    if (!profileId || !windowStart || !windowEnd) throw new Error(`run ${r.id} records no company or window`);
+    return {
+      runId: r.id,
+      setup: cell ?? null,
+      profileId,
+      window: { start: windowStart, end: windowEnd },
+      repeat: repeatIndex ?? null,
+      status: r.status,
+      superseded: !!r.superseded,
+    };
+  });
+}

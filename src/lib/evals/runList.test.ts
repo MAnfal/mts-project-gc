@@ -1,56 +1,72 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { shippedJson, shippedRuns, shippedSuiteIds } from "./__fixtures__/shipped";
+import { BUNDLE, shippedJson, shippedRuns, shippedSuiteIds } from "./__fixtures__/shipped";
+import { runsIndex } from "./bundle-build";
+import type { RunsIndex } from "./index-schema";
 import type { TraceCheck } from "./loader";
-import { checkSummary, runLabel, suiteRunRows, type LabelledRun } from "./runList";
+import { checkSummary, evalsetOfRun, runRows } from "./runList";
 
 type Checks = Record<string, TraceCheck[]>;
 
-describe("the Runs page listing on shipped data", () => {
+describe("the shipped run listings (runs-index.json) the Runs page reads", () => {
   for (const suite of shippedSuiteIds()) {
-    it(`${suite}: trace-checks.json lists exactly the runs in runs.jsonl.gz, so every run gets a trace link`, () => {
-      const checks = shippedJson<Checks>(`suites/${suite}/trace-checks.json`);
-      const runs = shippedRuns<LabelledRun>(suite);
-      const rows = suiteRunRows(checks, null);
-      expect(rows.map((r) => r.id).sort()).toEqual(runs.map((r) => r.id).sort());
-      const labelled = suiteRunRows(checks, new Map(runs.map((r) => [r.id, runLabel(r)])));
-      expect(labelled.every((r) => r.label !== null)).toBe(true);
+    it(`${suite}: lists exactly the runs in runs.jsonl.gz and trace-checks.json, as runsIndex() shapes them`, () => {
+      const listing = shippedJson<RunsIndex>(`suites/${suite}/runs-index.json`);
+      const runs = shippedRuns<Parameters<typeof runsIndex>[0][number]>(suite);
+      expect(listing).toEqual(runsIndex(runs));
+      expect(listing.map((r) => r.runId).sort()).toEqual(Object.keys(shippedJson<Checks>(`suites/${suite}/trace-checks.json`)).sort());
     });
   }
-});
 
-describe("runLabel", () => {
-  it("reads setup, eval set, repeat and status from the run record", () => {
-    const r = { id: "r", status: "error", config: { cell: "s", evalset: "e", repeatIndex: 2 } };
-    expect(runLabel(r)).toEqual({ setup: "s", evalset: "e", repeat: 2, status: "error", superseded: false });
+  it("user-view: lists every example run file", () => {
+    const listing = shippedJson<RunsIndex>("user-view/runs-index.json");
+    const files = fs.readdirSync(path.join(BUNDLE, "user-view/runs")).map((f) => f.replace(/\.json$/, ""));
+    expect(listing.map((r) => r.runId).sort()).toEqual(files.sort());
   });
 
-  it("flags a superseded run", () => {
-    expect(runLabel({ id: "r", status: "done", superseded: true, config: { cell: "s", evalset: "e", repeatIndex: 0 } }).superseded).toBe(true);
-  });
-
-  it("throws naming the run when it records no setup or eval set", () => {
-    expect(() => runLabel({ id: "r9", status: "done", config: { repeatIndex: 0 } })).toThrow("run r9 records no setup or eval set");
-  });
-
-  it("treats a missing repeat index as repeat 0", () => {
-    expect(runLabel({ id: "r", status: "done", config: { cell: "s", evalset: "e" } }).repeat).toBe(0);
+  it("each listing is a few KB, not the megabytes of runs.jsonl.gz", () => {
+    for (const suite of shippedSuiteIds()) expect(fs.statSync(path.join(BUNDLE, "suites", suite, "runs-index.json")).size).toBeLessThan(30_000);
   });
 });
 
-describe("suiteRunRows", () => {
+const row = (runId: string, extra: Partial<RunsIndex[number]> = {}): RunsIndex[number] => ({
+  runId,
+  setup: "s1",
+  profileId: "skyhop",
+  window: { start: "2026-10-26", end: "2026-10-30" },
+  repeat: 0,
+  status: "done",
+  superseded: false,
+  ...extra,
+});
+
+describe("runRows", () => {
   const pass = (id: string): TraceCheck => ({ id, label: id, pass: true, detail: "ok" });
   const fail = (id: string): TraceCheck => ({ id, label: id, pass: false, detail: "no" });
 
-  it("keeps trace-checks order and leaves the label empty until the runs are loaded", () => {
-    const rows = suiteRunRows({ b: [pass("x")], a: [fail("x")] }, null);
-    expect(rows).toEqual([
-      { id: "b", checks: { passed: 1, total: 1, failing: [] }, label: null },
-      { id: "a", checks: { passed: 0, total: 1, failing: [fail("x")] }, label: null },
+  it("keeps listing order and attaches each run's trace-check summary", () => {
+    const rows = runRows([row("b"), row("a")], { a: [fail("x")], b: [pass("x")] });
+    expect(rows.map((r) => [r.run.runId, r.checks])).toEqual([
+      ["b", { passed: 1, total: 1, failing: [] }],
+      ["a", { passed: 0, total: 1, failing: [fail("x")] }],
     ]);
   });
 
-  it("leaves a run's label empty when the loaded runs don't include it", () => {
-    expect(suiteRunRows({ a: [] }, new Map())[0].label).toBeNull();
+  it("has no check summary where none were recorded (example runs, or a run missing from trace-checks)", () => {
+    expect(runRows([row("u")], null)[0].checks).toBeNull();
+    expect(runRows([row("u")], {})[0].checks).toBeNull();
+  });
+});
+
+describe("evalsetOfRun", () => {
+  const evalsets = { "skyhop_2026-10-26_2026-10-30": { company: "skyhop", weekId: "2026-10-26_2026-10-30" } };
+  it("finds the eval set a run's company and window belong to", () => {
+    expect(evalsetOfRun(row("r"), evalsets)).toBe("skyhop_2026-10-26_2026-10-30");
+  });
+
+  it("is null for a company-week outside the eval set (an example run)", () => {
+    expect(evalsetOfRun(row("r", { profileId: "hearth" }), evalsets)).toBeNull();
   });
 });
 

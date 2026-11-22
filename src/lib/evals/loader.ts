@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EvalIndexSchema, UserViewIndexSchema, type EvalIndex, type UserViewIndex } from "./index-schema";
+import { EvalIndexSchema, RunsIndexSchema, type EvalIndex, type RunsIndex } from "./index-schema";
 
 /**
  * Browser-side reader for the static eval bundle in public/evals (layout: plans/2026-11-22-demo-build,
@@ -180,8 +180,12 @@ export async function loadWeekDocs(weekId: string, opts: LoaderOptions = {}): Pr
   return WeekDocsSchema.parse(await res.json()).map(({ document_number, title, type }) => ({ document_number, title, type }));
 }
 
-/** user-view/index.json: every example run (failed ones too), for the Runs page. */
-export async function loadUserViewIndex(opts: LoaderOptions = {}): Promise<UserViewIndex> {
-  const res = await get(`${base(opts)}/user-view/index.json`, opts);
-  return UserViewIndexSchema.parse(await res.json());
+/**
+ * A suite's run listing (suites/<id>/runs-index.json), or the example runs' (user-view/runs-index.json): one
+ * small row per run, so the Runs page never downloads runs.jsonl.gz.
+ */
+export async function loadRunsIndex(suiteId: string, opts: LoaderOptions = {}): Promise<RunsIndex> {
+  const dir = suiteId === USER_VIEW ? `${base(opts)}/user-view` : `${base(opts)}/suites/${encodeURIComponent(suiteId)}`;
+  const res = await get(`${dir}/runs-index.json`, opts);
+  return RunsIndexSchema.parse(await res.json());
 }

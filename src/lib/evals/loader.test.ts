@@ -12,8 +12,8 @@ import {
   loadSuiteReport,
   loadSuiteRuns,
   loadTrace,
+  loadRunsIndex,
   loadTraceChecks,
-  loadUserViewIndex,
   loadWeekDocs,
   USER_VIEW,
 } from "./loader";
@@ -256,11 +256,31 @@ describe("loadWeekDocs", () => {
   });
 });
 
-describe("loadUserViewIndex", () => {
-  it("returns all 22 example runs, failed ones included", async () => {
-    const { fetch } = stubFetch(SHIPPED);
-    const rows = await loadUserViewIndex({ fetch });
+describe("loadRunsIndex", () => {
+  it("returns a suite's run listing: one row per run, failed ones included", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    const rows = await loadRunsIndex(L92, { fetch });
+    expect(requested).toEqual([`/evals/suites/${L92}/runs-index.json`]);
+    expect(rows).toHaveLength(72);
+    expect(rows.find((r) => r.runId === "2026-11-21T22-52-25-375Z_pipeline_wqxz")).toMatchObject({
+      setup: "jev-sonnet-strict-passages",
+      profileId: "cornercare",
+      window: { start: "2026-11-09", end: "2026-11-13" },
+      repeat: 2,
+      status: "error",
+    });
+  });
+
+  it("reads the example runs' listing from user-view/", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    const rows = await loadRunsIndex(USER_VIEW, { fetch });
+    expect(requested).toEqual(["/evals/user-view/runs-index.json"]);
     expect(rows).toHaveLength(22);
-    expect(rows.some((r) => r.status === "error")).toBe(true);
+    expect(rows.every((r) => r.repeat === null)).toBe(true);
+  });
+
+  it("throws naming the URL for a suite with no listing", async () => {
+    const { fetch } = stubFetch(root);
+    await expect(loadRunsIndex("nope", { fetch })).rejects.toThrow("/evals/suites/nope/runs-index.json returned 404");
   });
 });
