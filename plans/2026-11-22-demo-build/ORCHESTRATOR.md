@@ -40,7 +40,7 @@ See `SPEC.md` in this directory.
 | 01 | Foundation | Merged | local merge e719139 (pre-PR rule; branch pushed) | — |
 | 02 | US1 | Merged | (pre-PR rule; branch pushed) local merge 64e9c4f | — |
 | 03 | US1 | Merged | [#1](https://github.com/MAnfal/mts-project-gc/pull/1) | — |
-| 04 | US1 | Not started | — | — |
+| 04 | US1 | Merged | [#3](https://github.com/MAnfal/mts-project-gc/pull/3) | — |
 | 05 | US1 | Not started | — | — |
 | 06 | US1 | Not started | — | — |
 | 07 | US2 | Merged | local merge 89e61d3 (pre-PR rule; branch pushed) | — |
@@ -96,6 +96,10 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | review_passed | 08 | i1 PASS (+5 small follow-ups) |
 | 2026-11-23 | pr_created | 08 | #2 |
 | 2026-11-23 | pr_merged | 08 | #2 → d843dcb; plan-tip gates exit 0 |
+| 2026-11-23 | chunk_dispatched | 09 | implementer chunk-09 (plan amended at preflight, 13 points) |
+| 2026-11-23 | review_passed | 04 | i1 PASS (+2 small follow-ups) |
+| 2026-11-23 | pr_created | 04 | #3 |
+| 2026-11-23 | pr_merged | 04 | #3 → 6215846; plan-tip gates exit 0 (keyless) |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,

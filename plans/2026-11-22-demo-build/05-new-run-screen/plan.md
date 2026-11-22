@@ -39,6 +39,74 @@ User decisions this screen must honour:
 - The week window is per run, never part of the profile. Its maximum is `maxWindowDays`
   from `config/app.yaml`.
 
+### Preflight amendment (lead, 2026-11-23)
+
+The preflight checked this plan against what chunk 04 actually merged. Where the text
+below conflicts with these points, these win:
+
+1. **Gates.** Write `plans/2026-11-22-demo-build/05-new-run-screen/gates.sh` and commit
+   it. It runs:
+   - `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh`, which includes 03's
+     gates, parity and no-fs-writes;
+   - `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh`;
+   - `bash scripts/verify-eval-bundle.sh`;
+   - this chunk's own checks.
+
+   Servers are keyless (`AI_GATEWAY_API_KEY=` empty), use `./node_modules/.bin/next
+   start` with a `trap` and an lsof check as 04's gates do, and take ports 3501–3509 via
+   `PORT`. Gate 3 (parity) is dropped, because 03's gates already run it.
+2. **Empty areas.** `formToProfile` maps an empty owners table to the POC's single
+   catch-all area `general`, owned by the general counsel. Every item still routes to
+   the GC, and `stages.ts` never receives an empty enum.
+3. **Unexposed profile fields.** An edited preset carries over `id`, `use`,
+   `businessLines` and `generalCounsel` unchanged. "New company…" gets the POC defaults:
+   - a uuid-based `id`;
+   - `use: demo`;
+   - `businessLines: []`;
+   - general counsel "You (General Counsel)".
+
+   An unedited preset must round-trip deep-equal; test it.
+4. **Owner emails.** `report.ts` groups owners and builds mailto links by email.
+   - Preset rows keep their real emails.
+   - A new row gets a placeholder slugged from the owner name, unique per person.
+   - A blank owner falls back to `generalCounsel`.
+   - Do not loosen `CompanySchema`.
+5. **Area keys.** The key is the trimmed area name. Duplicate names show an inline error
+   and block Run; cover this with a constructed-input test. In the Test Plan, read the
+   empty-areas input as form rows `[]` → profile `areas` `{general: …}` (amendment 2).
+6. **maxWindowDays.** `config/app.yaml` wins (route.ts already reads it).
+   `experiment.yaml` stays byte-identical. The server page passes the value as a prop.
+   The client's window check uses the same inclusive count as `request.ts`: share one
+   helper, or pin both at the boundary with tests.
+7. **DEMO_RUN.** Remove the hard-coded demo run: delete `demo.ts` and update every
+   importer, including `src/app/runs/[id]/page.tsx`. Run reuses `StartRunButton`/
+   `startRun`; add a `disabled` prop for an invalid window.
+8. **Sidebar.** Add `GcSidebar` to T006. Links:
+   - New run → `/runs/new`;
+   - Company profiles → `/runs/new` with the profile picker focused;
+   - All runs stays at `/#recent-runs`.
+9. **Store.** Bump `store.ts` to version 2. `onupgradeneeded` creates a store only if
+   `objectStoreNames` lacks it. Profiles get the same memory fallback. Add a v1→v2 test
+   that keeps the existing runs.
+10. **suggest-areas seams.**
+    - Reuse `languageModel` and `setModelsForTests` (gateway.ts), `render()`
+      (config.ts) and `withRetry` with `maxRetries: 0`, as in context.ts.
+    - Tests pass a zero-delay retry policy.
+    - Prompt building lives in a sibling module.
+    - A missing key becomes a plain message, with no env-var name and no model name.
+    - The gate curls it keyless to prove there's no spend.
+11. **No `/api/presets` route.** `/runs/new` is a server page that passes `presets()` as
+    props (KISS). Replace T003 with a gate that greps the `/runs/new` HTML: it must hold no
+    eval company id (brightside, cornercare, skyhop) and must contain `ledgerly`.
+12. **Weeks.** A week counts as full once its Friday is before "today". The server passes
+    today's date computed in America/New_York (the Federal Register's timezone) as a
+    prop, so there's no hydration mismatch.
+13. **shadcn.** Run `pnpm exec shadcn add select popover input textarea` (+ `command` if
+    you choose it), and add a Stack row.
+14. **Cost note.** Drop the design's typed "about $0.20", or source it from `setups.yaml`
+    `estUsd` for the live setup.
+15. **No spend.** The implementer and the reviewer never call the Gateway with a real key.
+
 ## Acceptance Criteria
 
 - Given the screen, When it loads, Then the profile picker lists exactly the demo presets
@@ -72,8 +140,8 @@ User decisions this screen must honour:
   - `src/app/api/suggest-areas/route.test.ts`: 400 on an empty description.
 - [ ] T002 — create `src/lib/runs/weeks.ts` and `src/lib/runs/profileForm.ts`, as pure
   functions.
-- [ ] T003 — create `src/app/api/presets/route.ts`: `GET` returns the
-  `presets()` profiles, server-side from config.
+- [ ] T003 — ~~create `src/app/api/presets/route.ts`~~. `/runs/new` passes `presets()` as
+  props instead (amendment 11).
 - [ ] T004 — create `src/app/api/suggest-areas/route.ts`:
   - `POST {description}` → `generateText` with structured output →
     `{areas:[{id,description}]}`;
@@ -87,15 +155,14 @@ User decisions this screen must honour:
   `Input`, `Textarea`, `Table` and `Collapsible`. Every control has a `<label>`, and every
   icon-only button has an `aria-label` that names its area.
 - [ ] T006 — create `src/app/runs/new/page.tsx`, which composes the above in `AppShell`
-  with `GcSidebar`. Edit `src/app/page.tsx` to redirect to `/runs/new`, replacing chunk
+  with `GcSidebar`. Edit `GcSidebar` links (amendment 8) and remove `DEMO_RUN` (amendment 7). Edit `src/app/page.tsx` to redirect to `/runs/new`, replacing chunk
   04's hard-coded button.
 - [ ] T007 — edit `src/lib/runs/store.ts`: add the `profiles` store (save, list, get), and
   add tests for it in `store.test.ts`.
 
 Judgement calls (explain each in the report):
 
-- `CompanySchema` requires an owner email. You may fill a placeholder
-  (`<slug>@example.com`) or add an optional email column. Do not loosen the schema in
+- `CompanySchema` requires an owner email. See amendment 4 for the rule. Do not loosen the schema in
   `src/lib/config.ts`, because it is on the decision path.
 - The profile picker may be a shadcn `Select` or a `Popover` + `Command` list.
 
@@ -137,19 +204,22 @@ mapping, not its UI. New: week helpers and the suggest-areas route.
 
 ## Verification Gates
 
+Per amendment 1, these live in `05-new-run-screen/gates.sh`. Gate 2 greps the `/runs/new`
+HTML (amendment 11) from a keyless server on `PORT` (3501–3509):
+
 ```bash
 set -e
-pnpm lint && pnpm test && pnpm build && pnpm typecheck
+bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh
+bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh
+bash scripts/verify-eval-bundle.sh
 
-# Gate 2: eval companies never offered as presets
-pnpm start -p 3105 & SRV=$!; sleep 4
-body=$(curl -s localhost:3105/api/presets); kill $SRV
+# Gate 2: eval companies never offered as presets (keyless server, trap-killed)
+body=$(curl -s localhost:$PORT/runs/new)
 for id in brightside cornercare skyhop; do
   if echo "$body" | grep -q "\"$id\""; then echo "FAIL: eval company $id offered" >&2; exit 1; fi; done
 echo "$body" | grep -q '"ledgerly"' || { echo "FAIL: ledgerly missing" >&2; exit 1; }
 
-# Gate 3: decision-path config untouched
-bash plans/2026-11-22-demo-build/02-core-libs/parity.sh
+# (Gate 3 dropped: 04's gates already run parity.sh; amendment 1)
 ```
 
 ## Deliverables

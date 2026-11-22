@@ -143,6 +143,18 @@ Every one of these is a candidate for `.claude/resources/project.md`.
 - configHash keeps moving with every config edit (now `242bd91ef7`); parity is the byte
   diff, not the hash.
 
+### Chunk 04 — Run and report
+
+- A 14-point preflight amendment followed by a first-iteration PASS: the same pattern as
+  03 and 08. When the rubric regenerator also reads the merged code, preflight finds
+  the plan-vs-reality gaps before an implementer pays for them.
+- Rendering UI without spend: run the server with `AI_GATEWAY_API_KEY=` empty, so a
+  real click fails at the ranking step before any model call; seed IndexedDB from
+  `runReplay()` events. `.env.local` does not override an already-set empty variable.
+- Open follow-ups, not fixed: a run keeps spending after a client disconnect (no
+  AbortSignal); a missing key shows "Something went wrong" because model resolution sits
+  outside `withRetry` in 03's `RunCtx`.
+
 
 ---
 
@@ -188,6 +200,11 @@ iteration; every line here skips one.
   (`loadIndex`, `loadIteration`, `loadIterationFile`, …). Eval sidebar component in
   `src/components/evals/` lists Summary, Iterations, Cases (09 builds `/evals/cases`;
   10 adds Models). Gate: `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh`.
+- **GC run (04)**: `POST /api/run` (request.ts, run-config.ts, stream.ts);
+  `src/lib/runs/` (store, reader, reduce, report — pure, client-safe; types-only import
+  from events.ts); `src/components/gc/` (RunView, ReportView, GcSidebar, useRun…).
+  `ReportView` takes a `followUp` prop. Spend-free UI checks: `AI_GATEWAY_API_KEY=` empty +
+  seed IndexedDB from `runReplay()` events. Gate: `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh`.
 - **Chunks land via GitHub PR** into `feat/plan--demo-build` (`gh pr create` → `gh pr merge --merge`).
 
 ---
