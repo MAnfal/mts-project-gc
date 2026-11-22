@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import {
   areasNote,
   caresAboutTitle,
@@ -10,6 +10,8 @@ import {
   ownersDetail,
   pickerLabel,
   pickerOptions,
+  prefillState,
+  prefillWeek,
   runFor,
   runSummary,
   switchPrompt,
@@ -22,7 +24,7 @@ import { OwnersTable } from "./OwnersTable";
 import { ProfileEditor } from "./ProfileEditor";
 import { ProfilePicker } from "./ProfilePicker";
 import { StartRunButton } from "./StartRunButton";
-import { saveProfile, useSavedProfiles } from "./useRun";
+import { getRunner, saveProfile, useSavedProfiles } from "./useRun";
 import { WeekPicker, type WeekChoice } from "./WeekPicker";
 
 const newId = () => crypto.randomUUID();
@@ -30,9 +32,22 @@ const newId = () => crypto.randomUUID();
 /**
  * The new-run screen's form: profile, week, "What <company> cares about", and the Run bar. Every decision (what Run
  * sends, edits, the switch confirm, labels) comes from src/lib/runs/new-run.ts; this file only renders and wires.
- * `today` is New York's date from the server, so the week buttons match what the server rendered.
+ * `today` is New York's date from the server, so the week buttons match what the server rendered. `from` is a stored
+ * run's id ("Edit settings"): once IndexedDB answers, the form is filled with that run's profile and window.
  */
-export function NewRunForm({ presets, today, maxWindowDays, focusProfile }: { presets: CompanyProfile[]; today: string; maxWindowDays: number; focusProfile: boolean }) {
+export function NewRunForm({
+  presets,
+  today,
+  maxWindowDays,
+  focusProfile,
+  from,
+}: {
+  presets: CompanyProfile[];
+  today: string;
+  maxWindowDays: number;
+  focusProfile: boolean;
+  from?: string;
+}) {
   const saved = useSavedProfiles();
   const [state, dispatch] = useReducer(newRunReducer, presets, initialState);
   const weeks = useMemo(() => lastFullWeeks(today, 3), [today]);
@@ -40,6 +55,25 @@ export function NewRunForm({ presets, today, maxWindowDays, focusProfile }: { pr
   const [custom, setCustom] = useState<Window>(weeks[0]);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [fromMissing, setFromMissing] = useState(false);
+
+  useEffect(() => {
+    if (!from) return;
+    let cancelled = false;
+    void getRunner().then(async (r) => {
+      // Saved profiles are read here rather than from useSavedProfiles, which may not have answered yet.
+      const [run, savedNow] = await Promise.all([r.store.get(from), r.store.listProfiles()]);
+      if (cancelled) return;
+      if (!run) return setFromMissing(true);
+      dispatch({ type: "load", state: prefillState(presets, savedNow, run) });
+      const w = prefillWeek(weeks, run.request);
+      setWeekChoice(w.choice);
+      setCustom(w.custom);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [from, presets, weeks]);
 
   const options = pickerOptions(presets, saved);
   const week = weekChoice === "custom" ? custom : weeks[weekChoice];
@@ -70,6 +104,11 @@ export function NewRunForm({ presets, today, maxWindowDays, focusProfile }: { pr
             <p className="m-0 leading-normal text-muted-foreground">
               Scan a week of federal rules and get back only the ones that affect your company, each with a priority, deadline and owner.
             </p>
+            {fromMissing ? (
+              <p role="status" className="m-0 mt-1 rounded-md bg-status-yellow-surface px-3 py-2 text-[13px] text-status-yellow-fg">
+                That run isn&apos;t saved in this browser, so the form starts from the default profile.
+              </p>
+            ) : null}
           </div>
           <ProfilePicker
             options={options}

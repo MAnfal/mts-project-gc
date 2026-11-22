@@ -1,14 +1,17 @@
 "use client";
 
-import { Building2, ChevronDown, Download, RotateCw, TriangleAlert } from "lucide-react";
+import { Building2, ChevronDown, Download } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { Button } from "@/components/ui/button";
-import { reduceEvents } from "@/lib/runs/reduce";
+import { withHeldBack } from "@/lib/runs/memo";
+import { applyConfirmed, reduceEvents, type RunViewState } from "@/lib/runs/reduce";
 import { formatWindow, reportJson, sortItems } from "@/lib/runs/report";
 import type { StoredRun } from "@/lib/runs/types";
+import { saveText } from "./download";
+import { FailedStep } from "./FailedStep";
 import { GcSidebar, type SidebarUser } from "./GcSidebar";
 import { ReportView } from "./ReportView";
 import { RunSteps } from "./RunSteps";
@@ -17,7 +20,7 @@ import { useRun } from "./useRun";
 
 /** One run, live or reopened from IndexedDB: Running, Report, Failed or Interrupted, all from its stored events. */
 export function RunView({ id, appName, user }: { id: string; appName: string; user: SidebarUser | null }) {
-  const { run, persistent, retry } = useRun(id);
+  const { run, persistent, retry, confirm } = useRun(id);
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
   const onRetry = async () => {
@@ -26,7 +29,9 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
     if (next) router.push(`/runs/${next}`);
     else setRetrying(false);
   };
-  const view = useMemo(() => (run ? reduceEvents(run.events) : null), [run]);
+  // Confirmations are applied after the events: the run's events stay what the server sent (amendment 5).
+  const view = useMemo(() => (run ? applyConfirmed(reduceEvents(run.events), run.confirmed ?? [], run.profile.generalCounsel) : null), [run]);
+  const editHref = `/runs/new?from=${encodeURIComponent(id)}`;
   const items = useMemo(() => (view ? sortItems(view.items) : []), [view]);
 
   return (
@@ -35,7 +40,7 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
       asideLabel="Sources and profile"
       aside={run && view ? <SourcesPanel items={run.status === "done" ? items : view.confirmed} profile={run.profile} /> : undefined}
     >
-      {run ? <Header run={run} /> : null}
+      {run && view ? <Header run={run} view={view} /> : null}
       <div className="px-5 py-6 sm:px-8">
         <div className="mx-auto flex max-w-[800px] flex-col gap-[22px]">
           {!persistent ? (
@@ -47,7 +52,7 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
           {run === null ? <NotFound /> : null}
           {run && view ? (
             run.status === "done" ? (
-              <ReportView view={view} items={items} company={view.company ?? run.profile.name} trace={<RunSteps steps={view.steps} live={false} />} />
+              <ReportView view={view} items={items} company={view.company ?? run.profile.name} trace={<RunSteps steps={view.steps} live={false} />} onConfirm={confirm} />
             ) : (
               <>
                 <ProfileChip run={run} />
@@ -55,16 +60,18 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
                 {run.status === "failed" ? (
                   <>
                     <p className="m-0 text-[15px] text-muted-foreground">The run stopped before it finished.</p>
-                    {view.failure && view.failure.step === null ? <Problem message={view.failure.message} onRetry={onRetry} retrying={retrying} /> : null}
-                    <RunSteps steps={view.steps} live={false} onRetry={onRetry} retrying={retrying} />
+                    {view.failure && view.failure.step === null ? <FailedStep alert message={view.failure.message} onRetry={onRetry} retrying={retrying} editHref={editHref} /> : null}
+                    <RunSteps steps={view.steps} live={false} onRetry={onRetry} retrying={retrying} editHref={editHref} />
                   </>
                 ) : null}
                 {run.status === "interrupted" ? (
                   <>
-                    <Problem
+                    <FailedStep
+                      alert
                       message="This run didn't finish: the connection closed before its last step, or the page was reloaded while it ran. A run can't pick up where it stopped; Retry starts it again with the same settings."
                       onRetry={onRetry}
                       retrying={retrying}
+                      editHref={editHref}
                     />
                     <RunSteps steps={view.steps} live={false} />
                   </>
@@ -78,7 +85,7 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
   );
 }
 
-function Header({ run }: { run: StoredRun }) {
+function Header({ run, view }: { run: StoredRun; view: RunViewState }) {
   const title = `${run.profile.name.split(/\s+/)[0]} · ${formatWindow(run.request.windowStart, run.request.windowEnd)}`;
   const [open, setOpen] = useState(false);
   const base = `reg-monitor_${run.profile.name.split(/\s+/)[0].toLowerCase()}_${run.request.windowStart}_${run.request.windowEnd}`;
@@ -95,10 +102,11 @@ function Header({ run }: { run: StoredRun }) {
           </Button>
           {open ? (
             <div className="absolute right-0 z-10 mt-1 flex min-w-40 flex-col rounded-md bg-popover p-1 shadow-md">
-              <DownloadItem name={`${base}.md`} type="text/markdown" text={() => result.markdown} onDone={() => setOpen(false)}>
+              {/* Held-back and confirmed items get their own section in the .md (src/lib/runs/memo.ts). */}
+              <DownloadItem name={`${base}.md`} type="text/markdown" text={() => withHeldBack(result.markdown, view)} onDone={() => setOpen(false)}>
                 Report (.md)
               </DownloadItem>
-              <DownloadItem name={`${base}.json`} type="application/json" text={() => reportJson(reduceEvents(run.events), { company: run.profile.name })} onDone={() => setOpen(false)}>
+              <DownloadItem name={`${base}.json`} type="application/json" text={() => reportJson(view, { company: run.profile.name })} onDone={() => setOpen(false)}>
                 Report (.json)
               </DownloadItem>
             </div>
@@ -111,12 +119,7 @@ function Header({ run }: { run: StoredRun }) {
 
 function DownloadItem({ name, type, text, onDone, children }: { name: string; type: string; text: () => string; onDone: () => void; children: ReactNode }) {
   const save = () => {
-    const url = URL.createObjectURL(new Blob([text()], { type }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
+    saveText(name, type, text());
     onDone();
   };
   return (
@@ -165,21 +168,6 @@ function Running({ run, steps, currentLabel }: { run: StoredRun; steps: ReactNod
         Items appear here only after their dates and citation match the Federal Register. Anything that can&apos;t be confirmed is listed separately for you to check.
       </p>
     </>
-  );
-}
-
-function Problem({ message, onRetry, retrying }: { message: string; onRetry: () => void; retrying: boolean }) {
-  return (
-    <div className="flex flex-col items-start gap-2.5 rounded-md bg-status-red-surface px-3.5 py-3 text-status-red-fg">
-      <p className="m-0 flex gap-2">
-        <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-        {message}
-      </p>
-      <Button onClick={onRetry} disabled={retrying}>
-        <RotateCw aria-hidden="true" />
-        {retrying ? "Starting…" : "Retry"}
-      </Button>
-    </div>
   );
 }
 
