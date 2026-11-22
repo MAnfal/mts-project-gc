@@ -2,7 +2,7 @@
 chunk: 01
 title: Scaffold, theme, config loader and deploy probe
 branch: feat/demo-build--scaffold
-base: main
+base: feat/plan--demo-build
 execution: sequential
 depends: []
 file-limit-waived: true
@@ -21,8 +21,9 @@ depends on:
 2. A streamed response can stay open for about 90 s (the POC's worst-case run was 87 s)
    inside the deployed function.
 
-**It ends at a hard stop.** After the PR merges, the user wires up Vercel's Git deploy
-pipeline and checks the probe on the deployed URL before any other chunk starts.
+**Amended 2026-11-22:** the hard stop is deferred. The user deploys once at the end of the
+plan; this chunk proves the probe locally under `pnpm start` (gate 4), and the deployed-URL
+check moves to the final PR's "Deferred to deploy" list.
 
 The stack mirrors the POC on the `poc` branch (read it with
 `git show poc:poc/package.json`): Next.js 16 App Router, React 19, TypeScript 5,
@@ -42,7 +43,7 @@ plan's `design/gcai-ui-notes.md`:
 
 ## Acceptance Criteria
 
-- Given a fresh clone of `main` with this chunk, When `pnpm install && pnpm build` runs,
+- Given a fresh clone of the plan branch with this chunk, When `pnpm install && pnpm build` runs,
   Then it succeeds with no network call to any model.
 - Given the dev server, When `/` loads, Then it renders a placeholder inside the GC shell
   (cream sidebar with "Reg Monitor", floating white panel) using the GC AI tokens, and
@@ -218,8 +219,8 @@ kill $SRV
 echo "$out" | grep -q "done" || { echo "FAIL: probe did not finish" >&2; exit 1; }
 ```
 
-Run each gate against `main` before your work and against the finished tree. Record the
-command, both exit statuses and the error text. Gates 1 and 4 fail on `main` because there
+Run each gate against the base commit (the `feat/plan--demo-build` tip this chunk was cut from) before your work and against the finished tree. Record the
+command, both exit statuses and the error text. Gates 1 and 4 fail on the base because there
 is no `package.json`. Make sure that's the error you see: if both runs show the same text,
 the gate is broken, not the tree.
 
@@ -236,7 +237,7 @@ the gate is broken, not the tree.
 ## Artifacts Checklist
 
 - ☐ New tests for new behavior
-- — Existing tests updated: none exist on `main`
+- — Existing tests updated: none exist on the base
 - ☐ Docs / conventions updated: `project.md`, `CLAUDE.md`
 - — Generated code: n/a
 - ☐ `.claude/resources/project.md` updated (Stack, Commands, Principles, Convention Map, Conventions, Layout)

@@ -2,7 +2,7 @@
 chunk: 09
 title: Eval view — Cases, run side panel, and gz trace viewer
 branch: feat/demo-build--eval-cases-traces
-base: main
+base: feat/plan--demo-build
 execution: parallel
 depends: [08]
 file-limit-waived: false

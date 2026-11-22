@@ -2,7 +2,7 @@
 chunk: 06
 title: Edge states, held-back items, and example runs in the GC view
 branch: feat/demo-build--edge-states
-base: main
+base: feat/plan--demo-build
 execution: sequential
 depends: [05, 07]
 file-limit-waived: false
@@ -123,7 +123,7 @@ if grep -rniE "jev|typesafe-ai" --exclude='*.test.*' --exclude-dir='__fixtures__
   echo "FAIL: internal name in GC-facing code" >&2; exit 1; fi
 ```
 
-Run gate 2 on `main` before your work. It should pass there, so it proves nothing on its
+Run gate 2 on the base commit (the plan-branch tip this chunk was cut from) before your work. It should pass there, so it proves nothing on its
 own. Its value is as a regression guard, so also plant a canary (`"Jev"` in a component
 string), confirm it fails, and remove it.
 

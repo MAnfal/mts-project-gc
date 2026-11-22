@@ -2,7 +2,7 @@
 chunk: 11
 title: Follow-up chat on a finished report
 branch: feat/demo-build--followup-chat
-base: main
+base: feat/plan--demo-build
 execution: sequential
 depends: [06]
 file-limit-waived: false

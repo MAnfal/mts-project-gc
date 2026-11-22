@@ -2,7 +2,7 @@
 chunk: 02
 title: Port config and core libraries (Federal Register client, date check, tiering)
 branch: feat/demo-build--core-libs
-base: main
+base: feat/plan--demo-build
 execution: parallel
 depends: [01]
 file-limit-waived: false
@@ -72,10 +72,12 @@ explain the difference from `9a0f857741`.
 ### Tasks
 
 - [ ] T001 — bring the files over:
-  - `git checkout poc -- poc/config poc/tests/fixtures/recorded-prompts.json`
-  - `git mv poc/config/* config/` (keep chunk 01's `config/app.yaml`)
-  - move the fixture to `src/lib/__fixtures__/recorded-prompts.json`
-  - remove the empty `poc/`
+  - `git archive poc poc/config poc/tests/fixtures/recorded-prompts.json | tar -x -C <your scratch dir>`
+    (never `git checkout poc -- poc/...`: it stages `poc/` in the index, and no `poc/` path
+    may ever be committed — amended 2026-11-22)
+  - copy `<scratch>/poc/config/*` into `config/` (keep chunk 01's `config/app.yaml`)
+  - copy the fixture to `src/lib/__fixtures__/recorded-prompts.json`
+  - confirm `git status --short | grep '^.. poc/'` is empty
 - [ ] T002 — write the failing tests first, ported from
   `poc:poc/tests/{tier,verify,fr-text,config,prompt-sets}.test.ts` into
   `src/lib/*.test.ts`, with only import paths changed. Add
@@ -168,7 +170,7 @@ if grep -rnE "writeFile|appendFile|mkdirSync|fs\.mkdir|writeFileSync" src/lib; t
 
 Before trusting the parity gate, plant a canary: change one character in `config/prompts.yaml`
 and confirm the gate fails, then restore it and confirm it passes again. Run every gate on
-`main` too and record the error text.
+the base commit (the plan-branch tip this chunk was cut from) too and record the error text.
 
 ## Deliverables
 

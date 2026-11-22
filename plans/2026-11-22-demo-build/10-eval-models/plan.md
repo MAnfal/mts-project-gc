@@ -2,7 +2,7 @@
 chunk: 10
 title: Eval view — Models page (multi-vendor comparison and why Sonnet)
 branch: feat/demo-build--eval-models
-base: main
+base: feat/plan--demo-build
 execution: parallel
 depends: [08, 09]
 file-limit-waived: false

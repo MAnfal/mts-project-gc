@@ -2,7 +2,7 @@
 chunk: 07
 title: Eval data bundle — every recorded suite, example run and iteration as static files
 branch: feat/demo-build--eval-bundle
-base: main
+base: feat/plan--demo-build
 execution: parallel
 depends: [01]
 file-limit-waived: true
@@ -195,8 +195,9 @@ confirm it exits non-zero naming that file. Restore the file and confirm it pass
   - the `live` and `baseline` numbers with their split and run counts, side by side with
     the POC README's figures, explaining any difference;
   - the Commands line for the lead.
-- [ ] **User checkpoint 2**: after merge, the user confirms that the Git deploy succeeded
-      and that `/evals/index.json` and one trace are served.
+- [ ] **Local stand-in for user checkpoint 2** (amended 2026-11-22; the deployed check is
+      deferred to the final PR): under `pnpm build && pnpm start`, `/evals/index.json` and
+      one trace file are served, with the status and content-type recorded.
 
 ## Artifacts Checklist
 

@@ -2,7 +2,7 @@
 chunk: 08
 title: Eval view — Summary (verdict, CARL, scoreboard, chart) and Iterations
 branch: feat/demo-build--eval-summary-iterations
-base: main
+base: feat/plan--demo-build
 execution: parallel
 depends: [07]
 file-limit-waived: false
@@ -163,7 +163,7 @@ if grep -rnE "89\.8|81\.5|72\.6|63%|\\\$0\.52" src/components/evals src/app/eval
 bash plans/2026-11-22-demo-build/02-core-libs/parity.sh
 ```
 
-Gate 2 passes on `main` because those directories don't exist yet. Plant a canary
+Gate 2 passes on the base commit because those directories don't exist yet. Plant a canary
 (`"89.8%"` in a component), confirm the gate fires, then remove it.
 
 ## Deliverables

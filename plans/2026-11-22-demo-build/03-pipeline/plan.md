@@ -2,7 +2,7 @@
 chunk: 03
 title: Port the pipeline with public step events and retries
 branch: feat/demo-build--pipeline
-base: main
+base: feat/plan--demo-build
 execution: sequential
 depends: [02]
 file-limit-waived: false

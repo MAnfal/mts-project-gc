@@ -38,12 +38,12 @@ See `SPEC.md` in this directory.
 | Chunk | Story | Status | PR | Blocker |
 | ----- | ----- | ------ | -- | ------- |
 | 01 | Foundation | Not started | — | — |
-| 02 | US1 | Not started | — | Waits for the user's Vercel checkpoint after 01 |
+| 02 | US1 | Not started | — | — |
 | 03 | US1 | Not started | — | — |
 | 04 | US1 | Not started | — | — |
 | 05 | US1 | Not started | — | — |
 | 06 | US1 | Not started | — | — |
-| 07 | US2 | Not started | — | Waits for the user's Vercel checkpoint after 01 |
+| 07 | US2 | Not started | — | — |
 | 08 | US2 | Not started | — | — |
 | 09 | US2 | Not started | — | — |
 | 10 | US2 | Not started | — | — |
@@ -67,6 +67,7 @@ When every chunk is `Merged`, run `/plan:complete`.
 
 | Date | Event | Chunk | Detail |
 | ---- | ----- | ----- | ------ |
+| 2026-11-22 | user_checkpoint | — | User: execute all chunks autonomously into the plan branch; Vercel checks deferred to one deploy at the end; no `poc/` ever committed. Plan amended. |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
@@ -78,31 +79,37 @@ Wave-boundary events are mandatory — the retro derives its wave metrics from t
 
 - **Mode**: subagent-driven. Eleven chunks across two independent tracks (GC flow and eval
   view) need isolated contexts, and the eval-data chunks read large files.
-- **Worktrees**: `.worktrees/<chunk-name>`, one per dispatched chunk, cut from `main` and
-  removed after that chunk's PR merges. `.worktrees/` is gitignored.
-- **No stacking**: every chunk branch is cut from `main` and every chunk PR targets `main`.
+- **Worktrees**: `.worktrees/<chunk-name>`, one per dispatched chunk, cut from the tip of
+  `feat/plan--demo-build` and removed after that chunk merges. `.worktrees/` is gitignored.
+- **No stacking**: every chunk branch is cut from `feat/plan--demo-build` and merges back
+  into it (lead merges locally with `--no-ff` after a reviewer PASS; amended decision 2).
   "Sequential" means the branch is cut later, not that it targets a sibling.
 
-### User checkpoints (hard stops)
+### Deferred to deploy (was: user checkpoints — amended 2026-11-22)
 
-1. **After chunk 01 merges.** Stop. The user merges 01 to `main` and connects Vercel's Git
-   deploy pipeline. Nothing else is dispatched until the user confirms both: the
-   placeholder page is live, and its 90-second streaming probe finished on the deployed
-   URL. Log it as `user_checkpoint`.
-2. **After chunk 07 merges.** Stop. The user confirms that the Git deploy carrying the
-   ~97 MB eval bundle succeeded and that `/evals/index.json` and one trace file are
-   served. If the deploy fails on size, move the traces only to Vercel Blob or R2
-   (decision 6) before dispatching 08.
+The user waived both hard stops and will deploy once, at the end. Each check below is
+replaced during execution by a **local** equivalent (`pnpm build && pnpm start`), and the
+original deployed-URL check is listed for the user in the final PR description:
+
+1. *(was checkpoint 1, after 01)* On the deployed URL, `/` renders, and
+   `curl -N https://<deploy>/api/probe/stream?seconds=90` reaches `done`. Also: config YAML
+   is traced into the function bundle (`outputFileTracingIncludes`). Local equivalent: the
+   probe streams to `done` under `pnpm start`.
+2. *(was checkpoint 2, after 07)* The Git deploy carrying the ~97 MB eval bundle succeeds,
+   and `/evals/index.json` plus one trace file are served. If it fails on size, move the
+   traces only to Vercel Blob or R2 (decision 6). Local equivalent: both served by
+   `pnpm start`.
+3. Every "on the deployed URL" story checkpoint below is verified locally first, and again
+   by the user after deploy.
 
 ## Git
 
-- **Plan branch**: `feat/plan--demo-build`, from `main`. It holds only `plans/` and the
-  `.gitignore` entry for `.worktrees/`, and it merges to `main` before chunk 01 is
-  dispatched, so every chunk worktree has the plan on disk.
+- **Plan branch**: `feat/plan--demo-build`, from `main`. It holds `plans/` and receives
+  every chunk (amended decision 2), so every chunk worktree has the plan on disk.
 - **Chunk branches**: `feat/demo-build--<chunk-name>` (e.g. `feat/demo-build--scaffold`)
-- **Chunk PRs target**: `main`, all of them. See decision 2.
-- **Final PR**: none. `main` already holds every chunk by the end; `/plan:complete` closes
-  the plan on `main`.
+- **Chunks merge into**: `feat/plan--demo-build`, by the lead, after a fresh reviewer
+  PASS and a lead re-run of the gates. See amended decision 2.
+- **Final PR**: `feat/plan--demo-build` → `main`, opened by the lead, merged by the user.
 
 ## Dependency Graph
 
@@ -159,6 +166,11 @@ Two more shared-file notes:
 2. **`main` is the integration branch; chunk PRs target `main`** (user, 2026-11-22). Vercel
    deploys `main`, and the user verifies each chunk on the deployed URL as it lands. A
    long-lived plan branch would delay that by the length of the plan.
+   **Amended 2026-11-22 (user, at execution start):** the user chose to execute the whole
+   plan autonomously and deploy once at the end. Chunk branches are cut from, and merged
+   by the lead into, `feat/plan--demo-build`. When every chunk is merged, the lead opens
+   one PR from `feat/plan--demo-build` to `main`; the user merges it and wires Vercel.
+   Nothing is pushed to or merged into `main` by the lead.
 3. **The POC's decision path is ported byte-identical** (chunk 02, verified by gate). The
    recorded eval numbers describe the POC's pipeline. They describe the demo only if the
    demo runs the same pipeline. "Decision path" means: `prompts.yaml`, `prompt-sets/`,
@@ -227,10 +239,15 @@ the draft principles unchanged.
 
 ## Plan-Specific Constraints
 
-- **The POC is reference, read from git.** `main` has no `poc/` directory. Read POC sources
-  with `git show poc:poc/<path>` and bring files over with
-  `git checkout poc -- poc/<path>` followed by a move into place. Never merge the `poc`
-  branch.
+- **The POC is reference, read from git.** `main` has no `poc/` directory, and **no
+  `poc/` path may ever be committed on a chunk or plan branch** (user, 2026-11-22). Read
+  POC sources with `git show poc:poc/<path>`, and bring files over with
+  `git archive poc poc/<path> | tar -x -C <your scratch dir>` followed by a copy into
+  place — never `git checkout poc -- poc/...`, which stages `poc/` in the index. Never
+  merge the `poc` branch. Gate, run by the lead before every merge:
+  `git ls-tree -r --name-only <chunk-branch> | grep '^poc/'` is empty, and
+  `git log --name-only --format= <plan-branch>..<chunk-branch> | grep '^poc/'` is empty.
+  The untracked `poc/` in the main checkout is the user's; never read from or delete it.
 - **The locked design is `design/` in this plan directory.** `design/Hi*.dc.html` are the
   hi-fi artboards (open them as HTML; ignore the `<x-dc>` wrapper and the `data-dc-script`
   block), and `design/gcai-ui-notes.md` holds the measured GC AI tokens. The live canvas

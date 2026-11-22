@@ -2,7 +2,7 @@
 chunk: 04
 title: Streaming run, Running and Report screens, IndexedDB history and Retry
 branch: feat/demo-build--run-and-report
-base: main
+base: feat/plan--demo-build
 execution: sequential
 depends: [03]
 file-limit-waived: true

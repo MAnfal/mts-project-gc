@@ -1,7 +1,7 @@
 <!-- Copied into the plan directory at the start of execution.
      Part 1 is written continuously while executing. Part 2 is filled by plan-retro. -->
 
-# <Plan Name> — Retro
+# Regulatory Monitoring Demo Build — Retro
 
 ## Part 1: Execution Journal
 
@@ -52,6 +52,23 @@ Every one of these is a candidate for `.claude/resources/project.md`.
 - Observation
 - Observation
 ```
+
+## 2026-11-22
+
+### Plan-level — user correction at execution start
+
+- The user overrode three plan decisions at `/plan:execute`: (1) chunks integrate into
+  `feat/plan--demo-build`, merged by the lead, not PR'd to `main`; (2) both Vercel hard
+  stops are deferred to a single deploy at the end; (3) no `poc/` path may ever be
+  committed. Swept as one amendment (ORCHESTRATOR decision 2, Execution, checkpoints,
+  Git, constraints; every chunk's `base:`; "run gates on `main`" wording in 01/02/06/08;
+  02 T001's `git checkout poc --`; 07's checkpoint deliverable).
+- Trace-back: the plan assumed per-chunk deploy verification was worth a hard stop. The
+  planning prompt never asked whether the user wanted to be in the loop per chunk or
+  only at the end; that question belongs in brainstorm. Also, 02 T001 told implementers
+  to stage `poc/` via `git checkout poc --`, which leaks POC paths into history if any
+  step is skipped; `git archive | tar -x` into scratch is the safe import.
+
 
 ---
 

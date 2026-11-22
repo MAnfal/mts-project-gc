@@ -145,7 +145,7 @@ often as it passes a violation.
       constraint is that nothing else in the file changes and the gate only forbids the
       Flue claim
 - [ ] `plans/2026-11-22-demo-build/01-scaffold/gates.sh` is committed, and the report
-      records each gate's command, exit status and error text on `main` and on the
+      records each gate's command, exit status and error text on the base commit and on the
       finished tree — with different error text on the two runs, proving the gate tests
       the tree
 - [ ] The report explains the scaffold choice (`create-next-app` then prune, or configs by
