@@ -226,7 +226,7 @@ a follow-up.
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
   `use: eval` plus `app.yaml`), to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
-  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `fca03a3b9f` at chunk 10
+  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `bc2b5bdec1` at chunk 10
   (the `models` section of `eval-story.yaml`; measured on chunk 10's branch, so a later merge that also edits config moves it
   again). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
@@ -298,10 +298,10 @@ a follow-up.
 - **Models are compared only within one suite** (`/evals/models`, chunk 10). `modelComparisons` (`src/lib/evals/models.ts`)
   groups each suite's own `suiteResults` entries (never a pooled one) and compares a suite only when it ran more than one model;
   rows are setups, not models. Model labels carry digits, so prose names them through `{{models.*}}` placeholders
-  (`modelsContext` in `story.ts`), as it does the like-for-like pair (same method and prompt, the live model against another),
+  (`modelsContext` in `story.ts`), as it does the price-parity date (`index.json` → `priceParity`), the like-for-like pair (same method and prompt, the live model against another),
   each difference's direction and the lowest pipeline recall. The judge panel is read with `judges()` (`src/lib/config.ts`).
   In the shipped bundle only `w0i` ran two models, and the live setup never ran in it, so the page highlights the live
-  *model's* rows. The Cases page opens one setup in one suite with `?suite=&setup=`; `?iteration=` wins when both are given
+  *model's* rows. A suite that lists a setup with no result of its own is an error, not a smaller table. The Cases page opens one setup in one suite with `?suite=&setup=`; `?iteration=` wins when both are given
   (`casesState.ts`).
 - **Agreement and noise are computed by the bundle builder, not the browser.** `relevanceAgreement` and
   `tierAgreement` (`repeatAgreement` in `bundle-build.ts`) group finished, non-superseded repeats by suite and
@@ -355,7 +355,8 @@ scripts/verify-eval-bundle.sh Nothing-lost check against `poc` + index recompute
 scripts/poc-src.sh            Sourced by the two eval scripts: the detached poc checkout and its tsx.
 public/evals/                 GENERATED eval bundle, served as static files (never hand-edit):
   index.json                  suites, setups, iterations (+ measured, evidence), live, baseline, suiteResults,
-                              noiseBand, evalSet, counts (index-schema.ts).
+                              noiseBand, evalSet, counts, priceParity (the check date config/setups.yaml's comment
+                              records; bundle-build.ts → priceParity) (index-schema.ts).
   config/                     One copy of poc/config, answer keys included.
   suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz,
                               runs-index.json (one small row per run, for the Runs page).
@@ -439,4 +440,6 @@ vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.t
 components.json               shadcn settings.
 ```
 
-Tests sit next to the module they cover as `*.test.ts`.
+Tests sit next to the module they cover as `*.test.ts`. A component render test is a `.ts` file too (vitest runs in node and
+discovers only `*.test.ts`): it builds elements with `createElement` and renders them with `react-dom/server`'s
+`renderToStaticMarkup` (`src/components/evals/ModelTable.test.ts`).
