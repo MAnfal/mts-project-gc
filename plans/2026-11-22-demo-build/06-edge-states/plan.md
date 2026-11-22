@@ -4,7 +4,7 @@ title: Edge states, held-back items, and example runs in the GC view
 branch: feat/demo-build--edge-states
 base: feat/plan--demo-build
 execution: sequential
-depends: [05, 07]
+depends: [05, 07, 09]
 file-limit-waived: false
 file-limit-reason: ""
 ---
@@ -42,6 +42,72 @@ Chunks 04–05 render the happy path. This chunk adds the states in
      leak fix carry reasons like "Jev p=0.42 (no LLM reason)". The adapter replaces them
      with the neutral fallback, and `assertPublic` (chunk 03) is run on its output.
 
+### Preflight amendment (lead, 2026-11-23)
+
+The preflight checked this plan against what chunks 04, 05, 07 and 09 actually merged.
+Where the text below conflicts with these points, these win:
+
+1. **The GC projection is generated in Node, not in the browser.** The leak fix and the
+   public check need server-side modules (`assertPublic`, `stepOf`, `screenedOut`,
+   `NEUTRAL_REASON`), and the GC client may import only types from `events.ts`.
+   - Add `src/lib/pipeline/recorded.ts` (server-only) and
+     `scripts/build-examples.mts`. They project each `public/evals/user-view/runs/*.json`
+     into public `RunEvent[]` plus a profile snapshot and metadata, written to
+     `public/examples/{index.json,<id>.json}`.
+   - Every emitted event passes `assertPublic`, and the `Jev p=` fallback becomes the
+     neutral reason.
+   - The GC `/examples/[id]` page reads **only** `public/examples/**` and renders through
+     the existing `reduceEvents` + `ReportView`, unchanged in shape.
+   - The rebuild is idempotent. A gate re-runs it and checks for a clean `git status`, and
+     scans every file under `public/examples/` for internal names (Decision 9 applies to
+     fetched JSON, not only JS).
+2. **GC pages never read `/evals/user-view/**`.** Those files carry setup ids, model ids,
+   stage ids, prompts and Gateway errors.
+3. **Sources for closest calls and names:**
+   - Titles come from the frozen week: `frozenWeek()` in Node; the browser loader
+     `loadWeekDocs` for the reviewer route.
+   - The company name comes from `presets()` or the record's custom profile name.
+4. **Tests are constructed.** No shipped record has a `Jev p=` reason or a dropped item.
+   The leak and held-back tests use constructed copies of a real record, and say so. The
+   held-back and failed screenshots come from seeded IndexedDB. The only done 0-item
+   example is `l14a` (custom).
+5. **Held back.** `dropped` is `{document_number, title, reason}` and is produced only when
+   a re-fetch fails. It has no tier, deadline, owner or url.
+   - A row the GC confirms shows "Not tiered", deadline none, owner the general counsel,
+     and an FR link built from `document_number`. It never gets a tier code didn't
+     compute (Principle 1).
+   - Store confirmations as a `confirmed: string[]` field on `StoredRun`, applied after
+     `reduceEvents`, with no IndexedDB version bump. Do **not** add a `RunEvent` type; the
+     pipeline's event contract is chunk 03's.
+   - Older stored runs default to nothing confirmed.
+   - T001's reduce test and T003 change accordingly.
+6. **"Edit settings"** opens `/runs/new?from=<runId>`, prefilled from IndexedDB. Add
+   `src/app/runs/new/page.tsx`, `NewRunForm.tsx` and the new-run initial state to the
+   tasks, with a prefill test.
+7. **Copy.** Retry re-posts the whole run, so no copy may claim "only the failed step
+   reruns". Fix the HiStates copy, and also chunk 03's `TIMEOUT_MESSAGE` wording if it
+   says the same. That message is GC-facing copy, not a decision; parity stays green.
+8. **Reviewer-facing run report.** Chunk 09's amendment 2 moved this here.
+   - Add `/evals/reports/[suiteId]/[runId]` for suite runs and user-view runs, including
+     status `error`.
+   - It renders items, tiers, owners and dates through a pure, browser-safe mapping in
+     `src/lib/runs/recorded-view.ts`. The Node projection in point 1 reuses the same
+     mapping, so there is one mapping, not two.
+   - It may show internal names, because it is reviewer-facing.
+   - Load one suite run by streaming `runs.jsonl.gz` through the loader and stopping at
+     the match. Add a single-run loader for user-view.
+   - Link it from chunk 09's `RunsView` and `RunPanel`, within 3 clicks of `/evals`.
+     It is read-only.
+9. **Gate 5.** Add the examples routes (`examples/[id]/page`, plus an examples index if
+   you add one) to 04's Gate 5 `GC_ROUTES`, with a canary.
+10. **Gates.** Write `plans/2026-11-22-demo-build/06-edge-states/gates.sh`. It runs:
+    - `bash plans/2026-11-22-demo-build/05-new-run-screen/gates.sh`;
+    - Gate 2, which must **fail** when a listed directory is missing;
+    - the `public/examples/` scan and idempotence check from point 1;
+    - the `poc/` count. Count explicitly: `! … | grep -q` can't fail under `set -e`.
+
+    Servers are keyless on ports 3601–3609. No Gateway spend.
+
 ## Acceptance Criteria
 
 - Given a finished run with 0 items, When the run view renders, Then the empty state renders with up to 3 closest
@@ -50,34 +116,41 @@ Chunks 04–05 render the happy path. This chunk adds the states in
   "Held back 1" badge counts it. "Add after checking" moves it into the table with a
   "Confirmed by you" badge, and the change survives a reload.
 - Given a failed run, When the run view renders, Then the finished steps show as done, the failed step shows its
-  message with "Retry" and "Edit settings", and "Edit settings" opens `/runs/new` filled
-  with that run's config.
+  message with "Retry" and "Edit settings", and "Edit settings" opens `/runs/new?from=<runId>` filled
+  with that run's config (amendment 6).
 - Given the sidebar, When the run view renders, Then "Examples" lists the example runs from
-  `/evals/user-view/index.json`. Each opens a report with no network call beyond the
-  static files, and no internal name appears in the rendered report.
+  `/examples/index.json` (generated; amendment 1). Each opens a report with no network call beyond the
+  static files, and no internal name appears in the rendered report or in any fetched file.
 
 ## What To Do
 
 ### Tasks
 
 - [ ] T001 — write failing tests:
-  - `src/lib/runs/fromRecordedRun.test.ts`: load one real example record from
+  - `fromRecordedRun.test.ts` → now tests for `recorded.ts` / `recorded-view.ts` (amendments 1, 8). Load one real example record from
     `public/evals/user-view/runs/` that has a `Jev p=` reason, and assert the adapter's
     view state passes `assertPublic` and keeps items, tiers and owners equal to the record.
     Find such a record with `grep -l "Jev p=" public/evals/user-view/runs/*`. If none
     exists, construct one from a real record and say so in the report.
   - `src/lib/runs/memo.test.ts`: the no-action memo and the held-back section.
-  - `src/lib/runs/reduce.test.ts`: confirming a held-back item moves it, with a
-    `confirmedBy:"user"` flag.
+  - `src/lib/runs/reduce.test.ts` (or a confirmations test): applying `confirmed: string[]`
+    after `reduceEvents` moves a held-back item into the table as "Not tiered" (amendment 5).
 - [ ] T002 — create `src/lib/runs/fromRecordedRun.ts` and `src/lib/runs/memo.ts`.
-- [ ] T003 — edit `src/lib/runs/reduce.ts` and `src/lib/runs/store.ts`: add the
-  `item.confirmedByUser` action and persist it.
+- [ ] T003 — edit `src/lib/runs/store.ts` (a `confirmed: string[]` field on `StoredRun`) and
+  apply confirmations after `reduceEvents`. No new `RunEvent` type (amendment 5).
 - [ ] T004 [P] — create `src/components/gc/EmptyReport.tsx`, `HeldBack.tsx` and
   `FailedStep.tsx`, styled from `design/HiStates.dc.html`.
 - [ ] T005 — edit `src/components/gc/ReportView.tsx` and `RunSteps.tsx` to render those
   states. Edit `src/components/gc/GcSidebar.tsx` to add the Examples section.
 - [ ] T006 — create `src/app/examples/[id]/page.tsx`, which renders an example run with
-  the Report screen. It is read-only, with no Retry.
+  the Report screen from `public/examples/<id>.json` (amendment 1). It is read-only, with
+  no Retry.
+- [ ] T007 — `src/lib/pipeline/recorded.ts` + `scripts/build-examples.mts` → `public/examples/**`
+  (amendment 1); `src/lib/runs/recorded-view.ts` shared mapping (amendment 8).
+- [ ] T008 — `/runs/new?from=<runId>` prefill (amendment 6).
+- [ ] T009 — `/evals/reports/[suiteId]/[runId]` reviewer report + links from `RunsView`/`RunPanel`
+  (amendment 8).
+- [ ] T010 — add examples routes to 04's Gate 5 `GC_ROUTES`; write `06-edge-states/gates.sh` (amendments 9–10).
 
 ## Test Plan
 
