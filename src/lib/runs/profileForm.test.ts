@@ -122,6 +122,11 @@ describe("isEdited", () => {
     expect(isEdited(withAreas(form, form.areas.map((r, i) => (i === 0 ? { ...r, owner: "Someone Else" } : r))))).toBe(true);
   });
 
+  it("is true when only the order of the areas changed (the order prompts list them in)", () => {
+    const form = profileToForm(ledgerly());
+    expect(isEdited(withAreas(form, [...form.areas].reverse()))).toBe(true);
+  });
+
   it("is true while the form is invalid (an edit the GC hasn't finished)", () => {
     const form = profileToForm(ledgerly());
     expect(isEdited({ ...form, name: "" })).toBe(true);
