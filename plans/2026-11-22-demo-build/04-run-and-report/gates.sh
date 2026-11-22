@@ -34,8 +34,56 @@ bad=$(printf '%s\n' "$files" | xargs grep -nHE "from ['\"][^'\"]*pipeline/events
 [ -z "$bad" ] || fail "value import from pipeline/events in GC client code:
 $bad"
 
-# Gate 5 (Decision 9): the browser bundle names no internal component or model.
+# Gate 5 (Decision 9): the JS a GC page loads names no internal component or model. Decision 9 covers the
+# GC-facing screens only: the eval view (/evals/**) is the reviewer's and legitimately says jev/jevProbability.
+# The chunk list comes from Next 16.4.6's build output, not a directory glob:
+#   - .next/build-manifest.json: rootMainFiles + polyfillFiles (loaded by every page);
+#   - .next/server/app/<route>/page_client-reference-manifest.js: that route's entryJSFiles and every client
+#     module's `chunks` (the file sets globalThis.__RSC_MANIFEST["/<route>/page"]);
+#   - then, transitively, any static/chunks/*.js a listed chunk names (lazy chunks).
+# GC routes: / and /runs/[id], plus /runs/new once it exists. GC_ROUTES overrides the list (used to prove the
+# gate fails on a route that resolves to nothing). It fails if a required route has no manifest, a route lists
+# no chunks, or a listed chunk is missing, so it can't pass by scanning nothing.
 [ -d .next/static/chunks ] || fail ".next/static/chunks missing: run pnpm build first"
-if grep -rlE 'filter:jev|typesafe-ai|claude-sonnet|jevProbability|STEP_LABELS' .next/static; then fail "internal name in the client bundle"; fi
+gc_chunks=$(GC_ROUTES="${GC_ROUTES:-page runs/[id]/page runs/new/page?}" node - <<'JS'
+const fs = require("fs"), path = require("path"), vm = require("vm");
+const die = (m) => { console.error(`FAIL: ${m}`); process.exit(1); };
+const files = new Set();
+const add = (f) => files.add(f.replace(/^\/_next\//, ""));
+const bm = JSON.parse(fs.readFileSync(".next/build-manifest.json", "utf8"));
+[...bm.rootMainFiles, ...bm.polyfillFiles].forEach(add);
+let routes = 0;
+for (const spec of process.env.GC_ROUTES.split(/\s+/).filter(Boolean)) {
+  const optional = spec.endsWith("?");
+  const route = optional ? spec.slice(0, -1) : spec;
+  const file = path.join(".next/server/app", `${route}_client-reference-manifest.js`);
+  if (!fs.existsSync(file)) { if (optional) continue; die(`GC route ${route} has no ${file}`); }
+  const ctx = {}; ctx.globalThis = ctx;
+  vm.runInNewContext(fs.readFileSync(file, "utf8"), ctx);
+  const man = ctx.__RSC_MANIFEST?.[`/${route}`];
+  if (!man) die(`${file} sets no __RSC_MANIFEST["/${route}"]`);
+  const own = new Set([...Object.values(man.entryJSFiles ?? {}).flat(), ...Object.values(man.clientModules ?? {}).flatMap((m) => m.chunks ?? [])]);
+  if (!own.size) die(`GC route ${route} resolved to 0 chunks`);
+  own.forEach(add);
+  routes++;
+}
+if (!routes) die("no GC route resolved");
+const queue = [...files];
+while (queue.length) {
+  const f = queue.pop();
+  const p = path.join(".next", f);
+  if (!fs.existsSync(p)) die(`listed chunk ${p} is missing`);
+  for (const m of fs.readFileSync(p, "utf8").matchAll(/static\/chunks\/[A-Za-z0-9_.-]+\.js/g))
+    if (!files.has(m[0])) { files.add(m[0]); queue.push(m[0]); }
+}
+console.log([...files].filter((f) => f.endsWith(".js")).sort().map((f) => path.join(".next", f)).join("\n"));
+JS
+) || fail "could not resolve the GC routes' client chunks"
+n=$(printf '%s\n' "$gc_chunks" | grep -c . || true)
+[ "$n" -gt 0 ] || fail "GC routes resolved to 0 client chunks"
+if printf '%s\n' "$gc_chunks" | xargs grep -lE 'filter:jev|typesafe-ai|claude-sonnet|jevProbability|STEP_LABELS'; then
+  fail "internal name in a chunk a GC page loads"
+fi
+echo "Gate 5: $n client chunks of the GC routes scanned (eval-view chunks excluded)"
 
 echo "chunk 04 gates: OK"
