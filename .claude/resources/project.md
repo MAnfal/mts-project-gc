@@ -226,7 +226,7 @@ a follow-up.
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
   `use: eval` plus `app.yaml`), to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
-  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `d4bd6b962e` at chunk 10
+  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `fca03a3b9f` at chunk 10
   (the `models` section of `eval-story.yaml`; measured on chunk 10's branch, so a later merge that also edits config moves it
   again). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a

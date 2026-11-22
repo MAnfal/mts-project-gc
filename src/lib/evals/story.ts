@@ -161,7 +161,6 @@ export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalS
   return {
     ...ctx,
     "models.suite": shortSuite(group.suite),
-    "models.suiteDate": group.createdAt.slice(0, 10),
     "models.other": other.modelLabel,
     "models.otherPromptSets": listed(index.setups.filter((s) => s.model === other.model).map((s) => promptOf(s.promptSet))),
     "models.pair.live": live.setup,

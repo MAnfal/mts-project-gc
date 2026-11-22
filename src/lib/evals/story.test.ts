@@ -38,7 +38,7 @@ const STORY: EvalStory = {
     },
     caveats: {
       keyBias: { holds: "Only {{models.lowest.setups}} is lowest", otherwise: "Lowest: {{models.lowest.setups}} of {{models.pipeline.count}}" },
-      priceParity: "Parity checked {{models.suiteDate}}.",
+      priceParity: "Parity per the config used for {{models.suite}}.",
       tuning: "{{models.livePromptSet}} ran on {{models.livePromptSetModels}}; {{models.other}} ran {{models.otherPromptSets}}.",
     },
     judges: "{{judges.minAgree}} of {{judges.count}} must agree.",
@@ -137,7 +137,7 @@ describe("modelsContext / modelsStory", () => {
   const build = (rows: [Info, ReturnType<typeof result>][]) =>
     index({
       setups: [info("live", "anthropic/sonnet", "jev+llm", "strict"), ...rows.map(([i]) => i)],
-      suites: [{ ...suite("arena-2026-11-21-18-40-su1", 2), createdAt: "2026-11-21T18:40:11.303Z" }],
+      suites: [suite("arena-2026-11-21-18-40-su1", 2)],
       suiteResults: rows.map(([, r]) => r),
       live: result("live"),
     });
@@ -154,7 +154,7 @@ describe("modelsContext / modelsStory", () => {
     expect(v.points).toEqual(["Recall: 90% vs 80%, 10.0 pts higher (18 and 17 runs)"]);
     expect(v.judges).toBe("2 of 3 must agree.");
     expect(modelsStory(pair, { models: ["a/1", "b/2", "c/3", "d/4", "e/5"], minAgree: 3 }, STORY).judges).toBe("3 of 5 must agree.");
-    expect(v.caveats).toEqual(["Only g is lowest", "Parity checked 2026-11-21.", "strict ran on sonnet; gpt ran default."]);
+    expect(v.caveats).toEqual(["Only g is lowest", "Parity per the config used for su1.", "strict ran on sonnet; gpt ran default."]);
   });
 
   it("phrases equal, lower and unmeasured differences, and cost in dollars", () => {

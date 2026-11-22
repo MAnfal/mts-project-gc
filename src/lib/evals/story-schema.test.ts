@@ -104,10 +104,10 @@ describe("config/eval-story.yaml → models, filled from the shipped index and c
     );
   });
 
-  it("dates the price-parity check with the day w0i ran, which is the date config/setups.yaml records for the check", () => {
-    const recorded = fs.readFileSync(path.resolve(import.meta.dirname, "../../../config/setups.yaml"), "utf8").match(/price parity \(.*checked (\d{4}-\d{2}-\d{2})\)/)?.[1];
-    expect(recorded).toBe("2026-11-21");
-    expect(view().caveats[1]).toContain(`checked on ${recorded}, the day this suite ran`);
+  it("words price parity as the arena config's list price per token, with no date, and the tuning caveat from the setups", () => {
+    expect(view().caveats[1]).toBe(
+      "Price parity. The models were chosen at the same AI Gateway list price per token, per the arena config used for suite w0i. The same price per token is not the same cost per run: the table shows each setup's measured cost.",
+    );
     expect(view().caveats[2]).toBe("Tuned on one model. The live setup's strict prompt ran only on Sonnet 5.5; GPT-6.2 Sol ran only with the default prompt.");
   });
 

@@ -233,9 +233,10 @@ export function CasesView({ sidebar, query, directory, story }: { sidebar: React
         key={sel.id}
         row={sel}
         title={titles.get(sel.doc) ?? sel.doc}
-        where={caseWhere(directory.evalsets[sel.evalset], sel.evalset)}
-        iteration={no}
-        scope={st.kind === "setup" ? `${st.setup} in ${shortSuite(st.suite)}` : undefined}
+        // RunPanel prints "· iteration <no>" after `where`; one setup in one suite has no iteration, so it names
+        // the setup and suite in `where` and shows the iteration as "—".
+        where={`${caseWhere(directory.evalsets[sel.evalset], sel.evalset)}${st.kind === "setup" ? ` · ${st.setup} in ${shortSuite(st.suite)}` : ""}`}
+        iteration={st.kind === "setup" ? "—" : no}
         suiteId={st.suite}
         runsById={runsById}
         checks={checks}
