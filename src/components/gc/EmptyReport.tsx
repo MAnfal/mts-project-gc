@@ -9,9 +9,10 @@ import { saveText } from "./download";
 
 /**
  * The nothing-applies report (design/HiStates.dc.html, first panel): how many documents were checked, the closest
- * calls (the first 3 the final screen rejected), and the "no action" memo built in code (src/lib/runs/memo.ts).
+ * calls (the first 3 the final screen rejected), and the "no action" memo built in code (src/lib/runs/memo.ts), unless
+ * `memo` is false (the reviewer's read-only report).
  */
-export function EmptyReport({ view, company }: { view: RunViewState; company: string }) {
+export function EmptyReport({ view, company, memo = true }: { view: RunViewState; company: string; memo?: boolean }) {
   const ctx = { company, windowStart: view.windowStart ?? "", windowEnd: view.windowEnd ?? "" };
   const calls = closestCalls(view);
   const file = `reg-monitor_no-action_${company.split(/\s+/)[0].toLowerCase()}_${ctx.windowStart}_${ctx.windowEnd}.md`;
@@ -35,10 +36,12 @@ export function EmptyReport({ view, company }: { view: RunViewState; company: st
           <p className="m-0 border-t border-row-border px-3 py-2.5 text-muted-foreground">No document came close: none reached the final screening.</p>
         )}
       </div>
-      <Button variant="outline" className="mt-1.5" onClick={() => saveText(file, "text/markdown", noActionMemo(view, ctx))}>
-        <Download aria-hidden="true" />
-        Download &quot;no action&quot; memo
-      </Button>
+      {memo ? (
+        <Button variant="outline" className="mt-1.5" onClick={() => saveText(file, "text/markdown", noActionMemo(view, ctx))}>
+          <Download aria-hidden="true" />
+          Download &quot;no action&quot; memo
+        </Button>
+      ) : null}
     </section>
   );
 }

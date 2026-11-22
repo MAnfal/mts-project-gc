@@ -27,6 +27,7 @@ const MUTED = "bg-status-neutral-surface text-status-neutral-fg font-normal";
  * the numbered source chips match the Sources panel. `followUp` renders in the composer slot under the report.
  * Edge states (design/HiStates.dc.html): nothing applies → EmptyReport; held-back items above the table, with "Add after
  * checking" when `onConfirm` is given; items the GC confirmed (view.checkedByYou) in the table, never tiered.
+ * `readOnly` (the reviewer's run report) drops the GC's own actions: draft emails and the no-action memo download.
  */
 export function ReportView({
   view,
@@ -35,6 +36,7 @@ export function ReportView({
   trace,
   followUp,
   onConfirm,
+  readOnly = false,
 }: {
   view: RunViewState;
   items: ActionItem[];
@@ -42,10 +44,11 @@ export function ReportView({
   trace: ReactNode;
   followUp?: ReactNode;
   onConfirm?: (documentNumber: string) => void;
+  readOnly?: boolean;
 }) {
   const ctx = { company, windowStart: view.windowStart ?? "", windowEnd: view.windowEnd ?? "" };
   const counts = reportCounts(view);
-  const emails = draftEmails(items, ctx);
+  const emails = readOnly ? [] : draftEmails(items, ctx);
   const worked = (
     <Collapsible>
       <CollapsibleTrigger className="group -ml-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground hover:bg-nav-hover">
@@ -59,7 +62,7 @@ export function ReportView({
     return (
       <div className="flex flex-col gap-[18px]">
         {worked}
-        <EmptyReport view={view} company={company} />
+        <EmptyReport view={view} company={company} memo={!readOnly} />
         {followUp}
       </div>
     );
@@ -106,14 +109,16 @@ export function ReportView({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        {emails.map((e) => (
-          <a key={e.email} href={e.href} className={cn(buttonVariants(), "no-underline hover:text-primary-foreground")}>
-            <Mail aria-hidden="true" />
-            Draft email to {e.name.split(/\s+/)[0]}
-          </a>
-        ))}
-      </div>
+      {emails.length ? (
+        <div className="flex flex-wrap gap-2">
+          {emails.map((e) => (
+            <a key={e.email} href={e.href} className={cn(buttonVariants(), "no-underline hover:text-primary-foreground")}>
+              <Mail aria-hidden="true" />
+              Draft email to {e.name.split(/\s+/)[0]}
+            </a>
+          ))}
+        </div>
+      ) : null}
 
       <NotRelevant view={view} />
 
