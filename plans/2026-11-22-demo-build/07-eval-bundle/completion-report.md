@@ -20,6 +20,9 @@ the dummy value `offline-no-model-calls` in every script that loads POC code.
 | `public/evals/**` | generated (745 files) | T006: committed in its own commit, `7b541e1`. |
 | `.claude/resources/project.md` | edited | T007: Layout (the four scripts, `public/evals/` tree, `src/lib/evals/`), four Conventions (generated bundle, the POC checkout, labelled numbers, browser loader), and one Convention Map row for `public/evals/**` and the eval scripts (gate: `bash scripts/verify-eval-bundle.sh`), so later rubrics pick up the verify gate. Stack and Commands untouched (parallel wave). |
 | `plans/2026-11-22-demo-build/07-eval-bundle/plan.md` | edited | Tasks ticked. |
+| `src/lib/evals/bundle-build.ts` | created (review 1) | Pure decisions of the index builder, taken out of the script so vitest can test them: `appendSkippedRuns`, `poolSetupRuns` (both throws), `pickBaselineSetup` (throw), `keepManifest`. No fs, no POC imports. |
+| `src/lib/evals/bundle-build.test.ts` | created (review 1) | 12 tests on synthetic inputs. |
+| `scripts/build-eval-index.mts`, `scripts/build-eval-bundle.sh` | edited (review 1) | The builder calls the pure functions. The build saves the current manifests, and `--previous-manifests` keeps each one whose only change is `exportedAt`. |
 
 **Commands line for the lead** (project.md → Commands, not applied by this chunk):
 
@@ -160,18 +163,35 @@ Generated from the shipped `index.json` by a script. `runs` is the denominator `
 | Live dates / tier / trace checks | 100% / 100% / 100% | 1.0 / 1.0 / 1.0 | yes |
 | Live cost per run | $0.20 | $0.1918 over 72 runs | **no**, see below |
 | Baseline recall / precision / dates / cost | 63% / 69% / 79% / $0.52 | 0.6333 / 0.6909 / 0.7895 / $0.5195 (36 runs, w0i + cb0) | yes |
-| "Relevance agrees across 3 runs" | 94.6% of keyed docs | not in index; `consistency` 0.9124 is a different measure | n/a — see below |
+| "Relevance agrees across 3 runs" (live) | 94.6% of keyed docs; 82.5% on real flags | not in index (not a `suiteReport` output); reproduced from the shipped runs + keys as 335/354 and 33/40 | reproduced — see below |
+| Same, previous live (`strict`) | 89.5% on real flags | same definition gives 36/40 = 90.0% | **not reproduced** — see below |
 | Previous live (`strict`), same two suites | recall 86.3%, precision 78.9% | `suites/*/report.json` (not in `live`); a probe with the POC's suiteReport gave 0.863 / 0.789 | yes |
 
 Differences, explained:
 
-- **Agreement (94.6%) vs `consistency` (0.9124).** `consistency` is `suiteReport`'s pass^k at the
-  largest k (`suite.ts`: `pass[pass.length - 1].value`), the share of cases right in every repeat.
-  The README's 94.6% is per-doc relevance agreement across repeats. No field of `suiteReport`'s
-  output computes it, and this chunk did not trace which POC script produced it (`grep -rln agree
-  scripts src/lib` on poc finds only `error-analysis.mts`, `panel.ts`, `trace-checks.ts` and
-  `pipeline/stages.ts`, none of which emits that figure under that name). The index doesn't carry
-  it, and no README figure was copied in.
+- **Relevance agreement (94.6%) is not an index number, and why.** It is not `consistency`.
+  `consistency` (0.9124) is `suiteReport`'s pass^k at the largest k (`suite.ts`:
+  `pass[pass.length - 1].value`, `grade.ts` `passK`): the chance a keyed case is graded *right* in
+  every repeat. The README's figure measures something else: whether the repeats *agree with each
+  other* on flagging a doc, right or wrong.
+  - **No committed POC code produces it.** It entered `poc/README.md` and
+    `data/iterations/06-passages/spec.yaml` as prose in commit `2f91080`. On poc,
+    `grep -rniE "keyed|flags.?only|94\.6|82\.5|agreement" scripts src/lib` finds no producer.
+    `grade.ts` only builds the `keyed` set, and `panel.ts` only has judge agreement.
+  - **The definition is reproduced exactly from the shipped bundle.** For each
+    (suite, company-week) of `jev-sonnet-strict-passages` in l92 + du8, take its finished repeats
+    (2 or 3). A keyed doc (key `relevant` plus `traps`) "agrees" when every repeat flagged it or
+    none did (flagged = in `run.items`). Pooling all 24 groups gives 335/354 = 94.6% of keyed docs
+    and 33/40 = 82.5% of real flags, matching both README figures. The scratch script read
+    `public/evals/suites/*/runs.jsonl.gz` and `public/evals/config/evalsets/keys/*`.
+  - **One figure does not reproduce.** The README's "89.5% with `strict`" comes out at 36/40 = 90.0%
+    under the same definition. Restricting to slots where both setups finished also gives 90.0%,
+    and pooling strict over all six suites it ran in gives 97/108 = 89.8%. 89.5% matches 17/19 or
+    34/38, but no pooling tried produced it.
+  - **Why the index doesn't carry it.** The plan computes every index number with the POC's own
+    `suiteReport`, which has no such output. Adding it means writing a new metric, and this chunk
+    doesn't define metrics. Chunk 08's scoreboard row for the RFC target "relevance agrees across 3
+    runs ≥ 90%" needs it, so the lead should decide whether 08 computes it with this definition.
 - **Cost per run: $0.1918 vs the README's $0.20.** `suiteReport`'s `costPerRun` divides the
   pooled cost by all 72 runs. The 3 failed runs spent money too, so they stay in the
   denominator. Dividing by the 69 finished runs gives 0.2001 (measured from the shipped
@@ -230,8 +250,9 @@ Every gate below was re-run after the last code edit; the type check ran last in
 | delete a user-view trace | 1 | `FAIL: user-view: missing …/user-view/traces/2026-11-21T19-22-35-745Z_pipeline_xzrc.jsonl.gz` |
 | drop one `relevant` doc from shipped key `skyhop_2026-11-02_2026-11-06` | 1 | `FAIL: config/ differs from poc/config`, then 6 `report.json` and `index.json` recompute failures (live recall → 0.892) |
 
-**Idempotency.** Built twice, then `diff -rq` between the two outputs: the only differences are the 9
-`suites/*/manifest.json`, all on `exportedAt` (e.g. `18:45:18.576Z` vs `18:46:32.597Z`).
+**Idempotency.** First build: building twice gave 9 `suites/*/manifest.json` differing only on
+`exportedAt` (e.g. `18:45:18.576Z` vs `18:46:32.597Z`). Fixed in review iteration 1 (see below): a
+rebuild now leaves `git status` clean.
 
 **No `poc/` path committed:** `git diff --cached --name-only | grep '^poc/' | wc -l` → 0 before
 the data commit; `git status --short | grep ' poc/'` was empty before every commit.
@@ -291,10 +312,11 @@ the data commit; `git status --short | grep ' poc/'` was empty before every comm
   4.9 MB (est. ~2), shared `config/` 3.0 MB (not in the estimate), iterations 0.97 MB, and
   per-suite `manifest`/`report`/`trace-checks` JSON 0.74 MB. That is 745 files, well under Vercel's
   15,000-file cap. It is above the 100 MB CLI cap, which the plan says doesn't apply to Git deploys.
-- **Superseded runs: 0.** `arenaRuns()` skipped no run file in any suite (every run's
-  `config.arena` matches its folder; none has a `Superseded` error). The append-with-`superseded`
-  path is implemented but **has not been exercised** against real data. Verify still guards the
-  outcome: run ids and count must equal poc's.
+- **Superseded runs: 0 in the real data.** `arenaRuns()` skipped no run file in any suite (every
+  run's `config.arena` matches its folder; none has a `Superseded` error). The append path is
+  tested with synthetic runs (`appendSkippedRuns`, review iteration 1). It was also run end to end
+  on a scratch copy of the bundle with one suite's `runs.jsonl.gz` emptied (see below). Verify
+  still guards the outcome: run ids and count must equal poc's.
 - **`export.mts`'s per-suite `user-view/` output is not used.** It contains only `status === "done"`
   runs (9 of 22). User-view is taken from `poc/data/user-view` directly.
 
@@ -306,11 +328,90 @@ the data commit; `git status --short | grep ' poc/'` was empty before every comm
   pages, where Design Decision 9 forbids internal names in network responses. Chunk 06 needs to
   read a projection, or the lead needs to decide; this chunk keeps the raw records.
 
-- `manifest.json`'s `exportedAt` makes 9 files churn on every rebuild. That is POC code, which must
-  run unmodified.
 - The loader doesn't sniff for an already-decompressed body. Locally, `.gz` is served without
   `Content-Encoding`, so the manual gunzip is right. If Vercel ever sets `Content-Encoding: gzip` on
   these files, the browser would decompress them first and the loader would throw "not valid gzip".
   This belongs in the deferred deploy check.
 - `<main>/.worktrees/poc-src` is left in place (detached at `poc`, clean) for the next rebuild. The
   main checkout's untracked `poc/` was not touched.
+
+## Review iteration 1 fixes
+
+`review-1.md` (committed with this fix) found 2 blocking issues and 1 warning. All gates were
+re-run on the merged tree (`6a5163a` + these changes) after the last code edit:
+`pnpm lint && pnpm test && pnpm build && pnpm typecheck` exit 0 (`Test Files 14 passed (14)`,
+`Tests 114 passed (114)` = 102 on the merged base + 12 new). `bash scripts/verify-eval-bundle.sh`
+gave `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)` and
+`index check: 10 generated files match`. The size gate gave `bundle MB: 111`.
+
+**1. Idempotence.** No POC code changed. `build-eval-bundle.sh` copies each
+`suites/*/manifest.json` aside before regenerating. `build-eval-index.mts --previous-manifests`
+then writes back the previous file whenever `keepManifest` finds `exportedAt` is the only
+difference (parsed JSON compared with that key removed; any other change, a missing file or
+unparsable JSON takes the new one). Before the fix, a rebuild changed 9 files (above). Output of a
+rebuild after the last code edit, captured to a file:
+
+```
+build exit 0
+superseded runs kept: 0
+manifest.json kept where only exportedAt changed: 9 of 9
+bundle: 745 files, 111 MB at /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/07-eval-bundle/public/evals
+git status --short -- public/evals | wc -l: 0
+```
+
+**2. Untested branches.** They are now pure functions in `src/lib/evals/bundle-build.ts`, called by
+the script, and tested from this repo's vitest with synthetic inputs. Red first: before the module
+existed, `Error: Cannot find module './bundle-build'`, `Tests no tests` (import red). Green: 12
+passed. Then each branch was deleted in turn (restored with `cp`, `cmp` clean); output verbatim:
+
+```
+=== DELETED BRANCH: superseded append (skipped runs dropped)
+     × appends a raw run export.mts skipped, flagged superseded, after the exported ones 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 11 passed (12)
+=== DELETED BRANCH: superseded flag
+     × appends a raw run export.mts skipped, flagged superseded, after the exported ones 7ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 11 passed (12)
+=== DELETED BRANCH: no runs of setup throw
+     × throws when the suites hold no run of the setup 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 11 passed (12)
+=== DELETED BRANCH: misses eval sets throw
+     × throws naming every eval set the pooled runs do not cover 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 11 passed (12)
+=== DELETED BRANCH: expected one baseline setup throw
+     × throws when there is none 5ms
+     × throws when there are several 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 10 passed (12)
+=== DELETED BRANCH: keep manifest when only exportedAt differs
+     × keeps the committed file when only exportedAt differs 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 11 passed (12)
+=== DELETED BRANCH: take new manifest when other fields differ
+     × takes the new file when any other field differs 6ms
+     × takes the new file when there is no previous one, or it does not parse 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 10 passed (12)
+```
+
+The superseded path was also run end to end on a scratch copy of the bundle. `arena-…-ly9`'s
+`runs.jsonl.gz` was replaced by an empty one, then `build-eval-index.mts --poc-data` ran. It
+appended the 1 raw run with `superseded: true`, and the index counted it (`runs 1, superseded 1`).
+The builder also flagged that suite's `report.json` as no longer reproducible: `suiteReport` grades
+only non-superseded runs, so a run export.mts skipped is kept but not re-graded. Output:
+
+```
+superseded runs kept: 1 {"arena-2026-11-21-18-40-w0i":0,"arena-2026-11-21-20-41-gip":0,"arena-2026-11-21-21-04-ly9":1,"arena-2026-11-21-21-23-64r":0,"arena-2026-11-21-21-45-cb0":0,"arena-2026-11-21-22-04-jq4":0,"arena-2026-11-21-22-48-27v":0,"arena-2026-11-21-22-52-l92":0,"arena-2026-11-21-23-16-du8":0}
+live jev-sonnet-strict-passages over arena-2026-11-21-22-52-l92 + arena-2026-11-21-23-16-du8: recall 0.8981481481481481 (69 graded of 72 runs)
+FAIL: suites/arena-2026-11-21-21-04-ly9/report.json differs from suiteReport() over the shipped runs
+after: 1 runs, superseded flags: [ true ]
+index suite arena-2026-11-21-21-04-ly9 runs 1 superseded 1
+```
+
+**Warning: README 94.6%.** It is traced and reproduced (335/354 keyed docs, 33/40 flags). The
+README's 89.5% for `strict` is not reproduced, and the agreement figure is not an index number
+(see "Live and baseline numbers vs the POC README").
+
