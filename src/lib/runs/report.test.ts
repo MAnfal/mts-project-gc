@@ -254,8 +254,9 @@ describe("a run with no items but something held back", () => {
   const held = [{ document_number: "2026-90001", title: "Card fee rule", reason: "r" }];
 
   it("heading leads with the held-back item instead of saying nothing affects the company", () => {
-    expect(reportHeading([], ctx, 0, 1)).toBe("1 item held back for you to check");
-    expect(reportHeading([], ctx, 0, 2)).toBe("2 items held back for you to check");
+    // Not the held-back block's own heading ("1 item held back for you to check"), which sits right under it.
+    expect(reportHeading([], ctx, 0, 1)).toBe("No verified items for Ledgerly Inc., 1 held back");
+    expect(reportHeading([], ctx, 0, 2)).toBe("No verified items for Ledgerly Inc., 2 held back");
     expect(reportHeading([item(1)], ctx, 0, 1)).toBe("1 rule for Marcus Lee, nothing Critical");
   });
 

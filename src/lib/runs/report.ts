@@ -45,7 +45,7 @@ interface Ctx {
  */
 export function reportHeading(items: ActionItem[], ctx: Ctx, checked = 0, held = 0): string {
   if (!items.length && checked) return `${checked} ${plural(checked, "item")} you added after checking ${checked === 1 ? "it" : "them"}`;
-  if (!items.length && held) return `${held} ${plural(held, "item")} held back for you to check`;
+  if (!items.length && held) return `No verified items for ${ctx.company}, ${held} held back`;
   if (!items.length) return `Nothing published ${formatWindow(ctx.windowStart, ctx.windowEnd, { year: false })} affects ${ctx.company}`;
   const types = new Set(items.map((i) => i.type));
   const noun = types.size === 1 ? DOC_NOUN[items[0].type] : "item";
