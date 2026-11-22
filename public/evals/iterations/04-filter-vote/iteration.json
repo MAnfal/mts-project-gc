@@ -1,0 +1,79 @@
+{
+  "id": "04-filter-vote",
+  "title": "Steadier filter: run the LLM filter 3 times and keep what the majority says",
+  "date": "2026-11-22",
+  "suite": "arena-2026-11-21-21-23-64r",
+  "setup": "jev-sonnet-strict-vote3",
+  "comparedTo": "jev-sonnet-strict",
+  "hypothesis": "The same strict setup scored 93% test recall in one suite and 60% in the next, so its answers drift. Dev-only evidence (36 dev runs of the Sonnet Jev setups across both suites): all 13 final-decision flips happened at the LLM filter, all of them between repeats of the same suite; Jev scores jitter (54 docs straddle the 0.1 cut-off) but never changed a final answer. A 3-pass majority vote on the LLM filter should cut those flips, raising consistency, with recall and precision at least as good on dev.",
+  "change": "New setup jev-sonnet-strict-vote3 = jev-sonnet-strict + filterVotes 3 (config/setups.yaml). Same model, prompt set, Jev cut-off and everything else.",
+  "codeChanges": "New setup knob filterVotes (odd, default 1). The LLM filter runs that many full passes in parallel and combineFilterPasses keeps a doc only with a strict majority of all passes (a pass that didn't answer abstains; reuses grade.ts majority()). Each decision records its votes. One pass is unchanged, so existing setups behave as before. Tests: tests/filter-vote.test.ts.",
+  "evalChanges": "Two more frozen weeks: 2026-10-26..30 (dev) and 2026-10-19..23 (test), 3 companies each, keys drafted blind by two agents (Opus + Sonnet) and reconciled by a third, as of each week's last day, with gist-level date-free rubrics. Splits were fixed before any system ran on them.",
+  "decision": "Rejected; live setup stays jev-sonnet-strict (the filterVotes knob stays in code, default 1). Rule: beat the winner on dev AND hold on test. Dev: recall tied 30/33, trap hits 5 -> 2, precision 65.2% -> 68.2%, filter flips between repeats 5 -> 1. Test does not hold: precision 73.3% -> 65.7% (trap hits 8 -> 12), and repeat agreement on test did not improve (flagged docs identical across all 3 repeats: 62% -> 64%; dev 72% -> 93%). Suite consistency metric 0.938 -> 0.944. Cost per run 2.2x ($0.126 -> $0.280). Judge pass 0.88 -> 0.82.",
+  "notes": "Eval set grew from 6 to 12 company-weeks in this suite, so numbers are not comparable with 00-03 without the split. Old 6 weeks: strict dev 27/27 recall, 87.1% precision; test 12/15, 75.0%. vote3 dev 27/27, 93.1%; test 13/15, 65.0%. New 6 weeks: strict dev 3/6, 20.0% precision (1 trap hit, 11 extras); test 10/12, 71.4%. vote3 dev 3/6, 20.0% (0 trap hits, 12 extras); test 10/12, 66.7%. The new dev week's low precision is extras: 9 of 11 (strict) and 9 of 12 (vote3) are docs the key reconcilers dropped as genuinely 50/50 (22176, 22121, 22122), which the grader still counts as false alarms; a grader fix is proposed separately and was not applied here. The strict setup's old-week test recall was 14/15, 9/15 and now 12/15 across three suites: drift between suites persists. The \"flagged docs identical across 3 repeats\" figure is a dev diagnostic built after results came in; the suite's consistency metric is the pre-registered one. Baseline on the new weeks ran in a separate suite (arena-2026-11-21-21-45-cb0, dev recall 1/6, test 7/12), so baseline comparisons across all 12 weeks are cross-suite. Known pipeline bug found during this iteration, affecting both setups equally: govinfo text with a literal \"<\" loses text up to the next \">\" (src/lib/fr.ts tag strip); queued as iteration 05.",
+  "process": "This change was chosen from consistency numbers alone; no error analysis (incl. judge feedback) was run before it. That gap is why the evidence gate now exists (scripts/iteration.mts + evidenceProblems): from iteration 05 on, an iteration can't be recorded without a dev-only error analysis of the previous suite and targets naming its failures.",
+  "regradedSubset": "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50). Decision unchanged: dev precision is now 85.7% (strict) vs 93.8% (vote3), test still 73.3% vs 65.7% (test had no extras, so subset grading doesn't move it); the vote still fails 'holds on test'.",
+  "amended": "2026-11-22, after iteration 05 measured an A/A noise band on the unchanged control (test recall swings 3 cases, test trap hits 4 between two identical suites): the test-leg drop here (8 -> 12 trap hits) is inside that band, so the honest verdict is \"not kept on cost (2.2x per run); test result inconclusive\", not \"fails on test\".",
+  "results": {
+    "candidate": {
+      "setup": "jev-sonnet-strict-vote3",
+      "label": "Sonnet · Jev filter · strict prompt · 3-pass vote",
+      "runs": 36,
+      "recall": 0.883,
+      "precision": 0.791,
+      "trapAvoidance": 0.97,
+      "datesRight": 1,
+      "judgePass": 0.818,
+      "consistency": 0.944,
+      "score": 0.929,
+      "perRun": {
+        "tp": 1.47,
+        "fn": 0.19,
+        "trapHit": 0.39,
+        "tn": 12.69,
+        "unlabeled": 0.33
+      },
+      "devCasesRight": "262/267",
+      "testCasesRight": "248/264",
+      "costPerRunUsd": 0.28,
+      "secondsPerRun": 56
+    },
+    "comparedTo": {
+      "setup": "jev-sonnet-strict",
+      "label": "Sonnet · Jev filter · strict prompt",
+      "runs": 36,
+      "recall": 0.867,
+      "precision": 0.8,
+      "trapAvoidance": 0.972,
+      "datesRight": 1,
+      "judgePass": 0.88,
+      "consistency": 0.938,
+      "score": 0.932,
+      "perRun": {
+        "tp": 1.44,
+        "fn": 0.22,
+        "trapHit": 0.36,
+        "tn": 12.72,
+        "unlabeled": 0.31
+      },
+      "devCasesRight": "259/267",
+      "testCasesRight": "251/264",
+      "costPerRunUsd": 0.126,
+      "secondsPerRun": 34
+    }
+  },
+  "code": {
+    "commit": "d714f36",
+    "uncommittedSrcChanges": 1
+  },
+  "systemChanges": [
+    "filterVotes"
+  ],
+  "configChangesSincePrevious": {
+    "previous": "03-strict-v2",
+    "files": []
+  },
+  "configHashAtRecord": "e238bb82b4",
+  "recordedAt": "2026-11-21T22:23:22.216Z",
+  "evidenceOnly": false
+}
