@@ -72,10 +72,18 @@ function minimalIndex() {
     noiseBand: null,
     evalSet: { companies: 3, weeks: { dev: 2, test: 2 }, evalsets: 12, relevant: 20, traps: 157 },
     counts: { suites: 1, runs: 72, traces: 72, userViewRuns: 22, iterations: 1 },
+    priceParity: { checkedOn: "2026-11-21", source: "config/setups.yaml comment" },
   };
 }
 
 describe("EvalIndexSchema", () => {
+  it("rejects a price-parity date that is not YYYY-MM-DD, and an index without one", () => {
+    expect(EvalIndexSchema.safeParse({ ...minimalIndex(), priceParity: { checkedOn: "21 Nov", source: "config/setups.yaml comment" } }).success).toBe(false);
+    const { priceParity: _p, ...without } = minimalIndex();
+    void _p;
+    expect(EvalIndexSchema.safeParse(without).success).toBe(false);
+  });
+
   it("accepts a minimal valid index and returns the labelled live number", () => {
     const parsed: EvalIndex = EvalIndexSchema.parse(minimalIndex());
     expect(parsed.live.recall.all).toEqual({ value: 0.9, split: "all", runs: 69, suite: [SUITE] });
@@ -193,6 +201,10 @@ describe("the shipped public/evals bundle", () => {
     expect(idx.noiseBand?.setup).toBe("jev-sonnet-strict");
     expect(idx.noiseBand?.suites).toEqual(["arena-2026-11-21-22-52-l92", "arena-2026-11-21-23-16-du8"]);
     expect(idx.evalSet).toEqual({ companies: 3, weeks: { dev: 2, test: 2 }, evalsets: 12, relevant: 20, traps: 157 });
+  });
+
+  it("index.json carries the price-parity check date read from config/setups.yaml's comment", () => {
+    expect(EvalIndexSchema.parse(readJson("index.json")).priceParity).toEqual({ checkedOn: "2026-11-21", source: "config/setups.yaml comment" });
   });
 
   it("user-view/index.json validates and keeps the failed runs", () => {

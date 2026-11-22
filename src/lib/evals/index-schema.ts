@@ -205,6 +205,8 @@ export const EvalIndexSchema = z.object({
     userViewRuns: z.number().int().nonnegative(),
     iterations: z.number().int().nonnegative(),
   }),
+  /** When the arena's models were checked to cost the same per token: read from config/setups.yaml's comment (bundle-build.ts → priceParity). */
+  priceParity: z.object({ checkedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), source: z.literal("config/setups.yaml comment") }).strict(),
 });
 export type EvalIndex = z.infer<typeof EvalIndexSchema>;
 export type IterationSummary = EvalIndex["iterations"][number];

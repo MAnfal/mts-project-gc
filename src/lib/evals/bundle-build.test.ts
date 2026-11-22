@@ -9,6 +9,7 @@ import {
   noiseBand,
   pickBaselineSetup,
   poolSetupRuns,
+  priceParity,
   repeatAgreement,
   requireKeys,
   runCountsOf,
@@ -16,6 +17,8 @@ import {
   splitOfEvalset,
   type SetupReport,
 } from "./bundle-build";
+import fs from "node:fs";
+import path from "node:path";
 import { METRICS, RunsIndexSchema } from "./index-schema";
 
 // Synthetic inputs in the shapes scripts/build-eval-index.mts passes: run records from runs.jsonl.gz /
@@ -332,5 +335,33 @@ describe("RunsIndexSchema", () => {
   it("rejects an unknown status and an extra field", () => {
     expect(() => RunsIndexSchema.parse([{ ...row, status: "lost" }])).toThrow();
     expect(() => RunsIndexSchema.parse([{ ...row, items: [] }])).toThrow();
+  });
+});
+
+describe("priceParity (the date the arena config records for its price-parity check)", () => {
+  const shipped = () => fs.readFileSync(path.resolve(import.meta.dirname, "../../../public/evals/config/setups.yaml"), "utf8");
+
+  it("reads the checked date from the shipped config/setups.yaml comment", () => {
+    expect(priceParity(shipped())).toEqual({ checkedOn: "2026-11-21", source: "config/setups.yaml comment" });
+  });
+
+  it("throws when no comment records a price-parity check", () => {
+    const without = shipped().split("\n").filter((l) => !/price parity/i.test(l)).join("\n");
+    expect(() => priceParity(without)).toThrow("config/setups.yaml has no comment recording a price-parity check date");
+  });
+
+  it("throws when the price-parity comment carries no date", () => {
+    expect(() => priceParity("# Models: one flagship per vendor at price parity.\nmodels: []\n")).toThrow(
+      "config/setups.yaml has no comment recording a price-parity check date",
+    );
+  });
+
+  it("reads comments only: a value line naming price parity does not count", () => {
+    expect(() => priceParity('note: "price parity, checked 2026-01-01"\n')).toThrow("no comment recording a price-parity check date");
+  });
+
+  it("throws when comments record two different check dates (which one would the page show?)", () => {
+    const two = "# price parity, checked 2026-11-21\n# price parity re-checked 2026-12-01\n";
+    expect(() => priceParity(two)).toThrow("config/setups.yaml records more than one price-parity check date: 2026-11-21, 2026-12-01");
   });
 });
