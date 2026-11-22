@@ -13,20 +13,17 @@
 // model and no network.
 import fs from "node:fs";
 import path from "node:path";
-import { exampleIndex, projectRecordedRun } from "../src/lib/pipeline/recorded";
+import { exampleIndex, projectExamples } from "../src/lib/pipeline/recorded";
 
 const ROOT = process.cwd();
 const USER_VIEW = path.join(ROOT, "public/evals/user-view");
 const OUT = path.join(ROOT, "public/examples");
 
 const listing = JSON.parse(fs.readFileSync(path.join(USER_VIEW, "runs-index.json"), "utf8")) as { runId: string; status: string }[];
-const done = listing.filter((r) => r.status === "done");
-if (!done.length) throw new Error(`No finished example run in ${USER_VIEW}/runs-index.json`);
-
-const examples = done.map((r) => projectRecordedRun(JSON.parse(fs.readFileSync(path.join(USER_VIEW, "runs", `${r.runId}.json`), "utf8"))));
+const examples = projectExamples(listing, (runId) => JSON.parse(fs.readFileSync(path.join(USER_VIEW, "runs", `${runId}.json`), "utf8")));
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 for (const ex of examples) fs.writeFileSync(path.join(OUT, `${ex.id}.json`), `${JSON.stringify(ex, null, 2)}\n`);
 fs.writeFileSync(path.join(OUT, "index.json"), `${JSON.stringify(exampleIndex(examples), null, 2)}\n`);
-console.log(`public/examples: ${examples.length} examples of ${listing.length} recorded runs (${listing.length - done.length} failed, not listed)`);
+console.log(`public/examples: ${examples.length} examples of ${listing.length} recorded runs (${listing.length - examples.length} failed, not listed)`);

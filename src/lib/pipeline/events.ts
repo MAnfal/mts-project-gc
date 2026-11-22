@@ -61,13 +61,17 @@ export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry star
 // Inside an ordinary word it is let through, so a document about Sarajevo or the Jevons paradox still is.
 const INTERNAL = [/(?:\b[jJ]|(?<=[a-z])J)ev(?![a-z])/, /\bJEV\b/, /typesafe-ai/i, /\bclaude-/i, /\banthropic\//i, /\bopenai\//i, /\bgoogle\//i, /\bmoonshotai\//i];
 
+/** Throws if `text` names an internal component, its model, or a model vendor; `where` names it in the message. */
+export function assertPublicText(text: string, where: string): void {
+  for (const re of INTERNAL) {
+    const m = text.match(re);
+    if (m) throw new Error(`Internal name "${m[0]}" in ${where}`);
+  }
+}
+
 /** Throws if the serialized event names an internal component, its model, or a model vendor. */
 export function assertPublic(event: RunEvent): void {
-  const s = JSON.stringify(event);
-  for (const re of INTERNAL) {
-    const m = s.match(re);
-    if (m) throw new Error(`Internal name "${m[0]}" in public event ${event.type}`);
-  }
+  assertPublicText(JSON.stringify(event), `public event ${event.type}`);
 }
 
 /** Documents the LLM filter rejected, most relevant first (by the relevance score, which is not passed on). */

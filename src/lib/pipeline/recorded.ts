@@ -3,7 +3,7 @@ import { CompanySchema, frozenWeek, presets } from "../config";
 import { recordedView } from "../runs/recorded-view";
 import type { ExampleRun, ExampleSummary } from "../runs/types";
 import type { CompanyProfile, FilterDecision } from "../types";
-import { assertPublic, screenedOut, stepOf, type RunEvent } from "./events";
+import { assertPublic, assertPublicText, screenedOut, stepOf, type RunEvent } from "./events";
 import { NEUTRAL_REASON } from "./stages";
 
 // Projects a recorded example run (public/evals/user-view/runs/<id>.json, a POC RunRecord) into the public events a
@@ -70,7 +70,19 @@ export function projectRecordedRun(raw: unknown): ExampleRun {
     },
   ];
   events.forEach(assertPublic);
+  // The profile ships in the same public file: a custom one comes straight from the POC record.
+  assertPublicText(JSON.stringify(profile), `example ${v.id}`);
   return { id: v.id, company: v.company, windowStart: v.windowStart, windowEnd: v.windowEnd, items: v.items.length, profile, events };
+}
+
+/**
+ * Every finished run of a listing (user-view/runs-index.json rows), projected; failed runs are not examples. Throws
+ * when none finished, rather than leaving the GC an empty Examples list. `read` returns one run record by id.
+ */
+export function projectExamples(listing: { runId: string; status: string }[], read: (runId: string) => unknown): ExampleRun[] {
+  const done = listing.filter((r) => r.status === "done");
+  if (!done.length) throw new Error("No finished example run in the listing");
+  return done.map((r) => projectRecordedRun(read(r.runId)));
 }
 
 /** public/examples/index.json: newest first by id (ids start with the run's timestamp), listing fields only. */

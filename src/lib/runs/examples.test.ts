@@ -57,6 +57,11 @@ describe("loadExample", () => {
     await expect(loadExample("x", f)).rejects.toThrow("Example x is not an example run file");
   });
 
+  it("throws naming the index when it can't be loaded", async () => {
+    const f = (async () => new Response("gone", { status: 503 })) as unknown as typeof fetch;
+    await expect(loadExampleIndex(f)).rejects.toThrow("/examples/index.json could not be loaded (503)");
+  });
+
   it("throws when the index is not a list", async () => {
     const f = (async () => new Response(JSON.stringify({}), { status: 200 })) as unknown as typeof fetch;
     await expect(loadExampleIndex(f)).rejects.toThrow("/examples/index.json is not a list of examples");

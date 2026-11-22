@@ -13,7 +13,7 @@ export PORT="${PORT:-3601}"
 
 # Internal names that must never reach a GC page or a file it fetches: component and stage ids, model ids and vendors,
 # and the run record's internal fields (as JSON keys: the bare words "cell" and "model" occur in rule titles).
-INTERNAL='jev|typesafe|claude-|anthropic/|openai/|moonshotai/|filter:(llm|passages)|verify\+tier|output:actions|scan:federal|configHash|costUsd|STEP_LABELS|"(cell|setup|model|prompt|calls|decisions)"'
+INTERNAL='jev|typesafe|claude-|anthropic/|openai/|google/|moonshotai/|filter:(llm|passages)|verify\+tier|output:actions|scan:federal|configHash|costUsd|STEP_LABELS|"(cell|setup|model|prompt|calls|decisions)"'
 
 # Gate 2: no internal name in GC-facing code. Fails when a listed directory is missing, so it can't pass by reading nothing.
 gate_gc_code() {

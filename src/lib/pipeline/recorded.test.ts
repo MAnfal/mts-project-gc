@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { shippedJson } from "../evals/__fixtures__/shipped";
 import { reduceEvents } from "../runs/reduce";
 import { assertPublic, type RunEvent } from "./events";
-import { exampleIndex, projectRecordedRun } from "./recorded";
+import { exampleIndex, projectExamples, projectRecordedRun } from "./recorded";
 import { NEUTRAL_REASON } from "./stages";
 
 // Real example runs from the shipped bundle (public/evals/user-view/runs). No shipped record carries the POC's
@@ -150,5 +150,33 @@ describe("exampleIndex", () => {
       { id: b.id, company: "SmileBright Dental", windowStart: "2026-11-09", windowEnd: "2026-11-13", items: 0 },
       { id: a.id, company: "Ledgerly Inc.", windowStart: "2026-11-02", windowEnd: "2026-11-06", items: 3 },
     ]);
+  });
+});
+
+describe("projectRecordedRun: the whole example file is public, profile included", () => {
+  it("refuses a custom profile that names an internal model (constructed from the real l14a record)", () => {
+    const rec = record("l14a") as Rec & { config: { customProfile: Record<string, unknown> } };
+    const bad = { ...rec, config: { ...rec.config, customProfile: { ...rec.config.customProfile, summary: "We resell google/gemini seats." } } };
+    expect(() => projectRecordedRun(bad)).toThrow(`Internal name "google/" in example ${rec.id}`);
+  });
+
+  it("refuses a custom profile that isn't a company profile (constructed)", () => {
+    const rec = record("l14a") as Rec & { config: { customProfile: Record<string, unknown> } };
+    const bad = { ...rec, config: { ...rec.config, customProfile: { ...rec.config.customProfile, areas: "everything" } } };
+    expect(() => projectRecordedRun(bad)).toThrow(/areas/);
+  });
+});
+
+describe("projectExamples", () => {
+  const listing = () => ids();
+  const read = (id: string) => shippedJson(`user-view/runs/${id}.json`);
+
+  it("projects every finished run in the listing and skips failed ones", () => {
+    const out = projectExamples(listing(), read);
+    expect(out.map((e) => e.id).sort()).toEqual(listing().filter((r) => r.status === "done").map((r) => r.runId).sort());
+  });
+
+  it("refuses a listing with no finished run, rather than writing an empty Examples list", () => {
+    expect(() => projectExamples(listing().filter((r) => r.status !== "done"), read)).toThrow("No finished example run in the listing");
   });
 });
