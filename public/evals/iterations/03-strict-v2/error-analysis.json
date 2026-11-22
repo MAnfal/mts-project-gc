@@ -1,0 +1,403 @@
+{
+  "suite": "arena-2026-11-21-18-40-w0i",
+  "setup": "jev-sonnet-strict",
+  "split": "dev",
+  "excludedTestRuns": 9,
+  "runs": 9,
+  "generatedAt": "2026-11-21T20:05:04.878Z",
+  "totals": {
+    "failures": 11,
+    "distinct": 10
+  },
+  "bySignal": {
+    "relevance": 3,
+    "fact": 2,
+    "trace": 0,
+    "judge": 6
+  },
+  "buckets": [
+    [
+      "eval-unfair:judge-penalises-omitted-date",
+      4
+    ],
+    [
+      "no-headline-date",
+      2
+    ],
+    [
+      "llm-filter-rejected-a-real-rule",
+      2
+    ],
+    [
+      "trap:other-industry",
+      1
+    ],
+    [
+      "judge:clear",
+      1
+    ],
+    [
+      "judge:covers",
+      1
+    ]
+  ],
+  "rows": [
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 2,
+      "signal": "fact",
+      "kind": "date-wrong",
+      "doc": "2026-22842",
+      "bucket": "no-headline-date",
+      "detail": {
+        "expected": {
+          "date": "2026-11-10",
+          "kind": "effective",
+          "quote": "This final order is effective November 10, 2026."
+        },
+        "shown": null,
+        "allFound": [
+          "effective 2026-11-10"
+        ],
+        "docType": "Notice",
+        "tier": "Low"
+      },
+      "times": 2
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 1,
+      "signal": "relevance",
+      "kind": "fell-for-trap",
+      "doc": "2026-22743",
+      "bucket": "trap:other-industry",
+      "detail": {
+        "trapReason": "Physician fee schedule and Part B rule; its Part D changes cover beneficiary citizenship eligibility and 340B data submission by covered entities, not retail pharmacy duties.",
+        "jevP": 0.43,
+        "llmReason": "CY2027 PFS/Part B final rule includes Medicare Prescription Drug Inflation Rebate Program and Part B drug payment updates affecting what CornerCare is paid and how it is reimbursed for Medicare drugs."
+      },
+      "times": 1
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "relevance",
+      "kind": "missed",
+      "doc": "2026-22842",
+      "bucket": "llm-filter-rejected-a-real-rule",
+      "detail": {
+        "keyReason": "DEA raised the 2026 manufacturing limits for amphetamine, methylphenidate and hydromorphone under its drug-shortage quota process, which should ease supply of ADHD medicines and a painkiller the pharmacies dispense; nothing is required of the stores.",
+        "kind": "indirect",
+        "jevP": 0.74,
+        "llmReason": "DEA adjusts the 2026 production quota for manufacturers; it sets no pharmacy dispensing duty, though it may affect supply of ADHD drugs and hydromorphone."
+      },
+      "times": 1
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "relevance",
+      "kind": "missed",
+      "doc": "2026-22843",
+      "bucket": "llm-filter-rejected-a-real-rule",
+      "detail": {
+        "keyReason": "DEA proposes 2027 manufacturing limits that cut opioid supply (oxycodone, hydrocodone, hydromorphone, fentanyl, oxymorphone) and raise ADHD stimulant supply, plus annual needs for pseudoephedrine-type cold-medicine ingredients, which shapes what CornerCare can stock; comments are due December 10, 2026.",
+        "kind": "indirect",
+        "jevP": 0.88,
+        "llmReason": "Proposed 2027 DEA production quotas and list I chemical needs are manufacturer-facing; no direct pharmacy obligation, only a comment opportunity."
+      },
+      "times": 1
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "clear:FAIL",
+      "doc": "2026-22792",
+      "bucket": "judge:clear",
+      "detail": {
+        "action": "Review the new Medicare drug price negotiation and Part D rules with your team and update how pharmacies bill and get reimbursed for Medicare prescriptions.",
+        "rubric": {
+          "mustMention": [
+            "Part D payment for selected drugs capped at the maximum fair price plus dispensing fees",
+            "negotiated price definition includes sales tax and vaccine administration fees",
+            "applies to Part D coverage beginning January 1, 2029"
+          ],
+          "mustNotClaim": [
+            "pharmacies must comply or the cap first applies by December 5, 2026",
+            "the rule sets pharmacy dispensing fees or new store dispensing duties"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "PASS",
+            "why": "Plain English with a concrete step: update Medicare billing and reimbursement processes, though somewhat broad."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The wording is plain, but reviewing the rules and updating billing and reimbursement are two separate next steps."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "While written in plain English, telling the owner to review the rules and broadly update billing/reimbursement punts the analysis to a non-lawyer rather than naming one concrete next step."
+          }
+        ]
+      },
+      "times": 1
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "covers:FAIL",
+      "doc": "2026-22792",
+      "bucket": "eval-unfair:judge-penalises-omitted-date",
+      "detail": {
+        "action": "Review the new Medicare drug price negotiation and Part D rules with your team and update how pharmacies bill and get reimbursed for Medicare prescriptions.",
+        "rubric": {
+          "mustMention": [
+            "Part D payment for selected drugs capped at the maximum fair price plus dispensing fees",
+            "negotiated price definition includes sales tax and vaccine administration fees",
+            "applies to Part D coverage beginning January 1, 2029"
+          ],
+          "mustNotClaim": [
+            "pharmacies must comply or the cap first applies by December 5, 2026",
+            "the rule sets pharmacy dispensing fees or new store dispensing duties"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "FAIL",
+            "why": "Omits the maximum-fair-price-plus-dispensing-fee cap, the sales tax and vaccine fee definition, and the January 1, 2029 applicability."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The card omits the payment cap at the maximum fair price plus dispensing fees, the inclusion of sales tax and vaccine administration fees in the negotiated price, and the January 1, 2029 applicability date."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "Omits all three required points: the maximum fair price plus dispensing fee cap, inclusion of sales tax and vaccine administration fees in negotiated price, and the January 1, 2029 start date."
+          }
+        ]
+      },
+      "times": 1
+    },
+    {
+      "evalset": "cornercare_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "covers:FAIL",
+      "doc": "2026-23075",
+      "bucket": "eval-unfair:judge-penalises-omitted-date",
+      "detail": {
+        "action": "Update pharmacy procedures so oveporexton (Orzeyful) is stored, recorded and dispensed as a Schedule IV controlled substance, and decide whether to submit comments.",
+        "rubric": {
+          "mustMention": [
+            "oveporexton (Orzeyful) placed in Schedule IV",
+            "stores that stock or fill it must follow Schedule IV inventory, recordkeeping, security and prescription rules",
+            "effective November 12, 2026 as an interim final rule; comments and hearing requests due December 14, 2026"
+          ],
+          "mustNotClaim": [
+            "oveporexton is placed in Schedule II",
+            "the scheduling is only proposed or takes effect only after the comment period"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "FAIL",
+            "why": "Covers Schedule IV placement, store controls and the Dec 14 comment date, but omits the November 12, 2026 effective date, the interim final status, and hearing requests."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The card identifies the Schedule IV placement and shows the comment deadline, but does not clearly cover inventory and prescription controls or mention the interim final rule status, November 12 effective date, or hearing requests."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "Omits that this is an interim final rule taking effect November 12, 2026 (only the December 14, 2026 comment deadline is shown) and misses hearing requests and explicit inventory rules."
+          }
+        ]
+      },
+      "times": 1
+    },
+    {
+      "evalset": "brightside_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "covers:FAIL",
+      "doc": "2026-22826",
+      "bucket": "judge:covers",
+      "detail": {
+        "action": "Review the proposed pecan marketing order changes with our pecan shellers and submit comments on any new handler duties, late fees or membership shifts that could raise costs.",
+        "rubric": {
+          "mustMention": [
+            "pecan marketing order (American Pecan Council)",
+            "late fees and interest on unpaid handler assessments",
+            "comments due December 9, 2026"
+          ],
+          "mustNotClaim": [
+            "the rule is final",
+            "changes pecan grade, size, quality, price or quantity limits"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "PASS",
+            "why": "Names the pecan marketing order and late fees, and the Dec 9, 2026 comment date appears in deadlineShown."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The card shows the December 9 comment deadline and mentions late fees, but omits interest and does not say the fees apply to unpaid handler assessments."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "Mentions late fees generally but omits interest on unpaid handler assessments and the American Pecan Council."
+          }
+        ]
+      },
+      "times": 1
+    },
+    {
+      "evalset": "brightside_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "covers:FAIL",
+      "doc": "2026-22866",
+      "bucket": "eval-unfair:judge-penalises-omitted-date",
+      "detail": {
+        "action": "Ask our color suppliers whether annatto, paprika or turmeric colors in our gummies and sausages use the solvents being removed, and comment if reformulation would hurt supply.",
+        "rubric": {
+          "mustMention": [
+            "solvents removed for annatto extract, paprika oleoresin and turmeric oleoresin",
+            "effective January 11, 2027",
+            "confirm color suppliers' extraction methods"
+          ],
+          "mustNotClaim": [
+            "annatto, paprika or turmeric colors themselves are banned",
+            "FDA found the colors themselves cause cancer"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "FAIL",
+            "why": "The January 11, 2027 effective date is missing; deadlineShown carries only the Dec 10 comment date."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The action asks suppliers about solvent use, but the card shows a December 10 comment deadline rather than the January 11, 2027 effective date."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "Misses the January 11, 2027 effective date, which appears neither in the action nor in deadlineShown."
+          }
+        ]
+      },
+      "times": 1
+    },
+    {
+      "evalset": "brightside_2026-11-09_2026-11-13",
+      "repeat": 0,
+      "signal": "judge",
+      "kind": "covers:FAIL",
+      "doc": "2026-22944",
+      "bucket": "eval-unfair:judge-penalises-omitted-date",
+      "detail": {
+        "action": "Model how stricter food stamp work requirements could reduce shopper spending at our key retail accounts, and decide whether to file comments describing the impact on sales.",
+        "rubric": {
+          "mustMention": [
+            "SNAP work requirements / time limit for able-bodied adults",
+            "comments due December 10, 2026",
+            "possible lower SNAP demand"
+          ],
+          "mustNotClaim": [
+            "it restricts which foods SNAP can buy",
+            "the rule is final"
+          ]
+        },
+        "reasons": [
+          {
+            "judge": "anthropic/claude-opus-5.5",
+            "vote": "PASS",
+            "why": "Mentions work requirements and lower demand, and the Dec 10, 2026 comment date is in deadlineShown."
+          },
+          {
+            "judge": "openai/gpt-6.2-sol",
+            "vote": "FAIL",
+            "why": "The card conveys possible lower SNAP demand and shows the December 10 comment deadline, but does not identify able-bodied adults as the group affected."
+          },
+          {
+            "judge": "google/gemini-4-carbon",
+            "vote": "FAIL",
+            "why": "Mentions food stamp work requirements, lower spending, and the comment date, but omits that the rule specifically targets able-bodied adults."
+          }
+        ]
+      },
+      "times": 1
+    }
+  ],
+  "llm": {
+    "model": "anthropic/claude-opus-5.5",
+    "costUsd": 0.080356,
+    "rootCauses": [
+      {
+        "cause": "Date display shows at most one verified date, and none for some doc types. The effective date gets dropped when a comment deadline exists (23075 Nov 12 IFR effective, 22866 Jan 11 2027 effective), and nothing is shown for a Low-tier Notice even though the extractor found the effective date (22842). Judges correctly see the date missing from the whole card. So this is not really judge unfairness: actions omit dates by design, but deadlineShown should carry them.",
+        "whose": "system",
+        "failures": 4,
+        "examples": [
+          "2026-22842",
+          "2026-23075",
+          "2026-22866"
+        ],
+        "proposedChange": "Change the date-display step to show every verified date with its kind label (e.g. 'Effective 2026-11-12; comments due 2026-12-14') instead of picking a single headline date. Apply this to all doc types and tiers, including Notice/Low, whenever allFound has a verified quote. The verified date is already found, so this only changes what gets rendered. It also gives judges what the rubric's date items ask for.",
+        "risk": "Cards get busier, and owners may confuse an effective date with an action deadline. Extracting more dates also raises exposure to a wrong date being shown. Keep the verified-quote requirement so no unverified dates appear."
+      },
+      {
+        "cause": "LLM relevance filter is miscalibrated on indirect impacts under the 'strict' prompt. It rejects manufacturer-facing DEA quota rules that change supply of drugs the pharmacies dispense, because there is no store duty (22842, 22843). It also accepts a physician fee schedule / Part B rule on vague reimbursement grounds (22743, a trap with low jevP 0.43). The exclusion list keys on 'who has the duty' rather than 'does it change what this business stocks, sells or is paid'.",
+        "whose": "system",
+        "failures": 3,
+        "examples": [
+          "2026-22842",
+          "2026-22843",
+          "2026-22743"
+        ],
+        "proposedChange": "Add two explicit lines to the strict prompt set. The inclusion line: 'Include rules that change supply or availability of products the business stocks or sells, e.g. DEA production quotas or assessments of annual needs, even if no duty falls on the business.' The exclusion line: 'Exclude Medicare physician/Part B payment rules unless they change pharmacy reimbursement or Part D pharmacy duties.' This keeps strictness while covering the indirect class the key expects.",
+        "risk": "Broadening to supply effects may admit other manufacturer-facing rules (e.g. generic production notices) and raise false positives. The Part B exclusion could drop a genuinely relevant Part B pharmacy rule. Watch precision on trap docs and recall on Medicare items."
+      },
+      {
+        "cause": "Action text for a complex rule is generic ('review the rules with your team and update billing'). It names none of the mechanisms: the MFP-plus-dispensing-fee cap, the negotiated-price definition, and the 2029 applicability. It also bundles two steps into one action, so it fails both clarity and coverage. This was mis-bucketed as a date-penalty issue, but judges flagged the substantive omissions.",
+        "whose": "system",
+        "failures": 2,
+        "examples": [
+          "2026-22792"
+        ],
+        "proposedChange": "Add a constraint to the action-writing prompt: 'Name the specific change (what is capped/required/removed and for whom) and give exactly one concrete next step; do not use review-and-update phrasing.' Generic actions would then become rule-specific.",
+        "risk": "Longer actions, plus a higher chance the model states a specific mechanism inaccurately or drifts into mustNotClaim territory (e.g. implying the rule sets dispensing fees). It could also hurt readability for simple rules."
+      },
+      {
+        "cause": "Coverage rubric items are granular enough that a one-sentence owner action cannot satisfy them, and judges apply them literally. They fail actions that convey the gist but omit a sub-detail: 'able-bodied adults' (22944), 'interest' and 'American Pecan Council' (22826). The dates were shown in both cases, and the split votes indicate borderline items.",
+        "whose": "eval",
+        "failures": 2,
+        "examples": [
+          "2026-22944",
+          "2026-22826"
+        ],
+        "proposedChange": "Review the key and rewrite mustMention items at gist level ('SNAP work requirements' rather than an exact population; 'pecan marketing order late fees on assessments'). Also add a judge instruction that a paraphrase conveying the business-relevant substance counts, and that sub-qualifiers are not required. This aligns the rubric with what a plain-English action can carry.",
+        "risk": "Looser rubrics or judge leniency could pass actions that miss a detail that actually matters, e.g. which population or fee is affected. Coverage scores may inflate across setups and hide real omissions."
+      }
+    ]
+  }
+}

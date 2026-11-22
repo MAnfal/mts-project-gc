@@ -1,0 +1,31 @@
+# Experiment-wide settings: spend cap, fixed helper models, arena execution.
+
+budgetUsd: 120
+smokeSpendUsd: 0.4
+jevModel: typesafe-ai/jev
+arena:
+  concurrency: 4
+  defaultEvalset: brightside_2026-11-09_2026-11-13
+  repeatOptions:
+    - 1
+    - 3
+    - 5
+# The user-facing view runs one setup (the eval winner) on demo companies or a profile the user types in.
+userView:
+  setup: jev-sonnet-strict
+  maxWindowDays: 7
+evals:
+  gates:
+    recall: 0.9
+    precision: 0.8
+  # Overall score shown on the scorecards = weighted average of these metrics (0..1 each). Missing metrics are skipped.
+  scoreWeights:
+    recall: 2
+    precision: 1
+    trapAvoidance: 1
+    datesRight: 1
+    tierRight: 1
+    ownerRight: 1
+    judgePass: 1
+    consistency: 1
+    traceChecks: 1
