@@ -28,7 +28,7 @@ Grounding rule: answers use **only** this run's report. That means:
 
 No web search and no other runs. When the answer isn't in that material, the model says
 so. The chat is stateless on the server. The browser sends the run context plus the
-conversation, and the turns are saved on the run's IndexedDB record, so they come back
+conversation, and the turns are saved in IndexedDB (a separate `chats` store, amendment 6), so they come back
 after a reload.
 
 Chunk 04's `ReportView` takes a `followUp?: ReactNode` prop. This chunk mounts the chat
@@ -43,6 +43,66 @@ The GC-facing rule still applies:
 - Answers must not reveal internal names.
 - The context sent to the model is built by a function that copies only public fields, so
   internal names never enter it. Run `assertPublic` (chunk 03) on the context object.
+
+### Preflight amendment (lead, 2026-11-23)
+
+The preflight checked this plan against what chunks 01–10 actually merged. Where the text
+below conflicts with these points, these win:
+
+1. **Mount point.** Mount the chat in `RunView.tsx` and `ExampleView.tsx`, where
+   `ReportView` renders under `status === "done"`, through `ReportView`'s `followUp`
+   prop. The server pages pass only `suggestions: string[]` from config as props. Never
+   mount it on `/evals/reports/**`. Replace Gate 2 with a tested mount condition: the
+   chat is hidden with no finished report, and shown on done live runs and on examples.
+2. **Retry that really retries.** In `ai` 7.0.179, `streamText` returns immediately and
+   puts errors in the stream, so `withRetry` around it is a no-op.
+   - Await the first stream part inside `withRetry`, with the policy passed as a
+     parameter as in `suggest.ts`, so tests use zero delays.
+   - Always set `maxRetries: 0`.
+   - A missing key returns a fixed plain-text 503 before streaming starts.
+   - `toTextStreamResponse` ends silently on error, so emit a fixed failure signal the
+     UI can render.
+3. **Public check.** `assertPublic` takes a `RunEvent`. Use
+   `assertPublicText(JSON.stringify(context), "follow-up context")` server-side in the
+   route's helper, and the same on the system prompt.
+4. **Module placement.**
+   - The browser-side context builder goes in `src/lib/runs/followup-context.ts`, inside
+     the dirs Gate 4 and `GC_DIRS` already scan.
+   - The prompt and model call go in a server-only sibling of the route,
+     `src/app/api/followup/followup.ts`, following the `suggest-areas` pattern.
+   - `route.ts` exports only handlers and segment config.
+   - There is no `src/lib/followup/`.
+5. **Client streaming.** `@ai-sdk/react` is not installed. Read the response with `fetch`
+   and a stream reader (or `readUIMessageStream` from `ai`), and add no new dependency.
+   If you add one anyway, pin it and record it in Stack.
+6. **Persistence.** Use a separate `chats` store (T007): `store.ts` VERSION 3 creates only
+   the missing store, the upgrade keeps runs and profiles, and `RunStore.getChat`/
+   `saveChat` get a memory fallback. Turns are **not** written on the run record. Read
+   the Context and Test Plan below accordingly.
+7. **Examples.** Chat turns are the only IndexedDB write an example page makes. They are
+   an explicit exception to chunk 06's read-only rule.
+8. **Context builder.**
+   - The signature is `buildFollowUpContext(view, profile)`, built on the
+     `applyConfirmed` view. Items checked by the GC are included and marked untiered.
+   - The test fixture is `public/examples/<id>.json` through `reduceEvents`.
+   - Add a constructed view with an extra internal field, which the builder must drop
+     (whitelist, not blacklist).
+   - 0 items is a valid context.
+9. **Tests.** Stub the model with `setModelsForTests` and a mock language model that
+   implements `doStream`; the existing helper only stubs `doGenerate`. A bad request gets
+   a 400 with zero model calls.
+10. **Config and caps.** Put `followUp: {model, system, suggestions, maxTurns,
+    maxMessageChars, maxContextChars}` in `config/app.yaml`, with its schema. Enforce the
+    caps server-side and test them. 05's Gate 3 seds every `  model:` line in app.yaml, so
+    keep the same indentation.
+11. **Gates and spend.**
+    - Add `AI_GATEWAY_API_KEY= PORT=3801 bash plans/2026-11-22-demo-build/06-edge-states/gates.sh`.
+    - Add a keyless curl of `/api/followup`: a 503 and the 400s, with no model id or
+      `AI_GATEWAY` in any body.
+    - Add the `poc/` count, counted explicitly.
+    - Drop the live smoke test. The implementer and the reviewer spend nothing, and answer
+      screenshots come from seeded turns. The lead runs one short live check at the end.
+    - Servers run on ports 3801–3809.
 
 ## Acceptance Criteria
 
@@ -67,22 +127,25 @@ The GC-facing rule still applies:
 ### Tasks
 
 - [ ] T001 — write failing tests:
-  - `src/lib/followup/context.test.ts`: `buildFollowUpContext(viewState)` on a real
-    example run from `public/evals/user-view/runs/` contains only whitelisted fields, and
-    `assertPublic` passes on it.
-  - `src/app/api/followup/route.test.ts`: the 400 cases, with constructed bodies.
-  - `src/lib/runs/store.test.ts`: saving and reading chat turns on a run.
-- [ ] T002 — create `src/lib/followup/context.ts` (whitelist copy) and
-  `src/lib/followup/prompt.ts` (system prompt from config plus the grounding rules).
-- [ ] T003 — create `src/app/api/followup/route.ts`: zod validation, `streamText` via the
-  Gateway with the configured model, wrapped in chunk 03's `withRetry` for the initial
-  connect only.
+  - `src/lib/runs/followup-context.test.ts`: `buildFollowUpContext(view, profile)` on a real
+    example from `public/examples/` (via `reduceEvents` + `applyConfirmed`) contains only
+    whitelisted fields; a constructed view with an extra internal field drops it
+    (amendment 8).
+  - `src/app/api/followup/followup.test.ts`: the 400 cases with zero model calls, the 503,
+    caps, streaming via a mock `doStream`, a retry that re-attempts (amendments 2, 9, 10).
+  - `src/lib/runs/store.test.ts`: the `chats` store (VERSION 3) round-trip and upgrade
+    (amendment 6).
+- [ ] T002 — create `src/lib/runs/followup-context.ts` (whitelist copy) and the server-only
+  prompt in `src/app/api/followup/followup.ts` (amendment 4).
+- [ ] T003 — create `src/app/api/followup/route.ts` (handlers only) + `followup.ts`: zod
+  validation, `assertPublicText`, `streamText` via the Gateway with the configured model,
+  first stream part awaited inside `withRetry`, `maxRetries: 0` (amendments 2–4).
 - [ ] T004 — create `src/components/gc/FollowUpChat.tsx`, with chips, composer and
-  streamed turns, styled from the hi-fi. Use the AI SDK's React `useChat` if it fits the
-  stateless body; otherwise a small fetch reader. Explain your choice.
-- [ ] T005 — edit `src/app/runs/[id]/page.tsx` and `src/app/examples/[id]/page.tsx` to pass
-  `<FollowUpChat/>` into `ReportView`'s `followUp` prop, only when status is `done`.
-- [ ] T006 — edit `config/app.yaml` and `src/lib/config/schemas.ts`: add `followUp`.
+  streamed turns, styled from the hi-fi. Use a fetch stream reader (no new dependency;
+  amendment 5).
+- [ ] T005 — mount `<FollowUpChat/>` via `ReportView`'s `followUp` prop in `RunView.tsx` and
+  `ExampleView.tsx`, only when status is `done`; pages pass `suggestions` (amendment 1).
+- [ ] T006 — edit `config/app.yaml` and `src/lib/config/schemas.ts`: add `followUp` with caps (amendment 10).
 - [ ] T007 — edit `src/lib/runs/store.ts`: add a `chats` store keyed by run ID (`live:<id>`
   or `example:<id>`), holding the turns. Example runs have no IndexedDB run record, so
   chat turns must not live on the run record.
@@ -96,7 +159,7 @@ before relying on them.
 | ---- | ------ | ------------------------------------ |
 | `context.test.ts` | only public fields reach the model | a builder that spreads the whole view state includes `decisions[].jevProbability` |
 | `route.test.ts` › 400s | input guards | a route that forwards any body to `streamText` returns 200 for a 50-turn conversation |
-| `store.test.ts` › turns | chat persists | without the field, turns are lost on reload |
+| `store.test.ts` › chats store | chat persists | without the `chats` store, turns are lost on reload (amendment 6) |
 | `prompt.test.ts` | grounding instruction present | a prompt template missing the "not in this report" rule fails the assertion |
 
 | Guard / boundary | Constructed input that exercises it | Test |
@@ -126,18 +189,17 @@ route.
 
 ## Verification Gates
 
+Write them to `plans/2026-11-22-demo-build/11-followup-chat/gates.sh` (amendment 11):
+
 ```bash
 set -e
-pnpm lint && pnpm test && pnpm build && pnpm typecheck
-bash plans/2026-11-22-demo-build/02-core-libs/parity.sh
-
-# Gate 2: chat never mounted on a non-finished run
-grep -n "followUp" src/app/runs/\[id\]/page.tsx | grep -q "done" \
-  || { echo "FAIL: followUp not gated on status done" >&2; exit 1; }
+AI_GATEWAY_API_KEY= PORT=3801 bash plans/2026-11-22-demo-build/06-edge-states/gates.sh  # 05→04→03, parity, examples, Gate 5
+# Gate 2 replaced by the tested mount condition (amendment 1)
+# keyless curl of /api/followup: 503 + 400s; no model id / AI_GATEWAY in bodies
+# poc/ count (explicit)
 ```
 
-**Live smoke** (spends a few cents; the reviewer may skip it): ask "Summarize for the CEO
-in 3 lines" on an example run, and paste the answer into the report.
+**Live smoke**: lead-only, at the end (amendment 11).
 
 ## Deliverables
 
