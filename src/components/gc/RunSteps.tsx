@@ -1,11 +1,9 @@
 import { CircleCheck, CircleDashed, CircleX, LoaderCircle, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { StepView } from "@/lib/runs/reduce";
+import { stepStatusText, type StepView } from "@/lib/runs/reduce";
 
 /** "466 · 2s": the step's count and how long it took. */
 const doneMeta = (s: StepView) => [s.count, s.ms === null ? null : s.ms < 1000 ? "<1s" : `${Math.round(s.ms / 1000)}s`].filter((x) => x !== null).join(" · ");
-
-const STATE_TEXT: Record<StepView["state"], string> = { done: "done", running: "in progress", waiting: "waiting", failed: "failed" };
 
 /**
  * The run's steps as the Running screen shows them (design/HiRunning.dc.html): done, in progress with its sub-items,
@@ -20,7 +18,7 @@ export function RunSteps({ steps, live, onRetry, retrying = false }: { steps: St
           <div className={`flex items-start gap-2.5 ${s.state === "waiting" ? "text-caption" : ""}`}>
             <StepIcon state={s.state} live={live} />
             <span className={`min-w-0 ${s.state === "running" && live ? "font-semibold" : ""}`}>
-              {s.label} <span className="sr-only">{STATE_TEXT[s.state]}</span>
+              {s.label} <span className="sr-only">{stepStatusText(s.state, live)}</span>
             </span>
             {s.state === "done" ? <span className="shrink-0 pt-px text-xs text-caption">{doneMeta(s)}</span> : null}
             {s.state === "running" && s.progress.length ? <span className="shrink-0 pt-px text-xs text-caption">{s.progress.at(-1)!.count} so far</span> : null}

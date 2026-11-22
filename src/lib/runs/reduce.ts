@@ -102,3 +102,12 @@ export function applyEvent(s: RunViewState, e: RunEvent): RunViewState {
 }
 
 export const reduceEvents = (events: RunEvent[]): RunViewState => events.reduce(applyEvent, initialView());
+
+/**
+ * The screen-reader word for a step. `live` is false once the stream is over: a step still "running" then was cut off
+ * (interrupted run), so it "stopped" rather than being "in progress".
+ */
+export function stepStatusText(state: StepState, live: boolean): string {
+  if (state === "running") return live ? "in progress" : "stopped";
+  return state;
+}

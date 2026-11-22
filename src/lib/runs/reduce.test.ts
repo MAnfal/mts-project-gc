@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { runReplay } from "../pipeline/__fixtures__/replay";
 import type { RunEvent, StepKey } from "../pipeline/events";
-import { reduceEvents } from "./reduce";
+import { reduceEvents, stepStatusText } from "./reduce";
 
 // The real public events of a recorded run of the live setup (Brightside, 2026-11-02..06), replayed through the ported
 // pipeline at no cost. Constructed sequences below cover what that run never did: retries and failures.
@@ -147,5 +147,18 @@ describe("reduceEvents on constructed failures", () => {
 
   it("starts empty with no events", () => {
     expect(reduceEvents([])).toMatchObject({ status: "running", steps: [], items: [], confirmed: [], failure: null });
+  });
+});
+
+describe("stepStatusText", () => {
+  it("names each state for screen readers", () => {
+    expect(stepStatusText("done", true)).toBe("done");
+    expect(stepStatusText("waiting", true)).toBe("waiting");
+    expect(stepStatusText("failed", false)).toBe("failed");
+    expect(stepStatusText("running", true)).toBe("in progress");
+  });
+
+  it("says a step cut off by an interrupted stream stopped, not that it is in progress", () => {
+    expect(stepStatusText("running", false)).toBe("stopped");
   });
 });

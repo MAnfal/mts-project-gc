@@ -25,6 +25,7 @@ Evidence files referenced below live in the session scratch directory
 | `src/app/api/run/request.ts` (+ test) | created | zod body validation (amendment 3). Preset ids are checked against `presets()`. A custom body is a full `CompanySchema` profile. The window is counted inclusively, ≤ `app.yaml` `maxWindowDays`. Messages are plain. |
 | `src/app/api/run/run-config.ts` (+ test) | created | The server-only RunConfig builder (amendment 1): `experiment().userView.setup` looked up in `setups()` with the POC `cellConfig` expressions, `asOf = windowEnd`, and a custom profile mapped to `"custom"`. |
 | `src/app/api/run/stream.ts` (+ test) | created | NDJSON sink (amendment 4). It never adds to `RunFailed`. Any other error becomes one `run.failed` with `step: null`. There is never a second terminal event, and emit is a no-op after `cancel()`. The open spend-after-disconnect issue is documented in the JSDoc. |
+| `src/lib/runs/reduce.ts` `stepStatusText` (+ test), `src/components/gc/RunSteps.tsx` | edited after review 1 | The screen-reader word for a step comes from a pure function. A step still `running` when the stream is over (interrupted run) reads "stopped", not "in progress". Test: reduce › `stepStatusText`. Mutation (always "in progress") → `AssertionError: expected 'in progress' to be 'stopped'`. |
 | `src/components/gc/useRun.ts` | created | One runner per page load (amendment 7). Provides `useRun(id)`, `useRecentRuns()` and `startRun()`. |
 | `src/components/gc/{GcSidebar,RunSteps,ReportView,SourcesPanel,RunView,StartRunButton}.tsx` | created | The screens, built from the hi-fi with theme tokens only. |
 | `src/components/ui/button.tsx` | untouched | `git diff df4549b -- src/components/ui/button.tsx \| wc -l` → `0`. |
@@ -181,6 +182,24 @@ confirmed free after every server stop (`lsof … | wc -l` → 0).
 | 400 body | `$S/curl-400.txt` | `curl -o`; status from `-w`. |
 | IndexedDB after Retry | `$S/shots/idb-after-retry.json` | **Transcribed** from the inline `evaluate_script` result. The equality it shows is asserted independently in `reader.test.ts`. |
 | Downloads, no-IndexedDB notice, 390 px check | `$S/shots/{downloads,no-indexeddb,390-constructed-check}.json` | Written by `evaluate_script` with `filePath`, not typed. |
+
+## Streaming checked against the installed Next.js
+
+Installed version: `next` **16.4.6** (`node_modules/next/package.json`). The plan's External Dependencies asks for
+streaming on Next 16 to be checked against the installed copy. It was checked two ways:
+
+1. **Docs shipped with the installed package.** The "Streaming" section of
+   `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/route.md` covers a route handler returning a
+   `Response` that wraps a Web `ReadableStream`. That is what `src/app/api/run/route.ts` does, through `runToStream`.
+2. **Runtime, under `next start` of this build** (`AI_GATEWAY_API_KEY` empty, so nothing is spent). The script
+   `$S/stream-timing.mjs` prints when each chunk arrives. Output is in `$S/stream-timing.txt`:
+   - `/api/probe/stream?seconds=3` returns `Response(ReadableStream)` with lines 1 s apart. Chunks arrived at
+     1060 / 2054 / 3057 ms, so Next 16.4.6 passes chunks through as they are enqueued and does not buffer the
+     response. Headers come with the first chunk.
+   - `POST /api/run` returned `200` with `content-type: application/x-ndjson; charset=utf-8`. Its six events
+     (`run.start` … `run.failed`) arrived in one chunk at 109 ms, because a keyless run ends within milliseconds.
+   - Limit: arrival of separate `/api/run` events spread over a real run's ~60 s can't be shown without spending.
+     It rests on the same mechanism the probe measures, and on the lead's live smoke test.
 
 ## How the report was rendered without spending
 
