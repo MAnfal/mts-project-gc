@@ -71,40 +71,40 @@ explain the difference from `9a0f857741`.
 
 ### Tasks
 
-- [ ] T001 — bring the files over:
+- [x] T001 — bring the files over:
   - `git archive poc poc/config poc/tests/fixtures/recorded-prompts.json | tar -x -C <your scratch dir>`
     (never `git checkout poc -- poc/...`: it stages `poc/` in the index, and no `poc/` path
     may ever be committed — amended 2026-11-22)
   - copy `<scratch>/poc/config/*` into `config/` (keep chunk 01's `config/app.yaml`)
   - copy the fixture to `src/lib/__fixtures__/recorded-prompts.json`
   - confirm `git status --short | grep '^.. poc/'` is empty
-- [ ] T002 — write the failing tests first, ported from
+- [x] T002 — write the failing tests first, ported from
   `poc:poc/tests/{tier,verify,fr-text,config,prompt-sets}.test.ts` into
   `src/lib/*.test.ts`, with only import paths changed. Add
   `src/lib/presets.test.ts`, asserting presets are exactly `[hearth, ledgerly]`. It fails
   today because no `use:` filter exists to exclude a company with no `use` field.
-- [ ] T003 — create `src/lib/types.ts`, ported from the POC's `types.ts`. Drop the
+- [x] T003 — create `src/lib/types.ts`, ported from the POC's `types.ts`. Drop the
   arena-only types the demo never reads: `ArenaConfig` and suite-dashboard types. List
   every dropped type in the report.
-- [ ] T004 — create `src/lib/config.ts`, ported from the POC's `config.ts`:
+- [x] T004 — create `src/lib/config.ts`, ported from the POC's `config.ts`:
   - schemas, `companies`, `getCompany`, `prompts`, `promptSet`, `withPromptSet`, `render`,
     `frozenWeek`, `loadKey`, `evalsets`, `configHash`, `validateAll`;
   - YAML is read through `readYaml`;
   - drop `pinConfig`/`unpinConfig` only if nothing on the demo path calls them (grep the
     POC);
   - add `presets()`, which returns `companies().filter(c => c.use === "demo")`.
-- [ ] T005 — create `src/lib/fr.ts`, ported from the POC's `fr.ts`:
+- [x] T005 — create `src/lib/fr.ts`, ported from the POC's `fr.ts`:
   - replace the `cached()` disk cache with a module-level `Map` (same keys, same
     `useCache` semantics);
   - keep the govinfo-first text fetch and the "literal `<`" fix from POC iteration 05;
   - keep `isBlockPage`.
-- [ ] T006 [P] — create `src/lib/verify.ts` and `src/lib/tier.ts`, ported verbatim from
+- [x] T006 [P] — create `src/lib/verify.ts` and `src/lib/tier.ts`, ported verbatim from
   the POC apart from import paths.
-- [ ] T007 [P] — create `src/lib/prompts.ts`, ported verbatim from the POC.
-- [ ] T008 — edit `config/companies/brightside.yaml`: add `use: eval` under `id:`.
-- [ ] T009 — create `plans/2026-11-22-demo-build/02-core-libs/parity.sh`, the parity gate
+- [x] T007 [P] — create `src/lib/prompts.ts`, ported verbatim from the POC.
+- [x] T008 — edit `config/companies/brightside.yaml`: add `use: eval` under `id:`.
+- [x] T009 — create `plans/2026-11-22-demo-build/02-core-libs/parity.sh`, the parity gate
   below. Commit it.
-- [ ] T010 — edit `.claude/resources/project.md`:
+- [x] T010 — edit `.claude/resources/project.md`:
   - Layout: `config/`, `src/lib/`.
   - Conventions: "Config is byte-identical to `poc:poc/config/` on the decision path —
     change it only with a recorded reason". Also "No filesystem writes in server code".

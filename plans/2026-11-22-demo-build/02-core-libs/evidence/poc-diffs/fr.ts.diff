@@ -1,0 +1,70 @@
+diff --git a/dev/fd/12 b/src/lib/fr.ts
+index 0000000..d3e9d30 100644
+--- a/dev/fd/12
++++ b/src/lib/fr.ts
+@@ -1,10 +1,12 @@
+-import fs from "node:fs/promises";
+-import path from "node:path";
++import "server-only";
+ import { frozenWeek } from "./config";
+ import type { FrDoc } from "./types";
+ 
++// Ported from poc:poc/src/lib/fr.ts. The one change: the POC cached HTTP responses as files under data/cache/,
++// and Vercel functions can't persist files, so the cache is a Map scoped to this server process. Same keys,
++// same useCache rules, and each read hands back a fresh copy, as re-reading the file did.
+ const API = "https://www.federalregister.gov/api/v1";
+-const CACHE = path.resolve(process.cwd(), "data/cache");
++const CACHE = new Map<string, string>();
+ 
+ const FIELDS = [
+   "document_number",
+@@ -26,15 +28,13 @@ const FIELDS = [
+ const qs = (params: [string, string][]) => params.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+ 
+ async function cached<T>(key: string, fetcher: () => Promise<T>, useCache: boolean): Promise<T> {
+-  const file = path.join(CACHE, key.replace(/[^a-zA-Z0-9._-]/g, "_"));
++  const file = key.replace(/[^a-zA-Z0-9._-]/g, "_");
+   if (useCache) {
+-    try {
+-      return JSON.parse(await fs.readFile(file, "utf8")) as T;
+-    } catch {}
++    const hit = CACHE.get(file);
++    if (hit !== undefined) return JSON.parse(hit) as T;
+   }
+   const value = await fetcher();
+-  await fs.mkdir(CACHE, { recursive: true });
+-  await fs.writeFile(file, JSON.stringify(value));
++  CACHE.set(file, JSON.stringify(value));
+   return value;
+ }
+ 
+@@ -114,12 +114,14 @@ export async function getRawText(doc: FrDoc): Promise<string> {
+ 
+ /** Same as getRawText, plus where the text came from (for the execution trace). */
+ export async function getRawTextWithSource(doc: FrDoc): Promise<{ text: string; source: "cache" | "govinfo" | "federalregister" | "none" }> {
+-  // v2: texts cached before the tag-strip fix (2026-11-22) may be cut, so they're never read again.
+-  const file = path.join(CACHE, `text-v2-${doc.document_number}.json`);
+-  try {
+-    const hit = JSON.parse(await fs.readFile(file, "utf8")) as string;
++  // v2: texts cached before the tag-strip fix (2026-11-22) may be cut, so they're never read again. The in-memory
++  // cache starts empty on every process, so the prefix only keeps the key names the same as the POC's.
++  const file = `text-v2-${doc.document_number}.json`;
++  const cachedText = CACHE.get(file);
++  if (cachedText !== undefined) {
++    const hit = JSON.parse(cachedText) as string;
+     if (hit && !isBlockPage(hit)) return { text: hit, source: "cache" };
+-  } catch {}
++  }
+   let source: "govinfo" | "federalregister" = "govinfo";
+   let text = await fetchText(govinfoUrl(doc));
+   if (!text && doc.raw_text_url) {
+@@ -127,8 +129,7 @@ export async function getRawTextWithSource(doc: FrDoc): Promise<{ text: string;
+     source = "federalregister";
+   }
+   if (!text) return { text: "", source: "none" };
+-  await fs.mkdir(CACHE, { recursive: true });
+-  await fs.writeFile(file, JSON.stringify(text));
++  CACHE.set(file, JSON.stringify(text));
+   return { text, source };
+ }
+ 

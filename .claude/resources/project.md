@@ -38,7 +38,8 @@ disk, and run each command before writing it into the table.
 
 Measured 2026-11-22 by chunk 01 of `2026-11-22-demo-build`: each version below was read from
 `node_modules/<pkg>/package.json`, and `package.json` pins every one exactly (no ranges). The set
-matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`).
+matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `date-fns` the same way
+(read from `node_modules/date-fns/package.json`, same version as the POC's lockfile).
 
 | Layer | Package | Version |
 | ----- | ------- | ------- |
@@ -50,6 +51,7 @@ matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`).
 | Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
+| Dates (tiering, date verification) | `date-fns` | 4.4.0 |
 | Server marker | `server-only` | 0.0.1 |
 | Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
 
@@ -166,6 +168,31 @@ a follow-up.
   scoped to `config/`: a computed directory makes Turbopack trace the whole project (build warning
   "Dynamic filesystem access"). `next.config.ts` adds `config/**` to every route's trace with
   `outputFileTracingIncludes`; check `.next/server/app/**/*.nft.json` when adding a config file.
+  The JSON data under `config/evalsets/` (frozen weeks, answer keys) is not YAML: read it only through
+  `frozenWeek()` / `loadKey()` in `src/lib/config.ts`.
+- **Config is byte-identical to `poc:poc/config/` on the decision path — change it only with a
+  recorded reason.** The recorded eval numbers describe the POC's pipeline, so they describe the demo
+  only while it runs the same inputs. Decision path: `prompts.yaml`, `prompt-sets/`, `pipeline.yaml`,
+  `setups.yaml`, `judges.yaml`, `experiment.yaml`, `companies/` and `evalsets/`, plus
+  `src/lib/{tier,verify,prompts}.ts`. The one recorded difference is `use: eval` in
+  `companies/brightside.yaml` (chunk 02). Check with
+  `bash plans/2026-11-22-demo-build/02-core-libs/parity.sh`, which diffs every one against the `poc`
+  branch.
+- **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
+  included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
+  config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
+  `use: eval` plus `app.yaml`). Compare hashes only between runs of this repo.
+- **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
+  server module needs to remember lives in memory for the life of the process (see the HTTP cache in
+  `src/lib/fr.ts`), and runs persist in the browser. Gate:
+  `bash plans/2026-11-22-demo-build/02-core-libs/no-fs-writes.sh`. It scans every non-test
+  `.ts`/`.tsx` under `src/` for calls to any fs API that creates, changes or deletes a file or folder
+  (`writeFile`, `mkdir`, `rm`, `rename`, `copyFile`, `createWriteStream`, …). Tests may write temp
+  fixtures under `os.tmpdir()`.
+- **`@/lib/config` is the module `src/lib/config.ts`; `@/lib/config/load` and
+  `@/lib/config/schemas` are files in the `src/lib/config/` folder.** A file beats a folder in
+  module resolution, and the folder has no `index.ts`. Don't add one: it would make `@/lib/config`
+  ambiguous to a reader.
 - **Pages that read config must render per request.** Call `await connection()` (from
   `next/server`) before reading; otherwise the page is prerendered at build and never re-reads the
   YAML. Segment `export const dynamic` is not used (removed when Cache Components is on in Next 16).
@@ -194,7 +221,15 @@ Where things live, and what belongs where.
 .claude/                      The spec-driven loop: prompts, bibles, skills, and this file.
 plans/                        Plan directories — one per plan, with SPEC, chunks and retro.
 config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
+                              Everything but app.yaml is copied from poc:poc/config/ (see Conventions).
   app.yaml                    App-wide settings (appName, maxWindowDays).
+  prompts.yaml                Every prompt's wording, with {{placeholders}}.
+  prompt-sets/                Partial prompt overrides a setup opts into (strict, strict-v2, strict-v3).
+  pipeline.yaml               Tier rules (90 / 30 days, critical doc types), batch sizes, text limits.
+  setups.yaml · judges.yaml · experiment.yaml   Models/methods/setups, judge panel, live setup.
+  companies/                  One profile per file; `use: demo` = preset (hearth, ledgerly), `use: eval`.
+  evalsets/                   manifest.yaml, weeks/ (frozen Federal Register input), keys/ (answer keys).
+  README.md                   The POC's guide to these files (mentions POC-only pinConfig).
 scripts/bootstrap.sh          Fresh-worktree setup: install + .env.local with AI_GATEWAY_API_KEY.
 src/
   app/                        Next.js App Router.
@@ -208,6 +243,14 @@ src/
     ui/                       shadcn primitives (button, badge).
   lib/
     config/                   load.ts (readYaml) and schemas.ts (zod schemas for config/*.yaml).
+    config.ts                 POC config port: schemas for the POC files, companies/presets, prompts and
+                              prompt sets, render, frozenWeek/loadKey, validateAll, configHash.
+    fr.ts                     Federal Register + govinfo client; frozen weeks read from config/, live
+                              windows fetched, responses cached in memory per process.
+    tier.ts · verify.ts       Deterministic tiering and quoted-date verification (POC, verbatim).
+    prompts.ts                Prompt builders that render config/prompts.yaml (POC, verbatim).
+    types.ts                  Shared shapes (FrDoc, CompanyProfile, ActionItem, RunRecord, …).
+    __fixtures__/             recorded-prompts.json: prompts the POC arena sent (golden prompt parity).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.

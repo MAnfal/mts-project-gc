@@ -1,0 +1,170 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+
+ ❯ src/lib/tier.test.ts (13 tests | 9 failed) 15ms
+   ❯ assignTier (13)
+     × proposed rule with a comment deadline under 90 days is Critical 10ms
+     × deadline 89 days out is Critical 1ms
+     × final rule already effective inside the window is Critical (2026-22863) 0ms
+     × final rule effective long before asOf is High, not Critical (OFAC GL published months after issuance, 2026-23195) 0ms
+     × final rule effective 30 days before asOf is still Critical (recently effective) 0ms
+     × final rule with no deadline is High (OFAC web general licenses) 0ms
+     × notice with a near comment deadline is Medium, not Critical (PRA info-collection requests) 1ms
+     × notice without deadline is Low 0ms
+     × picks the earliest upcoming verified deadline 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > proposed rule with a comment deadline under 90 days is Critical
+AssertionError: expected 'Medium' to be 'Critical' // Object.is equality
+
+Expected: "Critical"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:20:20
+     18|   it("proposed rule with a comment deadline under 90 days is Critical"…
+     19|     const r = assignTier({ type: "Proposed Rule", deadlines: [d("2027-…
+     20|     expect(r.tier).toBe("Critical");
+       |                    ^
+     21|     expect(r.deadline?.date).toBe("2027-01-11");
+     22|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > deadline 89 days out is Critical
+AssertionError: expected 'Medium' to be 'Critical' // Object.is equality
+
+Expected: "Critical"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:31:20
+     29|   it("deadline 89 days out is Critical", () => {
+     30|     const r = assignTier({ type: "Proposed Rule", deadlines: [d("2027-…
+     31|     expect(r.tier).toBe("Critical");
+       |                    ^
+     32|   });
+     33|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > final rule already effective inside the window is Critical (2026-22863)
+AssertionError: expected 'Medium' to be 'Critical' // Object.is equality
+
+Expected: "Critical"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:36:20
+     34|   it("final rule already effective inside the window is Critical (2026…
+     35|     const r = assignTier({ type: "Rule", deadlines: [d("2026-11-10", "…
+     36|     expect(r.tier).toBe("Critical");
+       |                    ^
+     37|     expect(r.reason).toMatch(/already in effect/i);
+     38|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > final rule effective long before asOf is High, not Critical (OFAC GL published months after issuance, 2026-23195)
+AssertionError: expected 'Medium' to be 'High' // Object.is equality
+
+Expected: "High"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:42:20
+     40|   it("final rule effective long before asOf is High, not Critical (OFA…
+     41|     const r = assignTier({ type: "Rule", deadlines: [d("2026-05-07", "…
+     42|     expect(r.tier).toBe("High");
+       |                    ^
+     43|     expect(r.reason).toMatch(/in effect since 2026-05-07/);
+     44|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > final rule effective 30 days before asOf is still Critical (recently effective)
+AssertionError: expected 'Medium' to be 'Critical' // Object.is equality
+
+Expected: "Critical"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:48:20
+     46|   it("final rule effective 30 days before asOf is still Critical (rece…
+     47|     const r = assignTier({ type: "Rule", deadlines: [d("2026-10-14", "…
+     48|     expect(r.tier).toBe("Critical");
+       |                    ^
+     49|   });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > final rule with no deadline is High (OFAC web general licenses)
+AssertionError: expected 'Medium' to be 'High' // Object.is equality
+
+Expected: "High"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:59:20
+     57|   it("final rule with no deadline is High (OFAC web general licenses)"…
+     58|     const r = assignTier({ type: "Rule", deadlines: [], asOf, rules });
+     59|     expect(r.tier).toBe("High");
+       |                    ^
+     60|     expect(r.deadline).toBeNull();
+     61|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > notice with a near comment deadline is Medium, not Critical (PRA info-collection requests)
+AssertionError: expected undefined to be '2027-01-12' // Object.is equality
+
+- Expected:
+"2027-01-12"
+
++ Received:
+undefined
+
+ ❯ src/lib/tier.test.ts:72:30
+     70|     const r = assignTier({ type: "Notice", deadlines: [d("2027-01-12",…
+     71|     expect(r.tier).toBe("Medium");
+     72|     expect(r.deadline?.date).toBe("2027-01-12");
+       |                              ^
+     73|   });
+     74|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > notice without deadline is Low
+AssertionError: expected 'Medium' to be 'Low' // Object.is equality
+
+Expected: "Low"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:77:20
+     75|   it("notice without deadline is Low", () => {
+     76|     const r = assignTier({ type: "Notice", deadlines: [], asOf, rules …
+     77|     expect(r.tier).toBe("Low");
+       |                    ^
+     78|   });
+     79|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  src/lib/tier.test.ts > assignTier > picks the earliest upcoming verified deadline
+AssertionError: expected 'Medium' to be 'Critical' // Object.is equality
+
+Expected: "Critical"
+Received: "Medium"
+
+ ❯ src/lib/tier.test.ts:87:20
+     85|       rules,
+     86|     });
+     87|     expect(r.tier).toBe("Critical");
+       |                    ^
+     88|     expect(r.deadline?.date).toBe("2026-12-14");
+     89|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 4 passed (13)
+   Start at  23:42:38
+   Duration  1.04s (import 95%, transform 3%, tests 2%)
+

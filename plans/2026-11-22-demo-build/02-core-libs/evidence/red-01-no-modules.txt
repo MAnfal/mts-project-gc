@@ -1,0 +1,230 @@
+
+> reg-monitor@0.1.0 test /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+> vitest run
+
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+
+ ❯ src/lib/tier.test.ts (0 test)
+ ❯ src/lib/config-hash.test.ts (0 test)
+ ❯ src/lib/config.test.ts (0 test)
+ ❯ src/lib/verify.test.ts (0 test)
+ ❯ src/lib/fr-text.test.ts (3 tests | 3 failed) 27ms
+   ❯ getRawText (3)
+     × reads govinfo first and strips HTML 22ms
+     × keeps text after a literal '<' (govinfo serves '<=7.3 percent' unescaped inside <pre>) 2ms
+     × never returns or caches a block page; falls back to the FR raw text only if it is real 2ms
+ ❯ src/lib/fr.test.ts (7 tests | 7 failed) 37ms
+   ❯ listWindow on a frozen eval week (2)
+     × returns the week's 466 documents from config/evalsets/weeks with no network 17ms
+     × calls the live API for any other window (and fails here, offline) 2ms
+   ❯ in-memory HTTP cache (replaces the POC's data/cache on disk) (5)
+     × serves a repeated live window from memory, and useCache=false fetches again 2ms
+     × hands each caller its own copy, so mutating one result cannot change the next 2ms
+     × getDoc re-fetches every time by default (it is the verification read) 7ms
+     × getDoc with useCache=true keeps a failed lookup (null) as a cache hit, as the POC's file cache did 2ms
+     × full text is fetched once per document; the second read reports source 'cache' 3ms
+ ❯ src/lib/presets.test.ts (0 test)
+ ❯ src/lib/prompt-sets.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/config-hash.test.ts [ src/lib/config-hash.test.ts ]
+Error: Cannot find module './config' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/config-hash.test.ts
+ ❯ src/lib/config-hash.test.ts:5:1
+      3| import path from "node:path";
+      4| import { afterEach, beforeEach, describe, expect, it } from "vitest";
+      5| import { configHash } from "./config";
+       | ^
+      6|
+      7| // configHash is stamped on every run so runs with different config ar…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  src/lib/config.test.ts [ src/lib/config.test.ts ]
+Error: Cannot find module './config' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/config.test.ts
+ ❯ src/lib/config.test.ts:4:1
+      2| import path from "node:path";
+      3| import { describe, expect, it } from "vitest";
+      4| import { frozenWeek, getCompany, pipelineCfg, render, validateAll } fr…
+       | ^
+      5| import { actionsPrompt, baselineTask, filterPrompt } from "./prompts";
+      6| import { assignTier } from "./tier";
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  src/lib/presets.test.ts [ src/lib/presets.test.ts ]
+Error: Cannot find package '@/lib/config' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/presets.test.ts
+ ❯ src/lib/presets.test.ts:3:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { z } from "zod";
+      3| import { CompanySchema, companies, isPreset, presets } from "@/lib/con…
+       | ^
+      4| import { readYaml } from "@/lib/config/load";
+      5|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  src/lib/prompt-sets.test.ts [ src/lib/prompt-sets.test.ts ]
+Error: Cannot find module './config' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/prompt-sets.test.ts
+ ❯ src/lib/prompt-sets.test.ts:2:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { promptSetNames, prompts, validateAll, withPromptSet } from ".…
+       | ^
+      3|
+      4| describe("prompt sets (config/prompt-sets/<name>.yaml override config/…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  src/lib/tier.test.ts [ src/lib/tier.test.ts ]
+Error: Cannot find module './tier' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/tier.test.ts
+ ❯ src/lib/tier.test.ts:2:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { assignTier } from "./tier";
+       | ^
+      3| import type { Deadline } from "./types";
+      4|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  src/lib/verify.test.ts [ src/lib/verify.test.ts ]
+Error: Cannot find module './verify' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/verify.test.ts
+ ❯ src/lib/verify.test.ts:2:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { verifyQuotedDate, parseDocNumberFromUrl } from "./verify";
+       | ^
+      3|
+      4| const source = `DATES: Comments must be received on or before January …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/fr-text.test.ts > getRawText > reads govinfo first and strips HTML
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr-text.test.ts
+ ❯ src/lib/fr-text.test.ts:29:28
+     27|     const fetchMock = vi.fn(async (url: string) => new Response(url.in…
+     28|     vi.stubGlobal("fetch", fetchMock);
+     29|     const { getRawText } = await import("./fr");
+       |                            ^
+     30|     const t = await getRawText(doc);
+     31|     expect(t).toContain("December 10, 2026");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  src/lib/fr-text.test.ts > getRawText > keeps text after a literal '<' (govinfo serves '<=7.3 percent' unescaped inside <pre>)
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr-text.test.ts
+ ❯ src/lib/fr-text.test.ts:40:28
+     38|     const page = "<html><pre>a concentration of <=7.3 percent.\n    Pa…
+     39|     vi.stubGlobal("fetch", vi.fn(async () => new Response(page)));
+     40|     const { getRawText } = await import("./fr");
+       |                            ^
+     41|     const t = await getRawText(doc);
+     42|     expect(t).toContain("<=7.3 percent");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  src/lib/fr-text.test.ts > getRawText > never returns or caches a block page; falls back to the FR raw text only if it is real
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr-text.test.ts
+ ❯ src/lib/fr-text.test.ts:49:28
+     47|   it("never returns or caches a block page; falls back to the FR raw t…
+     48|     vi.stubGlobal("fetch", vi.fn(async () => new Response(BLOCK)));
+     49|     const { getRawText } = await import("./fr");
+       |                            ^
+     50|     expect(await getRawText(doc)).toBe("");
+     51|     // A later successful fetch must not be shadowed by a cached block…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  src/lib/fr.test.ts > listWindow on a frozen eval week > returns the week's 466 documents from config/evalsets/weeks with no network
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:22:28
+     20|     const fetchMock = offline();
+     21|     vi.stubGlobal("fetch", fetchMock);
+     22|     const { listWindow } = await import("./fr");
+       |                            ^
+     23|     const docs = await listWindow("2026-11-02", "2026-11-06");
+     24|     expect(docs).toHaveLength(466);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  src/lib/fr.test.ts > listWindow on a frozen eval week > calls the live API for any other window (and fails here, offline)
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:31:28
+     29|   it("calls the live API for any other window (and fails here, offline…
+     30|     vi.stubGlobal("fetch", offline());
+     31|     const { listWindow } = await import("./fr");
+       |                            ^
+     32|     await expect(listWindow("2026-11-16", "2026-11-20")).rejects.toThr…
+     33|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > serves a repeated live window from memory, and useCache=false fetches again
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:40:28
+     38|     const fetchMock = vi.fn(async () => apiPage([{ document_number: "2…
+     39|     vi.stubGlobal("fetch", fetchMock);
+     40|     const { listWindow } = await import("./fr");
+       |                            ^
+     41|     const first = await listWindow("2026-11-16", "2026-11-20");
+     42|     const second = await listWindow("2026-11-16", "2026-11-20");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > hands each caller its own copy, so mutating one result cannot change the next
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:54:28
+     52|   it("hands each caller its own copy, so mutating one result cannot ch…
+     53|     vi.stubGlobal("fetch", vi.fn(async () => apiPage([{ document_numbe…
+     54|     const { listWindow } = await import("./fr");
+       |                            ^
+     55|     const first = await listWindow("2026-11-16", "2026-11-20");
+     56|     first.push({ document_number: "planted" } as FrDoc);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > getDoc re-fetches every time by default (it is the verification read)
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:66:24
+     64|     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ …
+     65|     vi.stubGlobal("fetch", fetchMock);
+     66|     const { getDoc } = await import("./fr");
+       |                        ^
+     67|     await getDoc("2026-90001");
+     68|     await getDoc("2026-90001");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > getDoc with useCache=true keeps a failed lookup (null) as a cache hit, as the POC's file cache did
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:77:24
+     75|     const fetchMock = vi.fn(async () => new Response("nope", { status:…
+     76|     vi.stubGlobal("fetch", fetchMock);
+     77|     const { getDoc } = await import("./fr");
+       |                        ^
+     78|     expect(await getDoc("2026-90002", true)).toBeNull();
+     79|     expect(await getDoc("2026-90002", true)).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > full text is fetched once per document; the second read reports source 'cache'
+Error: Cannot find module '/src/lib/fr' imported from /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs/src/lib/fr.test.ts
+ ❯ src/lib/fr.test.ts:86:38
+     84|     const fetchMock = vi.fn(async () => new Response("<pre>DATES: effe…
+     85|     vi.stubGlobal("fetch", fetchMock);
+     86|     const { getRawTextWithSource } = await import("./fr");
+       |                                      ^
+     87|     const doc = { document_number: "2026-22866", publication_date: "20…
+     88|     const first = await getRawTextWithSource(doc);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯
+
+
+ Test Files  8 failed | 2 passed (10)
+      Tests  10 failed | 22 passed (32)
+   Start at  23:38:48
+   Duration  1.32s (tests 74%, transform 13%, import 11%, worker 3%)
+
+ ELIFECYCLE  Test failed. See above for more details.

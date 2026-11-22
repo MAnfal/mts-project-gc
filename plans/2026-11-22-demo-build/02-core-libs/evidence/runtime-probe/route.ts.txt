@@ -1,0 +1,9 @@
+import { configHash, presets, validateAll } from "@/lib/config";
+import { listWindow } from "@/lib/fr";
+import { baselineTask } from "@/lib/prompts";
+
+export async function GET() {
+  const docs = await listWindow("2026-11-02", "2026-11-06");
+  const p = presets();
+  return Response.json({ hash: configHash(), presets: p.map((c) => c.id), problems: validateAll(), docs: docs.length, len: baselineTask(p[0], { windowStart: "2026-11-02", windowEnd: "2026-11-06", asOf: "2026-11-06" }).length });
+}
