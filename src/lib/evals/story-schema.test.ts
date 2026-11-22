@@ -1,12 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { judges } from "@/lib/config";
 import { readYaml } from "@/lib/config/load";
 import { EvalAppConfigSchema } from "@/lib/config/schemas";
 import { EvalIndexSchema } from "./index-schema";
 import { IterationRecordSchema } from "./loader";
 import { EvalStorySchema, Prose } from "./story-schema";
-import { fillTemplate, resolveQuote, storyContext, verdictHeading } from "./story";
+import { fillTemplate, modelsStory, resolveQuote, storyContext, verdictHeading } from "./story";
 import { computeVerdict } from "./verdict";
 
 // The real config files and the real shipped bundle: what the eval pages render.
@@ -74,6 +75,55 @@ describe("config/eval-story.yaml", () => {
         }
     }
     expect(quotes).toBeGreaterThan(0);
+  });
+});
+
+describe("config/eval-story.yaml → models, filled from the shipped index and config/judges.yaml", () => {
+  const panel = () => {
+    const j = judges();
+    return { models: j.judges.map((x) => x.model), minAgree: j.minAgree };
+  };
+  const view = () => modelsStory(shippedIndex(), panel(), story());
+
+  it("states why the live model, as computed comparisons of the like-for-like pair in w0i, each with its runs", () => {
+    const v = view();
+    expect(v.heading).toBe("Why Sonnet 5.5");
+    expect(v.intro).toBe(
+      "In suite w0i, two setups differ only in the model: jev-sonnet on Sonnet 5.5 and jev-gpt on GPT-6.2 Sol, both the jev+llm method with the default prompt, over all of the suite's weeks.",
+    );
+    expect(v.points).toEqual([
+      "Found what matters (recall): 97.6% vs 85.7%, 11.9 pts higher on Sonnet 5.5 (18 runs each).",
+      "Flags that were right (precision): 48.8% vs 50.7%, 1.9 pts lower on Sonnet 5.5 (18 runs each).",
+      "Cost per run: $0.159 vs $0.103, $0.056 higher on Sonnet 5.5 (18 runs each).",
+    ]);
+  });
+
+  it("words the key-bias caveat over the pipeline setups only, with computed counts (the baseline's recall is lower still)", () => {
+    expect(view().caveats[0]).toBe(
+      "Possible key bias. The answer keys were drafted by Claude models. Among the 4 pipeline setups in suite w0i, the lowest recall, 85.7% (18 runs), is held by jev-gpt. Pipeline setups at that recall: 1; pipeline setups on a non-Claude model: 1, the same ones. The single-prompt baseline is not a pipeline and is left out of this ranking; its recall is in the table.",
+    );
+  });
+
+  it("dates price parity from index.json (read from config/setups.yaml's comment), and words the tuning and one-suite caveats from data", () => {
+    expect(view().caveats[1]).toBe(
+      "Price parity. The arena config (a comment in config/setups.yaml) records that the models were chosen at the same AI Gateway list price per token, checked on 2026-11-21. The same price per token is not the same cost per run: the table shows each setup's measured cost.",
+    );
+    expect(view().caveats[2]).toBe("Tuned on one model. The live setup's strict prompt ran only on Sonnet 5.5; GPT-6.2 Sol ran only with the default prompt.");
+    expect(view().caveats[3]).toBe("One suite. The rationale above rests on suite w0i alone: 2 weeks, 6 company-weeks.");
+  });
+
+  it("states the judge rule from judges.yaml and the live-row rule", () => {
+    const v = view();
+    expect(v.judges).toContain("A verdict needs 2 of the 3 judges to agree");
+    expect(v.liveRule).toBe(
+      "Highlighted rows run the live model, Sonnet 5.5. The live setup itself (jev-sonnet-strict-passages) came later and never ran beside another model, so these rows are earlier setups on each model.",
+    );
+  });
+
+  it("rejects a typed number in the models prose", () => {
+    const s = structuredClone(story());
+    s.models.why.points[0] = "Recall 97.6% vs {{models.recall.other}}";
+    expect(EvalStorySchema.safeParse(s).success).toBe(false);
   });
 });
 

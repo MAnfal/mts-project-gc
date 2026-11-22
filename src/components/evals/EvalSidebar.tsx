@@ -1,4 +1,4 @@
-import { ChartColumn, ListChecks, RotateCcw, ScrollText } from "lucide-react";
+import { Boxes, ChartColumn, ListChecks, RotateCcw, ScrollText } from "lucide-react";
 import Link from "next/link";
 import { SidebarNav, SidebarNavItem, SidebarSectionLabel, SidebarWordmark } from "@/components/shell/SidebarNav";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +21,11 @@ const KEPT: ReadonlySet<Outcome> = new Set(["kept", "promoted"]);
 export { iterationNumber };
 
 /**
- * The reviewer-facing sidebar: Summary, Iterations, Cases, Runs, and the iteration log with each outcome. Marked
+ * The reviewer-facing sidebar: Summary, Iterations, Cases, Runs, Models, and the iteration log with each outcome. Marked
  * with an "Evals" badge so it never reads as the GC's sidebar; the GC sidebar does not link here.
  * Server-safe: the page passes `active` and the parsed config/eval-story.yaml.
  */
-export function EvalSidebar({ appName, story, active }: { appName: string; story: EvalStory; active: "summary" | "cases" | "runs" | string }) {
+export function EvalSidebar({ appName, story, active }: { appName: string; story: EvalStory; active: "summary" | "cases" | "runs" | "models" | string }) {
   const ids = Object.keys(story.iterations).sort();
   const onIteration = active in story.iterations;
   return (
@@ -45,6 +45,9 @@ export function EvalSidebar({ appName, story, active }: { appName: string; story
       </SidebarNavItem>
       <SidebarNavItem href="/evals/runs" icon={<ScrollText />} active={active === "runs"}>
         Runs
+      </SidebarNavItem>
+      <SidebarNavItem href="/evals/models" icon={<Boxes />} active={active === "models"}>
+        Models
       </SidebarNavItem>
       <SidebarSectionLabel>Iterations</SidebarSectionLabel>
       {ids.map((id) => {

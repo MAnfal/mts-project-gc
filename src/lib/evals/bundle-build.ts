@@ -258,3 +258,23 @@ export function runsIndex(runs: ListedRun[]) {
     };
   });
 }
+
+// ── Price parity (chunk 10) ──
+
+export const PRICE_PARITY_SOURCE = "config/setups.yaml comment";
+
+/**
+ * The date config/setups.yaml's comment records for the models' price-parity check ("… at price parity (…,
+ * checked 2026-11-21)"). It is a YAML comment, not a value, so it is read from the comment lines. Throws when no
+ * comment records one, or when comments record different dates.
+ */
+export function priceParity(setupsYaml: string): { checkedOn: string; source: typeof PRICE_PARITY_SOURCE } {
+  const dates = setupsYaml
+    .split("\n")
+    .filter((l) => /^\s*#/.test(l) && /price parity/i.test(l))
+    .flatMap((l) => [...l.matchAll(/checked (\d{4}-\d{2}-\d{2})/g)].map((m) => m[1]));
+  const distinct = [...new Set(dates)];
+  if (!distinct.length) throw new Error("config/setups.yaml has no comment recording a price-parity check date");
+  if (distinct.length > 1) throw new Error(`config/setups.yaml records more than one price-parity check date: ${distinct.join(", ")}`);
+  return { checkedOn: distinct[0], source: PRICE_PARITY_SOURCE };
+}

@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { shippedJson, shippedKey, shippedRuns } from "./__fixtures__/shipped";
 import type { CaseKey, CaseRun } from "./cases";
-import { activeFilter, casesPageState, computeCases, filterChoices, selectedRow } from "./casesState";
+import { activeFilter, casesPageState, casesQuery, computeCases, filterChoices, selectedRow } from "./casesState";
 import type { EvalIndex } from "./index-schema";
 
 // The real shipped index (public/evals/index.json): iterations 00–07, live = 06.
 const index = shippedJson<EvalIndex>("index.json");
 const L92 = "arena-2026-11-21-22-52-l92";
+const W0I = "arena-2026-11-21-18-40-w0i";
 
 describe("casesPageState on the shipped index", () => {
   it("with no ?iteration= opens the live iteration (06), compared with the setup it replaced", () => {
@@ -55,6 +56,67 @@ describe("casesPageState guards (constructed index)", () => {
   });
 });
 
+describe("casesPageState: ?suite=&setup= (the Models page's drill-down)", () => {
+  it("opens one setup's cases in one suite, compared with nothing", () => {
+    expect(casesPageState(index, null, { suite: W0I, setup: "jev-gpt" })).toEqual({
+      kind: "setup",
+      setup: "jev-gpt",
+      comparedTo: null,
+      suite: W0I,
+      title: "Cases for jev-gpt in w0i",
+    });
+  });
+
+  it("lets ?iteration= win over ?suite=, and says so", () => {
+    expect(casesPageState(index, "06-passages", { suite: W0I, setup: "jev-gpt" })).toMatchObject({
+      kind: "iteration",
+      id: "06-passages",
+      note: "Showing iteration 06: ?iteration= takes precedence over ?suite= and ?setup=.",
+    });
+    expect(casesPageState(index, "99-nope", { suite: W0I, setup: null })).toEqual({
+      kind: "unknown",
+      requested: "99-nope",
+      note: "?iteration= takes precedence over ?suite= and ?setup=, so they were ignored.",
+    });
+  });
+
+  it("gives an unknown suite its own state", () => {
+    expect(casesPageState(index, null, { suite: "arena-nope", setup: "jev-gpt" })).toEqual({ kind: "unknownSuite", suite: "arena-nope" });
+  });
+
+  it("gives a setup the suite did not run its own state, listing the setups it did run", () => {
+    expect(casesPageState(index, null, { suite: L92, setup: "jev-gpt" })).toEqual({
+      kind: "unknownSetup",
+      suite: L92,
+      setup: "jev-gpt",
+      setups: ["jev-sonnet-strict-passages", "jev-sonnet-strict"],
+    });
+  });
+
+  it("treats ?suite= without ?setup= as a setup to pick", () => {
+    expect(casesPageState(index, null, { suite: W0I, setup: null })).toMatchObject({ kind: "unknownSetup", setup: null, setups: ["jev-sonnet-strict", "llm-sonnet", "jev-sonnet", "jev-gpt", "baseline-sonnet"] });
+  });
+
+  it("opens the live iteration for ?setup= without ?suite=, and says the setup was ignored", () => {
+    expect(casesPageState(index, null, { suite: null, setup: "jev-gpt" })).toMatchObject({
+      kind: "iteration",
+      id: "06-passages",
+      note: "?setup= needs a ?suite=, so it was ignored.",
+    });
+  });
+});
+
+describe("casesQuery (the page's search params, untouched by the page)", () => {
+  it("reads each param that is given once", () => {
+    expect(casesQuery({ iteration: "06-passages" })).toEqual({ iteration: "06-passages", suite: null, setup: null });
+    expect(casesQuery({ suite: W0I, setup: "jev-gpt" })).toEqual({ iteration: null, suite: W0I, setup: "jev-gpt" });
+  });
+
+  it("ignores a repeated or empty param rather than guessing which one was meant", () => {
+    expect(casesQuery({ suite: [W0I, L92], setup: "", iteration: undefined })).toEqual({ iteration: null, suite: null, setup: null });
+  });
+});
+
 describe("computeCases", () => {
   const st = casesPageState(index, "06-passages");
   if (st.kind !== "iteration") throw new Error("expected 06 to resolve");
@@ -64,6 +126,18 @@ describe("computeCases", () => {
 
   it("is not ready until the suite's data has loaded", () => {
     expect(computeCases(st, null)).toEqual({ rows: null, error: null });
+  });
+
+  it("computes one setup's rows in its suite for the drill-down, nothing to compare with", () => {
+    const one = casesPageState(index, null, { suite: W0I, setup: "jev-gpt" });
+    if (one.kind !== "setup") throw new Error("expected jev-gpt in w0i to resolve");
+    const w = shippedRuns<CaseRun>(W0I);
+    const k = Object.fromEntries([...new Set(w.map((r) => r.config.evalset!))].map((e) => [e, shippedKey<CaseKey>(e)]));
+    const { rows, error } = computeCases(one, { runs: w, keys: k });
+    expect(error).toBeNull();
+    expect(rows!.every((r) => r.before === null && r.change === null)).toBe(true);
+    const gpt = new Set(w.filter((r) => r.config.cell === "jev-gpt").map((r) => r.id));
+    expect(rows!.flatMap((r) => r.after.repeats.map((x) => x.id)).every((id) => gpt.has(id))).toBe(true);
   });
 
   it("computes the iteration's rows from the shipped suite", () => {

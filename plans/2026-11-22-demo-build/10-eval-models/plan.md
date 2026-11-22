@@ -113,18 +113,18 @@ text below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write a failing test, `src/lib/evals/models.test.ts`.
+- [x] T001 — write a failing test, `src/lib/evals/models.test.ts`.
   `modelComparisons(index)` (amendment 5) run on the **real** shipped bundle returns one group
   per multi-model suite, and each group's rows share one suite. Assert that the Sonnet
   jev+llm row's recall equals `report.json`'s value for that setup.
-- [ ] T002 — create `src/lib/evals/models.ts` (pure).
-- [ ] T003 — edit `config/eval-story.yaml`: add the `models` section, with its schema in
+- [x] T002 — create `src/lib/evals/models.ts` (pure).
+- [x] T003 — edit `config/eval-story.yaml`: add the `models` section, with its schema in
   `src/lib/evals/story-schema.ts` (chunk 08's file). Do **not** edit
   `src/lib/config/schemas.ts`; chunk 05 edits it in the same wave.
-- [ ] T004 — extend `src/lib/evals/casesState.ts` + test and `CasesView` (amendment 10): accept
+- [x] T004 — extend `src/lib/evals/casesState.ts` + test and `CasesView` (amendment 10): accept
   `?suite=<arenaId>&setup=<setupId>` as an alternative to `?iteration=`, showing that
   setup's cases in that suite. Add a test for the filter in `src/lib/evals/cases.test.ts`.
-- [ ] T005 — create `src/components/evals/ModelTable.tsx` and
+- [x] T005 — create `src/components/evals/ModelTable.tsx` and
   `src/app/evals/models/page.tsx`, and add "Models" to `EvalSidebar`. Coordinate with
   chunk 09, which also adds a sidebar entry. If both are open, the second to merge rebases
   and keeps both entries.
@@ -174,7 +174,7 @@ Add needles for this page's figures to `no-typed-numbers.sh` and canary them.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with a screenshot, the list of multi-model suites
+- [x] `completion-report.md`, committed, with a screenshot, the list of multi-model suites
       found, and their run counts.
 
 ## Artifacts Checklist

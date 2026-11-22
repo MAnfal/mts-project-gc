@@ -90,6 +90,7 @@ export function index(over: Partial<EvalIndex> = {}): EvalIndex {
     noiseBand: null,
     evalSet: { companies: 3, weeks: { dev: 2, test: 2 }, evalsets: 12, relevant: 20, traps: 157 },
     counts: { suites: 0, runs: 0, traces: 0, userViewRuns: 0, iterations: 0 },
+    priceParity: { checkedOn: "2026-11-21", source: "config/setups.yaml comment" },
     ...over,
   };
 }

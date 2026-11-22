@@ -12,7 +12,8 @@
 // byte for byte against what is there and exits 1 on any difference):
 //   index.json                         suites, setups, iterations (each with its measured candidate and
 //                                      comparedTo, and which evidence files exist), live, baseline,
-//                                      suiteResults (every setup in every suite), noiseBand, evalSet, counts
+//                                      suiteResults (every setup in every suite), noiseBand, evalSet, counts,
+//                                      priceParity (the check date config/setups.yaml's comment records)
 //   iterations/<id>/iteration.json     spec.yaml merged with iteration.yaml (07-next: evidence only)
 //   user-view/index.json               one row per example run, failed ones included
 //   suites/<id>/runs-index.json        one small row per run (id, setup, company, window, repeat, status,
@@ -42,6 +43,7 @@ import {
   noiseBand,
   pickBaselineSetup,
   poolSetupRuns,
+  priceParity,
   repeatAgreement,
   requireKeys,
   runCountsOf,
@@ -388,6 +390,8 @@ async function main() {
       userViewRuns: uv.length,
       iterations: iterations.length,
     },
+    // The models' price-parity check date, recorded only as a comment in the shipped config (chunk 10).
+    priceParity: priceParity(fs.readFileSync(path.join(bundle, "config", "setups.yaml"), "utf8")),
   });
   files.set("index.json", json(index));
 
