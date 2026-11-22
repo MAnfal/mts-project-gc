@@ -34,7 +34,7 @@ export function ModelTable({ group, story }: { group: ModelGroup; story: EvalSto
   const th = "px-3 py-2.5 font-semibold align-bottom";
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full min-w-[920px] border-collapse tabular-nums">
+      <table className="w-full min-w-[980px] border-collapse tabular-nums">
         <thead>
           <tr className="bg-secondary text-right">
             <th scope="col" className={`${th} text-left`}>
@@ -61,8 +61,8 @@ export function ModelTable({ group, story }: { group: ModelGroup; story: EvalSto
             const counts = r.result.runCounts.all;
             return (
               <tr key={r.setup} className={cn("border-t border-row-border", r.live && "bg-status-blue-surface")}>
-                <th scope="row" className="px-3 py-2.5 text-left font-normal">
-                  <Link href={casesHref(group.suite, r.setup)} className="font-semibold" aria-label={`${r.setup}: open its cases in suite ${shortSuite(group.suite)}`}>
+                <th scope="row" className="min-w-[190px] px-3 py-2.5 text-left font-normal">
+                  <Link href={casesHref(group.suite, r.setup)} className="font-semibold whitespace-nowrap" aria-label={`${r.setup}: open its cases in suite ${shortSuite(group.suite)}`}>
                     {r.setup}
                   </Link>
                   <div className="text-xs text-muted-foreground">{r.label}</div>
@@ -133,7 +133,7 @@ export function ModelsView({ story, judges }: { story: EvalStory; judges: JudgeP
         {prose ? (
           <Section id="why-h" title={prose.heading}>
             <p className="m-0 max-w-[74ch] leading-relaxed">{prose.intro}</p>
-            <ul className="m-0 flex max-w-[74ch] flex-col gap-1.5 pl-5 leading-relaxed">
+            <ul className="m-0 flex max-w-[74ch] flex-col gap-1.5 list-disc pl-5 leading-relaxed">
               {prose.points.map((p) => (
                 <li key={p}>{p}</li>
               ))}
@@ -162,7 +162,7 @@ export function ModelsView({ story, judges }: { story: EvalStory; judges: JudgeP
 
         {prose ? (
           <Section id="caveats-h" title="Caveats">
-            <ul className="m-0 flex max-w-[74ch] flex-col gap-1.5 pl-5 leading-relaxed">
+            <ul className="m-0 flex max-w-[74ch] flex-col gap-1.5 list-disc pl-5 leading-relaxed">
               {prose.caveats.map((c) => (
                 <li key={c}>{c}</li>
               ))}

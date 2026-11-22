@@ -30,7 +30,7 @@ export default async function ModelsPage() {
         </div>
       </header>
       <div className="px-4 pt-6 pb-12 sm:px-6">
-        <div className="mx-auto max-w-[1000px]">
+        <div className="mx-auto max-w-[1160px]">
           <ModelsView story={story} judges={{ models: panel.judges.map((j) => j.model), minAgree: panel.minAgree }} />
         </div>
       </div>
