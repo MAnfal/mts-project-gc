@@ -9,8 +9,10 @@ export interface RetryPolicy {
 export const RETRY: RetryPolicy = {
   // At most 3 tries per external call: the GC's rule for when a step counts as failed.
   attempts: 3,
-  // 2 s then 4 s: long enough to ride out a brief provider or network blip, and at most 6 s per call, so the
-  // slowest recorded run (87 s) stays far inside the 300 s function limit.
+  // 2 s then 4 s: long enough to ride out a brief provider or network blip, and at most 6 s per call. With
+  // occasional retries the slowest recorded run (87 s) stays well inside the 300 s function limit. During a govinfo
+  // outage it does not: the 20 passage texts are read one at a time, and each can wait 6 s on govinfo plus 6 s on
+  // the Federal Register fallback, adding up to ~240 s.
   delaysMs: [2000, 4000],
 };
 
