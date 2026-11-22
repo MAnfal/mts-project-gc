@@ -9,5 +9,9 @@ export default defineConfig({
       "server-only": path.resolve(import.meta.dirname, "node_modules/server-only/empty.js"),
     },
   },
-  test: { include: ["src/**/*.test.ts"] },
+  test: {
+    include: ["src/**/*.test.ts"],
+    // Some tests call process.chdir, which worker threads don't support; forks (vitest 5's default) do.
+    pool: "forks",
+  },
 });

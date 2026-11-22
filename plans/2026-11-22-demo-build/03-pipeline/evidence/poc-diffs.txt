@@ -1,0 +1,690 @@
+=== diff poc:poc/src/lib/pipeline/stages.ts src/lib/pipeline/stages.ts
+0a1
+> import "server-only";
+3d3
+< import { gw } from "../gateway";
+8c8
+< import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState, webLeadsPrompt, webLeadsSystem } from "../prompts";
+---
+> import { actionsPrompt, actionsSystem, extractPrompt, extractSystem, filterPrompt, filterSystem, jevQuestion, jevState } from "../prompts";
+11c11
+< import { DATE_RE, parseDocNumberFromUrl, verifiedDatesShown, verifyQuotedDate } from "../verify";
+---
+> import { DATE_RE, verifiedDatesShown, verifyQuotedDate } from "../verify";
+13a14,18
+> // Ported from poc:poc/src/lib/pipeline/stages.ts. Every decision expression is unchanged. Changes:
+> // - Public events: step.progress per passage document (with its title), item.confirmed per verified item.
+> // - An item with no LLM reason gets a neutral reason (itemReason) instead of the internal relevance score.
+> // - Web leads are gone: they are off in every evaluated setup, and their results never fed a decision.
+> 
+21,59d25
+< /**
+<  * Web leads: a bounded tool loop with Exa. Every URL must resolve to a Federal Register
+<  * document number; anything that doesn't is dropped (no silent supplement from the web).
+<  */
+< export async function webLeads(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
+<   const { windowStart, windowEnd, model } = ctx.run.config;
+<   const inWindow = new Set(docs.map((d) => d.document_number));
+<   return ctx.stage(
+<     "scan:web-leads",
+<     async () => {
+<       const r = await ctx.agent("web-leads", {
+<         model,
+<         maxSteps: pipelineCfg().webLeads.maxSteps,
+<         tools: {
+<           exa_search: gw.tools.exaSearch({
+<             numResults: pipelineCfg().webLeads.numResults,
+<             startPublishedDate: `${windowStart}T00:00:00Z`,
+<             endPublishedDate: `${windowEnd}T23:59:59Z`,
+<             contents: { highlights: { maxCharacters: pipelineCfg().webLeads.highlightChars } },
+<           }),
+<         },
+<         system: webLeadsSystem(),
+<         prompt: webLeadsPrompt(profile, windowStart, windowEnd),
+<       });
+<       const urls = new Set<string>();
+<       for (const c of r.toolCalls) {
+<         const results = (c.output as { results?: { url?: string }[] } | undefined)?.results ?? [];
+<         results.forEach((x) => x.url && urls.add(x.url));
+<       }
+<       r.sources?.forEach((s) => "url" in s && s.url && urls.add(s.url));
+<       return [...urls].map((url) => {
+<         const n = parseDocNumberFromUrl(url);
+<         return { url, document_number: n, inWindow: !!n && inWindow.has(n) };
+<       });
+<     },
+<     (r) => ({ outCount: r.length, note: `${r.filter((x) => x.document_number).length} resolved to FR, ${r.filter((x) => x.inWindow).length} already in scan` }),
+<   );
+< }
+< 
+96c62,63
+<       for (const d of top) {
+---
+>       for (const [i, d] of top.entries()) {
+>         ctx.emit({ type: "step.progress", step: "read", count: i + 1, title: d.title });
+189a157,164
+> export const NEUTRAL_REASON = "Flagged as relevant to your profile";
+> 
+> /**
+>  * Why an item is in the report: the LLM filter's reason. Without one (a relevance-only filter, or a document the
+>  * LLM never answered for) the POC showed the raw relevance score; the GC gets a neutral line instead.
+>  */
+> export const itemReason = (dec: FilterDecision | undefined) => dec?.llm?.reason ?? (dec?.jevProbability !== undefined ? NEUTRAL_REASON : "");
+> 
+269c244
+<             return {
+---
+>             const item: ActionItem = {
+281c256
+<               reason: dec?.llm?.reason ?? (dec?.jevProbability !== undefined ? `Jev p=${dec.jevProbability.toFixed(2)} (no LLM reason)` : ""),
+---
+>               reason: itemReason(dec),
+287a263,264
+>             ctx.emit({ type: "item.confirmed", item });
+>             return item;
+(diff exit 1)
+=== diff poc:poc/src/lib/pipeline/run.ts src/lib/pipeline/run.ts
+1,10c1,7
+< import { z } from "zod";
+< import { agencyNames, getDoc, getRawText, listWindow } from "../fr";
+< import { configHash, experiment, getCompany, pipelineCfg, prompts, setups, withPromptSet } from "../config";
+< import { baselineFormat, baselineTask } from "../prompts";
+< import { saveRun } from "../store";
+< import { searchKind, searchTools } from "../models";
+< import type { ActionItem, Deadline, FilterDecision, RunConfig, RunRecord, Tier } from "../types";
+< import { parseDocNumberFromUrl, verifyQuotedDate } from "../verify";
+< import { RunCtx } from "./context";
+< import { filterJev, filterLlm, filterPassages, renderMarkdown, scan, verifyAndTier, webLeads, writeActions } from "./stages";
+---
+> import "server-only";
+> import { getCompany, withPromptSet } from "../config";
+> import type { ActionItem, CompanyProfile, FilterDecision, FrDoc, RunConfig } from "../types";
+> import { RunCtx, StepFailed, type TraceSink } from "./context";
+> import { assertPublic, heldBack, screenedOut, stepOf, TIMEOUT_MESSAGE, UNEXPECTED_MESSAGE, type RunEvent } from "./events";
+> import { RetriesExhausted, withRetryScope } from "./retry";
+> import { filterJev, filterLlm, filterPassages, renderMarkdown, scan, verifyAndTier, writeActions } from "./stages";
+12,14c9,18
+< export function newRun(config: RunConfig): RunRecord {
+<   const id = `${new Date().toISOString().replace(/[:.]/g, "-")}_${config.mode}_${Math.random().toString(36).slice(2, 6)}`;
+<   return { id, createdAt: new Date().toISOString(), config, configHash: configHash(), status: "running", stages: [], calls: [], totalCostUsd: 0, totalMs: 0 };
+---
+> // Ported from poc:poc/src/lib/pipeline/run.ts: the pipeline path only. The relevance cut and the verdict merge
+> // in pipeline() are the POC's lines unchanged. Gone: the baseline mode (eval only), web leads (off in every
+> // evaluated setup; their results never fed a decision) and saving the run record (nothing is written server-side).
+> 
+> export interface PipelineResult {
+>   items: ActionItem[];
+>   dropped: { document_number: string; why: string }[];
+>   /** Per scanned document, server-side only: carries the internal relevance score. */
+>   decisions: FilterDecision[];
+>   markdown: string;
+17,18c21,34
+< export async function execute(run: RunRecord): Promise<RunRecord> {
+<   const ctx = new RunCtx(run);
+---
+> /** The run failed and has already emitted step.failed (when inside a step) and run.failed. */
+> export class RunFailed extends Error {
+>   constructor(cause: unknown) {
+>     super("run failed", { cause });
+>     this.name = "RunFailed";
+>   }
+> }
+> 
+> /**
+>  * Runs the live pipeline once, streaming public events to `emit`. Emits exactly one terminal event: run.done, or
+>  * run.failed (after step.failed when a step was running). Resolves with the result on run.done; rejects with
+>  * RunFailed on run.failed, so the caller never needs to emit one itself.
+>  */
+> export async function runPipeline(config: RunConfig, emit: (e: RunEvent) => void, opts: { trace?: TraceSink } = {}): Promise<PipelineResult> {
+20,30c36
+<   // Everything the run depends on, resolved, so the trace alone can explain the run.
+<   ctx.trace.emit("run.start", {
+<     config: run.config,
+<     configHash: run.configHash,
+<     profile: run.config.customProfile ?? (() => { try { return getCompany(run.config.profileId); } catch { return null; } })(),
+<     promptSet: run.config.promptSet ?? null,
+<     prompts: await withPromptSet(run.config.promptSet, async () => prompts()),
+<     pipeline: pipelineCfg(),
+<     setup: setups().setups.find((s) => s.id === run.config.cell) ?? null,
+<     jevModel: experiment().jevModel,
+<   });
+---
+>   let profile: CompanyProfile;
+32,35c38
+<     await ctx.init();
+<     await saveRun(run);
+<     await withPromptSet(run.config.promptSet, () => (run.config.mode === "baseline" ? baseline(ctx) : pipeline(ctx)));
+<     run.status = "done";
+---
+>     profile = config.customProfile ?? getCompany(config.profileId);
+37,38c40,44
+<     run.status = "error";
+<     run.error = (e as Error).message;
+---
+>     console.error("[Pipeline] no profile:", e);
+>     const failed: RunEvent = { type: "run.failed", step: null, message: UNEXPECTED_MESSAGE };
+>     assertPublic(failed);
+>     emit(failed);
+>     throw new RunFailed(e);
+40,44c46,77
+<   run.totalMs = Date.now() - t0;
+<   ctx.trace.emit("run.end", { status: run.status, error: run.error, totalCostUsd: run.totalCostUsd, totalMs: run.totalMs, scanned: run.scanned, items: run.items?.length ?? 0, dropped: run.dropped ?? [], itemsFinal: run.items ?? [] });
+<   await ctx.trace.flush();
+<   await saveRun(run);
+<   return run;
+---
+>   const ctx = new RunCtx({ config }, profile.name, emit, opts.trace ? { emit: opts.trace } : undefined);
+>   try {
+>     ctx.emit({
+>       type: "run.start",
+>       company: profile.name,
+>       windowStart: config.windowStart,
+>       windowEnd: config.windowEnd,
+>       asOf: config.asOf,
+>       steps: plannedStages(config).map((s) => stepOf(s, profile.name)),
+>     });
+>     const out = await withRetryScope({ onRetry: ctx.onRetry, stopped: ctx.stopped }, () => withPromptSet(config.promptSet, () => pipeline(ctx, profile)));
+>     ctx.emit({
+>       type: "run.done",
+>       items: out.items,
+>       dropped: heldBack(out.docs, out.dropped),
+>       screenedOut: screenedOut(out.docs, out.decisionMap),
+>       notReviewedCount: out.docs.length - out.sentToLlm,
+>       scanned: out.docs.length,
+>       markdown: out.markdown,
+>       ms: Date.now() - t0,
+>     });
+>     console.info(`[Pipeline] done: ${out.docs.length} scanned, ${out.items.length} items, $${ctx.totalCostUsd.toFixed(3)}, ${Date.now() - t0} ms`);
+>     return { items: out.items, dropped: out.dropped, decisions: [...out.decisionMap.values()], markdown: out.markdown };
+>   } catch (e) {
+>     ctx.failed = true;
+>     console.error("[Pipeline] failed:", e);
+>     const message = rootCause(e) instanceof RetriesExhausted ? TIMEOUT_MESSAGE : UNEXPECTED_MESSAGE;
+>     const step = e instanceof StepFailed ? e : null;
+>     if (step) ctx.emit({ type: "step.failed", step: step.step, label: step.label, message });
+>     ctx.emit({ type: "run.failed", step: step?.step ?? null, message });
+>     throw new RunFailed(e);
+>   }
+47c80,94
+< async function pipeline(ctx: RunCtx) {
+---
+> const rootCause = (e: unknown) => (e instanceof StepFailed ? e.cause : e);
+> 
+> /** The stages pipeline() runs for this config, in order (what the GC sees as waiting steps). */
+> export function plannedStages(cfg: RunConfig): string[] {
+>   return [
+>     "scan:federal-register",
+>     ...(cfg.filter !== "llm" ? ["filter:jev"] : []),
+>     ...(cfg.filter !== "llm" && cfg.filterExcerpts && cfg.filter !== "jev" ? ["filter:passages"] : []),
+>     ...(cfg.filter !== "jev" ? ["filter:llm"] : []),
+>     "verify+tier",
+>     "output:actions",
+>   ];
+> }
+> 
+> async function pipeline(ctx: RunCtx, profile: CompanyProfile) {
+49d95
+<   const profile = cfg.customProfile ?? getCompany(cfg.profileId);
+51,52c97
+<   const docs = await scan(ctx);
+<   ctx.run.scanned = docs.length;
+---
+>   const docs: FrDoc[] = await scan(ctx);
+54d98
+<   if (cfg.webLeads) ctx.run.webLeads = await webLeads(ctx, profile, docs);
+74d117
+<   ctx.run.decisions = [...decisions.values()];
+76c119
+<   for (const d of ctx.run.decisions)
+---
+>   for (const d of decisions.values())
+88,205c131,133
+<   ctx.run.dropped = dropped;
+<   ctx.run.items = await writeActions(ctx, profile, items);
+<   ctx.run.markdown = renderMarkdown(profile, cfg, ctx.run.items);
+< }
+< 
+< // ───────────────────────────── Baseline ─────────────────────────────
+< // One task prompt + web search (vendor-native, or Exa where the vendor has none); the model does everything
+< // (relevance, dates, tier, owner). Same model as the pipeline cell, so the delta measures the harness.
+< 
+< const baselineSchema = z.object({
+<   items: z.array(
+<     z.object({
+<       document_number: z.string().nullable().describe("Federal Register document number, e.g. 2026-22809"),
+<       title: z.string(),
+<       url: z.string(),
+<       deadline: z.string().nullable().describe("YYYY-MM-DD"),
+<       deadline_kind: z.enum(["comment", "effective", "compliance", "other"]).nullable(),
+<       tier: z.enum(["Critical", "High", "Medium", "Low"]),
+<       owner_area: z.string(),
+<       reason: z.string(),
+<       action: z.string(),
+<     }),
+<   ),
+< });
+< 
+< async function baseline(ctx: RunCtx) {
+<   const cfg = ctx.run.config;
+<   const profile = cfg.customProfile ?? getCompany(cfg.profileId);
+<   const prompt = baselineTask(profile, cfg);
+< 
+<   // Two steps for every model: research freely with web search, then put the answer in our format.
+<   // (Some providers skip tool calls when structured output is requested in the same call — Kimi did in smoke tests.)
+<   const research = await ctx.stage(
+<     `baseline:search (${searchKind(cfg.model)})`,
+<     () => ctx.agent("baseline:search", { model: cfg.model, prompt, tools: searchTools(cfg.model), maxSteps: pipelineCfg().baseline.searchMaxSteps }),
+<     (r) => ({ outCount: r.toolCalls.length, note: `${r.toolCalls.length} search calls` }),
+<   );
+<   const out = await ctx.stage(
+<     "baseline:format",
+<     () =>
+<       ctx.object("baseline:format", {
+<         model: cfg.model,
+<         prompt: baselineFormat(prompt, research.text),
+<         schema: baselineSchema,
+<       }),
+<     (r) => ({ outCount: r.items.length }),
+<   );
+<   ctx.run.claimed = out.items;
+< 
+<   // Resolution + verification use the same code as the pipeline, so both are graded identically.
+<   const windowDocs = new Set((await listWindow(cfg.windowStart, cfg.windowEnd)).map((d) => d.document_number));
+<   const dropped: { document_number: string; why: string }[] = [];
+<   const items: ActionItem[] = [];
+<   await ctx.stage(
+<     "baseline:resolve+verify",
+<     async () => {
+<       for (const c of out.items) {
+<         const num = c.document_number?.trim() || parseDocNumberFromUrl(c.url);
+<         const drop = (document_number: string, why: string) => {
+<           dropped.push({ document_number, why });
+<           ctx.trace.emit("baseline.resolve", { claim: c, document_number, outcome: "dropped", why });
+<         };
+<         if (!num) {
+<           drop(c.title, "no Federal Register document number");
+<           continue;
+<         }
+<         const doc = await getDoc(num);
+<         if (!doc) {
+<           drop(num, "document number does not exist on federalregister.gov");
+<           continue;
+<         }
+<         if (!windowDocs.has(num)) {
+<           drop(num, `published ${doc.publication_date}, outside window`);
+<           continue;
+<         }
+<         const deadlines: Deadline[] = [];
+<         if (c.deadline) {
+<           const raw = await getRawText(doc);
+<           const fieldHit = c.deadline === doc.comments_close_on || c.deadline === doc.effective_on;
+<           // Accept if it equals a structured field or appears in the source text in any common rendering.
+<           const textHit = verifyQuotedDate(`${doc.dates ?? ""}\n${raw}`, `${doc.dates ?? ""}\n${raw}`, c.deadline).ok;
+<           deadlines.push({ date: c.deadline, kind: c.deadline_kind ?? "other", source: "extracted", verified: fieldHit || textHit, verifyNote: fieldHit ? "matches FR field" : textHit ? "date appears in source text" : "date not found in primary source" });
+<         }
+<         const areaKey = Object.keys(profile.areas).find((k) => c.owner_area.toLowerCase().includes(k)) ?? null;
+<         ctx.trace.emit("baseline.resolve", {
+<           claim: c,
+<           document_number: num,
+<           outcome: "kept",
+<           date: deadlines[0] ? { claimed: deadlines[0].date, verified: deadlines[0].verified, note: deadlines[0].verifyNote } : null,
+<           owner: { claimedArea: c.owner_area, matchedArea: areaKey },
+<         });
+<         items.push({
+<           document_number: num,
+<           title: doc.title,
+<           type: doc.type,
+<           agencies: agencyNames(doc),
+<           tier: c.tier as Tier,
+<           tierReason: "model-assigned",
+<           deadline: deadlines[0] ?? null,
+<           // The baseline shows the date it claimed whether or not we could verify it (that is what a reader would see).
+<           datesShown: deadlines,
+<           deadlines,
+<           owner: areaKey ? profile.areas[areaKey].owner : profile.generalCounsel,
+<           areas: areaKey ? [areaKey] : [],
+<           reason: c.reason,
+<           action: c.action,
+<           citation: doc.citation,
+<           citationVerified: true,
+<           url: doc.html_url,
+<           sourceTag: "[web search — verify]",
+<         });
+<       }
+<     },
+<     () => ({ inCount: out.items.length, outCount: items.length }),
+<   );
+<   ctx.run.items = items;
+<   ctx.run.dropped = dropped;
+<   ctx.run.markdown = renderMarkdown(profile, cfg, items);
+---
+>   const final = await writeActions(ctx, profile, items);
+>   const markdown = renderMarkdown(profile, cfg, final);
+>   return { docs, decisionMap: decisions, sentToLlm: sentToLlm.size, items: final, dropped, markdown };
+(diff exit 1)
+=== diff poc:poc/src/lib/pipeline/context.ts src/lib/pipeline/context.ts
+1c1,2
+< import { generateText, Output, experimental_decide as decide, isStepCount, type ToolSet } from "ai";
+---
+> import "server-only";
+> import { generateText, Output, experimental_decide as decide } from "ai";
+5,7c6,8
+< import { budgetUsd, saveRun, spentUsd } from "../store";
+< import { Tracer } from "../trace";
+< import type { LlmCallLog, RunRecord } from "../types";
+---
+> import type { RunConfig } from "../types";
+> import { assertPublic, stepOf, type RunEvent, type StepKey } from "./events";
+> import { withRetry, type OnRetry } from "./retry";
+9c10,15
+< export class BudgetExceeded extends Error {}
+---
+> // Ported from poc:poc/src/lib/pipeline/context.ts. Changes, none of which touches a decision:
+> // - The run is not saved: no RunRecord on disk, no JSONL trace file, no spend ledger or budget guard.
+> // - Internal trace events go to `trace` (a no-op unless DEBUG_PIPELINE is set, or a test passes a sink);
+> //   what the GC sees goes through `emit` as public RunEvents, each checked by assertPublic.
+> // - Every model call is retried by withRetry (3 tries, 2 s and 4 s apart) and reported as step.retry. The SDK's own
+> //   retries are off (maxRetries: 0; the POC used 2 and 3), so a call is never tried more than 3 times in total.
+11,13c17
+< type Step = { toolCalls: { toolName: string; toolCallId: string; input: unknown }[]; toolResults: { toolCallId: string; output: unknown }[]; providerMetadata?: unknown; finishReason?: unknown };
+< const toolCallsOf = (steps: Step[]) =>
+<   steps.flatMap((s) => s.toolCalls.map((c) => ({ name: c.toolName, input: c.input, output: s.toolResults.find((x) => x.toolCallId === c.toolCallId)?.output })));
+---
+> type Step = { toolCalls: { toolName: string; toolCallId: string; input: unknown }[]; toolResults: { toolCallId: string; output: unknown }[]; providerMetadata?: unknown };
+16,24c20,34
+< /**
+<  * Per-run bookkeeping: every model call goes through here, so cost, latency and I/O land in both the run record
+<  * (data/runs/<id>.json, summary) and the execution trace (data/traces/<id>.jsonl, every step in full).
+<  */
+< export class RunCtx {
+<   private spentAtStart = 0;
+<   readonly trace: Tracer;
+<   constructor(public run: RunRecord) {
+<     this.trace = new Tracer(run);
+---
+> export type TraceSink = (type: string, data: Record<string, unknown>) => void;
+> 
+> const debugTrace: TraceSink = (type, data) => {
+>   if (process.env.DEBUG_PIPELINE) console.debug(`[Pipeline] ${type}`, JSON.stringify(data));
+> };
+> 
+> /** The step a failure happened in, so the run can report it without guessing. */
+> export class StepFailed extends Error {
+>   constructor(
+>     readonly step: StepKey,
+>     readonly label: string,
+>     cause: unknown,
+>   ) {
+>     super(`step ${step} failed`, { cause });
+>     this.name = "StepFailed";
+25a36
+> }
+27,30c38,58
+<   async init() {
+<     // Excludes this run (not yet saved), so the guard below compares prior spend + this run's spend.
+<     this.spentAtStart = await spentUsd();
+<     if (this.spentAtStart >= budgetUsd()) throw new BudgetExceeded(`Budget exhausted: $${this.spentAtStart.toFixed(2)} of $${budgetUsd()}`);
+---
+> /** Per-run bookkeeping: every model call goes through here, so retries, cost and the trace are handled once. */
+> export class RunCtx {
+>   totalCostUsd = 0;
+>   private current: { step: StepKey; label: string } | null = null;
+>   private ended = false;
+>   /** Set once the run has failed: calls still queued give up instead of starting. */
+>   failed = false;
+> 
+>   constructor(
+>     readonly run: { config: RunConfig },
+>     readonly company: string,
+>     private sink: (e: RunEvent) => void,
+>     readonly trace: { emit: TraceSink } = { emit: debugTrace },
+>   ) {}
+> 
+>   /** Send a public event to the browser. Nothing is sent after the run's terminal event. */
+>   emit(event: RunEvent) {
+>     if (this.ended) return;
+>     assertPublic(event);
+>     if (event.type === "run.done" || event.type === "run.failed") this.ended = true;
+>     this.sink(event);
+33,36c61,69
+<   private guard() {
+<     if (this.spentAtStart + this.run.totalCostUsd >= budgetUsd()) {
+<       throw new BudgetExceeded(`Budget cap $${budgetUsd()} reached mid-run`);
+<     }
+---
+>   /** step.retry for whichever step is running; the Federal Register client reports through this too. */
+>   readonly onRetry: OnRetry = ({ attempt, delayMs }) => {
+>     if (this.current) this.emit({ type: "step.retry", step: this.current.step, attempt, delayMs });
+>   };
+> 
+>   readonly stopped = () => this.failed;
+> 
+>   get step() {
+>     return this.current;
+39,41c72,74
+<   private record(log: LlmCallLog) {
+<     this.run.calls.push(log);
+<     this.run.totalCostUsd += log.costUsd;
+---
+>   private async retry<T>(fn: () => Promise<T>) {
+>     if (this.failed) throw new Error("run already failed");
+>     return withRetry(fn, undefined, this.onRetry, this.stopped);
+46c79,81
+<     const costBefore = this.run.totalCostUsd;
+---
+>     const costBefore = this.totalCostUsd;
+>     const step = stepOf(name, this.company);
+>     this.current = step;
+48,52c83,93
+<     const r = await fn();
+<     const log = { name, ms: Date.now() - t0, costUsd: this.run.totalCostUsd - costBefore, ...(counts?.(r) ?? {}) };
+<     this.run.stages.push(log);
+<     this.trace.emit("stage.end", { stage: name, ms: log.ms, costUsd: log.costUsd, inCount: log.inCount, outCount: log.outCount, note: log.note, runCostSoFar: this.run.totalCostUsd });
+<     await saveRun(this.run);
+---
+>     this.emit({ type: "step.start", ...step });
+>     let r: T;
+>     try {
+>       r = await fn();
+>     } catch (e) {
+>       throw new StepFailed(step.step, step.label, e);
+>     }
+>     const log = { name, ms: Date.now() - t0, costUsd: this.totalCostUsd - costBefore, ...(counts?.(r) ?? {}) };
+>     this.trace.emit("stage.end", { stage: name, ms: log.ms, costUsd: log.costUsd, inCount: log.inCount, outCount: log.outCount, note: log.note, runCostSoFar: this.totalCostUsd });
+>     this.emit({ type: "step.done", step: step.step, count: log.outCount ?? 0, ms: log.ms });
+>     this.current = null;
+56,58c97,98
+<   /** Structured LLM call (optionally with tools). `logPrompt: false` keeps a long prompt out of the run summary only; the trace always has it. */
+<   async object<S extends z.ZodType>(stage: string, args: { model: string; system?: string; prompt: string; schema: S; tools?: ToolSet; logPrompt?: boolean }): Promise<z.infer<S>> {
+<     this.guard();
+---
+>   /** Structured LLM call. `logPrompt` is kept for the POC's call sites; the trace always has the prompt. */
+>   async object<S extends z.ZodType>(stage: string, args: { model: string; system?: string; prompt: string; schema: S; logPrompt?: boolean }): Promise<z.infer<S>> {
+59a100
+>     const model = languageModel(args.model);
+61,68c102,110
+<       const r = await generateText({
+<         model: languageModel(args.model),
+<         system: args.system,
+<         prompt: args.prompt,
+<         tools: args.tools,
+<         output: Output.object({ schema: args.schema }),
+<         maxRetries: 2,
+<       });
+---
+>       const r = await this.retry(() =>
+>         generateText({
+>           model,
+>           system: args.system,
+>           prompt: args.prompt,
+>           output: Output.object({ schema: args.schema }),
+>           maxRetries: 0,
+>         }),
+>       );
+70d111
+<       const toolCalls = toolCallsOf(steps);
+72,82c113
+<       this.record({
+<         stage,
+<         model: args.model,
+<         ms: Date.now() - t0,
+<         costUsd,
+<         inputTokens: r.totalUsage.inputTokens,
+<         outputTokens: r.totalUsage.outputTokens,
+<         prompt: args.logPrompt === false ? undefined : args.prompt,
+<         output: r.output,
+<         toolCalls: toolCalls.length ? toolCalls : undefined,
+<       });
+---
+>       this.totalCostUsd += costUsd;
+88c119
+<         tools: args.tools ? Object.keys(args.tools) : [],
+---
+>         tools: [],
+90d120
+<         toolCalls,
+98d127
+<       this.record({ stage, model: args.model, ms: Date.now() - t0, costUsd: 0, prompt: args.prompt, error: (e as Error).message });
+104,130c133
+<   /** Free-form tool loop (web leads, baseline research). Returns text + every tool call. */
+<   async agent(stage: string, args: { model: string; system?: string; prompt: string; tools: ToolSet; maxSteps: number }) {
+<     this.guard();
+<     const t0 = Date.now();
+<     const r = await generateText({ model: languageModel(args.model), system: args.system, prompt: args.prompt, tools: args.tools, stopWhen: isStepCount(args.maxSteps) });
+<     const steps = r.steps as unknown as Step[];
+<     const toolCalls = toolCallsOf(steps);
+<     const costUsd = costOf(steps);
+<     this.record({ stage, model: args.model, ms: Date.now() - t0, costUsd, inputTokens: r.totalUsage.inputTokens, outputTokens: r.totalUsage.outputTokens, prompt: args.prompt, output: r.text, toolCalls });
+<     this.trace.emit("llm.call", {
+<       stage,
+<       model: args.model,
+<       system: args.system ?? "",
+<       prompt: args.prompt,
+<       tools: Object.keys(args.tools),
+<       output: r.text,
+<       toolCalls,
+<       sources: r.sources,
+<       steps: steps.length,
+<       usage: r.totalUsage,
+<       costUsd,
+<       ms: Date.now() - t0,
+<     });
+<     return { text: r.text, toolCalls, sources: r.sources };
+<   }
+< 
+<   /** Jev (decision model): returns a probability only. Every call is traced with what it was asked. */
+---
+>   /** Decision model: returns a probability only. Every call is traced with what it was asked. */
+132d134
+<     this.guard();
+135,140c137,145
+<     const r = await decide({
+<       model: decisionModel(model),
+<       state,
+<       questions: { relevant: { type: "boolean", instructions: question } },
+<       maxRetries: 3,
+<     });
+---
+>     const dm = decisionModel(model);
+>     const r = await this.retry(() =>
+>       decide({
+>         model: dm,
+>         state,
+>         questions: { relevant: { type: "boolean", instructions: question } },
+>         maxRetries: 0,
+>       }),
+>     );
+142c147
+<     this.run.totalCostUsd += cost;
+---
+>     this.totalCostUsd += cost;
+(diff exit 1)
+=== diff poc:poc/src/lib/pipeline/excerpts.ts src/lib/pipeline/excerpts.ts
+(diff exit 0)
+=== diff poc:poc/src/lib/gateway.ts src/lib/gateway.ts
+0a1
+> import "server-only";
+2,3d2
+< import { config } from "dotenv";
+< import path from "node:path";
+5,7c4,6
+< // The key lives in the repo-root .env (not poc/.env.local), so load it explicitly.
+< config({ path: path.resolve(process.cwd(), "../.env"), quiet: true });
+< config({ path: path.resolve(process.cwd(), ".env"), quiet: true });
+---
+> // Ported from poc:poc/src/lib/gateway.ts. The POC loaded VERCEL_AI_GATEWAY_API_KEY from ../.env with dotenv and
+> // threw at import when it was missing. Here the gateway reads AI_GATEWAY_API_KEY from the environment itself, and
+> // a missing key fails only when a model is resolved, so importing this module (a build, a test) never needs it.
+9,10c8
+< const apiKey = process.env.VERCEL_AI_GATEWAY_API_KEY ?? process.env.AI_GATEWAY_API_KEY;
+< if (!apiKey) throw new Error("Missing VERCEL_AI_GATEWAY_API_KEY in ../.env");
+---
+> let gw: ReturnType<typeof createGateway> | undefined;
+12c10,13
+< export const gw = createGateway({ apiKey });
+---
+> function gateway() {
+>   if (!process.env.AI_GATEWAY_API_KEY) throw new Error("AI_GATEWAY_API_KEY is not set: add the AI Gateway key to the environment (.env.local, or the Vercel project settings).");
+>   return (gw ??= createGateway());
+> }
+22,24c23,26
+< type LM = ReturnType<typeof gw>;
+< type DM = ReturnType<typeof gw.decisionModel>;
+< let resolvers: { language: (id: string) => LM; decision: (id: string) => DM } = { language: (id) => gw(id), decision: (id) => gw.decisionModel(id) };
+---
+> type LM = ReturnType<ReturnType<typeof createGateway>>;
+> type DM = ReturnType<ReturnType<typeof createGateway>["decisionModel"]>;
+> const live = { language: (id: string): LM => gateway()(id), decision: (id: string): DM => gateway().decisionModel(id) };
+> let resolvers = live;
+27,29c29,31
+< /** Tests only: swap in mock models (ai/test). */
+< export function setModelsForTests(r: { language: (id: string) => unknown; decision: (id: string) => unknown }) {
+<   resolvers = r as typeof resolvers;
+---
+> /** Tests only: swap in mock models (ai/test); null restores the gateway. */
+> export function setModelsForTests(r: { language: (id: string) => unknown; decision: (id: string) => unknown } | null) {
+>   resolvers = (r ?? live) as typeof resolvers;
+(diff exit 1)
+=== git diff 6a02704 -- src/lib/fr.ts
+diff --git a/src/lib/fr.ts b/src/lib/fr.ts
+index d3e9d30..98a63d9 100644
+--- a/src/lib/fr.ts
++++ b/src/lib/fr.ts
+@@ -1,5 +1,6 @@
+ import "server-only";
+ import { frozenWeek } from "./config";
++import { withScopedRetry } from "./pipeline/retry";
+ import type { FrDoc } from "./types";
+ 
+ // Ported from poc:poc/src/lib/fr.ts. The one change: the POC cached HTTP responses as files under data/cache/,
+@@ -38,8 +39,20 @@ async function cached<T>(key: string, fetcher: () => Promise<T>, useCache: boole
+   return value;
+ }
+ 
++/**
++ * fetch, retried (3 tries, 2 s and 4 s apart, reported to the run in scope) when the request throws or the server
++ * answers 5xx or 429. Any other answer, 404 included, is returned as-is on the first try. After the last try the
++ * error propagates, and each caller handles it exactly as it handled a failed fetch before retries existed.
++ */
++const fetchRetrying = (url: string, init: RequestInit) =>
++  withScopedRetry(async () => {
++    const res = await fetch(url, init);
++    if (res.status >= 500 || res.status === 429) throw new Error(`HTTP ${res.status} for ${url}`);
++    return res;
++  });
++
+ async function getJson(url: string) {
+-  const res = await fetch(url, { headers: { accept: "application/json" } });
++  const res = await fetchRetrying(url, { headers: { accept: "application/json" } });
+   if (!res.ok) throw new Error(`Federal Register ${res.status} for ${url}`);
+   return res.json();
+ }
+@@ -92,7 +105,7 @@ export const govinfoUrl = (doc: Pick<FrDoc, "document_number" | "publication_dat
+ 
+ async function fetchText(url: string): Promise<string | null> {
+   try {
+-    const res = await fetch(url, { headers: { "user-agent": "reg-monitor-poc" } });
++    const res = await fetchRetrying(url, { headers: { "user-agent": "reg-monitor-poc" } });
+     if (!res.ok) return null;
+     const html = await res.text();
+     if (!html.trim() || isBlockPage(html)) return null;
