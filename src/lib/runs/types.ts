@@ -68,3 +68,20 @@ export interface ExampleRun extends ExampleSummary {
   profile: CompanyProfile;
   events: RunEvent[];
 }
+
+/** One message of a follow-up conversation about a finished report. */
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+/**
+ * A follow-up conversation, saved in its own IndexedDB store (never on the run record: an example has no run record).
+ * Keyed `live:<runId>` or `example:<exampleId>`. Holds only finished question-and-answer pairs.
+ */
+export interface StoredChat {
+  id: string;
+  /** ISO timestamp of the last save. */
+  savedAt: string;
+  turns: ChatTurn[];
+}
