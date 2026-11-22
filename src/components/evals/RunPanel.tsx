@@ -12,6 +12,8 @@ import { checkSummary } from "@/lib/evals/runList";
 import { cn } from "@/lib/utils";
 
 export const traceHref = (suiteId: string, runId: string) => `/evals/traces/${encodeURIComponent(suiteId)}/${encodeURIComponent(runId)}`;
+/** The read-only report of one recorded run (chunk 06): items, tiers, owners, dates, stages. */
+export const reportHref = (suiteId: string, runId: string) => `/evals/reports/${encodeURIComponent(suiteId)}/${encodeURIComponent(runId)}`;
 
 type Facts = TraceFacts | { error: string };
 /** Traces already read this session, so going back to a case doesn't fetch its traces again. */
@@ -274,6 +276,11 @@ export function RunPanel({
               </Link>
             );
           })}
+          {current ? (
+            <Link href={reportHref(suiteId, current.id)} className="self-center text-[13px]">
+              Open run {current.repeat + 1}&apos;s report
+            </Link>
+          ) : null}
         </nav>
       ) : null}
     </div>
