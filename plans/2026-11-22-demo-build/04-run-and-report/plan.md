@@ -257,7 +257,7 @@ report.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed. It includes screenshots of Running, Report,
+- [x] `completion-report.md`, committed. It includes screenshots of Running, Report,
       Failed+Retry and the 390 px width view, and the live smoke output if run.
 
 ## Artifacts Checklist
