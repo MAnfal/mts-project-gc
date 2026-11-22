@@ -16,7 +16,7 @@ export const LabelledNumberSchema = z
   .object({
     value: z.number().nullable(),
     split: SplitSchema,
-    /** Runs the value was computed over (graded runs for key-graded metrics, finished runs for timing, all for cost). */
+    /** Runs the value was computed over: graded runs for key-graded metrics, finished runs for trace checks and timing, all for cost, runs carrying a judge panel for judgePass. */
     runs: z.number().int().nonnegative(),
     /** Suite (arena) ids whose runs were pooled. */
     suite: z.array(z.string().min(1)).min(1),

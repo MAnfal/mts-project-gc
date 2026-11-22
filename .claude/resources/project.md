@@ -144,6 +144,7 @@ one.
 | `src/app/api/**/route.ts` | `pnpm test`, `pnpm build`, `pnpm typecheck` | Server-only. Request input (query, body) is parsed with zod before use. No secrets or stack traces in responses. Exports only HTTP handlers and segment config (`runtime`, `maxDuration`); helpers live in a sibling module with their own test. | `.claude/resources/bibles/swe/testing.md` |
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
+| `public/evals/**`, `scripts/*eval*`, `scripts/poc-src.sh` | `bash scripts/verify-eval-bundle.sh`, `pnpm build` | `public/evals/` is generated: a diff there comes from re-running `scripts/build-eval-bundle.sh`, never from a hand edit, and the verify gate passes on the result. No `poc/` path is committed. No route or server module imports `public/evals` (it ships as static files). POC grading code runs unmodified from the detached `poc-src` checkout. | — |
 
 **Anything under `.claude/` is governed by the prompt-engineering bible** whether or not a
 row above matches it. `generate-chunk-rubric` adds those citations on its own — see that
@@ -197,9 +198,11 @@ a follow-up.
   and runtime never read it.
 - **Eval numbers come from `index.json`, labelled.** Every live/baseline number is
   `{value, split, runs, suite}` (`src/lib/evals/index-schema.ts`). `runs` is the denominator
-  `suiteReport` used: graded runs for key-graded metrics, finished runs for `judgePass`,
-  `traceChecks` and `secondsPerRun`, all runs for `costPerRunUsd`. Live pools both iteration-06
-  suites; baseline pools `w0i` + `cb0`, because neither suite alone covers all four weeks.
+  `suiteReport` used: graded runs for key-graded metrics, finished runs for `traceChecks` and
+  `secondsPerRun`, all runs for `costPerRunUsd`, and runs carrying a judge panel for `judgePass`.
+  The POC judges only the first repeat, so `judgePass` rests on about a third of the runs (live: 24
+  of 69). Live pools both iteration-06 suites; baseline pools `w0i` + `cb0`, because neither suite
+  alone covers all four weeks.
 - **Read the bundle in the browser with `src/lib/evals/loader.ts`.** `.gz` files are served as
   `application/gzip` with no `Content-Encoding` (measured under `pnpm start`), so the loader gunzips
   them with `DecompressionStream`. Traces stream as an async iterator; never `res.json()` a `.gz`.

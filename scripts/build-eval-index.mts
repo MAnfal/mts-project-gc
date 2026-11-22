@@ -44,6 +44,8 @@ type Run = {
   configHash?: string;
   superseded?: boolean;
   items?: unknown[];
+  /** Judge-panel verdicts; the POC judges only the first repeat of each eval set (arena.ts). */
+  panel?: unknown;
   config: { profileId: string; windowStart: string; windowEnd: string; evalset?: string; cell?: string; arena?: string };
 };
 type SetupReport = {
@@ -149,19 +151,21 @@ function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: str
   const uncovered = sets.filter((e) => !covered.has(e.id)).map((e) => e.id);
   if (uncovered.length) throw new Error(`setup ${setup} in ${suites.join(", ")} misses eval sets: ${uncovered.join(", ")}`);
 
-  const per = (split: Split): SetupReport => {
+  const per = (split: Split) => {
     const runs = split === "all" ? pooled : pooled.filter((r) => splitOf(r) === split);
     const s = poc.suiteReport(runs).setups.find((x) => x.key === setup);
     if (!s) throw new Error(`suiteReport has no ${setup} row for split ${split}`);
-    return s;
+    // panelSummary pools the verdicts of finished runs, but only first-repeat runs carry a panel.
+    return { s, panelRuns: runs.filter((r) => r.status === "done" && r.panel).length };
   };
   const reports = { all: per("all"), dev: per("dev"), test: per("test") };
   // The run count each metric is an average over, as suiteReport computes it.
-  const valueOf = (s: SetupReport, m: Metric): { value: number | null; runs: number } => {
+  const valueOf = ({ s, panelRuns }: ReturnType<typeof per>, m: Metric): { value: number | null; runs: number } => {
     if (m === "score") return { value: s.score, runs: s.graded };
     if (m === "costPerRunUsd") return { value: s.costPerRun, runs: s.runs };
     if (m === "secondsPerRun") return { value: s.msMean === null ? null : s.msMean / 1000, runs: s.finished };
-    if (m === "judgePass" || m === "traceChecks") return { value: s.metrics[m], runs: s.finished };
+    if (m === "judgePass") return { value: s.metrics[m], runs: panelRuns };
+    if (m === "traceChecks") return { value: s.metrics[m], runs: s.finished };
     return { value: s.metrics[m], runs: s.graded };
   };
   const metrics = Object.fromEntries(
@@ -170,9 +174,9 @@ function setupResult(poc: Poc, setup: string, suites: string[], runsOf: (id: str
   const counts = (s: SetupReport) => ({ total: s.runs, finished: s.finished, graded: s.graded });
   return {
     setup,
-    label: reports.all.label,
+    label: reports.all.s.label,
     suite: suites,
-    runCounts: { all: counts(reports.all), dev: counts(reports.dev), test: counts(reports.test) },
+    runCounts: { all: counts(reports.all.s), dev: counts(reports.dev.s), test: counts(reports.test.s) },
     ...metrics,
   };
 }
