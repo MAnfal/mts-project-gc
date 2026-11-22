@@ -8,6 +8,7 @@
 // Every model answer comes from the trace. Decision calls are matched by their exact input state, extraction and
 // action calls by their exact system + prompt, and filter calls by document number. A request the trace never
 // made is answered with "nothing" and listed in `unrecorded`, so a drifted port fails on values, not on timeouts.
+import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";

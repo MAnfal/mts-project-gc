@@ -56,8 +56,9 @@ export function stepOf(stage: string, company: string): { step: StepKey; label: 
 export const TIMEOUT_MESSAGE = "No response after 3 tries. Retry runs this step again with the same settings.";
 export const UNEXPECTED_MESSAGE = "Something went wrong in this step. Retry runs it again with the same settings.";
 
-// Whole words or id prefixes, so a document about Sarajevo or the Jevons paradox still gets through.
-const INTERNAL = [/\bjev\b/i, /typesafe-ai/i, /\bclaude-/i, /\banthropic\//i, /\bopenai\//i, /\bgoogle\//i, /\bmoonshotai\//i];
+// The component's name as a word or a camelCase part (filter:jev, jevProbability, passedJev, JEV), and id prefixes.
+// Inside an ordinary word it is let through, so a document about Sarajevo or the Jevons paradox still is.
+const INTERNAL = [/(?:\b[jJ]|(?<=[a-z])J)ev(?![a-z])/, /\bJEV\b/, /typesafe-ai/i, /\bclaude-/i, /\banthropic\//i, /\bopenai\//i, /\bgoogle\//i, /\bmoonshotai\//i];
 
 /** Throws if the serialized event names an internal component, its model, or a model vendor. */
 export function assertPublic(event: RunEvent): void {

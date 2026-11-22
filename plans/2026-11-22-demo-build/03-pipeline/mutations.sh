@@ -53,8 +53,9 @@ mutate no-terminal-gate src/lib/pipeline/context.ts 's/if \(this\.ended\) return
 mutate raw-error-message src/lib/pipeline/run.ts 's/const message = rootCause\(e\) instanceof RetriesExhausted \? TIMEOUT_MESSAGE : UNEXPECTED_MESSAGE;/const message = String((rootCause(e) as Error)?.message);/' src/lib/pipeline/retry.test.ts
 # Queued calls keep starting after the run failed.
 mutate no-stop-after-failure src/lib/pipeline/context.ts 's/if \(this\.failed\) throw new Error\("run already failed"\);//; s/readonly stopped = \(\) => this\.failed;/readonly stopped = () => false;/' src/lib/pipeline/stages.test.ts
-# Federal Register 5xx treated as an answer: no retry.
-mutate no-http-retry src/lib/fr.ts 's/if \(res\.status >= 500 \|\| res\.status === 429\)/if (false)/' src/lib/fr.test.ts
+# Federal Register 5xx, or 429, treated as an answer: no retry.
+mutate no-5xx-retry src/lib/fr.ts 's/res\.status >= 500 \|\| //' src/lib/fr.test.ts
+mutate no-429-retry src/lib/fr.ts 's/ \|\| res\.status === 429//' src/lib/fr.test.ts
 # A missing key checked at import (the POC's behaviour).
 mutate key-at-import src/lib/gateway.ts 's/(let gw: ReturnType<typeof createGateway> \| undefined;)/$1\nif (!process.env.AI_GATEWAY_API_KEY) throw new Error("Missing key");/' src/lib/gateway.test.ts
 # The filter's missing-answer retry dropped.
@@ -65,5 +66,28 @@ mutate debug-always-on src/lib/pipeline/context.ts 's/if \(process\.env\.DEBUG_P
 mutate retry-without-step src/lib/pipeline/context.ts 's/if \(this\.current\) this\.emit\(\{ type: "step\.retry", step: this\.current\.step,/this.emit({ type: "step.retry", step: this.current?.step as never,/' src/lib/pipeline/retry.test.ts
 # run.start emitted outside the failure handling: a leak there escapes as a raw error with no run.failed.
 mutate start-outside-try src/lib/pipeline/run.ts 's/(  try \{\n)(    ctx\.emit\(\{\n      type: "run\.start",[\s\S]*?\n    \}\);\n)/$2$1/' src/lib/pipeline/stages.test.ts
+# The sanitizer matching whole words only: camelCase fields of a spread decision get through.
+mutate sanitizer-words-only src/lib/pipeline/events.ts 's/\/\(\?:\\b\[jJ\]\|\(\?<=\[a-z\]\)J\)ev\(\?!\[a-z\]\)\//\/\\bjev\\b\/i/' src/lib/pipeline/events.test.ts
+# The AI SDK's own retries back on (the POC's values): a retryable provider error is sent 9 times, not 3.
+mutate sdk-retries-llm src/lib/pipeline/context.ts 's/(output: Output\.object\(\{ schema: args\.schema \}\),\n\s*maxRetries: )0/${1}2/' src/lib/pipeline/retry.test.ts
+mutate sdk-retries-decide src/lib/pipeline/context.ts 's/(questions: \{ relevant: \{ type: "boolean", instructions: question \} \},\n\s*maxRetries: )0/${1}3/' src/lib/pipeline/retry.test.ts
+# The run not putting itself in scope: Federal Register retries go unreported.
+mutate no-retry-scope src/lib/pipeline/run.ts 's/withRetryScope\(\{ onRetry: ctx\.onRetry, stopped: ctx\.stopped \}, \(\) => (withPromptSet\(config\.promptSet, \(\) => pipeline\(ctx, profile\)\))\)/$1/' src/lib/pipeline/retry.test.ts
+# Ported guards, each deleted (POC decision expressions the replay can't reach).
+mutate no-doc-drop src/lib/pipeline/stages.ts 's/if \(!doc\) \{/if (false) {/' src/lib/pipeline/stages.test.ts
+mutate no-empty-chunks-skip src/lib/pipeline/stages.ts 's/\n\s*if \(!chunks\.length\) continue;//' src/lib/pipeline/stages.test.ts
+mutate no-snippet-check src/lib/pipeline/stages.ts 's/if \(snippet\.trim\(\)\.length > 20\) \{/if (true) {/' src/lib/pipeline/stages.test.ts
+mutate no-duplicate-skip src/lib/pipeline/stages.ts 's/if \(deadlines\.some\(\(d\) => d\.date === e\.date && d\.kind === e\.kind\)\) \{/if (false) {/' src/lib/pipeline/stages.test.ts
+mutate no-field-pair-check src/lib/pipeline/stages.ts 's/\n\s*if \(!date && !scannedDate\) return;//' src/lib/pipeline/stages.test.ts
+mutate citation-null-verified src/lib/pipeline/stages.ts 's/!!doc\.citation && doc\.citation === scanned\.citation/doc.citation === scanned.citation/' src/lib/pipeline/stages.test.ts
+mutate no-gc-fallback src/lib/pipeline/stages.ts 's/\?\? profile\.generalCounsel : profile\.generalCounsel;/?? profile.generalCounsel : (undefined as never);/' src/lib/pipeline/stages.test.ts
+mutate no-want-filter src/lib/pipeline/stages.ts 's/if \(want\.has\(dec\.document_number\)\) out\.set/out.set/' src/lib/pipeline/stages.test.ts
+mutate no-empty-items-return src/lib/pipeline/stages.ts 's/\n\s*if \(!items\.length\) return items;//' src/lib/pipeline/stages.test.ts
+mutate no-review-default src/lib/pipeline/stages.ts 's/\?\? "Review\."/?? ""/' src/lib/pipeline/stages.test.ts
+mutate no-date-strip src/lib/pipeline/stages.ts 's/raw\.replace\(DATE_RE, "[^"]*"\)/raw/' src/lib/pipeline/stages.test.ts
+# New guards, each deleted.
+mutate no-profile-catch src/lib/pipeline/run.ts 's/\n\s*assertPublic\(failed\);\n\s*emit\(failed\);//' src/lib/pipeline/stages.test.ts
+mutate stepOf-no-throw src/lib/pipeline/events.ts 's/\n\s*if \(!s\) throw new Error\([^\n]*\);//' src/lib/pipeline/events.test.ts
+mutate no-key-check src/lib/gateway.ts 's/\n\s*if \(!process\.env\.AI_GATEWAY_API_KEY\) throw new Error\([^\n]*\);//' src/lib/gateway.test.ts
 
 echo "mutations: OK (logs in $LOG_DIR)"

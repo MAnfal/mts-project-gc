@@ -108,6 +108,12 @@ describe("LLM filter", () => {
     expect(dec.get("2026-90003")?.llm).toBeUndefined();
   });
 
+  it("ignores an answer for a document it wasn't asked about", async () => {
+    const { result } = await run({ docs: [synDoc("2026-90001")], filter: (ds) => [...ds.map((n) => yes(n)), yes("2026-99999")] });
+    expect(result.decisions.map((d) => d.document_number)).toEqual(["2026-90001"]);
+    expect(result.items.map((i) => i.document_number)).toEqual(["2026-90001"]);
+  });
+
   it("with filterVotes 3, a document is relevant only on a majority of the passes", async () => {
     const votes = [true, false, true];
     const { result, calls } = await run({
@@ -131,6 +137,8 @@ describe("LLM filter", () => {
     expect(a).toContain("Card issuers must refund disputed fees.");
     expect(b).not.toContain("Key passages");
     expect(events.filter((e) => e.type === "step.progress")).toHaveLength(2);
+    // Only the document with text got passages.
+    expect(events.find((e) => e.type === "step.done" && e.step === "read")).toMatchObject({ count: 1 });
   });
 });
 
@@ -199,6 +207,11 @@ describe("verify + tier", () => {
     expect(item.deadlines.find((d) => d.kind === "effective")).toMatchObject({ date: "2027-03-01", verified: false, verifyNote: "scan said 2027-01-15, re-fetch says 2027-03-01" });
     expect(item.citationVerified).toBe(false);
     expect(done.markdown).toContain("91 FR 99999 (unverified)");
+  });
+
+  it("never verifies a missing citation, even when scan and re-fetch both lack one", async () => {
+    const { done } = await run({ docs: [synDoc("2026-90001", { citation: null })] });
+    expect(done.items[0].citationVerified).toBe(false);
   });
 
   it("verifies an extracted date by its quote, skips one that repeats a field, and routes a no-area item to the general counsel", async () => {

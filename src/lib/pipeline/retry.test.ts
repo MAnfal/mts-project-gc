@@ -1,4 +1,6 @@
+import { APICallError } from "ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { RETRY, RetriesExhausted, withRetry } from "./retry";
 import { runPipeline } from "./run";
 import type { RunEvent } from "./events";
@@ -83,6 +85,44 @@ describe("withRetry", () => {
   });
 });
 
+describe("at most 3 tries per model call in total (the AI SDK's own retries are off)", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    restoreModels();
+  });
+  // The kind of error the SDK itself would retry (a 503 from the provider), so SDK retries would show up as extra tries.
+  const retryable = () => new APICallError({ message: "Service Unavailable", url: "https://gateway.test", requestBodyValues: {}, statusCode: 503, isRetryable: true });
+
+  it("an LLM call failing with a retryable provider error is sent exactly 3 times", async () => {
+    const calls = installModels({
+      llm: () => {
+        throw retryable();
+      },
+      jev: () => 0.5,
+    });
+    const { RunCtx } = await import("./context");
+    const ctx = new RunCtx({ config: synConfig() }, "Ledgerly Inc.", () => {}, { emit: () => {} });
+    const { error } = await settle(ctx.object("filter-llm#0", { model: "test/model", system: "s", prompt: "p", schema: z.object({ decisions: z.array(z.string()) }) }));
+    expect(error).toBeInstanceOf(RetriesExhausted);
+    expect(calls.llm).toHaveLength(3);
+  });
+
+  it("a decision call failing with a retryable provider error is sent exactly 3 times", async () => {
+    const calls = installModels({
+      llm: () => ({}),
+      jev: () => {
+        throw retryable();
+      },
+    });
+    const { RunCtx } = await import("./context");
+    const ctx = new RunCtx({ config: synConfig() }, "Ledgerly Inc.", () => {}, { emit: () => {} });
+    const { error } = await settle(ctx.jev("state", "question", "2026-90001"));
+    expect(error).toBeInstanceOf(RetriesExhausted);
+    expect(calls.jev).toHaveLength(3);
+  });
+});
+
 describe("RunCtx retry reporting", () => {
   it("reports a retry as step.retry only while a step is running", async () => {
     const { RunCtx } = await import("./context");
@@ -136,6 +176,27 @@ describe("retries inside a run", () => {
       { type: "step.retry", step: "rank", attempt: 2, delayMs: 2000 },
       { type: "step.retry", step: "rank", attempt: 3, delayMs: 4000 },
     ]);
+  });
+
+  it("a Federal Register text read that gets two 503s then succeeds: the run finishes, reporting both retries on the step", async () => {
+    let n = 0;
+    vi.stubGlobal(
+      "fetch",
+      synFetch(docs, (d) => `Effective January 15, 2027. Text of ${d}.`, (url) => (url.includes("govinfo") && url.includes("2026-90001") && ++n <= 2 ? new Response("busy", { status: 503 }) : undefined)),
+    );
+    const events: RunEvent[] = [];
+    // Fresh modules: fr.ts caches window listings and document texts in memory, and earlier tests read these.
+    vi.resetModules();
+    const fresh = await import("./run");
+    const h = await import("./__fixtures__/harness");
+    h.installModels({ llm, jev: () => 0.9 });
+    const { error } = await settle(fresh.runPipeline(synConfig(), (e) => events.push(e)));
+    expect(error).toBeUndefined();
+    expect(events.filter((e) => e.type === "step.retry")).toEqual([
+      { type: "step.retry", step: "read", attempt: 2, delayMs: 2000 },
+      { type: "step.retry", step: "read", attempt: 3, delayMs: 4000 },
+    ]);
+    expect(n).toBe(3);
   });
 
   it("a call that fails 3 times: step.failed (label + timeout message), then run.failed, and no later stage runs", async () => {

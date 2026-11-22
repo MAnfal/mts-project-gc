@@ -8,7 +8,7 @@ import { filterJev, filterLlm, filterPassages, renderMarkdown, scan, verifyAndTi
 
 // Ported from poc:poc/src/lib/pipeline/run.ts: the pipeline path only. The relevance cut and the verdict merge
 // in pipeline() are the POC's lines unchanged. Gone: the baseline mode (eval only), web leads (off in every
-// evaluated setup; their results never fed a decision) and saveRun (nothing is written server-side).
+// evaluated setup; their results never fed a decision) and saving the run record (nothing is written server-side).
 
 export interface PipelineResult {
   items: ActionItem[];
