@@ -24,7 +24,9 @@ Scratch evidence directory (named `$S` below): `/private/tmp/claude-501/-Users-a
 | `src/components/gc/{EmptyReport,HeldBack,FailedStep,ExampleView}.tsx`, `download.ts` | created | The three edge states from `design/HiStates.dc.html`, the example page view, and the shared Blob download. |
 | `src/components/gc/{ReportView,RunSteps,RunView,GcSidebar,NewRunForm,useRun}.tsx/ts` | edited | Wire in the empty and held-back states, confirmed rows, FailedStep with Retry and Edit settings, the Examples list, `?from=` prefill and `confirm`. `Problem` was folded into `FailedStep`. |
 | `src/app/examples/[id]/page.tsx`, `src/app/runs/new/page.tsx` | created / edited | The example route, and the `from` search param. |
-| `src/app/evals/reports/[suiteId]/[runId]/page.tsx`, `src/components/evals/RecordedReport.tsx` | created | Amendment 8: the reviewer's read-only run report. |
+| `src/app/evals/reports/[suiteId]/[runId]/page.tsx`, `src/components/evals/RecordedReport.tsx` | created | Amendment 8: the reviewer's read-only run report. After review i1 it renders through chunk 04's `ReportView` with `readOnly`, fed by `recordedView` and `recordedEvents`. That gives it closest calls, the same held-back section, and steps labelled with their internal stage ids. A failed run shows its completed steps and the recorded Gateway error, with no Retry and no Edit settings. |
+| `src/lib/pipeline/recorded-events.ts` (+ test) | created (review i1) | The single browser-safe "recordedView → RunEvents" mapping. `recorded.ts` uses it with strict labels; the reviewer report uses it with `reviewerLabel` (public label plus stage id; baseline stages keep their id). |
+| `src/components/gc/ReportView.tsx` (+ `ReportView.test.ts`), `EmptyReport.tsx` | edited (review i1) | A `readOnly` prop drops the GC's own actions: draft emails and the no-action memo download. It is tested by rendering real generated examples to HTML. |
 | `src/components/evals/{RunsView,RunPanel}.tsx` | edited | Add "Report" links (`reportHref`). |
 | `plans/.../04-run-and-report/gates.sh` | edited | Amendment 9: `examples/[id]/page` added to Gate 5's default `GC_ROUTES` (required, not optional). |
 | `plans/.../06-edge-states/gates.sh` | created | Amendment 10. |
@@ -50,11 +52,23 @@ More shots, all viewed:
 - `16-reviewer-not-found-390.png`: renders "The recorded evaluation could not be loaded: Run no-such-run is not in suite arena-2026-11-21-22-52-l92".
 - `18-reviewer-error-desktop.png`: the reviewer error run at desktop.
 
-Reviewer report: `11-reviewer-error-390.png` (failed run czeo, showing the recorded Gateway error), `12-reviewer-done-390.png` and `13-reviewer-done-desktop.png` (l92 suite run, 5 items). Page width at 390 px measured `scrollWidth 390` = `clientWidth 390` on the empty, held-back, example and reviewer pages.
+**Click count from `/evals`**, measured in the browser on a keyless `next start` (review i1): Evals → **Runs** (click 1) → **Report** (click 2) for each of the three runs below. Each is 2 clicks.
+
+- **Suite run** `arena-2026-11-21-22-52-l92/…_qov2`: opens "5 items for 3 owners, 4 Critical" with closest calls ("67 not relevant · see why") and no draft-email links (`19-reviewer-done-reportview-desktop.png`, `22-…-390.png`; 390 px `scrollWidth 390`).
+- **Example run** `user-view/…_l14a`: the nothing-applies report with Closest calls and no memo button (`20-reviewer-example-empty.png`).
+- **Failed run** `user-view/…_czeo`: "The run failed", the 2 completed steps with their stage ids, and the Gateway error, with 0 buttons (`21-reviewer-failed-reportview.png`).
+
+Reviewer report before review i1: `11-reviewer-error-390.png` (failed run czeo, showing the recorded Gateway error), `12-reviewer-done-390.png` and `13-reviewer-done-desktop.png` (l92 suite run, 5 items). Page width at 390 px measured `scrollWidth 390` = `clientWidth 390` on the empty, held-back, example and reviewer pages.
 
 ## Tests
 
-Totals: 606 tests in 46 files before (baseline `$S/baseline/`), 681 tests in 50 files after.
+Totals: 606 tests in 46 files before (baseline `$S/baseline/`), 688 tests in 52 files after (review i1).
+
+Review i1 red runs:
+
+- `recorded-events.test.ts`: import error, `Cannot find module './recorded-events'` (`$S/red-i2-a.txt`).
+- The empty-reason test failed on an assertion: `expected '' to be 'Flagged as relevant to your profile'`.
+- `ReportView.test.ts` failed 2 tests on assertions: `expected '<div …' not to contain 'Draft email'` / `… 'memo'` (`$S/red-i2-b.txt`).
 
 A second round (`$S/red-round2.txt`) added 7 tests that failed on assertions:
 
@@ -103,16 +117,21 @@ Most of those reds are import or "not a function" errors, which only prove the m
 | projectExamples refuses an empty listing | guard removed | "refuses a listing with no finished run…" |
 | loadExampleIndex non-OK throw | removed | "throws naming the index when it can't be loaded" (got `Unexpected token 'g'`) |
 | Held-back-only heading / summary | branch disabled; " more" always | the 2 tests in "a run with no items but something held back" |
+| `readOnly` hides draft emails / the memo | prop ignored at each site | the 2 `ReportView.test.ts` tests |
+| An empty reason gets the neutral reason | `!i.reason.trim() \|\|` removed | "gets the neutral reason…": `expected '' to be 'Flagged as relevant…'` |
+| `reviewerLabel` keeps unlabelled (baseline) stages | fallback removed | "over every shipped run" plus "keeps a stage that has no public label" |
+| A failed run maps to run.failed | error branch disabled | "over every shipped run": `expected 'done' to be 'failed'` |
+| Closest calls from the shared function | `screenedOut: []` | 3 tests, including "gives the closest calls the GC's example shows, from the same function" |
 
 ## Gates
 
-Final run, after the last code edit: `AI_GATEWAY_API_KEY= PORT=3601 bash plans/2026-11-22-demo-build/06-edge-states/gates.sh` exited 0 (`$S/gates-final.txt`):
+Final run, after the last code edit (review i1): `AI_GATEWAY_API_KEY= PORT=3601 bash plans/2026-11-22-demo-build/06-edge-states/gates.sh` exited 0 (`$S/gates-final-i2.txt`). The rebuild left `public/examples` byte-identical after the projection was routed through `recordedEvents`.
 
 ```
- Test Files  50 passed (50)
-      Tests  681 passed (681)
+ Test Files  52 passed (52)
+      Tests  688 passed (688)
 parity: OK (decision-path config, brightside +1 line, golden fixture, tier/verify/prompts)
-no-fs-writes: OK (112 non-test source files under src/ scanned)
+no-fs-writes: OK (113 non-test source files under src/ scanned)
 Gate 5: 18 client chunks of the GC routes scanned (eval-view chunks excluded)
 chunk 04 gates: OK
 verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)
@@ -126,7 +145,7 @@ Gate 6: no poc/ path
 chunk 06 gates: OK
 ```
 
-The type check runs last. Baseline: 0 type errors, 0 lint problems, 606/606 tests (`$S/baseline/`). After: 0 type errors, 0 lint problems, 681/681 tests.
+The type check runs last. Baseline: 0 type errors, 0 lint problems, 606/606 tests (`$S/baseline/`). After: 0 type errors, 0 lint problems, 688/688 tests.
 
 The base tree is a detached worktree at `7870a84` (`$S/base`, with a real `pnpm install`), with this chunk's gate scripts copied in:
 
@@ -160,6 +179,7 @@ No transcript is quoted in this report beyond the gate output above, which is co
 - **One mapping.** The plan's T002 `fromRecordedRun.ts` is superseded by amendment 1/8: `recorded-view.ts` (shared) plus `recorded.ts` (Node, public side). No second mapping exists.
 - **Prefill.** The run's profile opens under the entry with the same profile id: preset first, then saved profiles. An edited preset shows "(edited)", and a rerun of a saved profile replaces that saved profile. A company that is gone, or a preset since removed, opens as "New company…".
 - **Example ids** are the full run id, with no collision handling needed. Sidebar labels number a repeated company-week ("run 1/2", oldest first). Example links don't prefetch, so every GC page doesn't request 9 dynamic route payloads.
+- **Reviewer report through `ReportView`** (review i1, Issue 1). The rubric asks for it, and amendment 8 didn't name it. The only change to `ReportView` is one prop, `readOnly`. Closest calls in the browser come from `events.ts`'s own `screenedOut`, through `recordedEvents` in `src/lib/pipeline`. They can't live in `src/lib/runs`: Gate 2 bans the internal relevance field's name there, and Gate 4 bans value imports from `events.ts`. `screenedOut`'s docs parameter was widened to `Pick<FrDoc, "document_number" | "title">` so the browser's `WeekDoc` fits; that is a type change only.
 - **Edit settings** is also offered on interrupted runs (the shared `FailedStep`); the AC only asks for it on failed runs.
 
 ## Deviations from the plan
@@ -172,6 +192,8 @@ No transcript is quoted in this report beyond the gate output above, which is co
 ## Left alone
 
 - **`/examples/<missing>.json` answers 500.** When a generated file is deleted under a running `next start`, it answers 500, not 404, apparently because Next lists public files at boot. This doesn't happen with committed files.
+- **Source chips on the reviewer report point at a Sources panel that page doesn't have**, so the numbered chips are inert anchors there.
+- **Older stored runs keep the old Retry wording.** Runs saved before this chunk still carry the old "Retry runs this step again" text in their stored `run.failed`, because events are never rewritten (review warning).
 - **The report table scrolls inside its own wrapper at 390 px** (chunk 04's `min-w-[680px]`). The page itself doesn't scroll sideways.
 - **The `/runs/new` Gate 5 entry in 04 still carries `?` (optional)**, although the route now exists. It is not mine to tighten.
 - **Example pages offer no .md/.json download.** The plan didn't ask for one.
