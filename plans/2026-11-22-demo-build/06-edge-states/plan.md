@@ -126,7 +126,7 @@ Where the text below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `fromRecordedRun.test.ts` → now tests for `recorded.ts` / `recorded-view.ts` (amendments 1, 8). Load one real example record from
     `public/evals/user-view/runs/` that has a `Jev p=` reason, and assert the adapter's
     view state passes `assertPublic` and keeps items, tiers and owners equal to the record.
@@ -135,22 +135,22 @@ Where the text below conflicts with these points, these win:
   - `src/lib/runs/memo.test.ts`: the no-action memo and the held-back section.
   - `src/lib/runs/reduce.test.ts` (or a confirmations test): applying `confirmed: string[]`
     after `reduceEvents` moves a held-back item into the table as "Not tiered" (amendment 5).
-- [ ] T002 — create `src/lib/runs/fromRecordedRun.ts` and `src/lib/runs/memo.ts`.
-- [ ] T003 — edit `src/lib/runs/store.ts` (a `confirmed: string[]` field on `StoredRun`) and
+- [x] T002 — create `src/lib/runs/fromRecordedRun.ts` and `src/lib/runs/memo.ts`.
+- [x] T003 — edit `src/lib/runs/store.ts` (a `confirmed: string[]` field on `StoredRun`) and
   apply confirmations after `reduceEvents`. No new `RunEvent` type (amendment 5).
-- [ ] T004 [P] — create `src/components/gc/EmptyReport.tsx`, `HeldBack.tsx` and
+- [x] T004 [P] — create `src/components/gc/EmptyReport.tsx`, `HeldBack.tsx` and
   `FailedStep.tsx`, styled from `design/HiStates.dc.html`.
-- [ ] T005 — edit `src/components/gc/ReportView.tsx` and `RunSteps.tsx` to render those
+- [x] T005 — edit `src/components/gc/ReportView.tsx` and `RunSteps.tsx` to render those
   states. Edit `src/components/gc/GcSidebar.tsx` to add the Examples section.
-- [ ] T006 — create `src/app/examples/[id]/page.tsx`, which renders an example run with
+- [x] T006 — create `src/app/examples/[id]/page.tsx`, which renders an example run with
   the Report screen from `public/examples/<id>.json` (amendment 1). It is read-only, with
   no Retry.
-- [ ] T007 — `src/lib/pipeline/recorded.ts` + `scripts/build-examples.mts` → `public/examples/**`
+- [x] T007 — `src/lib/pipeline/recorded.ts` + `scripts/build-examples.mts` → `public/examples/**`
   (amendment 1); `src/lib/runs/recorded-view.ts` shared mapping (amendment 8).
-- [ ] T008 — `/runs/new?from=<runId>` prefill (amendment 6).
-- [ ] T009 — `/evals/reports/[suiteId]/[runId]` reviewer report + links from `RunsView`/`RunPanel`
+- [x] T008 — `/runs/new?from=<runId>` prefill (amendment 6).
+- [x] T009 — `/evals/reports/[suiteId]/[runId]` reviewer report + links from `RunsView`/`RunPanel`
   (amendment 8).
-- [ ] T010 — add examples routes to 04's Gate 5 `GC_ROUTES`; write `06-edge-states/gates.sh` (amendments 9–10).
+- [x] T010 — add examples routes to 04's Gate 5 `GC_ROUTES`; write `06-edge-states/gates.sh` (amendments 9–10).
 
 ## Test Plan
 
@@ -202,7 +202,7 @@ string), confirm it fails, and remove it.
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots of the empty state, held-back
+- [x] `completion-report.md`, committed, with screenshots of the empty state, held-back
       state (before and after confirming), failed state, and an example run.
 
 ## Artifacts Checklist
