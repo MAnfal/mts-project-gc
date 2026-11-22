@@ -6,7 +6,9 @@ in this directory. Every path below is relative to that directory unless it star
 
 ## Computed headline and key numbers
 
-All of these are read from the regenerated `public/evals/index.json`. None is typed anywhere.
+All of these are read from the regenerated `public/evals/index.json`. None is typed anywhere. The
+raw figures are emitted by a command, not transcribed: `node evidence/key-numbers.mjs` writes
+`evidence/key-numbers.txt`. The table below rounds that output.
 
 | What | Value | Basis (split · runs · suites) |
 | ---- | ----- | ----------------------------- |
@@ -19,7 +21,7 @@ All of these are read from the regenerated `public/evals/index.json`. None is ty
 | Cost per run | $0.192 vs baseline $0.520, so live costs 37% of the baseline | all runs · 72 / 36 |
 | Beats baseline | 6 of 6 compared measures won, 0 excluded | recall, precision, dates, tier agreement, relevance agreement, cost |
 | Noise band | control `jev-sonnet-strict`, l92 vs du8: recall 0.8833 vs 0.8421 (**4.1 pts**), precision 0.7794 vs 0.8000 (**2.1 pts**) | all · 35 / 35 runs |
-| 06 vs control, l92 | recall +1.0 pts → **within noise**; precision +2.7 pts → **beyond noise** (2.7 > 2.1); dates no change; cost +58% | all · 35 / 35 |
+| 06 vs control, l92 | recall +0.95 pts → **within noise** (band 4.12); precision +2.70 pts → **beyond noise** (band 2.06); dates no change; cost +57.7%, shown as +58% | all · 35 / 35 |
 | Eval set | 3 companies × 4 weeks (2 dev, 2 test), 12 company-weeks, 20 relevant, 157 traps | manifest + keys |
 
 Outcome of the noise band: 06's precision gap falls outside the band, and the page says "beyond noise"
@@ -30,8 +32,9 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 
 | File | Change | Why |
 | ---- | ------ | --- |
-| `src/lib/evals/bundle-build.ts` | edited | Pure helpers: `metricOf`/`runCountsOf` (an empty split gives null over 0 runs), `repeatAgreement`, `noiseBand`, `keyTotals`. The `SetupReport` type moved here from the script |
-| `scripts/build-eval-index.mts` | edited | `setupResult` takes the eval sets it must cover, handles dev-only splits and adds agreement. The index gains `iterations[].measured` and `.evidence`, `suiteResults`, `noiseBand` and `evalSet`. POC grading code is unmodified |
+| `src/lib/evals/bundle-build.ts` | edited | Pure helpers: `metricOf`/`runCountsOf` (an empty split gives null over 0 runs), `repeatAgreement`, `noiseBand`, `keyTotals`, plus the build's lookups: `splitOfEvalset`, `iterationRuns`, `requireKeys`, `bandControl`. Each throw sits here with an off-fixture test. The `SetupReport` type moved here from the script |
+| `scripts/build-eval-index.mts` | edited | `setupResult` takes the eval sets it must cover, handles dev-only splits and adds agreement. The index gains `iterations[].measured` and `.evidence`, `suiteResults`, `noiseBand` and `evalSet`. The script holds no new throw of its own: each decision it makes calls a tested `bundle-build.ts` helper. POC grading code is unmodified |
+| `plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | created | Gate 2 as a runnable script: the plan's grep over components, pages and `config/eval-story.yaml`. It fails if a path is missing, so it can't pass by scanning nothing. The project.md Convention Map row cites it |
 | `src/lib/evals/index-schema.ts` | edited | `AgreementNumberSchema` (value must equal numerator/denominator), `SplitAgreementSchema`, the agreement fields on `SetupResultSchema`, `measured`/`evidence`, `NoiseBandSchema`, `suiteResults`, `evalSet` |
 | `public/evals/index.json` | regenerated | Output of `bash scripts/build-eval-bundle.sh`, in its own commit (`976e62f`). Grew from 48 KB to 353 KB (19.7 KB gzipped) |
 | `src/lib/evals/loader.ts` | edited | `loadIteration(id)` (a loose zod record) and `loadIterationFile(id, name)` |
@@ -43,7 +46,7 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 | `src/lib/evals/story.ts` | created | `fillTemplate` (throws on an unknown or unclosed placeholder), `storyContext`, `verdictHeading`, `resolveQuote`, formatters |
 | `src/lib/evals/chartSeries.ts` | created | `chartSeries` (segments, breaks, band at the live point), `noiseVerdict`, `bandApplies` |
 | `src/lib/evals/__fixtures__/eval-index.ts` | created | Constructed index pieces for the tests |
-| `src/components/evals/*` | created | EvalSidebar, EvalSummary (with `useEvalIndex`), CarlTable, Scoreboard, ProgressChart, IterationView, DiffSheet, ErrorAnalysisSheet |
+| `src/components/evals/*` | created | EvalSidebar, EvalSummary (with `useEvalIndex`), CarlTable, Scoreboard, ProgressChart, IterationView, DiffSheet, ErrorAnalysisSheet. Chart markers are SVG `<a href>` links with an aria-label (keyboard-reachable). A story/data mismatch or a quote that won't resolve shows its message instead of crashing the page |
 | `src/app/evals/page.tsx`, `src/app/evals/iterations/[id]/page.tsx` | created | Server pages: `await connection()` and readYaml per request. The bundle loads on the client. There is no `generateStaticParams` |
 | `src/components/ui/{sheet,table,collapsible,tooltip,chart}.tsx` | generated | `pnpm exec shadcn add sheet table collapsible tooltip chart`. shadcn also added `card.tsx` as a registry dependency; it is unused and was deleted. shadcn skipped `button.tsx`, which is unchanged |
 | `package.json`, `pnpm-lock.yaml` | edited | `recharts` pinned at `3.8.0`, read from `node_modules/recharts/package.json` |
@@ -55,17 +58,17 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 
 | Criterion | Met | Evidence |
 | --------- | --- | -------- |
-| `/evals` shows, in order: computed verdict and sub-line, CARL table (one link each), Scoreboard with status badges and a footnote naming suites and runs, then the chart | yes | `screenshots/summary-desktop-1440.jpg`. Verdict pinned in `story-schema.test.ts` › "fills every template… heading reads off the data". Badge rule in `verdict.test.ts` › targetStatus |
-| Chart: one point per iteration 00–06, recall and precision, dashed targets, break at the eval-set change, filled/hollow/square markers, band at the live point, tooltips with value/split/runs, click opens the iteration | yes | `chartSeries.test.ts` (segments, rows, markers, band). `screenshots/summary-chart-tooltip-03.jpg` shows the tooltip "Recall 97.6% all weeks · 18 runs · arena-…-gip". Clicking 03's dot navigated to `/evals/iterations/03-strict-v2` (evaluate_script returned that pathname) |
+| `/evals` shows, in order: computed verdict and sub-line, CARL table (one link each), Scoreboard with status badges and a footnote naming suites and runs, then the chart | yes | `screenshots/summary-desktop-1440.jpg`. Verdict pinned in `story-schema.test.ts` › "fills every template… heading reads off the data". Badge rule in `verdict.test.ts` › targetStatus. Prose numbers carry their run counts. Sub-line (from the final build): "…0.2 pts short of its 90% target over all weeks (69 runs). On the held-out weeks (35 runs), precision is 72.6%…". Result row: "All weeks, 36 baseline runs vs 69 live: recall 63.3% → 89.8%…" |
+| Chart: one point per iteration 00–06, recall and precision, dashed targets, break at the eval-set change, filled/hollow/square markers, band at the live point, tooltips with value/split/runs, click opens the iteration | yes | `chartSeries.test.ts` (segments, rows, markers, band). `screenshots/summary-chart-tooltip-03.jpg` shows the tooltip "Recall 97.6% all weeks · 18 runs · arena-…-gip". On the final build the a11y snapshot lists 14 marker links, e.g. `link "03 Prompt fixes, rejected: Recall 97.6% (all weeks · 18 runs · arena-2026-11-21-20-41-gip). Open this iteration." url=…/evals/iterations/03-strict-v2`. Clicking it navigated to `/evals/iterations/03-strict-v2` |
 | Noise band size comes from data; omitted if the data can't give it | yes | Builder `noiseBand` returns null without both suites (`bundle-build.test.ts`). `chartSeries` returns band null without `index.noiseBand`. A constant-band mutation goes red (see the mutation table below) |
-| `/evals/iterations/<id>`: title, outcome badge, Why / Change, a 4-measure result table with within/beyond noise, a collapsible for all 9 measures, what moved with Fixed/Better/Worse, decision, and links to Cases, Error analysis (sheet) and Config diff (sheet) | yes | `screenshots/iteration-06-desktop.jpg`, `iteration-03-desktop.jpg`, `iteration-06-config-diff-sheet.jpg`, `iteration-07-error-analysis-sheet.jpg`. Evidence links render only when `index.iterations[].evidence` says the file exists. 07-next is labelled "Next, not run" with only the error analysis. An unknown id shows a not-found state (`iteration-unknown-id.jpg`) |
+| `/evals/iterations/<id>`: title, outcome badge, Why / Change, a 4-measure result table with within/beyond noise, a collapsible for all 9 measures, what moved with Fixed/Better/Worse, decision, and links to Cases, Error analysis (sheet) and Config diff (sheet) | yes | Final build: `screenshots/iteration-06-desktop.jpg`, `iteration-03-desktop.jpg`, `iteration-06-config-diff-sheet.jpg` (sheet 672 px wide), `iteration-06-error-analysis-sheet.jpg` (672 px), `iteration-07-next.jpg` ("Evidence for the next change (not run)", badge "Next, not run", only an Error analysis button, no Cases link). Evidence links render only when `index.iterations[].evidence` says the file exists. An unknown id shows a not-found state (`iteration-unknown-id.jpg`, build 4; that page hasn't changed since) |
 | Eval sidebar: Summary, Iterations, Cases, the ITERATIONS list with outcomes, an "Evals" badge, and no link from the GC sidebar | yes | Screenshots. `src/app/page.tsx` is unchanged and has no `/evals` link: `git diff ee5d13c -- src/app/page.tsx` is empty |
-| 390 px: tables scroll in their own box, no page scroll | yes | `evaluate_script` on `/evals` at 390×844: `{"scrollWidth":390,"clientWidth":390,"noHorizontalScroll":true,"scrollBoxes":[[560,340],[640,340],[620,300]]}`. `/evals/iterations/06-passages` gave scrollWidth 390, no element overflowing outside a scroll box. `screenshots/summary-390.jpg`, `iteration-06-390.jpg` |
+| 390 px: tables scroll in their own box, no page scroll | yes | `evaluate_script` on `/evals` at 390×844: `{"scrollWidth":390,"clientWidth":390,"noHorizontalScroll":true,"scrollBoxes":[[560,340],[640,340],[620,300]]}`. `/evals/iterations/06-passages` gave scrollWidth 390 before and after opening the Config diff sheet (sheet 293 px; diff boxes scroll inside, 944/258). `screenshots/summary-390.jpg` and `iteration-06-config-diff-sheet-390.jpg` are from the final build. `iteration-06-390.jpg` is from build 3; it predates the quote-error wrapper, which doesn't change rendering |
 
 ## Tests
 
 Baseline before this chunk: 14 files, 114 tests, lint and typecheck clean (`baseline/`). Now: 18 files,
-183 tests (`gates/final-gates.txt`).
+193 tests (`gates/final-gates.txt`).
 
 | Test file | Red run (before implementation) | Green run |
 | --------- | ------------------------------- | --------- |
@@ -75,12 +78,15 @@ Baseline before this chunk: 14 files, 114 tests, lint and typecheck clean (`base
 | `verdict.test.ts` | `red/verdict-1-import.txt`: cannot find module (import red) | `red/verdict-2-green.txt`: 10 passed |
 | `story.test.ts` | `red/story-1-import.txt`: import red | `red/story-2-green.txt`: 14 passed |
 | `chartSeries.test.ts` | `red/chartSeries-1-import.txt`: import red | `red/chartSeries-2-green.txt`: 12 passed |
+| `bundle-build.test.ts` round 2 (`splitOfEvalset`, `iterationRuns`, `requireKeys`, `bandControl`) | `red/round2-builder-red.txt`: 9 failed, `… is not a function` | `red/round2-builder-green.txt`: 49 passed (with index-schema) |
+| `story.test.ts` round 2 (run count in the miss sentence) | `red/round2-story-runs-red.txt`: 5 failed. `Unknown placeholder {{runs}}` hit the fixture template that now asks for it, so this is a wrong-value red, not an import red | Green after `storyContext` passes `runs` |
+| `index-schema.test.ts` › dev-only suite null held-out split | Passed on first run, since the data was already rebuilt. Its guard is proved by the `metricOf` mutation below | — |
 | `story-schema.test.ts` | Written after the YAML, so its first run was green (`red/story-schema-1.txt`). Its red evidence is the mutations below and the base-tree run (`gates/base-tests.txt`: cannot find `./story-schema`) | 8 passed |
 
 An import red proves only that a module was absent. To show the tests discriminate, I applied one mutation
 per contract and per guard, each to a plausible wrong implementation, and restored the file byte-for-byte
-after each (`mutations/run.py`). All 28 went red; the full list with the failing test names is in
-`mutations/summary.md` and `mutations/summary-band.md`:
+after each (`mutations/run.py`, `mutations/run-round2.py`). All 34 went red; the full list with the failing
+test names is in `mutations/summary.md`, `mutations/summary-band.md` and `mutations/summary-round2.md`:
 
 | Contract / guard | Mutation | What went red |
 | ---------------- | -------- | ------------- |
@@ -106,6 +112,10 @@ after each (`mutations/run.py`). All 28 went red; the full list with the failing
 | Story covers the shipped iterations | delete 07-next from the YAML | "has a story entry for exactly the iterations the bundle ships" |
 | Quotes resolve against the real record | change an anchor | "resolves every moved item's quote verbatim…" |
 | Heading follows the targets | precision target 0.82 | "fills every template… heading reads off the data" (it becomes 4 of 6) |
+| Unknown eval set / iteration without setup or suite / missing keys throw (builder) | return or `continue` instead | each matching throw test in `bundle-build.test.ts` |
+| Evidence-only iteration not measured | drop the guard | "is null for an evidence-only iteration" |
+| Band control is the *last* live iteration's | `find` instead of `findLast` | "is what the last iteration that ran the live setup was compared to" |
+| Miss sentence carries its run count | drop `runs` | 6 `story.test.ts` tests (Unknown placeholder `{{runs}}`) |
 
 ## Gates
 
@@ -114,11 +124,11 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
 
 | Gate | Command | Result | Fails on base? |
 | ---- | ------- | ------ | -------------- |
-| Lint / tests / build / typecheck | `pnpm lint && pnpm test && pnpm build && … pnpm typecheck` | Lint 0 problems; 183 passed; build routes `ƒ /evals`, `ƒ /evals/iterations/[id]`; tsc clean | Base tree (`git archive ee5d13c` plus this chunk's tests): `gates/base-tests.txt` shows 7 files failed, 25 tests, e.g. `Cannot find module './verdict'`, `loadIteration is not a function`, `expected undefined to be 'jev-sonnet-strict'` (no `noiseBand` in the base index) |
-| Gate 2: no hard-coded numbers | `gates/gate2.sh` (the plan's grep, plus `config/eval-story.yaml` per amendment 4) | `gate2: OK (10 component/page files + config/eval-story.yaml scanned)` | On base it passes vacuously: grep exits 2, `No such file or directory` for all three paths (`gates/base-gate2.txt`). The plan expected this. The canaries are the proof: `gates/gate2-canaries.txt` has 15 probes (5 needles × Scoreboard.tsx, page.tsx, eval-story.yaml), and each fired, was restored and came back clean |
+| Lint / tests / build / typecheck | `pnpm lint && pnpm test && pnpm build && … pnpm typecheck` | Lint 0 problems; 193 passed; build routes `ƒ /evals`, `ƒ /evals/iterations/[id]`; tsc clean | Base tree (`git archive ee5d13c` plus this chunk's tests): `gates/base-tests.txt` shows 7 files failed, 25 tests, e.g. `Cannot find module './verdict'`, `loadIteration is not a function`, `expected undefined to be 'jev-sonnet-strict'` (no `noiseBand` in the base index) |
+| Gate 2: no hard-coded numbers | `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` (the plan's grep, plus `config/eval-story.yaml` per amendment 4) | `no-typed-numbers: OK (10 component/page files + config/eval-story.yaml scanned)` | **Fails on base**: `FAIL: src/components/evals does not exist`, non-zero exit (`gates/no-typed-numbers-base.txt`). The plan's raw grep alone passes vacuously on base: grep exits 2 on missing paths (`gates/base-gate2.txt`), which is why the script checks paths first. Canaries: `gates/no-typed-numbers-canaries.txt` has 15 probes (5 needles × Scoreboard.tsx, page.tsx, eval-story.yaml); each fired, was restored and came back clean |
 | Gate 3: parity | `bash plans/2026-11-22-demo-build/02-core-libs/parity.sh` | `parity: OK` | `config/` changes are only `app.yaml` (not on the decision path) and the new `eval-story.yaml` |
 | Bundle verify | `bash scripts/verify-eval-bundle.sh` | `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)` | Base passes, since its own bundle is consistent. Falsification by hand-editing new fields: relevance numerator 340 gives exit 1, `index.json differs from the recomputation` (`gates/verify-canary-agreement.txt`); noise-band precision 0.05 gives exit 1 (`gates/verify-canary-band.txt`); after restoring, clean (`gates/verify-after-canary.txt`). Every new field is in `index.json`, so `--check` recomputes it byte-for-byte |
-| Idempotent rebuild | `bash scripts/build-eval-bundle.sh` twice | Second rebuild: `git status --porcelain` empty (`gates/status-after-rebuild-2.txt`, 0 lines) | — |
+| Idempotent rebuild | `bash scripts/build-eval-bundle.sh` | Rebuilt three times. Second: `git status --porcelain` empty (`gates/status-after-rebuild-2.txt`). Third, after the builder refactor: `public/` unchanged (`gates/status-after-rebuild-3.txt`, 0 lines), then verify OK (`gates/verify-2.txt`) | — |
 | No fs writes | `bash plans/…/02-core-libs/no-fs-writes.sh` | `no-fs-writes: OK (40 non-test source files under src/ scanned)` | — |
 | No `poc/` paths | `git ls-tree -r --name-only HEAD \| grep -c '^poc/'`; `git log --name-only --format= ee5d13c..HEAD \| grep -c '^poc/'` | 0 and 0 | — |
 | Tracing | `.next/server/app/evals/**/page.js.nft.json` | Both include `config/eval-story.yaml`; neither names `public/evals` (count 0) | — |
@@ -157,6 +167,8 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
 - **Recorded text shown verbatim.** Why, Change and Decision render `hypothesis`, `change` and `decision` from
   `iteration.json` rather than rewritten copy, so nothing in them can drift from the record. Notes sit in a
   collapsible.
+- **Screenshots are committed** under `evidence/screenshots/` (JPEG, at most 1440 px wide), not kept
+  scratch-only as the brief said. The plan's deliverable asks the committed report to include them.
 - **The Iterations nav item links to the first iteration (00)**, since there is no iterations index route.
 - **schemaVersion stays 1.** The bundle has no external consumers, and bumping it would break chunks 09 and
   10's fixtures for no gain.
