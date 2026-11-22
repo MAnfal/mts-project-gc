@@ -225,6 +225,12 @@ iteration; every line here skips one.
   from events.ts); `src/components/gc/` (RunView, ReportView, GcSidebar, useRun…).
   `ReportView` takes a `followUp` prop. Spend-free UI checks: `AI_GATEWAY_API_KEY=` empty +
   seed IndexedDB from `runReplay()` events. Gate: `bash plans/2026-11-22-demo-build/04-run-and-report/gates.sh`.
+- **Eval cases/runs/traces (09)**: `/evals/cases`, `/evals/runs`, `/evals/traces/<suite>/<run>`;
+  pure logic in `src/lib/evals/{cases,casesState,runFacts,traceIndex,runList}.ts`;
+  per-suite `public/evals/suites/<id>/runs-index.json` + `user-view/runs-index.json`
+  (`loadRunsIndex`). 04's Gate 5 scans only GC-route chunks (`GC_ROUTES` override) — add
+  any new GC route (e.g. `/examples/**`) to its list. Rebuild the bundle under Node 24.
+- **Gate blocks**: never `! cmd | grep -q x` under `set -e` — count explicitly.
 - **Chunks land via GitHub PR** into `feat/plan--demo-build` (`gh pr create` → `gh pr merge --merge`).
 
 ---
