@@ -1,0 +1,54 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/story-schema.test.ts (8 tests | 2 failed) 66ms
+   ❯ EvalStorySchema guards (no typed numbers) (3)
+     × rejects prose with a digit outside a placeholder, and accepts digits inside one 4ms
+     × rejects a typed number in a moved item's text or quote anchor 4ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  01:01:44
+   Duration  289ms (import 44%, tests 36%, transform 18%, worker 2%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/story-schema.test.ts > EvalStorySchema guards (no typed numbers) > rejects prose with a digit outside a placeholder, and accepts digits inside one
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/story-schema.test.ts:69:75
+     67| describe("EvalStorySchema guards (no typed numbers)", () => {
+     68|   it("rejects prose with a digit outside a placeholder, and accepts di…
+     69|     expect(Prose.safeParse("Recall 89.8% → {{live.recall.all}}").succe…
+       |                                                                           ^
+     70|     expect(Prose.safeParse("Costs $0.52 a run").success).toBe(false);
+     71|     expect(Prose.safeParse("Recall {{baseline.recall.all}} → {{live.re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/lib/evals/story-schema.test.ts > EvalStorySchema guards (no typed numbers) > rejects a typed number in a moved item's text or quote anchor
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/story-schema.test.ts:77:50
+     75|     const s = structuredClone(story());
+     76|     s.iterations["06-passages"].moved[0].text = "Found in 9 of 9 runs";
+     77|     expect(EvalStorySchema.safeParse(s).success).toBe(false);
+       |                                                  ^
+     78|     const t = structuredClone(story());
+     79|     t.iterations["06-passages"].moved[0].quote = { from: "decision", s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

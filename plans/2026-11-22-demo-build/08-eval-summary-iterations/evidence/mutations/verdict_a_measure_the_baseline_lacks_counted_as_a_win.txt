@@ -1,0 +1,78 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/verdict.test.ts (10 tests | 3 failed) 11ms
+   ❯ computeVerdict (targets met by live on all weeks, and beats-baseline per measure) (9)
+     × leaves a measure the baseline lacks out of beats-baseline, without counting it as a win 5ms
+     × leaves out a measure whose baseline value is null 1ms
+     × does not claim to beat a baseline it could not compare on anything 1ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 7 passed (10)
+   Start at  01:01:28
+   Duration  188ms (import 56%, transform 27%, tests 14%, worker 4%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > leaves a measure the baseline lacks out of beats-baseline, without counting it as a win
+AssertionError: expected [] to deeply equal [ 'datesRight' ]
+
+- Expected
++ Received
+
+- [
+-   "datesRight",
+- ]
++ []
+
+ ❯ src/lib/evals/verdict.test.ts:48:33
+     46|     delete (baseline as Partial<typeof baseline>).datesRight;
+     47|     const v = computeVerdict(index({ live: result("live", LIVE), basel…
+     48|     expect(v.baseline.excluded).toEqual(["datesRight"]);
+       |                                 ^
+     49|     expect(v.baseline.comparisons.map((c) => c.measure)).not.toContain…
+     50|     expect([v.baseline.wins, v.baseline.compared]).toEqual([5, 5]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > leaves out a measure whose baseline value is null
+AssertionError: expected [] to deeply equal [ 'tierAgreement' ]
+
+- Expected
++ Received
+
+- [
+-   "tierAgreement",
+- ]
++ []
+
+ ❯ src/lib/evals/verdict.test.ts:56:33
+     54|     const baseline = result("base", { recall: 0.6, precision: 0.7, dat…
+     55|     const v = computeVerdict(index({ live: result("live", LIVE), basel…
+     56|     expect(v.baseline.excluded).toEqual(["tierAgreement"]);
+       |                                 ^
+     57|     expect(v.baseline.compared).toBe(5);
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > does not claim to beat a baseline it could not compare on anything
+AssertionError: expected 6 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 6
+
+ ❯ src/lib/evals/verdict.test.ts:78:33
+     76|     const empty = result("base", { recall: null, precision: null, date…
+     77|     const v = computeVerdict(index({ live: result("live", LIVE), basel…
+     78|     expect(v.baseline.compared).toBe(0);
+       |                                 ^
+     79|     expect(v.baseline.beatsAll).toBe(false);
+     80|     expect(v.targets.find((t) => t.measure === "beatsBaseline")?.statu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { loadIndex, loadSuiteRuns, loadTrace, USER_VIEW } from "./loader";
+import { loadIndex, loadIteration, loadIterationFile, loadSuiteRuns, loadTrace, USER_VIEW } from "./loader";
 
 // The loader is browser-side and fetch-based. These tests build a small bundle on disk in the
 // public/evals layout and serve it through a fetch stub, so what is asserted is what a page receives.
@@ -122,5 +122,52 @@ describe("the shipped public/evals bundle through the loader", () => {
     const events = await collect(loadTrace(suite.id, String(runs[0].id), { fetch }));
     expect(events[0]).toMatchObject({ seq: 0, type: "run.start", runId: runs[0].id });
     expect(events.map((e) => e.seq)).toEqual(events.map((_, i) => i));
+  });
+});
+
+// The real generated bundle (scripts/build-eval-bundle.sh), served through the same stub.
+const SHIPPED = path.resolve(import.meta.dirname, "../../../public/evals");
+
+describe("loadIteration", () => {
+  it("returns the shipped iteration.json with its recorded hypothesis, change and decision", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    const it06 = await loadIteration("06-passages", { fetch });
+    expect(requested).toEqual(["/evals/iterations/06-passages/iteration.json"]);
+    expect(it06.id).toBe("06-passages");
+    expect(it06.evidenceOnly).toBe(false);
+    expect(it06.hypothesis).toMatch(/^Dev-only error analysis/);
+    expect(it06.change).toMatch(/^New setup jev-sonnet-strict-passages/);
+    expect(it06.decision).toMatch(/^Promoted/);
+  });
+
+  it("returns the evidence-only record of 07-next with no hypothesis", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    const it07 = await loadIteration("07-next", { fetch });
+    expect(it07).toMatchObject({ id: "07-next", evidenceOnly: true });
+    expect(it07.hypothesis).toBeUndefined();
+  });
+
+  it("throws naming the URL for an unknown iteration", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    await expect(loadIteration("99-nope", { fetch })).rejects.toThrow("/evals/iterations/99-nope/iteration.json returned 404");
+  });
+
+  it("rejects a record whose recorded text fields are not strings", async () => {
+    put("iterations/01-x/iteration.json", JSON.stringify({ id: "01-x", evidenceOnly: false, decision: 42 }));
+    const { fetch } = stubFetch(root);
+    await expect(loadIteration("01-x", { fetch })).rejects.toThrow();
+  });
+});
+
+describe("loadIterationFile", () => {
+  it("returns an evidence file's text as shipped", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    const diff = await loadIterationFile("06-passages", "config.diff", { fetch });
+    expect(diff).toBe(fs.readFileSync(path.join(SHIPPED, "iterations/06-passages/config.diff"), "utf8"));
+  });
+
+  it("throws naming the URL when the iteration has no such file", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    await expect(loadIterationFile("00-baseline", "system.diff", { fetch })).rejects.toThrow("/evals/iterations/00-baseline/system.diff returned 404");
   });
 });

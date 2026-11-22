@@ -1,0 +1,443 @@
+
+ RUN  v5.1.1 /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-08/gates/base-tree
+
+ ❯ src/lib/evals/story.test.ts (0 test)
+ ❯ src/lib/evals/verdict.test.ts (0 test)
+ ❯ src/lib/evals/chartSeries.test.ts (0 test)
+ ❯ src/lib/evals/bundle-build.test.ts (25 tests | 13 failed) 18ms
+   ❯ metricOf (one suiteReport row → a value and the run count it averages over) (3)
+     × uses graded runs for key-graded metrics, finished for trace checks and time, all runs for cost, panel runs for judges 3ms
+     × gives null over 0 runs for a split the suite never ran (dev-only suites have no test row) 0ms
+     × keeps a null time as null rather than dividing it 0ms
+   ❯ repeatAgreement (same relevance call / same tier across a setup's repeats) (6)
+     × counts a keyed doc as agreeing when every repeat flags it or none does 0ms
+     × checks tier only on docs flagged in every repeat, keyed or not 0ms
+     × groups by suite and eval set, and pools splits into all 0ms
+     × leaves out failed and superseded runs, and groups left with fewer than two repeats 0ms
+     × throws when an eval set has no answer key 4ms
+     × throws when a run names no suite or eval set 1ms
+   ❯ noiseBand (the control's spread between two identical suites) (3)
+     × is the absolute difference per measure, naming both suites and their run counts 0ms
+     × has no value for a measure either suite could not measure 0ms
+     × is null when the control did not run in both suites 0ms
+   ❯ keyTotals (rules that matter and look-alikes across the answer keys) (1)
+     × sums relevant docs and traps, traps given as a list or a map 0ms
+ ❯ src/lib/evals/index-schema.test.ts (14 tests | 6 failed) 30ms
+   ❯ EvalIndexSchema (9)
+     × rejects an agreement value that is not its numerator over its denominator 5ms
+     × rejects an agreement number missing its denominator 1ms
+     × accepts a null agreement over an empty denominator 1ms
+   ❯ the shipped public/evals bundle (5)
+     × index.json carries live relevance agreement over both iteration-06 suites (335 of 354 keyed docs) 1ms
+     × index.json gives every iteration with a record its measured candidate over its own suite 2ms
+     × index.json names the noise band's control and its two suites 1ms
+ ❯ src/lib/evals/story-schema.test.ts (0 test)
+ ❯ src/lib/evals/loader.test.ts (16 tests | 6 failed) 149ms
+   ❯ loadIteration (4)
+     × returns the shipped iteration.json with its recorded hypothesis, change and decision 2ms
+     × returns the evidence-only record of 07-next with no hypothesis 0ms
+     × throws naming the URL for an unknown iteration 0ms
+     × rejects a record whose recorded text fields are not strings 1ms
+   ❯ loadIterationFile (2)
+     × returns an evidence file's text as shipped 0ms
+     × throws naming the URL when the iteration has no such file 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/chartSeries.test.ts [ src/lib/evals/chartSeries.test.ts ]
+Error: Cannot find module './chartSeries' imported from /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-08/gates/base-tree/src/lib/evals/chartSeries.test.ts
+ ❯ src/lib/evals/chartSeries.test.ts:5:1
+      3| import { METRICS, type NoiseBandData } from "./index-schema";
+      4| import type { EvalStory, Outcome } from "./story-schema";
+      5| import { bandApplies, chartSeries, noiseVerdict } from "./chartSeries";
+       | ^
+      6|
+      7| const storyOf = (outcomes: Record<string, Outcome>) =>
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/29]⎯
+
+ FAIL  src/lib/evals/story-schema.test.ts [ src/lib/evals/story-schema.test.ts ]
+Error: Cannot find module './story-schema' imported from /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-08/gates/base-tree/src/lib/evals/story-schema.test.ts
+ ❯ src/lib/evals/story-schema.test.ts:8:1
+      6| import { EvalIndexSchema } from "./index-schema";
+      7| import { IterationRecordSchema } from "./loader";
+      8| import { EvalStorySchema, Prose } from "./story-schema";
+       | ^
+      9| import { fillTemplate, resolveQuote, storyContext, verdictHeading } fr…
+     10| import { computeVerdict } from "./verdict";
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/29]⎯
+
+ FAIL  src/lib/evals/story.test.ts [ src/lib/evals/story.test.ts ]
+Error: Cannot find module './story' imported from /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-08/gates/base-tree/src/lib/evals/story.test.ts
+ ❯ src/lib/evals/story.test.ts:5:1
+      3| import { evidenceOnly, index, iteration, result } from "./__fixtures__…
+      4| import type { EvalStory } from "./story-schema";
+      5| import { fillTemplate, formatValue, resolveQuote, storyContext } from …
+       | ^
+      6| import { computeVerdict } from "./verdict";
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/29]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts [ src/lib/evals/verdict.test.ts ]
+Error: Cannot find module './verdict' imported from /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-08/gates/base-tree/src/lib/evals/verdict.test.ts
+ ❯ src/lib/evals/verdict.test.ts:4:1
+      2| import type { EvalTargets } from "@/lib/config/schemas";
+      3| import { index, result } from "./__fixtures__/eval-index";
+      4| import { computeVerdict, targetStatus } from "./verdict";
+       | ^
+      5|
+      6| const TARGETS: EvalTargets = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/29]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > uses graded runs for key-graded metrics, finished for trace checks and time, all runs for cost, panel runs for judges
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:123:12
+    121|   it("uses graded runs for key-graded metrics, finished for trace chec…
+    122|     const r = { s: report(), panelRuns: 12 };
+    123|     expect(metricOf(r, "recall")).toEqual({ value: 0.9, runs: 34 });
+       |            ^
+    124|     expect(metricOf(r, "score")).toEqual({ value: 0.93, runs: 34 });
+    125|     expect(metricOf(r, "traceChecks")).toEqual({ value: 1, runs: 35 });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > gives null over 0 runs for a split the suite never ran (dev-only suites have no test row)
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:132:12
+    130|
+    131|   it("gives null over 0 runs for a split the suite never ran (dev-only…
+    132|     expect(metricOf({ s: null, panelRuns: 0 }, "recall")).toEqual({ va…
+       |            ^
+    133|     expect(metricOf({ s: null, panelRuns: 0 }, "costPerRunUsd")).toEqu…
+    134|     expect(runCountsOf(null)).toEqual({ total: 0, finished: 0, graded:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > metricOf (one suiteReport row → a value and the run count it averages over) > keeps a null time as null rather than dividing it
+TypeError: metricOf is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:138:12
+    136|
+    137|   it("keeps a null time as null rather than dividing it", () => {
+    138|     expect(metricOf({ s: report({ msMean: null }), panelRuns: 0 }, "se…
+       |            ^
+    139|   });
+    140| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > counts a keyed doc as agreeing when every repeat flags it or none does
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:161:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > checks tier only on docs flagged in every repeat, keyed or not
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:172:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > groups by suite and eval set, and pools splits into all
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:181:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > leaves out failed and superseded runs, and groups left with fewer than two repeats
+TypeError: repeatAgreement is not a function
+ ❯ agree src/lib/evals/bundle-build.test.ts:156:3
+    154| const SPLITS_OF: Record<string, "dev" | "test"> = { e1: "dev", e2: "te…
+    155| const agree = (runs: ARun[]) =>
+    156|   repeatAgreement(runs, (e) => KEYS[e] ?? null, (e) => SPLITS_OF[e]);
+       |   ^
+    157|
+    158| describe("repeatAgreement (same relevance call / same tier across a se…
+ ❯ src/lib/evals/bundle-build.test.ts:197:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > throws when an eval set has no answer key
+AssertionError: expected [Function] to throw error including 'no answer key for eval set e7' but got '(0 , __vite_ssr_import_1__.repeatAgre…'
+
+Expected: "no answer key for eval set e7"
+Received: "(0 , __vite_ssr_import_1__.repeatAgreement) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:210:69
+    208|
+    209|   it("throws when an eval set has no answer key", () => {
+    210|     expect(() => agree([arun("a", "e7", []), arun("b", "e7", [])])).to…
+       |                                                                     ^
+    211|   });
+    212|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > repeatAgreement (same relevance call / same tier across a setup's repeats) > throws when a run names no suite or eval set
+AssertionError: expected [Function] to throw error including 'run a has no arena or eval set' but got '(0 , __vite_ssr_import_1__.repeatAgre…'
+
+Expected: "run a has no arena or eval set"
+Received: "(0 , __vite_ssr_import_1__.repeatAgreement) is not a function"
+
+ ❯ src/lib/evals/bundle-build.test.ts:214:79
+    212|
+    213|   it("throws when a run names no suite or eval set", () => {
+    214|     expect(() => agree([arun("a", "e1", [], { config: { evalset: "e1" …
+       |                                                                               ^
+    215|     expect(() => agree([arun("a", "e1", [], { config: { arena: "s1" } …
+    216|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > is the absolute difference per measure, naming both suites and their run counts
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:226:18
+    224|
+    225|   it("is the absolute difference per measure, naming both suites and t…
+    226|     const band = noiseBand("ctl", res("A", 0.9, 35), res("B", 0.85, 35…
+       |                  ^
+    227|     expect(band?.setup).toBe("ctl");
+    228|     expect(band?.suites).toEqual(["A", "B"]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > has no value for a measure either suite could not measure
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:236:12
+    234|
+    235|   it("has no value for a measure either suite could not measure", () =…
+    236|     expect(noiseBand("ctl", res("A", null, 35), res("B", 0.85, 35))?.m…
+       |            ^
+    237|   });
+    238|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > noiseBand (the control's spread between two identical suites) > is null when the control did not run in both suites
+TypeError: noiseBand is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:240:12
+    238|
+    239|   it("is null when the control did not run in both suites", () => {
+    240|     expect(noiseBand("ctl", null, res("B", 0.85, 35))).toBeNull();
+       |            ^
+    241|     expect(noiseBand("ctl", res("A", 0.9, 35), null)).toBeNull();
+    242|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/29]⎯
+
+ FAIL  src/lib/evals/bundle-build.test.ts > keyTotals (rules that matter and look-alikes across the answer keys) > sums relevant docs and traps, traps given as a list or a map
+TypeError: keyTotals is not a function
+ ❯ src/lib/evals/bundle-build.test.ts:247:12
+    245| describe("keyTotals (rules that matter and look-alikes across the answ…
+    246|   it("sums relevant docs and traps, traps given as a list or a map", (…
+    247|     expect(keyTotals([KEYS.e1, KEYS.e2])).toEqual({ relevant: 3, traps…
+       |            ^
+    248|   });
+    249| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > rejects an agreement value that is not its numerator over its denominator
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/index-schema.test.ts:119:25
+    117|     idx.live.relevanceAgreement.all = { ...ratio(9, 10, "all"), value:…
+    118|     const res = EvalIndexSchema.safeParse(idx);
+    119|     expect(res.success).toBe(false);
+       |                         ^
+    120|     expect(res.error?.issues.map((i) => i.path.join("."))).toContain("…
+    121|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > rejects an agreement number missing its denominator
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/index-schema.test.ts:128:52
+    126|     void _d;
+    127|     (idx.live.tierAgreement as Record<string, unknown>).test = noDen;
+    128|     expect(EvalIndexSchema.safeParse(idx).success).toBe(false);
+       |                                                    ^
+    129|   });
+    130|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > accepts a null agreement over an empty denominator
+TypeError: Cannot read properties of undefined (reading 'test')
+ ❯ src/lib/evals/index-schema.test.ts:134:44
+    132|     const idx = minimalIndex();
+    133|     idx.live.tierAgreement.test = ratio(0, 0, "test");
+    134|     expect(EvalIndexSchema.parse(idx).live.tierAgreement.test.value).t…
+       |                                            ^
+    135|   });
+    136|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json carries live relevance agreement over both iteration-06 suites (335 of 354 keyed docs)
+TypeError: Cannot read properties of undefined (reading 'all')
+ ❯ src/lib/evals/index-schema.test.ts:160:43
+    158|   it("index.json carries live relevance agreement over both iteration-…
+    159|     const idx = EvalIndexSchema.parse(readJson("index.json"));
+    160|     const a = idx.live.relevanceAgreement.all;
+       |                                           ^
+    161|     expect([a.numerator, a.denominator]).toEqual([335, 354]);
+    162|     expect(a.suite).toEqual(["arena-2026-11-21-22-52-l92", "arena-2026…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json gives every iteration with a record its measured candidate over its own suite
+AssertionError: expected undefined to be 'baseline-sonnet' // Object.is equality
+
+- Expected:
+"baseline-sonnet"
+
++ Received:
+undefined
+
+ ❯ src/lib/evals/index-schema.test.ts:173:44
+    171|         continue;
+    172|       }
+    173|       expect(it.measured?.candidate.setup).toBe(it.setup);
+       |                                            ^
+    174|       expect(it.measured?.candidate.suite).toEqual([it.suite]);
+    175|       expect(it.measured?.comparedTo?.setup ?? null).toBe(it.comparedT…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/29]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json names the noise band's control and its two suites
+AssertionError: expected undefined to be 'jev-sonnet-strict' // Object.is equality
+
+- Expected:
+"jev-sonnet-strict"
+
++ Received:
+undefined
+
+ ❯ src/lib/evals/index-schema.test.ts:184:34
+    182|   it("index.json names the noise band's control and its two suites", (…
+    183|     const idx = EvalIndexSchema.parse(readJson("index.json"));
+    184|     expect(idx.noiseBand?.setup).toBe("jev-sonnet-strict");
+       |                                  ^
+    185|     expect(idx.noiseBand?.suites).toEqual(["arena-2026-11-21-22-52-l92…
+    186|     expect(idx.evalSet).toEqual({ companies: 3, weeks: { dev: 2, test:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > returns the shipped iteration.json with its recorded hypothesis, change and decision
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:134:24
+    132|   it("returns the shipped iteration.json with its recorded hypothesis,…
+    133|     const { fetch, requested } = stubFetch(SHIPPED);
+    134|     const it06 = await loadIteration("06-passages", { fetch });
+       |                        ^
+    135|     expect(requested).toEqual(["/evals/iterations/06-passages/iteratio…
+    136|     expect(it06.id).toBe("06-passages");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > returns the evidence-only record of 07-next with no hypothesis
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:145:24
+    143|   it("returns the evidence-only record of 07-next with no hypothesis",…
+    144|     const { fetch } = stubFetch(SHIPPED);
+    145|     const it07 = await loadIteration("07-next", { fetch });
+       |                        ^
+    146|     expect(it07).toMatchObject({ id: "07-next", evidenceOnly: true });
+    147|     expect(it07.hypothesis).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > throws naming the URL for an unknown iteration
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:152:18
+    150|   it("throws naming the URL for an unknown iteration", async () => {
+    151|     const { fetch } = stubFetch(SHIPPED);
+    152|     await expect(loadIteration("99-nope", { fetch })).rejects.toThrow(…
+       |                  ^
+    153|   });
+    154|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > rejects a record whose recorded text fields are not strings
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:158:18
+    156|     put("iterations/01-x/iteration.json", JSON.stringify({ id: "01-x",…
+    157|     const { fetch } = stubFetch(root);
+    158|     await expect(loadIteration("01-x", { fetch })).rejects.toThrow();
+       |                  ^
+    159|   });
+    160| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIterationFile > returns an evidence file's text as shipped
+TypeError: loadIterationFile is not a function
+ ❯ src/lib/evals/loader.test.ts:165:24
+    163|   it("returns an evidence file's text as shipped", async () => {
+    164|     const { fetch } = stubFetch(SHIPPED);
+    165|     const diff = await loadIterationFile("06-passages", "config.diff",…
+       |                        ^
+    166|     expect(diff).toBe(fs.readFileSync(path.join(SHIPPED, "iterations/0…
+    167|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/29]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIterationFile > throws naming the URL when the iteration has no such file
+TypeError: loadIterationFile is not a function
+ ❯ src/lib/evals/loader.test.ts:171:18
+    169|   it("throws naming the URL when the iteration has no such file", asyn…
+    170|     const { fetch } = stubFetch(SHIPPED);
+    171|     await expect(loadIterationFile("00-baseline", "system.diff", { fet…
+       |                  ^
+    172|   });
+    173| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/29]⎯
+
+
+ Test Files  7 failed (7)
+      Tests  25 failed | 30 passed (55)
+   Start at  01:03:17
+   Duration  423ms (import 39%, tests 36%, transform 20%, worker 5%)
+

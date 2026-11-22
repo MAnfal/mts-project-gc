@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { EvalIndexSchema, type EvalIndex } from "./index-schema";
 
 /**
@@ -85,4 +86,34 @@ export async function* loadTrace(suiteId: string, runId: string, opts: LoaderOpt
   const dir = suiteId === USER_VIEW ? `${base(opts)}/user-view` : `${base(opts)}/suites/${encodeURIComponent(suiteId)}`;
   const url = `${dir}/traces/${encodeURIComponent(runId)}.jsonl.gz`;
   yield* gzipJsonLines<TraceEvent>(await get(url, opts), url);
+}
+
+/**
+ * iterations/<id>/iteration.json: the POC's spec.yaml merged with iteration.yaml (chunk 07). Only the recorded
+ * text the eval view shows is typed; every other recorded field passes through untouched. `07-next` is
+ * evidence-only and has none of them.
+ */
+export const IterationRecordSchema = z.looseObject({
+  id: z.string(),
+  evidenceOnly: z.boolean(),
+  title: z.string().optional(),
+  hypothesis: z.string().optional(),
+  change: z.string().optional(),
+  decision: z.string().optional(),
+  notes: z.string().optional(),
+});
+export type IterationRecord = z.infer<typeof IterationRecordSchema>;
+
+export async function loadIteration(id: string, opts: LoaderOptions = {}): Promise<IterationRecord> {
+  const res = await get(`${base(opts)}/iterations/${encodeURIComponent(id)}/iteration.json`, opts);
+  return IterationRecordSchema.parse(await res.json());
+}
+
+/** Evidence files an iteration may ship (index.iterations[].evidence says which exist). */
+export type IterationFile = "system.diff" | "config.diff" | "error-analysis.json";
+
+/** One evidence file's text, as shipped. */
+export async function loadIterationFile(id: string, name: IterationFile, opts: LoaderOptions = {}): Promise<string> {
+  const res = await get(`${base(opts)}/iterations/${encodeURIComponent(id)}/${name}`, opts);
+  return res.text();
 }
