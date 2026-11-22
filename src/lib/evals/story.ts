@@ -52,7 +52,12 @@ export function storyContext(index: EvalIndex, verdict: Verdict, story: EvalStor
 
   const misses = verdict.targets.flatMap((t) =>
     t.measure !== "beatsBaseline" && (t.status === "near" || t.status === "missed") && t.value?.value != null
-      ? [fillTemplate(story.verdict.miss, { measure: story.measures[t.measure] ?? t.measure, gap: formatPoints(t.min - t.value.value), target: formatShare(t.min) })]
+      ? [fillTemplate(story.verdict.miss, {
+          measure: story.measures[t.measure] ?? t.measure,
+          gap: formatPoints(t.min - t.value.value),
+          target: formatShare(t.min),
+          runs: String(t.value.runs),
+        })]
       : [],
   );
 

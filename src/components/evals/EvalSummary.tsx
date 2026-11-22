@@ -46,14 +46,7 @@ const LINK: Record<EvalStory["carl"]["context"]["link"], (liveId: string, firstI
   "live-iteration": (live) => `/evals/iterations/${live}`,
 };
 
-/**
- * The eval summary, big picture first (design/HiEvalSummary.dc.html): the computed verdict, the CARL table,
- * the scoreboard and the iteration chart. Prose comes from config/eval-story.yaml, numbers from index.json.
- */
-export function EvalSummary({ story, targets }: { story: EvalStory; targets: EvalTargets }) {
-  const { index, error } = useEvalIndex();
-  if (!index) return <LoadState error={error} />;
-
+function summaryView(index: EvalIndex, story: EvalStory, targets: EvalTargets) {
   const verdict = computeVerdict(index, targets);
   const ctx = storyContext(index, verdict, story);
   const series = chartSeries(index, story);
@@ -64,12 +57,31 @@ export function EvalSummary({ story, targets }: { story: EvalStory; targets: Eva
     href: LINK[story.carl[k].link](liveId, index.iterations[0].id),
     linkLabel: story.carl[k].linkLabel,
   }));
+  return { verdict, ctx, series, rows, heading: verdictHeading(story, ctx, verdict), sub: fillTemplate(story.verdict.sub, ctx) };
+}
+
+/**
+ * The eval summary, big picture first (design/HiEvalSummary.dc.html): the computed verdict, the CARL table,
+ * the scoreboard and the iteration chart. Prose comes from config/eval-story.yaml, numbers from index.json.
+ */
+export function EvalSummary({ story, targets }: { story: EvalStory; targets: EvalTargets }) {
+  const { index, error } = useEvalIndex();
+  if (!index) return <LoadState error={error} />;
+
+  let view;
+  try {
+    view = summaryView(index, story, targets);
+  } catch (e) {
+    // A story template or iteration entry that no longer matches the data: say which, rather than a blank page.
+    return <LoadState error={`config/eval-story.yaml does not match index.json: ${(e as Error).message}`} />;
+  }
+  const { series, rows } = view;
 
   return (
     <div className="flex flex-col gap-[30px]">
       <div className="flex flex-col gap-2.5">
-        <h1 className="m-0 max-w-[34ch] text-[26px] leading-snug font-bold">{verdictHeading(story, ctx, verdict)}</h1>
-        <p className="m-0 max-w-[74ch] text-[15px] leading-relaxed text-muted-foreground">{fillTemplate(story.verdict.sub, ctx)}</p>
+        <h1 className="m-0 max-w-[34ch] text-[26px] leading-snug font-bold">{view.heading}</h1>
+        <p className="m-0 max-w-[74ch] text-[15px] leading-relaxed text-muted-foreground">{view.sub}</p>
       </div>
       <CarlTable rows={rows} />
       <section id="scoreboard" aria-labelledby="scoreboard-h" className="flex scroll-mt-4 flex-col gap-2.5">

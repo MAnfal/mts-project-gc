@@ -54,7 +54,7 @@ export const EvalStorySchema = z
         beatsSome: Prose,
         /** Sub-line under the heading. */
         sub: Prose,
-        /** One sentence per target missed or nearly missed; fills {{measure}}, {{gap}}, {{target}}. */
+        /** One sentence per target missed or nearly missed; fills {{measure}}, {{gap}}, {{target}}, {{runs}}. */
         miss: Prose,
         /** Stands in for the misses when every target is met. */
         allMet: Prose,

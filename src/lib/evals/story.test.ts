@@ -13,7 +13,7 @@ const STORY: EvalStory = {
     beatsAll: "Beats the baseline on every measure, and meets {{verdict.met}} of {{verdict.total}} targets",
     beatsSome: "Beats the baseline on {{verdict.wins}} of {{verdict.compared}} measures, and meets {{verdict.met}} of {{verdict.total}} targets",
     sub: "{{verdict.misses}} Held-out precision is {{live.precision.test}}.",
-    miss: "{{measure}} is {{gap}} short of its {{target}} target.",
+    miss: "{{measure}} is {{gap}} short of its {{target}} target ({{runs}} runs).",
     allMet: "Every target is met.",
   },
   carl: { context: row("ctx"), action: row("act"), result: row("res"), learning: row("learn") },
@@ -54,7 +54,7 @@ describe("storyContext + fillTemplate (CARL prose filled from index.json)", () =
   it("composes the verdict: counts, and one miss sentence per target missed or nearly missed", () => {
     const c = ctx();
     expect(fillTemplate(STORY.verdict.beatsAll, c)).toBe("Beats the baseline on every measure, and meets 5 of 6 targets");
-    expect(fillTemplate(STORY.verdict.sub, c)).toBe("Recall is 0.2 pts short of its 90% target. Held-out precision is 81.5%.");
+    expect(fillTemplate(STORY.verdict.sub, c)).toBe("Recall is 0.2 pts short of its 90% target (69 runs). Held-out precision is 81.5%.");
   });
 
   it("uses the all-met sentence when nothing is missed", () => {

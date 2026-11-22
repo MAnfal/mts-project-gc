@@ -15,17 +15,31 @@ const COLOR: Record<Measure, string> = { recall: "var(--series-recall)", precisi
 const NAME: Record<Measure, string> = { recall: "Recall", precision: "Precision" };
 const config: ChartConfig = { recall: { label: "Recall", color: COLOR.recall }, precision: { label: "Precision", color: COLOR.precision } };
 
-/** Filled = kept, hollow = dropped, square = baseline; the live point is larger. Clicking opens the iteration. */
+/**
+ * Filled = kept, hollow = dropped, square = baseline; the live point is larger. Each marker is a real SVG link
+ * to its iteration (keyboard-reachable, named for screen readers); a click navigates client-side.
+ */
 function Marker({ p, m, cx, cy, onOpen }: { p: ChartPoint; m: Measure; cx: number; cy: number; onOpen: (id: string) => void }) {
   const r = p.live ? 7 : 5.5;
-  const common = {
+  const paint = {
     stroke: p.marker === "filled" ? "var(--card)" : COLOR[m],
     strokeWidth: 2,
     fill: p.marker === "filled" ? COLOR[m] : "var(--card)",
-    style: { cursor: "pointer" },
-    onClick: () => onOpen(p.id),
   };
-  return p.marker === "square" ? <rect x={cx - 6} y={cy - 6} width={12} height={12} rx={2} {...common} /> : <circle cx={cx} cy={cy} r={r} {...common} />;
+  const value = p[m].value === null ? "no value" : formatShare(p[m].value);
+  return (
+    <a
+      href={`/evals/iterations/${p.id}`}
+      aria-label={`${iterationNumber(p.id)} ${p.label}, ${OUTCOME_LABEL[p.outcome]}: ${NAME[m]} ${value} (${provenance(p[m])}). Open this iteration.`}
+      style={{ cursor: "pointer" }}
+      onClick={(e) => {
+        e.preventDefault();
+        onOpen(p.id);
+      }}
+    >
+      {p.marker === "square" ? <rect x={cx - 6} y={cy - 6} width={12} height={12} rx={2} {...paint} /> : <circle cx={cx} cy={cy} r={r} {...paint} />}
+    </a>
+  );
 }
 
 function PointTooltip({ p }: { p: ChartPoint }) {

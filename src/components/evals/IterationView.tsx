@@ -8,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { bandApplies, noiseVerdict } from "@/lib/evals/chartSeries";
 import { METRICS, type EvalIndex, type Metric, type Split } from "@/lib/evals/index-schema";
 import { loadIteration, type IterationFile, type IterationRecord } from "@/lib/evals/loader";
-import type { EvalStory, Outcome } from "@/lib/evals/story-schema";
+import type { EvalStory, Outcome, Quote } from "@/lib/evals/story-schema";
 import { formatPoints, formatValue, resolveQuote } from "@/lib/evals/story";
 import { cn } from "@/lib/utils";
 import { DiffSheet } from "./DiffSheet";
@@ -180,6 +180,26 @@ function AllMeasures({ c, p, story }: { c: SetupResult; p: SetupResult | null; s
   );
 }
 
+/** A moved item's quote, resolved verbatim; a quote that no longer resolves shows why instead of crashing the page. */
+function Quoted({ rec, quote }: { rec: IterationRecord; quote: Quote }) {
+  let text: string;
+  try {
+    text = resolveQuote(rec, quote);
+  } catch (e) {
+    return (
+      <span role="alert" className="text-[13px] text-status-red-fg">
+        Quote unavailable: {(e as Error).message} (config/eval-story.yaml)
+      </span>
+    );
+  }
+  return (
+    <q className="text-[13px] text-muted-foreground">
+      {text}
+      <span className="sr-only"> (quoted from the recorded {quote.from})</span>
+    </q>
+  );
+}
+
 /**
  * One iteration (design/HiEvalIteration.dc.html): outcome, why and change, the result against the setup it
  * replaced, what moved, the decision, and the evidence. Recorded text comes from iteration.json verbatim;
@@ -264,17 +284,15 @@ export function IterationView({ id, story }: { id: string; story: EvalStory }) {
                 <span className={cn("mt-0.5 h-5 shrink-0 rounded-sm px-1.5 text-xs leading-5 font-semibold", TAG_CLASS[x.tag])}>{TAG_TEXT[x.tag]}</span>
                 <span className="flex min-w-0 flex-col gap-1">
                   <span>{x.text}</span>
-                  {x.quote ? (
-                    <q className="text-[13px] text-muted-foreground">
-                      {resolveQuote(rec, x.quote)}
-                      <span className="sr-only"> (quoted from the recorded {x.quote.from})</span>
-                    </q>
-                  ) : null}
+                  {x.quote ? <Quoted rec={rec} quote={x.quote} /> : null}
                 </span>
               </li>
             ))}
           </ul>
-          <p className="m-0 text-[13px] text-caption">Quoted text is verbatim from the iteration&apos;s recorded decision.</p>
+          <p className="m-0 text-[13px] text-caption">
+            Quoted text is verbatim from the iteration&apos;s recorded{" "}
+            {[...new Set(s.moved.flatMap((x) => (x.quote ? [x.quote.from] : [])))].join(" and ")}.
+          </p>
         </Section>
       ) : null}
 

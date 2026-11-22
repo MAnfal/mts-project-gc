@@ -29,7 +29,13 @@ const th = "px-3 py-2 text-left font-semibold";
 const td = "px-3 py-2 align-top";
 
 function Analysis({ raw }: { raw: string }) {
-  const parsed = ErrorAnalysisSchema.safeParse(JSON.parse(raw));
+  let json: unknown = null;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    // Not JSON: fall through to the raw view below.
+  }
+  const parsed = ErrorAnalysisSchema.safeParse(json);
   const rawView = (
     <Collapsible>
       <CollapsibleTrigger render={<Button variant="outline" size="sm" />}>Raw error-analysis.json</CollapsibleTrigger>
