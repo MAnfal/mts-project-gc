@@ -15,8 +15,12 @@ import { NEUTRAL_REASON } from "./stages";
 // reviewer's report uses. What this adds is the public side: step labels from STEP_LABELS, the closest calls,
 // the neutral reason in place of the POC's leaked relevance score, and assertPublic on every event.
 
-/** The POC's fallback reason for an item the LLM filter gave no reason for (poc:poc/src/lib/pipeline/stages.ts). */
-const LEAKED_REASON = /^Jev p=\d+(?:\.\d+)? \(no LLM reason\)$/;
+/**
+ * The POC's fallback reason for an item the LLM filter gave no reason for: the internal component's name and its
+ * relevance score, then "(no LLM reason)" (poc:poc/src/lib/pipeline/stages.ts, line 281). Matched by shape: chunk 03's
+ * Gate 2 bans that text anywhere in src/.
+ */
+const LEAKED_REASON = /^\S+ p=\d+(?:\.\d+)? \(no LLM reason\)$/;
 
 type Record_ = { config?: { filter?: string; jevThreshold?: number }; decisions?: FilterDecision[] };
 

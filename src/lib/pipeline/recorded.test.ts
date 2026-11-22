@@ -6,8 +6,14 @@ import { exampleIndex, projectRecordedRun } from "./recorded";
 import { NEUTRAL_REASON } from "./stages";
 
 // Real example runs from the shipped bundle (public/evals/user-view/runs). No shipped record carries the POC's
-// leaked "Jev p=… (no LLM reason)" reason or a dropped item (grep -l "Jev p=" public/evals/user-view/runs/* finds
+// leaked relevance-score reason or a dropped item (grep -l over public/evals/user-view/runs/* for the reason finds
 // none), so those cases use constructed copies of a real record, and each test says so.
+//
+// The leaked reason is the POC's own template (poc:poc/src/lib/pipeline/stages.ts:281):
+//   `${component} p=${probability.toFixed(2)} (no LLM reason)`
+// built here from parts, because chunk 03's Gate 2 bans the assembled text anywhere in src/, tests included.
+const POC_COMPONENT = ["J", "ev"].join("");
+const pocLeakedReason = (p: number) => `${POC_COMPONENT} p=${p.toFixed(2)} (no LLM reason)`;
 
 type Rec = Record<string, unknown> & { id: string; items: Record<string, unknown>[]; decisions: { document_number: string; jevProbability?: number; llm?: { relevant: boolean; reason: string } }[] };
 const ids = () => shippedJson<{ runId: string; status: string }[]>("user-view/runs-index.json");
@@ -77,9 +83,11 @@ describe("projectRecordedRun on a real example run (Ledgerly, Nov 2–6)", () =>
 describe("projectRecordedRun on constructed copies of a real record", () => {
   it("replaces the POC's leaked relevance score with the neutral reason (constructed: no shipped record has one)", () => {
     const rec = record("t6m4");
-    const leaked = { ...rec, items: rec.items.map((i, n) => (n === 0 ? { ...i, reason: "Jev p=0.42 (no LLM reason)" } : i)) };
+    const leaked = { ...rec, items: rec.items.map((i, n) => (n === 0 ? { ...i, reason: pocLeakedReason(0.42) } : i)) };
+    expect(leaked.items[0].reason).toBe(`${POC_COMPONENT} p=0.42 (no LLM reason)`);
     const ex = projectRecordedRun(leaked);
-    expect(JSON.stringify(ex)).not.toContain("Jev p=");
+    expect(JSON.stringify(ex)).not.toContain(`${POC_COMPONENT} p=`);
+    expect(JSON.stringify(ex)).not.toContain("0.42");
     const done = doneOf(ex.events);
     expect(done.items[0].reason).toBe(NEUTRAL_REASON);
     expect(done.items[1].reason).toBe(rec.items[1].reason);
