@@ -4,10 +4,10 @@ export const MIN_SECONDS = 1;
 export const MAX_SECONDS = 120;
 export const DEFAULT_SECONDS = 5;
 
-// Any number is accepted and clamped; anything that isn't a finite number falls back to the default.
+// Any finite number is accepted and clamped; anything else falls back to the default. zod 4's
+// number() already rejects NaN and ±Infinity (e.g. "1e999"), so no separate finiteness check is needed.
 const SecondsParam = z.coerce
   .number()
-  .refine(Number.isFinite)
   .transform((n) => Math.min(MAX_SECONDS, Math.max(MIN_SECONDS, Math.floor(n))));
 
 /** `?seconds=` for the probe: whole seconds, clamped to 1–120, default 5 when missing or not a number. */

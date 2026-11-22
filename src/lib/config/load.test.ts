@@ -44,6 +44,16 @@ describe("readYaml", () => {
     );
   });
 
+  it.each([
+    ["an empty file", ""],
+    ["a bare scalar", "just a string\n"],
+  ])("labels a whole-document mismatch as (root) for %s", (_label, text) => {
+    writeConfig("app.yaml", text);
+    expect(() => readYaml("app.yaml", AppConfigSchema, { configDir })).toThrow(
+      /^Config error in config\/app\.yaml: \(root\): \S/,
+    );
+  });
+
   it("reports a YAML syntax error against the file", () => {
     writeConfig("app.yaml", "appName: [unclosed\n");
     expect(() => readYaml("app.yaml", AppConfigSchema, { configDir })).toThrow(/^Config error in config\/app\.yaml: /);

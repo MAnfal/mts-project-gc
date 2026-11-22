@@ -12,12 +12,22 @@ describe("probe seconds clamp", () => {
     [null, DEFAULT_SECONDS],
     ["2.7", 2],
     ["90", 90],
+    ["Infinity", DEFAULT_SECONDS],
+    ["-Infinity", DEFAULT_SECONDS],
+    ["1e999", DEFAULT_SECONDS],
   ])("seconds=%s becomes %i", (input, expected) => {
     expect(parseSeconds(input)).toBe(expected);
   });
 
-  it("keeps every clamped value inside 1–120", () => {
-    expect([MIN_SECONDS, DEFAULT_SECONDS, MAX_SECONDS]).toEqual([1, 5, 120]);
+  it("returns a whole number in 1–120 for any input", () => {
+    const inputs = [null, "", " ", "abc", "NaN", "Infinity", "-1e9", "1e9", "0.4", "119.9", "120", "121", "-0", "0x10", "1e2"];
+    for (let n = -5; n <= 130; n += 7) inputs.push(String(n));
+    for (const raw of inputs) {
+      const s = parseSeconds(raw);
+      expect(Number.isInteger(s), `seconds=${raw} -> ${s}`).toBe(true);
+      expect(s, `seconds=${raw}`).toBeGreaterThanOrEqual(1);
+      expect(s, `seconds=${raw}`).toBeLessThanOrEqual(120);
+    }
   });
 });
 
