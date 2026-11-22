@@ -276,7 +276,8 @@ the data commit; `git status --short | grep ' poc/'` was empty before every comm
 ## Deviations from the plan
 
 - **Baseline: "latest suite where it ran" → pooled `w0i` + `cb0`.** (Messaged to the lead
-  mid-chunk; no reply came, so the chunk proceeded on it.) No single suite ran
+  mid-chunk; the lead agreed after the chunk finished. Every baseline number in `index.json` names
+  both suites: `suite: ["arena-2026-11-21-18-40-w0i", "arena-2026-11-21-21-45-cb0"]`.) No single suite ran
   `baseline-sonnet` on all four weeks. `w0i` has only the November weeks and `cb0` (the latest) only
   the October weeks, while live covers all four. `cb0` alone gives recall 0.444 / precision 0.444 on
   half the weeks, which is not comparable. The pooled 36 runs give 0.633 / 0.691, matching the README
