@@ -189,6 +189,18 @@ Every one of these is a candidate for `.claude/resources/project.md`.
 - US2 checkpoint reached on the plan branch: summary, iterations, cases, runs, traces and
   models all come from recorded data. Verified locally; deploy deferred.
 
+### Chunk 06 and the US1 checkpoint
+
+- Chunk 06 absorbed chunk 09's reviewer report and built a Node-side public projection
+  for the example runs (`public/examples/**`). That kept the GC pages from fetching raw
+  eval JSON, which carries model ids. A JS-only bundle gate would never have caught that
+  leak; Decision 9 has to cover fetched data too.
+- US1 live smoke test: 54 s, 0 items for Ledgerly Nov 2–6. That is not a regression: the
+  POC's older `jev-sonnet-strict` run flagged three routine "national emergency
+  continuation" notices as Medium, and the live passages setup screens them out with
+  reasons. The SPEC's claim that the mockup's rows came from a real run is true of
+  the older setup only. The live setup never finished a recorded Ledgerly Nov 2–6 run.
+
 
 ---
 

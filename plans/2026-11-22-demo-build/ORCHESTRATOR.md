@@ -42,7 +42,7 @@ See `SPEC.md` in this directory.
 | 03 | US1 | Merged | [#1](https://github.com/MAnfal/mts-project-gc/pull/1) | — |
 | 04 | US1 | Merged | [#3](https://github.com/MAnfal/mts-project-gc/pull/3) | — |
 | 05 | US1 | Merged | [#4](https://github.com/MAnfal/mts-project-gc/pull/4) | — |
-| 06 | US1 | Not started | — | — |
+| 06 | US1 | Merged | [#7](https://github.com/MAnfal/mts-project-gc/pull/7) | — |
 | 07 | US2 | Merged | local merge 89e61d3 (pre-PR rule; branch pushed) | — |
 | 08 | US2 | Merged | [#2](https://github.com/MAnfal/mts-project-gc/pull/2) | — |
 | 09 | US2 | Merged | [#5](https://github.com/MAnfal/mts-project-gc/pull/5) | — |
@@ -116,6 +116,11 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | review_passed | 10 | i2 PASS |
 | 2026-11-23 | pr_created | 10 | #6 |
 | 2026-11-23 | pr_merged | 10 | #6 → b84fc8b; plan-tip gates exit 0 (keyless) |
+| 2026-11-23 | review_passed | 06 | i2 PASS |
+| 2026-11-23 | pr_created | 06 | #7 |
+| 2026-11-23 | pr_merged | 06 | #7 → 66ad1dc; plan branch merged in first (chunk 10); plan-tip gates exit 0 (keyless) |
+| 2026-11-23 | user_checkpoint | US1 | Lead live smoke test (local `next start`, real key, ~$0.24): Ledgerly Nov 2–6 streamed scan→rank→read→screen→verify over 54 s, ended run.done with 0 items, 22 screened out with reasons. Same top-ranked docs as the recorded jev-sonnet-strict run; the live passages setup screens the 3 routine national-emergency continuations out. Deployed check deferred |
+| 2026-11-23 | user_checkpoint | US2 | All eval screens on recorded data verified locally across chunks 08–10; deployed check deferred |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
@@ -206,8 +211,8 @@ Two more shared-file notes:
 | Story | Last chunk | Checkpoint — what works once this merges | Reached? |
 | ----- | ---------- | ---------------------------------------- | -------- |
 | Foundation | 01 | The placeholder app in GC AI's theme deploys from `main` on Vercel; config YAML is read on the server; a 90-second stream survives the deployed function | ☐ |
-| US1 (P1) | 06 | On the deployed URL, a GC picks a preset or an edited profile and a week, watches the steps stream, and reads a verified, owner-routed report. Runs persist in IndexedDB. Failures retry ×3, then offer a settings-preserving Retry. Edge states render | ☐ |
-| US2 (P1) | 10 | On the deployed URL, a reviewer reads the verdict and CARL story, opens any iteration, any case, any run's trace, and the model comparison. Every number comes from the recorded data | ☐ |
+| US1 (P1) | 06 | On the deployed URL, a GC picks a preset or an edited profile and a week, watches the steps stream, and reads a verified, owner-routed report. Runs persist in IndexedDB. Failures retry ×3, then offer a settings-preserving Retry. Edge states render | ☑ locally (deploy deferred) |
+| US2 (P1) | 10 | On the deployed URL, a reviewer reads the verdict and CARL story, opens any iteration, any case, any run's trace, and the model comparison. Every number comes from the recorded data | ☑ locally (deploy deferred) |
 | US3 (P2) | 11 | A finished report (live or example) takes follow-up questions answered only from that report | ☐ |
 
 ## Design Decisions
