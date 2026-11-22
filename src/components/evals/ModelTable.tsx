@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SPLIT_WORD } from "@/lib/evals/cases";
-import type { EvalIndex } from "@/lib/evals/index-schema";
 import { COMPARED, modelComparisons, type ModelGroup } from "@/lib/evals/models";
 import type { EvalStory } from "@/lib/evals/story-schema";
 import { modelsStory, shortSuite, type JudgePanel } from "@/lib/evals/story";
@@ -145,7 +144,7 @@ export function ModelsView({ story, judges }: { story: EvalStory; judges: JudgeP
         )}
 
         {cmp.groups.map((g) => (
-          <SuiteGroup key={g.suite} group={g} index={index} story={story} liveRule={prose?.liveRule ?? null} />
+          <SuiteGroup key={g.suite} group={g} story={story} liveRule={prose?.liveRule ?? null} />
         ))}
 
         {cmp.singleModel.length ? (
@@ -186,9 +185,8 @@ export function ModelsView({ story, judges }: { story: EvalStory; judges: JudgeP
 }
 
 /** A suite's name, weeks (with their split) and run counts, then its table and the live-row rule. */
-function SuiteGroup({ group, index, story, liveRule }: { group: ModelGroup; index: EvalIndex; story: EvalStory; liveRule: string | null }) {
+function SuiteGroup({ group, story, liveRule }: { group: ModelGroup; story: EvalStory; liveRule: string | null }) {
   const perSetup = [...new Set(group.rows.map((r) => r.result.runCounts.all.total))];
-  const setups = index.suites.find((s) => s.id === group.suite)?.setups.length ?? group.rows.length;
   return (
     <Section id={`suite-${shortSuite(group.suite)}-h`} title={`Suite ${shortSuite(group.suite)}: ${group.models.join(" vs ")}`}>
       <p className="m-0 text-[13px] leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
@@ -199,7 +197,7 @@ function SuiteGroup({ group, index, story, liveRule }: { group: ModelGroup; inde
             {weekOf(w.id)} ({SPLIT_WORD[w.split]})
           </span>
         ))}{" "}
-        · {group.evalsets} company-weeks · {group.runs} runs over {setups} setups
+        · {group.evalsets} company-weeks · {group.runs} runs over {group.rows.length} setups
         {perSetup.length === 1 ? ` (${perSetup[0]} each)` : ""}
       </p>
       <ModelTable group={group} story={story} />

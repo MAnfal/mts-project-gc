@@ -145,6 +145,17 @@ describe("modelComparisons guards (constructed index)", () => {
     expect(modelComparisons(idx).groups).toEqual([]);
   });
 
+  it("throws when a suite lists a setup that has no result of its own, instead of silently dropping its row", () => {
+    const listed = (keys: string[]) => keys.map((key) => ({ key, label: key, runs: 18, finished: 18, failed: 0, graded: 18 }));
+    const idx = build([info("a", SONNET), info("g", GPT)], [at("a", "su1")]);
+    idx.suites[0].setups = listed(["a", "g"]);
+    expect(() => modelComparisons(idx)).toThrow("suite su1 lists setup g, but index.json has no result for it in that suite");
+    // With its result present, the same suite compares both models.
+    const whole = build([info("a", SONNET), info("g", GPT)], [at("a", "su1"), at("g", "su1")]);
+    whole.suites[0].setups = listed(["a", "g"]);
+    expect(modelComparisons(whole).groups[0].rows.map((r) => r.setup)).toEqual(["a", "g"]);
+  });
+
   it("throws when the live setup is not in index.setups (nothing to highlight by)", () => {
     const idx = build([info("a", SONNET), info("g", GPT)], [at("a", "su1"), at("g", "su1")], ["su1"], "ghost");
     expect(() => modelComparisons(idx)).toThrow("live setup ghost is not in index.setups");

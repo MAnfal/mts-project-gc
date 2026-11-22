@@ -52,7 +52,8 @@ function rowOrder(a: ModelRow, b: ModelRow): number {
 
 /**
  * Groups each suite's own results (never a pooled one) by the models they ran. Throws when the live setup, or a
- * setup a suite has results for, is missing from `index.setups`: its model would be unknown.
+ * setup a suite has results for, is missing from `index.setups` (its model would be unknown), and when a suite lists a
+ * setup with no result of its own (its row would silently vanish). The page shows the message instead of a table.
  */
 export function modelComparisons(index: Pick<EvalIndex, "suites" | "setups" | "suiteResults" | "live">): ModelComparisons {
   const infoOf = new Map(index.setups.map((s) => [s.key, s]));
@@ -71,6 +72,10 @@ export function modelComparisons(index: Pick<EvalIndex, "suites" | "setups" | "s
         return { setup: i.key, label: i.label, model: i.model, modelLabel: i.modelLabel, method: i.method, promptSet: i.promptSet, live: i.model === live.model, result };
       })
       .sort(rowOrder);
+    // The builder writes one result per suite × setup; a listed setup without one would vanish from the table
+    // and could turn a two-model suite into "single model", so it is an error, not a smaller table.
+    const missing = s.setups.find((x) => !rows.some((r) => r.setup === x.key));
+    if (missing) throw new Error(`suite ${s.id} lists setup ${missing.key}, but index.json has no result for it in that suite`);
     const models = [...new Set(rows.map((r) => r.modelLabel))];
     if (models.length > 1) groups.push({ suite: s.id, weeks: s.weeks, runs: s.runs, evalsets: s.evalsets.length, models, rows });
     else singleModel.push({ suite: s.id, models });
