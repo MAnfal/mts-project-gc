@@ -50,10 +50,12 @@ matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`). Chunk 02 added `
 | Language | `typescript` | 5.9.3 |
 | Styling | `tailwindcss` · `@tailwindcss/turbopack` · `tw-animate-css` | 4.3.3 · 4.3.3 · 1.4.0 |
 | Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
+| shadcn components in `src/components/ui/` | button, badge (chunk 01); sheet, table, collapsible, tooltip, chart (chunk 08, `pnpm exec shadcn add`, shadcn 4.23.0) | — |
 | Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
 | Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
 | Dates (tiering, date verification) | `date-fns` | 4.4.0 |
 | Concurrency limits (pipeline stages) | `p-limit` | 7.3.3 |
+| Charts (eval view) | `recharts` (pinned; same version as the POC's `package.json`) | 3.8.0 |
 | Server marker | `server-only` | 0.0.1 |
 | Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
 
@@ -205,7 +207,7 @@ a follow-up.
 - **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
-  `use: eval` plus `app.yaml`) and to `c017e8bc89` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
+  `use: eval` plus `app.yaml`) and to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
   `app.yaml`). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in

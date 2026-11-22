@@ -51,7 +51,7 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 | `src/components/ui/{sheet,table,collapsible,tooltip,chart}.tsx` | generated | `pnpm exec shadcn add sheet table collapsible tooltip chart`. shadcn also added `card.tsx` as a registry dependency; it is unused and was deleted. shadcn skipped `button.tsx`, which is unchanged |
 | `package.json`, `pnpm-lock.yaml` | edited | `recharts` pinned at `3.8.0`, read from `node_modules/recharts/package.json` |
 | `src/app/globals.css` | edited | `--amber`, `--series-recall` (#173c51), `--series-precision` (#99652d) and their `--color-*` aliases |
-| `.claude/resources/project.md` | edited | Layout, Convention Map (new row for the eval view), Conventions (eval prose/number rule, agreement/noise rule, configHash `c017e8bc89`). Stack and Commands were not touched (see "For the lead") |
+| `.claude/resources/project.md` | edited | Layout, Convention Map (new row for the eval view), Conventions (eval prose/number rule, agreement/noise rule, configHash `242bd91ef7`). Stack and Commands were not touched (see "For the lead") |
 | `plan.md` | edited | Ticked T001–T007 and the deliverable |
 
 ## Acceptance criteria
@@ -134,7 +134,7 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
 | No `poc/` paths | `git ls-tree -r --name-only HEAD \| grep -c '^poc/'`; `git log --name-only --format= ee5d13c..HEAD \| grep -c '^poc/'` | 0 and 0 | — |
 | Tracing | `.next/server/app/evals/**/page.js.nft.json` | Both include `config/eval-story.yaml`; neither names `public/evals` (count 0) | — |
 
-## For the lead: Stack and Commands lines (not edited here, because chunk 03 owns them this wave)
+## Stack and Commands (added to project.md Stack after review i1, once chunk 03 had merged)
 
 - Stack, Charts: `recharts` `3.8.0` (pinned exactly; same as the POC's `package.json`; read from
   `node_modules/recharts/package.json`).
@@ -211,3 +211,19 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
 - The generated shadcn files import `cn` from the `cn` package and use `bg-black/10` on the sheet overlay
   (generated code, not edited).
 - The `/evals/cases` route (chunk 09) and Models (chunk 10).
+
+## Review i1 follow-ups (lead, 2026-11-23)
+
+`review-1.md` (PASS with warnings) is committed alongside this report. The lead asked for five follow-ups:
+
+| Follow-up | Done | Evidence |
+| --------- | ---- | -------- |
+| project.md Stack | Added a `recharts` 3.8.0 row and a row for the shadcn components in `src/components/ui/`. Versions were read from `node_modules` (recharts 3.8.0, shadcn 4.23.0); `package.json` pins `"recharts": "3.8.0"` | `.claude/resources/project.md` Stack table |
+| Reconcile the two noise statements on 06 | Added an optional `noiseNote` (Prose, no digits) per iteration in `config/eval-story.yaml`, rendered after the band line. 06's note says the decision used the control's swing across all four of its identical-config suites, while the table uses only l92 and du8 | `story-schema.test.ts` › "reconciles iteration 06's computed noise verdict…" (asserts the note, and that the recorded decision really says "across its four identical-config suites"); › "rejects a typed number in a noise note". Mutations in `mutations/summary-review1.md`: deleting the note or loosening it to `z.string()` each turns its test red. `screenshots/iteration-06-desktop.jpg` |
+| `bg-stone-50` → theme token | `bg-background` in both sheets | Computed `pre` background on the final build: `rgb(244, 245, 241)` (`--background`). `screenshots/iteration-03-config-diff-sheet.jpg` |
+| Heading on rejected / not-promoted iterations | "Result against the setup it would have replaced" | The final build's h2s on 03 are `["Why","Change","Result against the setup it would have replaced","What actually moved","Decision: rejected"]`; 06 keeps "…it replaced" |
+| Gate 2 needles | Added `\b157\b`, `\b20 rules`, `\b[0-9]+ changes\b` and `\b[0-9]+ were kept\b`. A bare `20` is not a needle, because SVG sizes in ProgressChart use it | `gates/no-typed-numbers-canaries.txt`: 27 probes (9 needles × CarlTable.tsx, page.tsx, eval-story.yaml). Each fired, was restored and came back clean. Still fails on base: `gates/no-typed-numbers-base.txt` |
+
+The `noiseNote` edit changed `config/eval-story.yaml`, so configHash is re-measured as `242bd91ef7` (project.md
+Conventions updated). The final gate block was re-run after these edits with typecheck last
+(`gates/final-gates.txt`).
