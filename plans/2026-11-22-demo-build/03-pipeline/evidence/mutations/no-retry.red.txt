@@ -4,12 +4,18 @@
 AssertionError: expected "vi.fn()" to be called 2 times, but got 1 times
  FAIL  src/lib/pipeline/retry.test.ts > withRetry > gives up after the third failure with RetriesExhausted carrying the last error, and never tries a fourth time
 AssertionError: expected 1 to be 3 // Object.is equality
+ FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > an LLM call failing with a retryable provider error is sent exactly 3 times
+AssertionError: expected [ { kind: 'filter', …(3) } ] to have a length of 3 but got 1
+ FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > a decision call failing with a retryable provider error is sent exactly 3 times
+AssertionError: expected [ { model: 'typesafe-ai/jev', …(2) } ] to have a length of 3 but got 1
  FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a decision call that throws twice then succeeds: the run finishes, after 2 step.retry events of 2000 and 4000 ms
 AssertionError: expected RunFailed: run failed to be undefined
+ FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a Federal Register text read that gets two 503s then succeeds: the run finishes, reporting both retries on the step
+AssertionError: expected [] to deeply equal [ { type: 'step.retry', …(3) }, …(1) ]
  FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a call that fails 3 times: step.failed (label + timeout message), then run.failed, and no later stage runs
 AssertionError: expected [ { kind: 'filter', …(3) } ] to have a length of 3 but got 1
 Serialized Error: { attempts: 1 }
 Caused by: Error: connect ETIMEDOUT 10.0.0.1:443
 Serialized Error: { code: 'ETIMEDOUT' }
  Test Files  1 failed (1)
-      Tests  4 failed | 7 passed (11)
+      Tests  7 failed | 8 passed (15)

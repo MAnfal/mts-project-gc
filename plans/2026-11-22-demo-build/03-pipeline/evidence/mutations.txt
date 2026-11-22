@@ -11,41 +11,90 @@ red→green  drop-prompt-set  (Tests 1 failed | 10 passed (11) | restored: Tests
 red→green  poc-reason-fallback  (Tests 2 failed | 2 passed (4) | restored: Tests 4 passed (4))
      FAIL  src/lib/pipeline/reason.test.ts > an item's reason when the LLM gave none > is the neutral fallback, never the internal probability
      FAIL  src/lib/pipeline/reason.test.ts > an item's reason when the LLM gave none > reaches the item and every event of a run whose filter is relevance-only (no LLM verdicts at all)
-red→green  noop-assertPublic  (Tests 10 failed | 9 passed (19) | restored: Tests 19 passed (19))
+red→green  noop-assertPublic  (Tests 12 failed | 9 passed (21) | restored: Tests 21 passed (21))
      FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on the decision model's id
      FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on the component's name in a label
      FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on an internal stage id
-     FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on the POC's reason fallback
-red→green  internal-labels  (Tests 15 passed | 4 skipped (19) | restored: Tests 19 passed (19))
+     FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on a spread decision's score field (camelCase)
+red→green  internal-labels  (Tests 17 passed | 4 skipped (21) | restored: Tests 21 passed (21))
      FAIL  src/lib/pipeline/events.test.ts > events of a replayed run
-red→green  no-retry  (Tests 4 failed | 7 passed (11) | restored: Tests 11 passed (11))
+red→green  no-retry  (Tests 7 failed | 8 passed (15) | restored: Tests 15 passed (15))
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > after 2 failures waits 2000 then 4000 ms, re-issues the same call, and returns the third try's result
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > gives up after the third failure with RetriesExhausted carrying the last error, and never tries a fourth time
-     FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a decision call that throws twice then succeeds: the run finishes, after 2 step.retry events of 2000 and 4000 ms
-     FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a call that fails 3 times: step.failed (label + timeout message), then run.failed, and no later stage runs
-red→green  wrong-delays  (Tests 3 failed | 8 passed (11) | restored: Tests 11 passed (11))
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > an LLM call failing with a retryable provider error is sent exactly 3 times
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > a decision call failing with a retryable provider error is sent exactly 3 times
+red→green  wrong-delays  (Tests 4 failed | 11 passed (15) | restored: Tests 15 passed (15))
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > is 3 attempts in total, waiting 2 s then 4 s
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > after 2 failures waits 2000 then 4000 ms, re-issues the same call, and returns the third try's result
      FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a decision call that throws twice then succeeds: the run finishes, after 2 step.retry events of 2000 and 4000 ms
-red→green  swallow-exhaustion  (Tests 3 failed | 8 passed (11) | restored: Tests 11 passed (11))
+     FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a Federal Register text read that gets two 503s then succeeds: the run finishes, reporting both retries on the step
+red→green  swallow-exhaustion  (Tests 5 failed | 10 passed (15) | restored: Tests 15 passed (15))
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > gives up after the third failure with RetriesExhausted carrying the last error, and never tries a fourth time
      FAIL  src/lib/pipeline/retry.test.ts > withRetry > stops before the next attempt when told to, without waiting it out
-     FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a call that fails 3 times: step.failed (label + timeout message), then run.failed, and no later stage runs
-red→green  no-terminal-gate  (Tests 1 failed | 10 passed (11) | restored: Tests 11 passed (11))
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > an LLM call failing with a retryable provider error is sent exactly 3 times
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > a decision call failing with a retryable provider error is sent exactly 3 times
+red→green  no-terminal-gate  (Tests 1 failed | 14 passed (15) | restored: Tests 15 passed (15))
      FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a parallel sibling that finishes after the run failed sends nothing more (run.failed stays the last event)
-red→green  raw-error-message  (Tests 3 failed | 8 passed (11) | restored: Tests 11 passed (11))
+red→green  raw-error-message  (Tests 3 failed | 12 passed (15) | restored: Tests 15 passed (15))
      FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a call that fails 3 times: step.failed (label + timeout message), then run.failed, and no later stage runs
      FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a failed call's own error text (model ids, vendor names) never reaches the browser
      FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > an event that would leak an internal name ends the run with a generic failure instead of reaching the browser
-red→green  no-stop-after-failure  (Tests 1 failed | 21 passed (22) | restored: Tests 22 passed (22))
+red→green  no-stop-after-failure  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
      FAIL  src/lib/pipeline/stages.test.ts > failing runs > once the run has failed, calls still queued give up at once instead of trying 3 times each
-red→green  no-http-retry  (Tests 2 failed | 9 passed (11) | restored: Tests 11 passed (11))
+red→green  no-5xx-retry  (Tests 2 failed | 9 passed (11) | restored: Tests 11 passed (11))
      FAIL  src/lib/fr.test.ts > retrying failed Federal Register and govinfo requests > a 503 then a 429 then a success: the re-fetch returns the document, and each retry is reported to the run in scope
      FAIL  src/lib/fr.test.ts > retrying failed Federal Register and govinfo requests > govinfo failing 3 times with 5xx falls back to the Federal Register's raw text, as a failed govinfo read did before
+red→green  no-429-retry  (Tests 1 failed | 10 passed (11) | restored: Tests 11 passed (11))
+     FAIL  src/lib/fr.test.ts > retrying failed Federal Register and govinfo requests > a 503 then a 429 then a success: the re-fetch returns the document, and each retry is reported to the run in scope
 red→green  key-at-import  (Tests 3 failed | 1 passed (4) | restored: Tests 4 passed (4))
      FAIL  src/lib/gateway.test.ts > gateway > imports without a key, and names the missing variable only when a model is resolved
      FAIL  src/lib/gateway.test.ts > gateway > test resolvers replace both models, and null puts the gateway back
      FAIL  src/lib/gateway.test.ts > gateway > reads the cost the gateway reports, and 0 when there is none or it is not a number
-red→green  no-filter-retry  (Tests 1 failed | 21 passed (22) | restored: Tests 22 passed (22))
+red→green  no-filter-retry  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
      FAIL  src/lib/pipeline/stages.test.ts > LLM filter > asks again, once, for documents the model left out, and leaves still-unanswered ones not relevant
+red→green  debug-always-on  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > failing runs > writes the internal trace to the server log only when DEBUG_PIPELINE is set
+red→green  retry-without-step  (Tests 1 failed | 14 passed (15) | restored: Tests 15 passed (15))
+     FAIL  src/lib/pipeline/retry.test.ts > RunCtx retry reporting > reports a retry as step.retry only while a step is running
+red→green  start-outside-try  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > failing runs > a failure outside any step (a run.start that would leak) ends with run.failed only, no step.failed
+red→green  sanitizer-words-only  (Tests 2 failed | 19 passed (21) | restored: Tests 21 passed (21))
+     FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on a spread decision's score field (camelCase)
+     FAIL  src/lib/pipeline/events.test.ts > assertPublic > throws on a spread decision's cut fields (camelCase)
+red→green  sdk-retries-llm  (Tests 1 failed | 14 passed (15) | restored: Tests 15 passed (15))
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > an LLM call failing with a retryable provider error is sent exactly 3 times
+red→green  sdk-retries-decide  (Tests 1 failed | 14 passed (15) | restored: Tests 15 passed (15))
+     FAIL  src/lib/pipeline/retry.test.ts > at most 3 tries per model call in total (the AI SDK's own retries are off) > a decision call failing with a retryable provider error is sent exactly 3 times
+red→green  no-retry-scope  (Tests 1 failed | 14 passed (15) | restored: Tests 15 passed (15))
+     FAIL  src/lib/pipeline/retry.test.ts > retries inside a run > a Federal Register text read that gets two 503s then succeeds: the run finishes, reporting both retries on the step
+red→green  no-doc-drop  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > holds back a relevant document the Federal Register no longer returns, and tells the GC which and why
+red→green  no-empty-chunks-skip  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > LLM filter > shows the model the picked passages only for documents that have text
+red→green  no-snippet-check  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > asks for no extraction when a document has neither a DATES line nor any text
+red→green  no-duplicate-skip  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > verifies an extracted date by its quote, skips one that repeats a field, and routes a no-area item to the general counsel
+red→green  no-field-pair-check  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > verifies an extracted date by its quote, skips one that repeats a field, and routes a no-area item to the general counsel
+red→green  citation-null-verified  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > never verifies a missing citation, even when scan and re-fetch both lack one
+red→green  no-gc-fallback  (Tests 2 failed | 24 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > filter modes other than the live one > relevance only: runs exactly the planned steps, and run.start announces them
+     FAIL  src/lib/pipeline/stages.test.ts > verify + tier > verifies an extracted date by its quote, skips one that repeats a field, and routes a no-area item to the general counsel
+red→green  no-want-filter  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > LLM filter > ignores an answer for a document it wasn't asked about
+red→green  no-empty-items-return  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > actions > with nothing relevant, writes no actions and reports an empty triage
+red→green  no-review-default  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > actions > strips any date the model writes, says 'Review.' for an item it skipped, and orders items by tier then deadline
+red→green  no-date-strip  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > actions > strips any date the model writes, says 'Review.' for an item it skipped, and orders items by tier then deadline
+red→green  no-profile-catch  (Tests 1 failed | 25 passed (26) | restored: Tests 26 passed (26))
+     FAIL  src/lib/pipeline/stages.test.ts > failing runs > an unknown profile fails before any step, with run.failed only
+red→green  stepOf-no-throw  (Tests 1 failed | 20 passed (21) | restored: Tests 21 passed (21))
+     FAIL  src/lib/pipeline/events.test.ts > STEP_LABELS > refuses a stage that has no public label
+red→green  no-key-check  (Tests 2 failed | 2 passed (4) | restored: Tests 4 passed (4))
+     FAIL  src/lib/gateway.test.ts > gateway > imports without a key, and names the missing variable only when a model is resolved
+     FAIL  src/lib/gateway.test.ts > gateway > test resolvers replace both models, and null puts the gateway back
 mutations: OK (logs in plans/2026-11-22-demo-build/03-pipeline/evidence/mutations)

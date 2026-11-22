@@ -1,41 +1,4 @@
-
- RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/03-pipeline
-
- ❯ src/lib/pipeline/retry.test.ts (12 tests | 1 failed) 92ms
-   ❯ RunCtx retry reporting (1)
-     × reports a retry as step.retry only while a step is running 5ms
-
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
-
  FAIL  src/lib/pipeline/retry.test.ts > RunCtx retry reporting > reports a retry as step.retry only while a step is running
 AssertionError: expected [ { type: 'step.retry', …(3) } ] to deeply equal []
-
-- Expected
-+ Received
-
-- []
-+ [
-+   {
-+     "attempt": 2,
-+     "delayMs": 2000,
-+     "step": undefined,
-+     "type": "step.retry",
-+   },
-+ ]
-
- ❯ src/lib/pipeline/retry.test.ts:92:20
-     90|     const ctx = new RunCtx({ config: synConfig() }, "Ledgerly Inc.", (…
-     91|     ctx.onRetry({ attempt: 2, delayMs: 2000, error: new Error("x") });
-     92|     expect(events).toEqual([]);
-       |                    ^
-     93|     await ctx.stage("filter:jev", async () => ctx.onRetry({ attempt: 2…
-     94|     expect(events.filter((e) => e.type === "step.retry")).toEqual([{ t…
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
-
-
  Test Files  1 failed (1)
-      Tests  1 failed | 11 passed (12)
-   Start at  00:34:13
-   Duration  1.08s (import 86%, tests 9%, transform 4%)
-
+      Tests  1 failed | 14 passed (15)
