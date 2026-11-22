@@ -144,7 +144,7 @@ below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/runs/store.test.ts` (with `fake-indexeddb`): save, list newest-first, get
     by id, and mark interrupted.
   - `src/app/api/run/route.test.ts`: the 400 cases, using constructed bodies.
@@ -154,38 +154,38 @@ below conflicts with these points, these win:
   - `src/lib/runs/reader.test.ts` (pure reader; amendment 7): with a mocked `fetch` whose body streams NDJSON in
     chunks that split lines mid-way, assert that every event is parsed once and appended
     to the store. Also assert `retry()` posts the stored config unchanged.
-- [ ] T002 — create `src/app/api/run/route.ts`:
+- [x] T002 — create `src/app/api/run/route.ts`:
   - validate the body with zod, using limits from `config/app.yaml`;
   - call `runPipeline` with an `emit` that writes NDJSON lines to a `ReadableStream`;
   - catch-all errors become a `run.failed` event, never a 500 with a stack;
   - `export const maxDuration = 300`, because Vercel Hobby's maximum is 300 s and the
     worst case observed is 87 s.
-- [ ] T003 — create `src/lib/runs/reduce.ts`: the pure reducer from `RunEvent[]` to
+- [x] T003 — create `src/lib/runs/reduce.ts`: the pure reducer from `RunEvent[]` to
   `{steps, items, dropped, status, failedStep}`. Both live rendering and replay from
   IndexedDB use it.
-- [ ] T004 — create `src/lib/runs/store.ts`, a typed IndexedDB wrapper. Database
+- [x] T004 — create `src/lib/runs/store.ts`, a typed IndexedDB wrapper. Database
   `reg-monitor`, store `runs`, record `{id, createdAt, request, events, status, result, profile}` (amendment 2).
   Every call is wrapped in try/catch and degrades to in-memory with a visible notice when
   IndexedDB is unavailable (private mode). You may use the `idb` package or raw IndexedDB;
   explain your choice.
-- [ ] T005 — create `src/components/gc/useRun.ts` (amendment 7; pure logic in `src/lib/runs/`), a client hook that:
+- [x] T005 — create `src/components/gc/useRun.ts` (amendment 7; pure logic in `src/lib/runs/`), a client hook that:
   - POSTs, reads the NDJSON stream line by line, and appends each event to state and to
     the store;
   - exposes `retry()`, which starts a new run with the stored config.
-- [ ] T006 [P] — create `src/components/gc/GcSidebar.tsx`: composes chunk 01's
+- [x] T006 [P] — create `src/components/gc/GcSidebar.tsx`: composes chunk 01's
   `SidebarNav` with New run, All runs, Company profiles, RECENT RUNS from the store, and
   the user footer. Don't edit `src/components/shell/*`.
-- [ ] T007 [P] — create `src/components/gc/RunSteps.tsx`, the Running step list from the
+- [x] T007 [P] — create `src/components/gc/RunSteps.tsx`, the Running step list from the
   hi-fi, with icons from `lucide-react`.
-- [ ] T008 [P] — create `src/components/gc/ReportView.tsx` (heading, summary, badges,
+- [x] T008 [P] — create `src/components/gc/ReportView.tsx` (heading, summary, badges,
   table, actions, and an optional `followUp?: ReactNode` prop rendered in the hi-fi's
   composer position, which the page passes in) and
   `src/components/gc/SourcesPanel.tsx`, using shadcn `Table`, `Badge`, `Tabs`,
   `Collapsible` and `Button`.
-- [ ] T009 — create `src/app/runs/[id]/page.tsx` (server page + client `RunView`; amendment 10), which renders a run from the
+- [x] T009 — create `src/app/runs/[id]/page.tsx` (server page + client `RunView`; amendment 10), which renders a run from the
   store with `RunSteps` and `ReportView`, and edit `src/app/page.tsx` so `/` shows the
   "Run Ledgerly · Nov 2–6" button, which starts a run and navigates to `/runs/<id>`.
-- [ ] T010 — edit `.claude/resources/project.md`:
+- [x] T010 — edit `.claude/resources/project.md`:
   - Commands: "Run a monitor pass" →
     `curl -sN -X POST localhost:3000/api/run -H 'content-type: application/json' -d '{"profileId":"ledgerly","windowStart":"2026-11-02","windowEnd":"2026-11-06"}'`.
     Mark it as spending real Gateway credit (~$0.24).
