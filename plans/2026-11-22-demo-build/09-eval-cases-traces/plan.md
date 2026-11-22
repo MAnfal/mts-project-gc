@@ -210,8 +210,8 @@ revert.
 
 ## Artifacts Checklist
 
-- ☐ New tests
+- ☑ New tests
 - — Existing tests: none affected
-- ☐ Docs / conventions updated
+- ☑ Docs / conventions updated
 - — Generated code: n/a
-- ☐ `.claude/resources/project.md` updated (Layout)
+- ☑ `.claude/resources/project.md` updated (Layout)

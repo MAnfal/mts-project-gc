@@ -97,10 +97,16 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
   const [filter, setFilter] = useState<CaseFilter | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const rows = useMemo(
-    () => (it?.setup && loaded?.data ? casesForIteration(loaded.data.runs, { setup: it.setup, comparedTo: it.comparedTo }, loaded.data.keys) : null),
-    [it, loaded],
-  );
+  // casesForIteration throws for a run without an eval set or an eval set without a key: show that, not a blank page.
+  const computed = useMemo(() => {
+    if (!it?.setup || !loaded?.data) return { rows: null, error: null };
+    try {
+      return { rows: casesForIteration(loaded.data.runs, { setup: it.setup, comparedTo: it.comparedTo }, loaded.data.keys), error: null };
+    } catch (e) {
+      return { rows: null, error: (e as Error).message };
+    }
+  }, [it, loaded]);
+  const rows = computed.rows;
   const runsById = useMemo(() => new Map((loaded?.data?.runs ?? []).map((r) => [r.id, r])), [loaded]);
 
   const shell = (main: ReactNode, aside?: ReactNode) => (
@@ -153,7 +159,7 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
         <Header title={title} sub={sub} />
         <Body>
           <IterationNav index={index} current={it.id} />
-          {loaded?.error ? <LoadState error={loaded.error} /> : <p className="m-0 text-muted-foreground" aria-live="polite">Loading the suite&apos;s runs and answer keys…</p>}
+          {loaded?.error || computed.error ? <LoadState error={loaded?.error ?? computed.error} /> : <p className="m-0 text-muted-foreground" aria-live="polite">Loading the suite&apos;s runs and answer keys…</p>}
         </Body>
       </>,
     );

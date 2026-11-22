@@ -138,6 +138,7 @@ export function TraceViewer({ suiteId, runId }: { suiteId: string; runId: string
         <span className="sr-only">Search the trace</span>
         <input
           type="search"
+          name="q"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Document number or word"

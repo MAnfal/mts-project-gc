@@ -77,9 +77,11 @@ function tally(reps: CaseRun[], flags: Map<string, Set<string>>, doc: string): T
 /** "3/3", or "—" when no repeat finished (never "0/0" or a made-up "0/3"). */
 export const formatTally = (t: Tally) => (t.finished ? `${t.hits}/${t.finished}` : "—");
 
-/** Compares hit rates (hits / finished) by cross-multiplying; null when either side has no finished repeat. */
-function rateOrder(a: Tally, b: Tally): -1 | 0 | 1 | null {
-  if (!a.finished || !b.finished) return null;
+/**
+ * Compares hit rates (hits / finished) by cross-multiplying. A side with no finished repeat has 0 hits, so the
+ * product is 0 and the case reads as unchanged, never as Fixed or Regressed.
+ */
+function rateOrder(a: Tally, b: Tally): -1 | 0 | 1 {
   const d = a.hits * b.finished - b.hits * a.finished;
   return d === 0 ? 0 : d > 0 ? 1 : -1;
 }

@@ -4,6 +4,14 @@ Branch `feat/demo-build--eval-cases-traces`, base `8222830` (`git merge-base HEA
 The plan's **Preflight amendment (2026-11-23)** is the contract. Where it overrides the older text, this report
 follows the amendment.
 
+**Where the evidence is.**
+- Browser measurements were saved by chrome-devtools `evaluate_script` straight to files in `evidence/` (in this
+  chunk dir), not copied by hand. That covers click paths, frame times, the 390 px widths, iterations 00–07, the
+  run panel, the failed-run checks box and the missing-key state.
+- The final gate output is `evidence/final-gates.txt`.
+- Red runs, mutation outputs, canaries and the baseline are in the scratch dir `/private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/ddc2e56d-412d-41ac-a327-b31278844f2d/scratchpad/chunk-09/` (`red/`, `mut/`,
+  `canaries*.txt`, `baseline/`, `basegates/`, `routes/`).
+
 ## What changed
 
 | File | Change | Why |
@@ -28,7 +36,7 @@ follows the amendment.
 | `plans/.../08-eval-summary-iterations/no-typed-numbers.sh` | edited | Adds needles for this chunk's figures (`177`, `2,104`/`2104`, `439`, `n/3`, `n trace checks`). |
 | `package.json`, `pnpm-lock.yaml` | edited | `@tanstack/react-virtual` `3.14.26`, pinned exactly (`pnpm add -E`). |
 | `.claude/resources/project.md` | edited | Layout (routes, components, lib modules), the Convention Map eval row (tests run on shipped data), and two Conventions: per-case grading, and trace links / judges / user-view. Stack and Commands are untouched; the Stack row is left to the lead (see below). |
-| `plans/.../09-eval-cases-traces/click-path.js`, `screenshots/` | created | Click-path check script (below) and the screenshots. |
+| `plans/.../09-eval-cases-traces/click-path.js`, `screenshots/`, `evidence/` | created | Click-path check script, screenshots, and the saved browser measurements. |
 
 **Stack row for the lead.** 04 owns Stack this wave. The row to add is ``Trace list virtualization (eval view) | `@tanstack/react-virtual` (pinned; pulls `@tanstack/virtual-core` 3.19.11) | 3.14.26``. Both versions were read from `node_modules/@tanstack/react-virtual/package.json` and `pnpm-lock.yaml`. `package.json` and `pnpm-lock.yaml` changed in commit `aa1eff4`, so they may conflict with 04 at merge.
 
@@ -41,23 +49,28 @@ follows the amendment.
 | Panel has Run 1/2/3 tabs | yes | `RunPanel` tabs come from `row.after.repeats`; a failed repeat reads "Run 3 · failed" |
 | Panel: "Why the filter flagged it", the LLM reason | yes | Taken from `decisions[].llm.reason` (amendment 7). `runFacts.test.ts` › "gives the LLM filter's reason …". Other states: Jev-screened, baseline (no filter step), failed, none. Each has a test |
 | Panel: "The N passages it read" when recorded | yes | N comes from the data: `traceFacts` test shows power bank = 3 of 238 chunks and doc `2026-21960` = 2. For setups without passages: "No passages recorded…" (test › "has no passages for a setup that doesn't record them") |
-| Panel: trace checks, "All N passed" or the failing ones named | yes | `ChecksBox` ← `checkSummary` (test). Live: "All 8 trace checks passed" (06) and "All 5 …" (00 baseline). The failed run `wqxz` shows 2 failing checks with detail |
+| Panel: trace checks, "All N passed" or the failing ones named | yes | `ChecksBox` ← `checkSummary` (test). Live: "All 8 trace checks passed" (06; `evidence/run-panel-power-bank.json`) and "All 5 …" (00 baseline). The failed run `wqxz` reads "2 of 8 trace checks failed", naming both checks with their detail (`evidence/trace-failed-run-wqxz.json`) |
 | Panel: judge verdicts with votes, reasoning collapsed | yes | `judgeView` tests: judged (3 criteria, votes, 9 reasons), notJudged (repeat 1, amendment 8), and nothingToJudge (judged run that didn't flag the doc) |
 | "Raw trace · N events" for every repeat (amendment 1) | yes | Live: `Run 1 · Raw trace · 1,965 events / Run 2 · … 1,926 / Run 3 · … 1,933` (power bank). The failed repeat reads `Run 3 · Raw trace · 453 events (failed run)` |
-| Trace page: fetches one gz file, decompresses in the browser, virtualized list smooth at 2,104 events | yes | Measured on `k6tv` (2,104 events) under `pnpm start`: **25 rows in the DOM at the top and 25 at the bottom**. Scrolling in 200 rAF steps gave median frame 8.3 ms, p95 9.0 ms, max 9.8 ms. The last row reached was `#2103 Verdict …` |
+| Trace page: fetches one gz file, decompresses in the browser, virtualized list smooth at 2,104 events | yes | `evidence/trace-virtualization-k6tv.json`, measured on the final build. **28 rows in the DOM at the top and 28 at the bottom of 2,104.** Scrolling in 200 rAF steps gave median frame 8.3 ms, p95 9.2 ms, max 11.1 ms. The last row reached was `#2103 Verdict …` |
 | Trace page shows the trace-check summary first | yes | `ChecksBox` renders above the chips (`screenshots/trace-decisions-desktop.jpeg`). User-view: "No trace checks recorded for this run." |
 | Trace page: chips by type, search by doc number or word | yes | `traceIndex.test.ts`: type filter, doc-number search, value-only search (a key-only word finds 0), case-insensitive, combined. Live: "Decisions only" gives `Showing 466 of 2,104 events` |
 | Trace page: any event's JSON opens on click | yes | Live: clicking `#1624` opens `Event #1624 · filter.decision` with pretty JSON (screenshot) |
 | ~~Run report link~~ | moved | Moved to chunk 06 (amendment 2) |
-| 390 px: side panel stacks under the table | yes | Cases at 390×844: `scrollWidth 390 = clientWidth 390`, aside top ≥ main bottom, table 340 px in a 340 px container, no element overflowing outside a scroller. Trace page (decisions + JSON open) and Runs page: `scrollWidth 390 = clientWidth 390`. Screenshots `cases-06-390.jpeg`, `runs-390.jpeg` |
-| Amendment 11: bare `/evals/cases` → 06; 00 shows its setup alone; 07 has an empty state | yes | Bare URL opens "Cases that changed in 06". `?iteration=00-baseline`: "Cases in 00", filters `Still missed 8 · Traps flagged 5 · All 93 cases`, no Before column. `?iteration=07-next`: "Iteration 07 has no cases … evidence only …", with 0 `runs.jsonl` fetches |
+| 390 px: side panel stacks under the table | yes | `evidence/width-390-cases.json`: `docScrollWidth 390 = docClientWidth 390`, aside top 4213 ≥ main bottom 4205, table 340 in a 340 container, 0 elements overflowing outside a scroller. `width-390-trace.json` (decisions filter + JSON open, `pre` doesn't scroll sideways) and `width-390-runs.json`: 390 = 390. Screenshots `cases-06-390.jpeg`, `runs-390.jpeg` |
+| Amendment 11: bare `/evals/cases` → 06; 00 shows its setup alone; 07 has an empty state | yes | Bare URL opens "Cases that changed in 06". `evidence/iterations-00-07.json` renders all eight iterations: 00 is "Cases in 00" with filters `Still missed 8 · Traps flagged 5 · All 93 cases` and columns `Flagged`/What happened (no Before); 01–06 each show a table, "Changed in NN" counts 27/22/9/7/9/17, and no alert; 07 shows "Iteration 07 has no cases" (an earlier check saw 0 `runs.jsonl` fetches) |
+| A case computation that throws shows an error, not a blank page | yes | `evidence/cases-missing-key-state.json`: with `index.json` patched in the page to drop one l92 eval set, the page shows "The recorded evaluation could not be loaded: no answer key for eval set brightside_2026-10-19_2026-10-23" and no table |
+| No console errors | yes | `list_console_messages` was empty on the final build for Cases (bare URL), Runs and the trace page. An earlier "form field should have an id or name" issue was fixed (`name="q"` on the trace search) |
 | Amendment 10: loader extensions, user-view = no trace checks | yes | `loader.test.ts` (12 new tests), including › "is null for the example runs … without fetching anything" (`requested` = `[]`) |
 
 ### Click paths from `/evals` (amendment 1; SPEC "≤ 3 clicks")
 
 `click-path.js` runs in the page through chrome-devtools `evaluate_script`. Each step is a real `.click()` on a
 rendered link or button, and the script counts the clicks and waits for `Raw trace · N events` to render. Results
-under `pnpm start -p 3901`:
+under `pnpm start -p 3901` were saved by the tool to `evidence/click-1…7-*.json`.
+
+Runs 2–7 used the script before its last edit, which wrapped the body in `try/catch` so a failure returns
+`{ok:false, error}` instead of throwing. Click 1 and the negative control were re-run with the final script.
 
 | Run | Path | Clicks | Landed on / heading |
 | --- | ---- | ------ | ------------------- |
@@ -69,8 +82,8 @@ under `pnpm start -p 3901`:
 | Outside the iteration's setups: w0i `llm-sonnet`, Brightside Nov 9–13, repeat 0 `…cost` | sidebar Runs → "Raw trace" | **2** | `/evals/traces/arena-…-w0i/…cost` · "Raw trace · 598 events" |
 | User-view run `…xzrc` (hearth) | sidebar Runs → "Raw trace" | **2** | `/evals/traces/user-view/…xzrc` · "Raw trace · 920 events" |
 
-Negative control: the same script run for a non-existent id (`2026-01-01T00-00-00-000Z_pipeline_none`) threw
-`timed out waiting for trace link for 2026-01-01T00-00-00-000Z_pipeline_none`. The Runs page renders 461 trace
+Negative control (`evidence/click-negative-control.json`): for a non-existent id the script returned
+`{"ok":false,"clicks":1,…,"error":"timed out waiting for trace link for 2026-01-01T00-00-00-000Z_pipeline_none"}`. The Runs page renders 461 trace
 links (439 suite runs + 22 example runs, matching `index.counts`).
 
 ### Per-case sums vs `report.json`
@@ -86,13 +99,13 @@ Example, l92: passages tp 50, fn 6, trapHit 12, tn 446, unlabeled 13 → recall 
 
 ## Tests
 
-The red runs are saved under the chunk-09 scratch dir (`red/`, `mut/`). Kind of red is stated for each.
+The red runs are in the scratch dir named at the top (`red/`, `mut/`). The kind of red is stated for each.
 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
 | `cases.test.ts` (36) | **Import red**: `Failed to resolve import "./cases"`, `Tests no tests` (`red/cases-import.txt`) | 36 passed |
 | `traceIndex.test.ts` (14), `runList.test.ts` (17) | **Import red**: both files `FAIL … [ file ]` (`red/t001-before-impl.txt`) | 14 / 17 passed |
-| `loader.test.ts`, 12 new | **Assertion-level red**: `TypeError: loadSuiteReport is not a function` (and the same for each new loader); the 16 existing tests passed (`red/t001-before-impl.txt`) | 28 passed |
+| `loader.test.ts`, 12 new | **Red in this worktree before `loader.ts` was touched** (not in the base worktree): `TypeError: loadSuiteReport is not a function`, and the same for each new loader. The 16 existing tests passed (`red/t001-before-impl.txt`) | 28 passed |
 | `runFacts.test.ts` (12) | **Import red**: `Cannot find module './runFacts'` (`red/runFacts-import.txt`) | 12 passed |
 | `evalsetInfo.test.ts` (4) | **Not seen red before the module.** I wrote the module first. Red is shown only through the mutations below. | 4 passed |
 
@@ -103,6 +116,8 @@ and checked with `diff -q`):
 | -------- | ---------------- | ------------- |
 | **Subset grading** (plan's mutation check) | `gradedFlags` also keeps flags outside the key (`keyed.has(d) \|\| true`) | 9 tests, including all 7 multi-setup suites in › "per-case sums reproduce each suite's report.json". l92: `- "trapHit": 12, + "trapHit": 25`. Also › "keeps only the run's flags that the key labels" and › "counts unlabeled flags without penalising precision" |
 | "Changed" = hit rate, not count | `rateOrder` compares `a.hits - b.hits` | › "does not call a case changed when only the number of finished repeats differs (2/2 vs 3/3)" (real l92 data) and › "2/2 vs 3/3 is not a change" |
+| A side with 0 finished repeats is never a change | `rateOrder` compares rates with `/(finished \|\| 1)` and breaks ties by `finished` (`mut/zero-finished-changed.txt`) | 4 tests, including › "shows — for a setup with no repeats … never calls it changed". The earlier explicit `if (!a.finished \|\| !b.finished) return null` was **dead code**: the cross product is already 0. It was removed, and the comment now states why |
+| Example runs have no trace checks | deleted `if (suiteId === USER_VIEW) return null` in `loadTraceChecks` (`mut/loader-user-view.txt`) | › loadTraceChecks "is null for the example runs … without fetching anything": `GET /evals/suites/user-view/trace-checks.json returned 404` |
 | Skip rows flip direction | `better = 1` for every row | › "for a Skip (trap) row a hit means flagged: … Fixed … Regressed" |
 | 0 repeats → "—", not 0/3 | `formatTally` → `${hits}/${finished \|\| 3}` | › "shows — for a setup with no repeats …", › "shows — for a setup whose every repeat failed" |
 | Superseded runs excluded | dropped `!r.superseded` in `casesForIteration`; separately in `setupTotals` | › "leaves superseded runs out of every tally"; › setupTotals "leaves superseded runs out" |
@@ -112,15 +127,15 @@ and checked with `diff -q`):
 | runFacts branches | removed failed / baseline branch; `none` → `jev`; `notJudged` → `nothingToJudge`; removed `nothingToJudge` | the one matching test each time (5 mutations, 5 reds) |
 | runList guards | removed `runLabel` throw; `checkSummary(null)` returns zeros | › "throws naming the run …"; › "is null when no checks were recorded" |
 | evalsetInfo | removed the unknown-company throw; one-month format only | › "throws naming the eval set whose company has no profile"; › "names both months across a month boundary" |
-| No typed numbers (6 new needles) | four-step canary per needle (plant `Canary.tsx`, gate fires, remove, gate clean) | all 6 caught with exit 1 and clean after removal (`canaries.txt`) |
+| No typed numbers (6 new needles) | four-step canary per needle (plant `Canary.tsx`, gate fires, remove, gate clean) | all 6 caught with exit 1 and clean after removal (`canaries.txt`). The `n/3` needle was then narrowed to `(^\|[^-])\b[0-9]/3\b`, so a Tailwind fraction can't trip it, and re-canaried (`canaries-2.txt`): `After 3/3` and `0/3` caught, `w-1/3 aspect-4/3` not caught, clean after each |
 
 The first `keep-superseded` mutation **survived**, because `repeatsOf` filtered superseded runs a second time.
 I removed the redundant filter, added the `setupTotals` superseded test, and re-ran: both mutations go red.
 
 ## Gates
 
-The final block was run after the last code edit (output saved as `final-gates.txt`; type check is last inside
-`gates.sh`):
+The final block was run after the last code edit (`evidence/final-gates.txt`; type check is last inside
+`gates.sh`). The poc check in that run uses the explicit form below:
 
 | Gate | Command | Result | Fails on base? |
 | ---- | ------- | ------ | -------------- |
@@ -130,7 +145,7 @@ The final block was run after the last code edit (output saved as `final-gates.t
 | No `poc/` paths | the plan's `! git ls-tree … \| grep -q '^poc/'` and `! git log … \| grep -q '^poc/'` | passed | **The plan's form is vacuous under `set -e`**, because bash exempts negated pipelines. `bash -c 'set -e; ! echo poc/x \| grep -q "^poc/"; echo still running'` printed "still running". I re-ran it as explicit counts: `poc/ paths in tree: 0; in branch history: 0` |
 | New routes exist | `curl -w '%{http_code}'` on base (`pnpm start -p 3902`) and branch (`-p 3901`) | branch: `/evals/cases 200`, `/evals/runs 200`, `/evals/traces/…/k6tv 200` | **Yes**: base `404 / 404 / 404` (`routes/status.txt`) |
 
-Baseline before this chunk, captured in the chunk-09 scratch dir `baseline/`: lint exit 0, 0 warnings; tests 25
+Baseline before this chunk, captured in the scratch dir's `baseline/`: lint exit 0, 0 warnings; tests 25
 files / 285 passed; typecheck exit 0. After: lint 0 errors and 0 warnings, 30 files / 380 tests, typecheck 0. The
 delta is +5 test files and +95 tests, with no new diagnostics.
 
@@ -162,6 +177,8 @@ failure. The worktree was removed afterwards.
   warns 1×).
 - **Trace chips start with every type shown.** The POC hid `jev.call` and `stage.start` by default. Showing all
   2,104 events is the stress case the AC names. "Decisions only" is one click.
+- **Case computation errors are caught.** `casesForIteration` throws for a missing key, and `CasesView` shows that
+  message in the load state instead of crashing the render (see AC table).
 - **`liveIterationId` returns null, not a throw**, so `EvalSummary` keeps its `?? iterations[0]` fallback
   exactly as before.
 

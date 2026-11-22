@@ -4,6 +4,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- an expression on purpose: evaluate_script calls it
 async () => {
   const { via, runId, iteration, caseDoc, repeat } = window.__clickPath;
+  // A failed step is returned as { ok: false, error } so the evidence file records it (rather than the tool erroring).
   const wait = async (pred, what, ms = 30000) => {
     const t0 = performance.now();
     for (;;) {
@@ -18,6 +19,7 @@ async () => {
     steps.push(label);
     el.click();
   };
+  try {
   if (location.pathname !== "/evals") throw new Error(`start at /evals, not ${location.pathname}`);
   const navLink = (text) => [...document.querySelectorAll('nav[aria-label="Evaluation"] a')].find((a) => a.textContent.trim() === text);
   if (via === "runs") {
@@ -45,5 +47,8 @@ async () => {
     click(link, `Run panel: "${link.textContent.trim()}"`);
   }
   const h = await wait(() => [...document.querySelectorAll("main h1")].find((x) => /^Raw trace · [\d,]+ events$/.test(x.textContent))?.textContent, "trace loaded");
-  return { clicks: steps.length, steps, url: location.pathname, heading: h };
+  return { ok: true, clicks: steps.length, steps, url: location.pathname, heading: h };
+  } catch (e) {
+    return { ok: false, clicks: steps.length, steps, error: e.message };
+  }
 };
