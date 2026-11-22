@@ -167,6 +167,22 @@ describe("retries inside a run", () => {
     expect(events.at(-1)?.type).toBe("run.failed");
   });
 
+  it("a parallel sibling that finishes after the run failed sends nothing more (run.failed stays the last event)", async () => {
+    installModels({
+      llm: async (c) => {
+        if (c.kind === "extract" && c.prompt.includes("2026-90001")) throw etimedout();
+        if (c.kind === "extract") await new Promise((resolve) => setTimeout(resolve, 20_000));
+        return llm(c);
+      },
+      jev: () => 0.9,
+    });
+    const events: RunEvent[] = [];
+    await settle(runPipeline(synConfig(), (e) => events.push(e)));
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(events.at(-1)).toMatchObject({ type: "run.failed", step: "verify" });
+    expect(events.filter((e) => e.type === "item.confirmed")).toEqual([]);
+  });
+
   it("a failed call's own error text (model ids, vendor names) never reaches the browser", async () => {
     installModels({
       llm,
