@@ -80,11 +80,11 @@ function fakeFetch(respond: () => Response | Promise<Response>) {
   return { fetch, calls };
 }
 
-async function setup(respond: () => Response | Promise<Response>, idb = new IDBFactory()) {
+async function setup(respond: () => Response | Promise<Response>, idb = new IDBFactory(), page = "") {
   const store = await openRunStore(idb);
   const f = fakeFetch(respond);
   let n = 0;
-  const runner = createRunner({ fetch: f.fetch, store, newId: () => `run-${++n}`, now: () => `2026-11-23T10:00:0${n}.000Z` });
+  const runner = createRunner({ fetch: f.fetch, store, newId: () => `${page}run-${++n}`, now: () => `2026-11-23T10:0${page ? 1 : 0}:0${n}.000Z` });
   return { store, runner, calls: f.calls, idb };
 }
 
@@ -218,5 +218,21 @@ describe("createRunner: load", () => {
   it("returns null for an unknown id", async () => {
     const { runner } = await setup(() => ndjson(EVENTS));
     expect(await runner.load("missing")).toBeNull();
+  });
+});
+
+describe("createRunner: list", () => {
+  it("lists saved runs newest first, marking ones left running by an earlier page as interrupted, not ones streaming now", async () => {
+    const idb = new IDBFactory();
+    const before = await setup(() => new Promise<Response>(() => {}), idb); // never answers
+    const stale = await before.runner.start(request, profile);
+    const after = await setup(() => new Promise<Response>(() => {}), idb, "reloaded-"); // a later page load
+    const streaming = await after.runner.start(request, profile);
+    const listed = await after.runner.list();
+    expect(listed.map((r) => [r.id, r.status])).toEqual([
+      [streaming.id, "running"],
+      [stale.id, "interrupted"],
+    ]);
+    expect((await after.store.get(stale.id))?.status).toBe("interrupted");
   });
 });

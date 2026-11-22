@@ -100,6 +100,11 @@ export function createRunner(deps: RunnerDeps) {
     async load(id: string): Promise<StoredRun | null> {
       return live.get(id) ?? deps.store.markInterrupted(id);
     },
+    /** Saved runs, newest first; one left running by an earlier page is marked interrupted, as in load. */
+    async list(): Promise<StoredRun[]> {
+      const runs = await deps.store.list();
+      return Promise.all(runs.map(async (run) => (run.status === "running" && !streaming.has(run.id) ? ((await deps.store.markInterrupted(run.id)) ?? run) : run)));
+    },
     /** The latest state of a run started in this page. */
     snapshot: (id: string) => live.get(id),
     isStreaming: (id: string) => streaming.has(id),

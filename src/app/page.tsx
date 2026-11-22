@@ -1,77 +1,40 @@
-import { Activity, Clock, Plus } from "lucide-react";
 import { connection } from "next/server";
+import { GcSidebar } from "@/components/gc/GcSidebar";
+import { StartRunButton } from "@/components/gc/StartRunButton";
 import { AppShell } from "@/components/shell/AppShell";
-import { SidebarNav, SidebarNavItem, SidebarSectionLabel, SidebarWordmark } from "@/components/shell/SidebarNav";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { presets } from "@/lib/config";
 import { readYaml } from "@/lib/config/load";
 import { AppConfigSchema } from "@/lib/config/schemas";
+import { formatWindow } from "@/lib/runs/report";
+import { sidebarUser } from "@/lib/runs/sidebar-user";
+import type { RunRequest } from "@/lib/runs/types";
 
-const TONES = [
-  { label: "Critical", className: "bg-status-red-surface text-status-red-fg" },
-  { label: "High", className: "bg-status-orange-surface text-status-orange-fg" },
-  { label: "Medium", className: "bg-status-yellow-surface text-status-yellow-fg" },
-  { label: "Verified", className: "bg-status-green-surface text-status-green-fg" },
-  { label: "Info", className: "bg-status-blue-surface text-status-blue-fg" },
-  { label: "Example", className: "bg-status-purple-surface text-status-purple-fg" },
-  { label: "Low", className: "bg-status-neutral-surface text-status-neutral-fg" },
-] as const;
+// Until the new-run screen exists, / starts one fixed run: the Ledgerly preset on the frozen week Nov 2–6, 2026.
+const DEMO: RunRequest = { profileId: "ledgerly", windowStart: "2026-11-02", windowEnd: "2026-11-06" };
 
-// Placeholder home: proves the theme, the shell, and that config/app.yaml is read on the server per request.
 export default async function Home() {
-  await connection(); // render at request time, so the YAML on disk is what the page shows
+  await connection(); // read config/ per request, not at build
   const app = readYaml("app.yaml", AppConfigSchema);
+  const all = presets();
+  const preset = all.find((p) => "profileId" in DEMO && p.id === DEMO.profileId);
 
   return (
-    <AppShell
-      sidebar={
-        <SidebarNav>
-          <SidebarWordmark>{app.appName}</SidebarWordmark>
-          <SidebarNavItem href="/" icon={<Plus />} active>
-            New run
-          </SidebarNavItem>
-          <SidebarNavItem href="/" icon={<Clock />}>
-            All runs
-          </SidebarNavItem>
-          <SidebarSectionLabel>Diagnostics</SidebarSectionLabel>
-          <SidebarNavItem href="/api/probe/stream?seconds=5" icon={<Activity />}>
-            Streaming probe
-          </SidebarNavItem>
-        </SidebarNav>
-      }
-      asideLabel="Deploy checks"
-      aside={
-        <>
-          <h2 className="m-0 text-sm font-semibold">Deploy checks</h2>
-          <p className="m-0 leading-relaxed text-muted-foreground">
-            On a deployment, the streaming probe must reach <code>done</code> after 90 seconds:
-          </p>
-          <code className="rounded-sm bg-background px-2 py-1.5 text-xs break-all">/api/probe/stream?seconds=90</code>
-        </>
-      }
-    >
+    <AppShell sidebar={<GcSidebar appName={app.appName} user={sidebarUser(all)} active="new" />}>
       <div className="flex flex-col gap-[18px] px-5 py-6 sm:px-8">
-        <h1 className="m-0 text-2xl leading-snug font-bold">{app.appName}</h1>
+        <h1 className="m-0 text-2xl leading-snug font-bold text-heading">Weekly federal rules triage</h1>
         <p className="m-0 max-w-[70ch] text-[15px] leading-relaxed text-muted-foreground">
-          Placeholder. The weekly triage lands here in a later step.
+          Scan every document the Federal Register published in a week, keep only what affects the company, and get each one back with a priority, a
+          verified deadline, an owner and the official source. A run takes about a minute.
         </p>
-        <dl className="m-0 grid w-fit grid-cols-[auto_auto] gap-x-4 gap-y-1 rounded-md bg-secondary px-3 py-2.5 text-[13px]">
-          <dt className="font-medium">App name (config/app.yaml)</dt>
-          <dd className="m-0" data-testid="config-app-name">{app.appName}</dd>
-          <dt className="font-medium">Longest window</dt>
-          <dd className="m-0" data-testid="config-max-window-days">{app.maxWindowDays} days</dd>
-        </dl>
-        <div className="flex flex-wrap gap-1.5">
-          {TONES.map((t) => (
-            <Badge key={t.label} className={t.className}>
-              {t.label}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button>Start a run</Button>
-          <a href="/api/probe/stream?seconds=5">Open the 5-second streaming probe</a>
-        </div>
+        {preset ? (
+          <div>
+            <StartRunButton request={DEMO} profile={preset}>
+              Run {preset.name.split(/\s+/)[0]} · {formatWindow(DEMO.windowStart, DEMO.windowEnd, { year: false })}
+            </StartRunButton>
+          </div>
+        ) : (
+          <p className="m-0 text-muted-foreground">No preset company is configured.</p>
+        )}
       </div>
     </AppShell>
   );
