@@ -93,10 +93,10 @@ function ItemRow({ item, n }: { item: ActionItem; n: number }) {
   const d = item.deadline ? deadlineLabel(item.deadline) : null;
   return (
     <TableRow className="border-row-border align-top hover:bg-transparent">
-      <TableCell className="px-3.5 py-3.5">
+      <TableCell className="px-3.5 py-3.5 align-top">
         <span className={cn("rounded-sm px-2 py-0.5 text-xs font-semibold", TIER_TONE[item.tier])}>{item.tier}</span>
       </TableCell>
-      <TableCell className="px-3.5 py-3.5 whitespace-normal">
+      <TableCell className="px-3.5 py-3.5 align-top whitespace-normal">
         <div className="font-semibold">
           {item.title}
           <a href={`#${sourceId(n)}`} aria-label={`Source ${n}`} className="ml-0.5 inline-flex h-4 min-w-4 -translate-y-1.5 items-center justify-center rounded-full bg-cite px-1 align-baseline text-[10px] font-semibold text-heading no-underline">
@@ -110,7 +110,7 @@ function ItemRow({ item, n }: { item: ActionItem; n: number }) {
         </button>
         {why ? <div className="mt-2 rounded-md bg-secondary px-3 py-2.5 text-[13px]">{whyTier(item)}</div> : null}
       </TableCell>
-      <TableCell className="px-3.5 py-3.5 whitespace-normal">
+      <TableCell className="px-3.5 py-3.5 align-top whitespace-normal">
         {d ? (
           <>
             <div title={d.kind}>{d.date.replace(/, \d{4}$/, "")}</div>
@@ -126,7 +126,7 @@ function ItemRow({ item, n }: { item: ActionItem; n: number }) {
           <span className="text-caption">None</span>
         )}
       </TableCell>
-      <TableCell className="px-3.5 py-3.5 whitespace-normal">{ownerName(item.owner)}</TableCell>
+      <TableCell className="px-3.5 py-3.5 align-top whitespace-normal">{ownerName(item.owner)}</TableCell>
     </TableRow>
   );
 }

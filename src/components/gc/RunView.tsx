@@ -88,7 +88,7 @@ function Header({ run }: { run: StoredRun }) {
       <span className="grow font-medium">{title}</span>
       {result ? (
         <div className="relative">
-          <Button variant="outline" size="sm" aria-expanded={open} aria-haspopup="true" onClick={() => setOpen(!open)}>
+          <Button variant="outline" size="sm" aria-expanded={open} onClick={() => setOpen(!open)}>
             <Download aria-hidden="true" />
             Download
             <ChevronDown aria-hidden="true" />
