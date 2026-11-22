@@ -95,8 +95,7 @@ export function Scoreboard({ index, story, targets }: { index: EvalIndex; story:
         {baseline.suite.map(shortSuite).join(" + ")}, graded by the same code. Cost averages over every run ({live.runCounts.all.total} live,{" "}
         {baseline.runCounts.all.total} baseline). Agreement compares the finished repeats of each company-week within one suite (
         {agreementRuns(live)} live runs, {agreementRuns(baseline)} baseline): relevance counts a keyed document as agreeing when every
-        repeat flagged it or none did; tier counts a document flagged in every repeat as agreeing when each gave it the same tier. Dates
-        right means a date on the card matches the hand-checked answer key. Hover a value for its exact basis.
+        repeat flagged it or none did; tier counts a document flagged in every repeat as agreeing when each gave it the same tier. &ldquo;Dates match the answer key&rdquo; means a date on the card matches the hand-checked key; it is not a check against the source document. Hover a value for its exact basis.
       </p>
     </TooltipProvider>
   );

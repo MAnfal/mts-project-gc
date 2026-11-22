@@ -15,7 +15,7 @@ raw figures are emitted by a command, not transcribed: `node evidence/key-number
 | Verdict heading | "Beats a single-prompt baseline on every measure, and meets 5 of 6 targets" | `computeVerdict` × `config/app.yaml` evalTargets. Pinned on the real data in `story-schema.test.ts` |
 | Live recall | 0.898 (yellow: 0.2 pts short of 0.9) | all · 69 graded · l92 + du8. Held-out 0.882 over 35 runs (red) |
 | Live precision | 0.815 (met) | all · 69 · l92 + du8. Held-out 0.726 over 35 runs (red) |
-| Dates right vs answer key | 1.0 (met). Baseline 0.789 | all · 69 / 36 |
+| Dates match the answer key | 1.0 (met). Baseline 0.789 | all · 69 / 36 |
 | Same tier across repeats (new) | 40/40 = 1.0 (met). Baseline 7/10 | docs flagged in every repeat · 69 / 36 runs |
 | Same relevance across repeats (new) | **335/354 = 0.946** (met). Held-out 167/176. Baseline 160/177 = 0.904 | keyed docs · 69 / 36 runs |
 | Cost per run | $0.192 vs baseline $0.520, so live costs 37% of the baseline | all runs · 72 / 36 |
@@ -51,7 +51,7 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 | `src/components/ui/{sheet,table,collapsible,tooltip,chart}.tsx` | generated | `pnpm exec shadcn add sheet table collapsible tooltip chart`. shadcn also added `card.tsx` as a registry dependency; it is unused and was deleted. shadcn skipped `button.tsx`, which is unchanged |
 | `package.json`, `pnpm-lock.yaml` | edited | `recharts` pinned at `3.8.0`, read from `node_modules/recharts/package.json` |
 | `src/app/globals.css` | edited | `--amber`, `--series-recall` (#173c51), `--series-precision` (#99652d) and their `--color-*` aliases |
-| `.claude/resources/project.md` | edited | Layout, Convention Map (new row for the eval view), Conventions (eval prose/number rule, agreement/noise rule, configHash `36492c3a3e`). Stack and Commands were not touched (see "For the lead") |
+| `.claude/resources/project.md` | edited | Layout, Convention Map (new row for the eval view), Conventions (eval prose/number rule, agreement/noise rule, configHash `c017e8bc89`). Stack and Commands were not touched (see "For the lead") |
 | `plan.md` | edited | Ticked T001–T007 and the deliverable |
 
 ## Acceptance criteria
@@ -67,8 +67,9 @@ no noise verdict, plus a note explaining why (`screenshots/iteration-03-desktop.
 
 ## Tests
 
-Baseline before this chunk: 14 files, 114 tests, lint and typecheck clean (`baseline/`). Now: 18 files,
-193 tests (`gates/final-gates.txt`).
+Baseline before this chunk: 14 files, 114 tests, lint and typecheck clean (`baseline/`). After chunk 08 alone:
+18 files, 193 tests. The lead then merged `feat/plan--demo-build` (chunk 03) into this branch as `869c891`. The
+final gate run on that merged tree passes 283 tests (`gates/final-gates.txt`); the extra 90 are chunk 03's.
 
 | Test file | Red run (before implementation) | Green run |
 | --------- | ------------------------------- | --------- |
@@ -124,7 +125,7 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
 
 | Gate | Command | Result | Fails on base? |
 | ---- | ------- | ------ | -------------- |
-| Lint / tests / build / typecheck | `pnpm lint && pnpm test && pnpm build && … pnpm typecheck` | Lint 0 problems; 193 passed; build routes `ƒ /evals`, `ƒ /evals/iterations/[id]`; tsc clean | Base tree (`git archive ee5d13c` plus this chunk's tests): `gates/base-tests.txt` shows 7 files failed, 25 tests, e.g. `Cannot find module './verdict'`, `loadIteration is not a function`, `expected undefined to be 'jev-sonnet-strict'` (no `noiseBand` in the base index) |
+| Lint / tests / build / typecheck | `pnpm lint && pnpm test && pnpm build && … pnpm typecheck` | Lint 0 problems; 283 passed on the merged tree; build routes `ƒ /evals`, `ƒ /evals/iterations/[id]`; tsc clean | Base tree (`git archive ee5d13c` plus this chunk's tests): `gates/base-tests.txt` shows 7 files failed, 25 tests, e.g. `Cannot find module './verdict'`, `loadIteration is not a function`, `expected undefined to be 'jev-sonnet-strict'` (no `noiseBand` in the base index) |
 | Gate 2: no hard-coded numbers | `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` (the plan's grep, plus `config/eval-story.yaml` per amendment 4) | `no-typed-numbers: OK (10 component/page files + config/eval-story.yaml scanned)` | **Fails on base**: `FAIL: src/components/evals does not exist`, non-zero exit (`gates/no-typed-numbers-base.txt`). The plan's raw grep alone passes vacuously on base: grep exits 2 on missing paths (`gates/base-gate2.txt`), which is why the script checks paths first. Canaries: `gates/no-typed-numbers-canaries.txt` has 15 probes (5 needles × Scoreboard.tsx, page.tsx, eval-story.yaml); each fired, was restored and came back clean |
 | Gate 3: parity | `bash plans/2026-11-22-demo-build/02-core-libs/parity.sh` | `parity: OK` | `config/` changes are only `app.yaml` (not on the decision path) and the new `eval-story.yaml` |
 | Bundle verify | `bash scripts/verify-eval-bundle.sh` | `verify-eval-bundle: OK (9 suites, 22 user-view runs, 8 iterations)` | Base passes, since its own bundle is consistent. Falsification by hand-editing new fields: relevance numerator 340 gives exit 1, `index.json differs from the recomputation` (`gates/verify-canary-agreement.txt`); noise-band precision 0.05 gives exit 1 (`gates/verify-canary-band.txt`); after restoring, clean (`gates/verify-after-canary.txt`). Every new field is in `index.json`, so `--check` recomputes it byte-for-byte |
@@ -153,7 +154,7 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
   preflight script exactly.
 - **Tier agreement is computed over every doc flagged in every repeat, keyed or not.** A tier is shown for
   every surfaced item, so its stability matters for all of them.
-- **Dates row is labelled "Dates right vs answer key".** suiteReport's `datesRight` is `dateCorrect` in
+- **Dates row is labelled "Dates match the answer key".** suiteReport's `datesRight` is `dateCorrect` in
   `grade.ts` (a shown date matches the key), not "verified against source". I mapped the "dates verified =
   1.0" target onto it and labelled it honestly.
 - **Noise verdicts only for suites the same size as the band's.** The band comes from 12-company-week,
@@ -174,6 +175,16 @@ All ran after the last code edit, in one `bash -s` block with typecheck last. Ou
   10's fixtures for no gain.
 
 ## Deviations from the plan
+
+**Corrections to the lead's preflight amendment** (lead confirmed both on 2026-11-23):
+
+1. **Amendment 1 said "the baseline has no repeats".** It has 3 finished repeats in every company-week group of
+   both w0i and cb0. So the baseline's relevance and tier agreement are computed from those repeats
+   (0.904 and 0.70), and a measure is dropped from "beats baseline" only when its value is null.
+2. **Amendment/mockup wording "dates verified".** suiteReport's `datesRight` checks a shown date against the
+   answer key (`grade.ts` `dateCorrect`), not against the primary source. The row is labelled "Dates match the
+   answer key", and the footnote says it is not a check against the source.
+
 
 - **"The baseline has no repeats"**: it does (above). Measurement wins.
 - **Noise band per measure, all-weeks split only.** It applies to the all-weeks result table and chart.

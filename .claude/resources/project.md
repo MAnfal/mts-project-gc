@@ -205,7 +205,7 @@ a follow-up.
 - **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
-  `use: eval` plus `app.yaml`) and to `36492c3a3e` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
+  `use: eval` plus `app.yaml`) and to `c017e8bc89` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
   `app.yaml`). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in
