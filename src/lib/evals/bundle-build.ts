@@ -109,7 +109,10 @@ export type AnswerKey = { relevant: string[]; traps: string[] | Record<string, u
 type Ratio = { numerator: number; denominator: number };
 export type AgreementCounts = { relevance: Ratio; tier: Ratio; runs: number };
 
-const keyedDocs = (k: AnswerKey) => new Set([...k.relevant, ...(Array.isArray(k.traps) ? k.traps : Object.keys(k.traps))]);
+/** An answer key's trap (Skip) doc numbers: v1 keys list them, v2 keys map each to its reason. */
+export const trapIds = (k: AnswerKey): string[] => (Array.isArray(k.traps) ? k.traps : Object.keys(k.traps));
+/** Every doc an answer key labels: relevant (Flag) ∪ traps (Skip). Flags outside this set are not graded. */
+export const keyedDocs = (k: AnswerKey) => new Set([...k.relevant, ...trapIds(k)]);
 
 /**
  * How often a setup's repeats agree with each other, per split and pooled. Runs are grouped by suite (arena)
@@ -190,7 +193,7 @@ export function noiseBand(setup: string, a: AllSplitResult | null, b: AllSplitRe
 /** Rules that matter (relevant) and look-alikes (traps), summed over the answer keys. */
 export function keyTotals(keys: AnswerKey[]): { relevant: number; traps: number } {
   return keys.reduce(
-    (t, k) => ({ relevant: t.relevant + k.relevant.length, traps: t.traps + (Array.isArray(k.traps) ? k.traps.length : Object.keys(k.traps).length) }),
+    (t, k) => ({ relevant: t.relevant + k.relevant.length, traps: t.traps + trapIds(k).length }),
     { relevant: 0, traps: 0 },
   );
 }

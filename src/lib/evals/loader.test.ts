@@ -3,7 +3,20 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { loadIndex, loadIteration, loadIterationFile, loadSuiteRuns, loadTrace, USER_VIEW } from "./loader";
+import { BUNDLE as SHIPPED_BUNDLE, stubFetch } from "./__fixtures__/shipped";
+import {
+  loadAnswerKey,
+  loadIndex,
+  loadIteration,
+  loadIterationFile,
+  loadSuiteReport,
+  loadSuiteRuns,
+  loadTrace,
+  loadTraceChecks,
+  loadUserViewIndex,
+  loadWeekDocs,
+  USER_VIEW,
+} from "./loader";
 
 // The loader is browser-side and fetch-based. These tests build a small bundle on disk in the
 // public/evals layout and serve it through a fetch stub, so what is asserted is what a page receives.
@@ -21,20 +34,6 @@ function put(rel: string, body: string | Buffer) {
   const file = path.join(root, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, body);
-}
-
-/** Serves `dir` at `/evals/...`, 404 for anything else. Bodies are raw bytes, as a static host sends a .gz. */
-function stubFetch(dir: string) {
-  const requested: string[] = [];
-  const f = async (input: RequestInfo | URL) => {
-    const url = String(input);
-    requested.push(url);
-    const rel = url.replace(/^\/evals\//, "");
-    const file = path.join(dir, rel);
-    if (!url.startsWith("/evals/") || !fs.existsSync(file)) return new Response("not found", { status: 404 });
-    return new Response(fs.readFileSync(file), { status: 200, headers: { "content-type": "application/gzip" } });
-  };
-  return { fetch: f as typeof fetch, requested };
 }
 
 const gz = (text: string) => zlib.gzipSync(text);
@@ -110,7 +109,7 @@ describe("loadIndex", () => {
 });
 
 // Real shipped data: public/evals is generated from the poc branch by scripts/build-eval-bundle.sh.
-const BUNDLE = path.resolve(import.meta.dirname, "../../../public/evals");
+const BUNDLE = SHIPPED_BUNDLE;
 
 describe("the shipped public/evals bundle through the loader", () => {
   it("loads the index, a suite's runs and one of its traces", async () => {
@@ -126,7 +125,7 @@ describe("the shipped public/evals bundle through the loader", () => {
 });
 
 // The real generated bundle (scripts/build-eval-bundle.sh), served through the same stub.
-const SHIPPED = path.resolve(import.meta.dirname, "../../../public/evals");
+const SHIPPED = SHIPPED_BUNDLE;
 
 describe("loadIteration", () => {
   it("returns the shipped iteration.json with its recorded hypothesis, change and decision", async () => {
@@ -169,5 +168,99 @@ describe("loadIterationFile", () => {
   it("throws naming the URL when the iteration has no such file", async () => {
     const { fetch } = stubFetch(SHIPPED);
     await expect(loadIterationFile("00-baseline", "system.diff", { fetch })).rejects.toThrow("/evals/iterations/00-baseline/system.diff returned 404");
+  });
+});
+
+// ── Chunk 09: the report, trace checks, answer keys, frozen weeks and example-run index ──
+
+const L92 = "arena-2026-11-21-22-52-l92";
+
+describe("loadSuiteReport", () => {
+  it("returns the suite's recorded suiteReport: per-setup counts and metrics", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    const report = await loadSuiteReport(L92, { fetch });
+    expect(requested).toEqual([`/evals/suites/${L92}/report.json`]);
+    expect(report.setups.map((s) => s.key)).toEqual(["jev-sonnet-strict-passages", "jev-sonnet-strict"]);
+    expect(report.setups[0].counts).toEqual({ tp: 50, fn: 6, trapHit: 12, tn: 446, unlabeled: 13 });
+  });
+
+  it("rejects a report whose setups carry no counts", async () => {
+    put("suites/s1/report.json", JSON.stringify({ setups: [{ key: "a", metrics: {} }] }));
+    const { fetch } = stubFetch(root);
+    await expect(loadSuiteReport("s1", { fetch })).rejects.toThrow();
+  });
+});
+
+describe("loadTraceChecks", () => {
+  it("returns every run's checks, keyed by run id", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    const checks = await loadTraceChecks(L92, { fetch });
+    expect(checks).not.toBeNull();
+    expect(Object.keys(checks!)).toHaveLength(72);
+    const failed = checks!["2026-11-21T22-52-25-375Z_pipeline_wqxz"];
+    expect(failed.find((c) => c.id === "complete")).toMatchObject({ pass: false });
+  });
+
+  it("is null for the example runs, which record no trace checks, without fetching anything", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    expect(await loadTraceChecks(USER_VIEW, { fetch })).toBeNull();
+    expect(requested).toEqual([]);
+  });
+
+  it("throws naming the URL for a suite with no trace-checks.json", async () => {
+    const { fetch } = stubFetch(root);
+    await expect(loadTraceChecks("nope", { fetch })).rejects.toThrow("/evals/suites/nope/trace-checks.json returned 404");
+  });
+
+  it("rejects a check without a pass flag", async () => {
+    put("suites/s1/trace-checks.json", JSON.stringify({ r1: [{ id: "complete", label: "x" }] }));
+    const { fetch } = stubFetch(root);
+    await expect(loadTraceChecks("s1", { fetch })).rejects.toThrow();
+  });
+});
+
+describe("loadAnswerKey", () => {
+  it("returns the shipped key with its relevant docs, details and traps", async () => {
+    const { fetch, requested } = stubFetch(SHIPPED);
+    const key = await loadAnswerKey("skyhop_2026-10-26_2026-10-30", { fetch });
+    expect(requested).toEqual(["/evals/config/evalsets/keys/skyhop_2026-10-26_2026-10-30.json"]);
+    expect(key.relevant).toEqual(["2026-21922"]);
+    expect(key.details?.["2026-21922"]).toMatchObject({ kind: "direct" });
+    expect(Object.keys(key.traps)).toContain("2026-21852");
+  });
+
+  it("throws naming the URL for an unknown eval set", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    await expect(loadAnswerKey("acme_2026-01-01_2026-01-05", { fetch })).rejects.toThrow("/evals/config/evalsets/keys/acme_2026-01-01_2026-01-05.json returned 404");
+  });
+
+  it("rejects a key without a relevant list", async () => {
+    put("config/evalsets/keys/e1.json", JSON.stringify({ traps: {} }));
+    const { fetch } = stubFetch(root);
+    await expect(loadAnswerKey("e1", { fetch })).rejects.toThrow();
+  });
+});
+
+describe("loadWeekDocs", () => {
+  it("returns every frozen document of the week with its number, type and title", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    const docs = await loadWeekDocs("2026-10-26_2026-10-30", { fetch });
+    const raw = JSON.parse(fs.readFileSync(path.join(SHIPPED, "config/evalsets/weeks/2026-10-26_2026-10-30.json"), "utf8")) as unknown[];
+    expect(docs).toHaveLength(raw.length);
+    expect(docs.find((d) => d.document_number === "2026-21922")?.title).toMatch(/Hazardous Materials/i);
+  });
+
+  it("throws naming the URL for a week that is not frozen", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    await expect(loadWeekDocs("2026-01-01_2026-01-05", { fetch })).rejects.toThrow("/evals/config/evalsets/weeks/2026-01-01_2026-01-05.json returned 404");
+  });
+});
+
+describe("loadUserViewIndex", () => {
+  it("returns all 22 example runs, failed ones included", async () => {
+    const { fetch } = stubFetch(SHIPPED);
+    const rows = await loadUserViewIndex({ fetch });
+    expect(rows).toHaveLength(22);
+    expect(rows.some((r) => r.status === "error")).toBe(true);
   });
 });
