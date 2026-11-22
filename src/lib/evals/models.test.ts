@@ -26,6 +26,7 @@ describe("modelComparisons on the shipped bundle", () => {
       { id: "2026-11-09_2026-11-13", split: "dev" },
     ]);
     expect(g.rows.map((r) => r.result.runCounts.all.total)).toEqual([18, 18, 18, 18, 18]);
+    expect({ runs: g.runs, evalsets: g.evalsets }).toEqual({ runs: 90, evalsets: 6 });
   });
 
   it("names every other shipped suite as single-model, so none is silently skipped", () => {

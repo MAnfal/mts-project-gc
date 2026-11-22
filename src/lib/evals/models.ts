@@ -20,6 +20,9 @@ export type ModelGroup = {
   suite: string;
   createdAt: string;
   weeks: EvalIndex["suites"][number]["weeks"];
+  /** The suite's run records (every setup, failed ones included) and company-week eval sets. */
+  runs: number;
+  evalsets: number;
   /** Model labels in the suite, the live model first. */
   models: string[];
   rows: ModelRow[];
@@ -70,7 +73,7 @@ export function modelComparisons(index: Pick<EvalIndex, "suites" | "setups" | "s
       })
       .sort(rowOrder);
     const models = [...new Set(rows.map((r) => r.modelLabel))];
-    if (models.length > 1) groups.push({ suite: s.id, createdAt: s.createdAt, weeks: s.weeks, models, rows });
+    if (models.length > 1) groups.push({ suite: s.id, createdAt: s.createdAt, weeks: s.weeks, runs: s.runs, evalsets: s.evalsets.length, models, rows });
     else singleModel.push({ suite: s.id, models });
   }
   return { live, groups, singleModel };
