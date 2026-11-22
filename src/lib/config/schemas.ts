@@ -46,3 +46,28 @@ export const SuggestAreasConfigSchema = z.object({
   }),
 });
 export type SuggestAreasConfig = z.infer<typeof SuggestAreasConfigSchema>["suggestAreas"];
+
+const count = z.number().int().positive();
+
+/**
+ * config/app.yaml → followUp: the follow-up chat under a finished report (one streamed model call, server-side only).
+ * UI-only, so it lives in app.yaml, never in a decision-path file. The system prompt must use {{report}}, or the model
+ * would answer about no report at all. The caps bound what one question can send and spend; /api/followup enforces them.
+ */
+export const FollowUpConfigSchema = z.object({
+  followUp: z
+    .object({
+      model: z.string().min(1),
+      system: z.string().refine((s) => s.includes("{{report}}"), "system must contain the {{report}} placeholder"),
+      suggestions: z.array(z.string().min(1)),
+      maxTurns: count,
+      maxMessageChars: count,
+      maxContextChars: count,
+      maxAnswerTokens: count,
+    })
+    .strict(),
+});
+export type FollowUpConfig = z.infer<typeof FollowUpConfigSchema>["followUp"];
+
+/** The slice the GC pages read: the suggestion chips only, never the model or the prompt. */
+export const FollowUpSuggestionsSchema = z.object({ followUp: z.object({ suggestions: z.array(z.string().min(1)) }) });
