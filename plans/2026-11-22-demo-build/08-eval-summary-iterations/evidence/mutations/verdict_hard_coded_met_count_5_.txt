@@ -1,0 +1,123 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/verdict.test.ts (10 tests | 5 failed) 12ms
+   ❯ computeVerdict (targets met by live on all weeks, and beats-baseline per measure) (9)
+     × counts 4 of 6 when precision drops to 0.79, so the count is computed, not typed 5ms
+     × meets a target hit exactly (recall 0.900 vs >= 0.9) 1ms
+     × does not count a measure live could not measure as met 0ms
+     × does not beat the baseline when live loses or ties on any compared measure; lower cost is the better cost 1ms
+     × drops the beats-baseline target from the total when the config turns it off 0ms
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 5 passed (10)
+   Start at  01:01:26
+   Duration  219ms (import 57%, transform 27%, tests 12%, worker 3%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > counts 4 of 6 when precision drops to 0.79, so the count is computed, not typed
+AssertionError: expected [ 5, 6 ] to deeply equal [ 4, 6 ]
+
+- Expected
++ Received
+
+  [
+-   4,
++   5,
+    6,
+  ]
+
+ ❯ src/lib/evals/verdict.test.ts:28:30
+     26|   it("counts 4 of 6 when precision drops to 0.79, so the count is comp…
+     27|     const v = computeVerdict(index({ live: result("live", { ...LIVE, p…
+     28|     expect([v.met, v.total]).toEqual([4, 6]);
+       |                              ^
+     29|     expect(v.targets.find((t) => t.measure === "precision")?.status).t…
+     30|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > meets a target hit exactly (recall 0.900 vs >= 0.9)
+AssertionError: expected 5 to be 6 // Object.is equality
+
+- Expected
++ Received
+
+- 6
++ 5
+
+ ❯ src/lib/evals/verdict.test.ts:35:19
+     33|     const v = computeVerdict(index({ live: result("live", { ...LIVE, r…
+     34|     expect(v.targets.find((t) => t.measure === "recall")?.status).toBe…
+     35|     expect(v.met).toBe(6);
+       |                   ^
+     36|   });
+     37|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > does not count a measure live could not measure as met
+AssertionError: expected 5 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 5
+
+ ❯ src/lib/evals/verdict.test.ts:41:19
+     39|     const v = computeVerdict(index({ live: result("live", { ...LIVE, t…
+     40|     expect(v.targets.find((t) => t.measure === "tierAgreement")?.statu…
+     41|     expect(v.met).toBe(4);
+       |                   ^
+     42|   });
+     43|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > does not beat the baseline when live loses or ties on any compared measure; lower cost is the better cost
+AssertionError: expected [ 5, 6 ] to deeply equal [ 4, 6 ]
+
+- Expected
++ Received
+
+  [
+-   4,
++   5,
+    6,
+  ]
+
+ ❯ src/lib/evals/verdict.test.ts:65:38
+     63|     expect(loses.baseline.beatsAll).toBe(false);
+     64|     expect([loses.baseline.wins, loses.baseline.compared]).toEqual([5,…
+     65|     expect([loses.met, loses.total]).toEqual([4, 6]);
+       |                                      ^
+     66|
+     67|     const ties = computeVerdict(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/lib/evals/verdict.test.ts > computeVerdict (targets met by live on all weeks, and beats-baseline per measure) > drops the beats-baseline target from the total when the config turns it off
+AssertionError: expected [ 5, 5 ] to deeply equal [ 4, 5 ]
+
+- Expected
++ Received
+
+  [
+-   4,
++   5,
+    5,
+  ]
+
+ ❯ src/lib/evals/verdict.test.ts:85:30
+     83|   it("drops the beats-baseline target from the total when the config t…
+     84|     const v = computeVerdict(index({ live: result("live", LIVE) }), { …
+     85|     expect([v.met, v.total]).toEqual([4, 5]);
+       |                              ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+

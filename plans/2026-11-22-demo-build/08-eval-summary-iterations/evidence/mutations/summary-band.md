@@ -1,0 +1,1 @@
+- **chartSeries: constant band when the index has none** (`src/lib/evals/chartSeries.ts`) → exit 1; Tests  1 failed | 11 passed (12); red: × is null when the index has no noise band (the control did not run in both suites)
