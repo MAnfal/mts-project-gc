@@ -20,8 +20,9 @@ diffs of every ported file against its POC source are in `evidence/poc-diffs/`.
 | `src/lib/fr.ts` | created | The POC's `fr.ts` with the `data/cache/` file cache replaced by a module-level `Map`. Adds `import "server-only"`. |
 | `src/lib/{tier,verify,fr-text,config,prompt-sets}.test.ts` | created | POC tests with import paths changed. `config.test.ts` also loses two blocks (see Deviations). |
 | `src/lib/presets.test.ts`, `fr.test.ts`, `config-hash.test.ts` | created | New: presets, frozen week offline, in-memory cache semantics, configHash scope. |
+| `src/lib/config-validation.test.ts` | created (iteration 2) | config.ts rejecting broken config, on a temp copy of `config/`. |
 | `plans/…/02-core-libs/parity.sh` | created | Gate 2: decision-path parity with `poc`. |
-| `plans/…/02-core-libs/no-fs-writes.sh` | created | Gate 3: no filesystem writes in `src/lib` server files. |
+| `plans/…/02-core-libs/no-fs-writes.sh` | created | Gate 3: no filesystem writes in non-test code under `src/` (widened in iteration 2). |
 | `plans/…/02-core-libs/gates.sh` | created | Runs every gate in plan order, type check last. |
 | `.claude/resources/project.md` | edited | Stack: `date-fns` row. Layout: `config/` and `src/lib/` entries. Conventions: decision-path parity, configHash scope, no server fs writes, `@/lib/config` resolution, JSON under `config/evalsets/` read via `frozenWeek`/`loadKey`. |
 | `plans/…/02-core-libs/plan.md` | edited | T001–T010 ticked. |
@@ -34,15 +35,15 @@ diffs of every ported file against its POC source are in `evidence/poc-diffs/`.
 | `brightside.yaml` differs only by the added `use: eval` | yes | `parity.sh` step 3 rebuilds the expected file (POC + `use: eval` after `id:`) and `cmp`s it. Canaries for an extra line, `use: demo` and a removed line all fire (`evidence/canary-parity.txt`). |
 | `presets()` → exactly `hearth`, `ledgerly` | yes | `presets.test.ts` › "are exactly hearth and ledgerly". The runtime value under `next start` was `"presets":["hearth","ledgerly"]` (probe below). |
 | `listWindow("2026-11-02","2026-11-06")` offline → 466 docs | yes | `fr.test.ts` › "returns the week's 466 documents … with no network". `fetch` is stubbed to throw and asserted not called. The source file has 466 entries (`python3 -I -c 'len(json.load(…))'` → `466`). |
-| No `writeFile`/`appendFile`/`mkdir`/`writeFileSync` in `src/lib` code | yes | `no-fs-writes.sh` → `no-fs-writes: OK (9 server files under src/lib scanned)`. Scope: non-test files, see Deviations. |
-| POC tests for tier, verify, FR text and config pass unchanged except import paths | yes, with 2 removed blocks | 10 files, 76 tests pass. The `config.test.ts` diff against POC is import paths, the fixture path, and two removed blocks (arena, pinConfig) that test modules not ported. |
+| No `writeFile`/`appendFile`/`mkdir`/`writeFileSync` in `src/lib` code | yes | `no-fs-writes.sh` → `no-fs-writes: OK (17 non-test source files under src/ scanned)`. Scope: every non-test file under `src/`, a superset of `src/lib`; see Iteration 2. |
+| POC tests for tier, verify, FR text and config pass unchanged except import paths | yes, with 2 removed blocks | All pass (11 files, 84 tests, including chunk 01's). The `config.test.ts` diff against POC is import paths, the fixture path, and two removed blocks (arena, pinConfig) that test modules not ported. |
 | Golden prompt parity | yes | `config.test.ts` › "prompts rebuilt from config/prompts.yaml match what the arena sent" (3 tests, `toBe` on the recorded strings). The fixture is byte-identical to POC (`parity.sh` step 4). |
 
 ## Tests
 
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
-| all 8 new/ported test files (5 ported, 3 new) | **Import red** (`evidence/red-01-no-modules.txt`): `Error: Cannot find module './config'`, `'./tier'`, `'./verify'`, `'/src/lib/fr'`, `Cannot find package '@/lib/config'`. This proves only that the modules were absent. | `Test Files 10 passed (10) / Tests 76 passed (76)` (`evidence/gates-final.txt`) |
+| all 8 new/ported test files (5 ported, 3 new) | **Import red** (`evidence/red-01-no-modules.txt`): `Error: Cannot find module './config'`, `'./tier'`, `'./verify'`, `'/src/lib/fr'`, `Cannot find package '@/lib/config'`. This proves only that the modules were absent. | `Test Files 11 passed (11) / Tests 84 passed (84)` after iteration 2 (`evidence/gates-final.txt`) |
 | `presets.test.ts` › brightside tags itself `use: eval` | **Wrong-value red**, with the modules implemented and before T008 (`evidence/red-02-before-brightside-edit.txt`): `AssertionError: expected undefined to be 'eval'`. All other 75 tests were green. | pass |
 
 The discriminating reds come from deliberate mutations. `/private/tmp/…/chunk-02/mutate.sh` copies
@@ -99,16 +100,16 @@ hashes only between runs of this repo.
 
 | Gate | Command | Result (finished tree) | Fails on base? |
 | ---- | ------- | ---------------------- | -------------- |
-| All, in order | `bash plans/2026-11-22-demo-build/02-core-libs/gates.sh` | exit 0. Lint clean; `Tests 76 passed (76)`; build `✓ Compiled successfully`; `parity: OK`; `no-fs-writes: OK (9 …)`; typecheck clean (`evidence/gates-final.txt`) | (per gate below) |
+| All, in order | `bash plans/2026-11-22-demo-build/02-core-libs/gates.sh` | exit 0. Lint clean; `Tests 84 passed (84)`; build `✓ Compiled successfully`; `parity: OK`; `no-fs-writes: OK (17 …)`; typecheck clean (`evidence/gates-final.txt`) | (per gate below) |
 | Lint / test / build / typecheck | `pnpm lint` · `pnpm test` · `pnpm build` · `pnpm typecheck` | exit 0 each | Standard gates; they pass on base (baseline: 0 errors, 0 warnings, 22 tests). The chunk's tests run against base source fail: `Test Files 8 failed`, `Cannot find module './config'` / `'./tier'` / `'./verify'` / `'/src/lib/fr'` (`evidence/base-falsification.txt`) |
 | Gate 2 parity | `bash …/parity.sh` | `parity: OK` | **yes**, exit 1: `FAIL: config/prompts.yaml is missing` |
-| Gate 3 no fs writes | `bash …/no-fs-writes.sh` | `no-fs-writes: OK (9 server files under src/lib scanned)` | **No, it passes on base** (`OK (3 server files …)`), because base has no server code that writes. This gate guards against removed content, so the falsification is the canary: the POC's verbatim `fr.ts` fires it with 4 hits (`fs.mkdir`/`fs.writeFile` at lines 36, 37, 130, 131). The plan's literal grep *does* fire on base, but only on chunk 01's `load.test.ts:23-24`, which has nothing to do with this chunk. That is why the gate was rescoped. |
+| Gate 3 no fs writes | `bash …/no-fs-writes.sh` | `no-fs-writes: OK (17 non-test source files under src/ scanned)` | **No, it passes on base** (`OK (11 non-test source files under src/ scanned)`, `evidence/base-no-fs-writes-widened.txt`), because base has no server code that writes. This gate guards against removed content, so the falsification is the canary: the POC's verbatim `fr.ts` fires it with 4 hits (`fs.mkdir`/`fs.writeFile` at lines 36, 37, 130, 131). The plan's literal grep *does* fire on base, but only on chunk 01's `load.test.ts:23-24`, which has nothing to do with this chunk. That is why the gate was rescoped. |
 
 **Canaries, four steps per assertion** (`evidence/canary-parity.txt`, `evidence/canary-gate3.txt`;
 files restored with `cp` and `cmp`, never git; the gate is re-run clean after each):
 
 - **parity.sh**: one character changed in `prompts.yaml` (the plan's canary) → `FAIL: config/prompts.yaml differs from poc:…`. Same for `hearth.yaml`, `prompt-sets/strict.yaml`, an `evalsets/keys/*.json` byte, the golden fixture and `tier.ts`. Three brightside variants each fire. An extra file in `evalsets/weeks/` and a missing `prompt-sets/strict-v3.yaml` fire the file-list check. Clean before, clean after.
-- **no-fs-writes.sh**: each needle fires in a non-test file: `fs.writeFile`, `fs.appendFile`, `fs.mkdirSync`, `fs.mkdir`, `fs.writeFileSync`, `fsp.writeFile`. The POC `fr.ts` fires it too. A comment-only line does not fire, and neither does a write in a `*.test.ts`. Clean before, clean after.
+- **no-fs-writes.sh** (re-run after the iteration-2 widening): each of 23 call forms fires in a non-test file. They include the original six, bare `mkdir(`, `fsp.mkdir(`, `createWriteStream`, `rename`/`renameSync`, `rm(`/`rmSync`/`fs.promises.rm(`, `rmdirSync`, `copyFile`/`copyFileSync`, `cpSync`, `unlinkSync`, `truncateSync`, `symlinkSync` and `mkdtempSync`. A write in a route file under `src/app/` fires too. The POC `fr.ts` fires it. None of these fire: a comment-only line, an identifier that only contains a needle (`formatRm(`, `confirm(`), or a write in a `*.test.ts`. Clean before, clean after each canary.
 
 Baseline captured at base `9d08486` (`evidence/baseline-*.txt`): typecheck, lint and build exit 0
 with no warnings; tests 22/22. The delta: +54 tests, still no lint, type or build diagnostics.
@@ -211,7 +212,8 @@ Deviations from the plan:
 - **Plan Gate 3 grep fires on the base tree for a reason unrelated to this chunk.** The cause is chunk
   01's `src/lib/config/load.test.ts:23-24` (`fs.mkdirSync`, `fs.writeFileSync` to a temp dir). As
   written, it would also fire on this chunk's `config-hash.test.ts` (`appendFileSync` on a temp
-  copy). `no-fs-writes.sh` scopes it to non-test `.ts/.tsx` under `src/lib` and skips comment lines.
+  copy). `no-fs-writes.sh` scopes it to non-test `.ts/.tsx` under `src/`, matches fs call forms, and
+  skips comment lines (widened in iteration 2).
 - **Plan T003: "drop `ArenaConfig` and suite-dashboard types".** The POC's `types.ts` defines neither
   (`git show poc:poc/src/lib/types.ts | grep -n "Arena\|Suite"` → only a comment on
   `RunConfig.arena`). The arena and suite types live in `arena.ts` (`Cell`) and `suite.ts`
@@ -220,7 +222,8 @@ Deviations from the plan:
   the run-record shape that chunk 03's `run.ts` port and the recorded runs use.
 - **Plan Test Plan rows were mislabelled.** The golden-fixture equality lives in `config.test.ts`,
   not in `prompt-sets.test.ts`, which tests prompt-set overlay and isolation. There is no "malformed
-  fixture" in the POC's config test. The `z.any()` row is covered by the `schema-any` mutation instead.
+  fixture" in the POC's config test. The `z.any()` row is covered by the `schema-any` mutation, and since
+  iteration 2 by `config-validation.test.ts`, which rejects a bad `use` value.
 - **A new dependency the plan didn't name**: `date-fns@4.4.0`. `tier.ts` and `verify.ts` import it,
   and it wasn't installed.
 - **The parity gate is stronger than the plan's sketch.** It checks file lists in both directions
@@ -239,3 +242,45 @@ Deviations from the plan:
   A size bound would be a behaviour change for a later chunk to decide.
 - No route imports the ported libraries yet (that is chunk 03), so `pnpm build` doesn't bundle them.
   The trace and runtime evidence above came from a throwaway route.
+
+## Iteration 2 (review-1 FAIL fixes)
+
+`review-1.md` is committed beside this report. Tests and the gate were the only changes; the decision
+path did not change, and `parity.sh` still passes.
+
+**Blocking 1 and 2: `src/lib/config-validation.test.ts`.** Each test copies the real `config/` to a
+temp directory, `chdir`s into it, breaks one thing, and imports a fresh `config.ts`. Every branch below
+was deleted with `evidence/mutate.sh`, the new file was run, and the original was restored and `cmp`'d.
+Logs are in `evidence/mutations/v-*.txt`. The tests were written after the code existed, so these
+deletion runs are their red runs.
+
+| Branch (config.ts) | Test | Deletion applied | Red output |
+| ------------------ | ---- | ---------------- | ---------- |
+| `companies()` id/file-name throw | "a company whose id doesn't match its file name is rejected" (`id: hearth-renamed`) | `if (false)` | `expected [Function] to throw an error` |
+| `validateAll()` duplicate setup id | "validateAll reports a duplicate setup id" | line removed | `expected [] to deeply equal [ 'setups.yaml: duplicate setup id' ]` |
+| `jsonFile()` error wrapper | "a malformed frozen week names the file" (`[{ not json`) | `throw e` | `expected … to throw error matching /^Config error in config\/eva…/ but got 'Expected property name or '}' in JS…'` |
+| `readCached()` missing-file branch | "a missing config file names the file, not a bare ENOENT" (`pipeline.yaml` deleted) | rethrow the `statSync` error | `… but got 'ENOENT: no such file or directory, st…'` |
+| `validateAll()` unknown prompt set | "validateAll reports a setup naming a prompt set that has no file" | line removed | `expected [] to deeply equal [ Array(1) ]` |
+| `validateAll()` minAgree > judges | "validateAll reports minAgree above the number of judges" | line removed | `expected [] to deeply equal [ Array(1) ]` |
+| `CompanySchema.use` enum | "a company with an unknown use value fails the schema…" (`use: maybe`) | `z.string().default("eval")` | `expected [Function] to throw an error` |
+
+A control test checks that the unbroken temp copy gives `validateAll() == []`. Each `validateAll` test
+asserts the full problem list with `toEqual`, so a broken copy has to produce exactly the one problem
+it planted.
+
+**Warnings.**
+
+- **Pattern widened.** `no-fs-writes.sh` now matches the call form `\b(<api>)\s*\(` for every fs API
+  that creates, changes or deletes a file or folder. Canaries are listed under Gates above and in
+  `evidence/canary-gate3.txt`.
+- **Scope widened** from `src/lib` to every non-test `.ts`/`.tsx` under `src/`, so the gate now
+  matches the project.md convention "No filesystem writes in server code". project.md now describes
+  what the gate scans. On base it still passes (11 files); it guards against content being added, so
+  its falsification is the canaries.
+- **Hash wording.** The rubric speaks of the hash difference "as the brightside edit alone". This
+  report keeps the measured breakdown (brightside → `0be380ec97`, plus `app.yaml` → `a113914a72`),
+  which the reviewer confirmed.
+
+Gates re-run after the last code edit: `bash plans/2026-11-22-demo-build/02-core-libs/gates.sh` →
+exit 0, `Tests 84 passed (84)`, `parity: OK`, `no-fs-writes: OK (17 …)`, typecheck clean
+(`evidence/gates-final.txt`).
