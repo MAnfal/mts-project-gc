@@ -67,7 +67,7 @@ export function ReportView({
     <div className="flex flex-col gap-[18px]">
       {worked}
 
-      <h1 className="m-0 text-2xl leading-snug font-bold text-heading">{reportHeading(items, ctx, view.checkedByYou.length)}</h1>
+      <h1 className="m-0 text-2xl leading-snug font-bold text-heading">{reportHeading(items, ctx, view.checkedByYou.length, view.dropped.length)}</h1>
       <p className="m-0 max-w-[70ch] text-[15px] leading-relaxed">{reportSummary(view, ctx)}</p>
 
       <ul aria-label="Counts" className="m-0 flex list-none flex-wrap gap-1.5 p-0">

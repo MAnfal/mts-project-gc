@@ -39,9 +39,13 @@ interface Ctx {
   windowEnd: string;
 }
 
-/** "3 notices for Marcus Lee, nothing Critical"; `checked` counts the held-back items the GC added (never tiered). */
-export function reportHeading(items: ActionItem[], ctx: Ctx, checked = 0): string {
+/**
+ * "3 notices for Marcus Lee, nothing Critical". `checked` counts the held-back items the GC added (never tiered), `held`
+ * those still held back: with no items, either leads the heading, since "nothing affects" would deny them.
+ */
+export function reportHeading(items: ActionItem[], ctx: Ctx, checked = 0, held = 0): string {
   if (!items.length && checked) return `${checked} ${plural(checked, "item")} you added after checking ${checked === 1 ? "it" : "them"}`;
+  if (!items.length && held) return `${held} ${plural(held, "item")} held back for you to check`;
   if (!items.length) return `Nothing published ${formatWindow(ctx.windowStart, ctx.windowEnd, { year: false })} affects ${ctx.company}`;
   const types = new Set(items.map((i) => i.type));
   const noun = types.size === 1 ? DOC_NOUN[items[0].type] : "item";
@@ -61,7 +65,8 @@ export function reportSummary(view: SummaryView, ctx: Ctx): string {
   const checked = view.checkedByYou?.length ?? 0;
   const docs = `${view.scanned} federal ${plural(view.scanned, "document")}`;
   const parts: string[] = [];
-  if (!n && checked) parts.push(stop(`None of the ${docs} published ${window} passed verification for ${ctx.company}`));
+  const held = view.dropped.length;
+  if (!n && (checked || held)) parts.push(stop(`None of the ${docs} published ${window} passed verification for ${ctx.company}`));
   else if (!n) parts.push(stop(`None of the ${docs} published ${window} affects ${ctx.company}`));
   else {
     parts.push(stop(`Of ${docs} published ${window}, ${n} ${n === 1 ? "affects" : "affect"} ${ctx.company}`));
@@ -82,8 +87,8 @@ export function reportSummary(view: SummaryView, ctx: Ctx): string {
         ? "You added 1 held-back item after checking it: it has no priority and its dates weren't verified."
         : `You added ${checked} held-back items after checking them: they have no priority and their dates weren't verified.`,
     );
-  const held = view.dropped.length;
-  if (held) parts.push(`${held} more ${held === 1 ? "was" : "were"} held back because ${held === 1 ? "its" : "their"} dates or citation couldn't be confirmed.`);
+  const more = n || checked ? " more" : "";
+  if (held) parts.push(`${held}${more} ${held === 1 ? "was" : "were"} held back because ${held === 1 ? "its" : "their"} dates or citation couldn't be confirmed.`);
   return parts.join(" ");
 }
 

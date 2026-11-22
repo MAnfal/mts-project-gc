@@ -249,3 +249,19 @@ describe("the nothing-applies state", () => {
     expect(closestCalls({ ...recorded, screenedOut: [] })).toEqual([]);
   });
 });
+
+describe("a run with no items but something held back", () => {
+  const held = [{ document_number: "2026-90001", title: "Card fee rule", reason: "r" }];
+
+  it("heading leads with the held-back item instead of saying nothing affects the company", () => {
+    expect(reportHeading([], ctx, 0, 1)).toBe("1 item held back for you to check");
+    expect(reportHeading([], ctx, 0, 2)).toBe("2 items held back for you to check");
+    expect(reportHeading([item(1)], ctx, 0, 1)).toBe("1 rule for Marcus Lee, nothing Critical");
+  });
+
+  it("summary says none passed verification, and counts the held-back item without 'more'", () => {
+    expect(reportSummary({ ...recorded, scanned: 466, items: [], dropped: held, checkedByYou: [] }, ctx)).toBe(
+      "None of the 466 federal documents published Nov 2–6 passed verification for Ledgerly Inc. 1 was held back because its dates or citation couldn't be confirmed.",
+    );
+  });
+});
