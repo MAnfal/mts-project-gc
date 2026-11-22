@@ -129,7 +129,7 @@ text below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/evals/cases.test.ts`: `casesForIteration(suite, iteration, keys)` on a
     **real** shipped suite, using the 06 suite `arena-2026-11-21-22-52-l92`. Assert that
     the power-bank case (`2026-21922`, SkyHop Oct 26–30) is listed as changed, and that
@@ -137,13 +137,13 @@ text below conflicts with these points, these win:
   - ~~`src/lib/evals/grade.test.ts`~~ (no port; amendment 3) — per-setup recall and precision
     equal `report.json` for the same suite.
   - `src/lib/evals/traceIndex.test.ts`: filter and search over a real shipped trace.
-- [ ] T002 — create `src/lib/evals/cases.ts` and `src/lib/evals/traceIndex.ts` (pure), and
+- [x] T002 — create `src/lib/evals/cases.ts` and `src/lib/evals/traceIndex.ts` (pure), and
   ~~`src/lib/evals/grade.ts`~~ (no port; amendment 3).
-- [ ] T003 [P] — create `src/components/evals/CasesTable.tsx` and `RunPanel.tsx`.
-- [ ] T004 [P] — create `src/components/evals/TraceViewer.tsx`. Virtualize with a small
+- [x] T003 [P] — create `src/components/evals/CasesTable.tsx` and `RunPanel.tsx`.
+- [x] T004 [P] — create `src/components/evals/TraceViewer.tsx`. Virtualize with a small
   windowing approach or `@tanstack/react-virtual`; explain the choice. You may reuse
   parts of `git show poc:poc/src/components/TraceTimeline.tsx`.
-- [ ] T005 — create `src/app/evals/cases/page.tsx` and
+- [x] T005 — create `src/app/evals/cases/page.tsx` and
   `src/app/evals/traces/[suiteId]/[runId]/page.tsx`, and add Cases to `EvalSidebar`.
 
 ## Test Plan

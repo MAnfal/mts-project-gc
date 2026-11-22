@@ -153,7 +153,7 @@ one.
 | `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
 | `src/lib/pipeline/**/*.ts`, `src/lib/fr.ts`, `src/lib/gateway.ts` | `pnpm test` (incl. `replay.test.ts`), `bash plans/2026-11-22-demo-build/03-pipeline/mutations.sh` | Decision expressions match `poc:poc/src/lib/pipeline/` (any difference is listed as intentional). Every public event is built from named fields, never by spreading an internal object. Every external call goes through `withRetry`; no SDK-level retries. Tests stub models with `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`) and stub `fetch`. | `.claude/resources/bibles/swe/patterns/migration-verification.md` |
 | `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
-| `src/app/evals/**`, `src/components/evals/**`, `config/eval-story.yaml` | `pnpm test`, `pnpm build`, `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | No metric number is typed in a component, page or the story YAML: numbers come from `index.json` via `loader.ts`, prose numbers via `{{placeholders}}` (`story.ts`) or verbatim quotes (`resolveQuote`). Every number shown names its split, runs and suite (tooltip or footnote). Server pages read YAML only; no server module reads `public/evals`. | `.claude/resources/bibles/swe/testing.md` |
+| `src/app/evals/**`, `src/components/evals/**`, `config/eval-story.yaml` | `pnpm test`, `pnpm build`, `bash plans/2026-11-22-demo-build/08-eval-summary-iterations/no-typed-numbers.sh` | No metric number is typed in a component, page or the story YAML: numbers come from `index.json` via `loader.ts`, prose numbers via `{{placeholders}}` (`story.ts`) or verbatim quotes (`resolveQuote`). Every number shown names its split, runs and suite (tooltip or footnote). Server pages read YAML only; no server module reads `public/evals`. Tests of eval view logic run against the shipped bundle (`__fixtures__/shipped.ts`), not hand-made suites. | `.claude/resources/bibles/swe/testing.md` |
 | `public/evals/**`, `scripts/*eval*`, `scripts/poc-src.sh` | `bash scripts/verify-eval-bundle.sh`, `pnpm build` | `public/evals/` is generated: a diff there comes from re-running `scripts/build-eval-bundle.sh`, never from a hand edit, and the verify gate passes on the result. No `poc/` path is committed. No route or server module imports `public/evals` (it ships as static files). POC grading code runs unmodified from the detached `poc-src` checkout. | — |
 
 **Anything under `.claude/` is governed by the prompt-engineering bible** whether or not a
@@ -273,6 +273,16 @@ a follow-up.
   `application/gzip` with no `Content-Encoding` (measured under `pnpm start`), so the loader gunzips
   them with `DecompressionStream`. Traces stream as an async iterator; never `res.json()` a `.gz`.
   No route imports `public/evals`, so the files ship as static assets, not inside function bundles.
+- **Per-case eval results are computed in the browser by `src/lib/evals/cases.ts`, graded like the POC
+  (subset grading).** Only docs the answer key labels are graded: a flag on a `relevant` doc is a hit, on a trap a
+  trap hit, and a flag outside the key is `unlabeled` and never penalised. Finished, non-superseded repeats only;
+  a "changed" case is a different hit *rate* (2/2 vs 3/3 is no change). `cases.test.ts` requires per-case sums to
+  equal every shipped suite's `report.json` counts, so there is no second grader to drift. Key normalisation
+  (`keyedDocs`, `trapIds`) lives in `bundle-build.ts`; import it, don't copy it.
+- **Every run's trace link comes from the suite's `trace-checks.json`** (one entry per run, failed ones too;
+  ~100 KB a suite). `runs.jsonl.gz` is megabytes a suite, so the Runs page loads it only for suites in view, for
+  labels. Example runs (`user-view`) have no trace checks: `loadTraceChecks(USER_VIEW)` is null. Only the
+  first repeat of a setup carries a judge `panel`; the judges' reasons are in `panel.judges[].votes`.
 
 ## Layout
 
@@ -312,6 +322,10 @@ src/
     evals/page.tsx            `/evals` — eval Summary (reviewer view, separate sidebar; the GC sidebar has no link).
     evals/iterations/[id]/    `/evals/iterations/<id>` — one iteration. Both read YAML per request; the
                               bundle loads client-side.
+    evals/cases/              `/evals/cases?iteration=<id>` — cases one iteration changed + run panel (default:
+                              the live iteration). Company/week/split names come from config/ (evalsetInfo.ts).
+    evals/runs/               `/evals/runs` — every suite run and example run, each with a raw-trace link.
+    evals/traces/[suiteId]/[runId]/  One run's raw trace (`suiteId` = arena id or `user-view`).
     globals.css               GC AI theme tokens (the only place raw colour values live).
     api/probe/stream/         Deploy probe: route.ts streams `tick N` lines then `done`;
                               seconds.ts parses ?seconds= (zod, clamped 1–120).
@@ -319,7 +333,8 @@ src/
     shell/                    AppShell (three-pane layout) and SidebarNav parts. Owned by chunk 01.
     ui/                       shadcn primitives (button, badge, sheet, table, collapsible, tooltip, chart).
     evals/                    Eval view: EvalSidebar, EvalSummary (+ useEvalIndex), CarlTable, Scoreboard,
-                              ProgressChart (Recharts), IterationView, DiffSheet, ErrorAnalysisSheet.
+                              ProgressChart (Recharts), IterationView, DiffSheet, ErrorAnalysisSheet;
+                              CasesView, CasesTable, RunPanel, RunsView, TraceViewer (@tanstack/react-virtual).
   lib/
     config/                   load.ts (readYaml) and schemas.ts (zod schemas for config/*.yaml).
     config.ts                 POC config port: schemas for the POC files, companies/presets, prompts and
@@ -341,7 +356,11 @@ src/
                               loader.ts (browser fetch + gunzip reader for the bundle, loadIteration/File),
                               bundle-build.ts (pure decisions of scripts/build-eval-index.mts, no fs),
                               verdict.ts · story.ts · chartSeries.ts (pure, client-safe view logic),
-                              story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts.
+                              cases.ts (per-case hits, subset grading) · runFacts.ts (filter reason, judges,
+                              passages) · traceIndex.ts (trace filter/search) · runList.ts (Runs page rows),
+                              evalsetInfo.ts (server-only: eval-set names from config/),
+                              story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts,
+                              __fixtures__/shipped.ts (node reads of public/evals + stubFetch for tests).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
