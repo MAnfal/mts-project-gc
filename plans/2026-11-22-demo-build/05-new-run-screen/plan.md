@@ -131,18 +131,18 @@ below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/runs/weeks.test.ts`: `lastFullWeeks(today, 3)` returns Mon–Fri windows. Use
     constructed dates: a Monday, a Saturday, a Sunday, and Jan 1 crossing a year.
   - `src/lib/runs/profileForm.test.ts`: `formToProfile(form)` produces a value that
     `CompanySchema` (chunk 02) accepts, with an empty areas table, with one area, and with
     a blank owner.
   - `src/app/api/suggest-areas/route.test.ts`: 400 on an empty description.
-- [ ] T002 — create `src/lib/runs/weeks.ts` and `src/lib/runs/profileForm.ts`, as pure
+- [x] T002 — create `src/lib/runs/weeks.ts` and `src/lib/runs/profileForm.ts`, as pure
   functions.
-- [ ] T003 — ~~create `src/app/api/presets/route.ts`~~. `/runs/new` passes `presets()` as
+- [x] T003 — ~~create `src/app/api/presets/route.ts`~~. `/runs/new` passes `presets()` as
   props instead (amendment 11).
-- [ ] T004 — create `src/app/api/suggest-areas/route.ts`:
+- [x] T004 — create `src/app/api/suggest-areas/route.ts`:
   - `POST {description}` → `generateText` with structured output →
     `{areas:[{id,description}]}`;
   - the model ID and prompt come from config. Add `suggestAreas: {model, prompt}` to
@@ -150,14 +150,14 @@ below conflicts with these points, these win:
     `config/experiment.yaml`: both are on the decision path and must stay byte-identical
     to the POC;
   - wrap the call in chunk 03's `withRetry`.
-- [ ] T005 — create `src/components/gc/ProfilePicker.tsx`, `WeekPicker.tsx`,
+- [x] T005 — create `src/components/gc/ProfilePicker.tsx`, `WeekPicker.tsx`,
   `ProfileEditor.tsx` and `OwnersTable.tsx`, using shadcn `Select`/`Popover`, `Button`,
   `Input`, `Textarea`, `Table` and `Collapsible`. Every control has a `<label>`, and every
   icon-only button has an `aria-label` that names its area.
-- [ ] T006 — create `src/app/runs/new/page.tsx`, which composes the above in `AppShell`
+- [x] T006 — create `src/app/runs/new/page.tsx`, which composes the above in `AppShell`
   with `GcSidebar`. Edit `GcSidebar` links (amendment 8) and remove `DEMO_RUN` (amendment 7). Edit `src/app/page.tsx` to redirect to `/runs/new`, replacing chunk
   04's hard-coded button.
-- [ ] T007 — edit `src/lib/runs/store.ts`: add the `profiles` store (save, list, get), and
+- [x] T007 — edit `src/lib/runs/store.ts`: add the `profiles` store (save, list, get), and
   add tests for it in `store.test.ts`.
 
 Judgement calls (explain each in the report):
@@ -224,14 +224,14 @@ echo "$body" | grep -q '"ledgerly"' || { echo "FAIL: ledgerly missing" >&2; exit
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots: preset filled, edited state,
+- [x] `completion-report.md`, committed, with screenshots: preset filled, edited state,
       switch-confirm, custom-week error, and 390 px width.
 
 ## Artifacts Checklist
 
-- ☐ New tests
-- ☐ Existing tests updated (`store.test.ts`)
-- ☐ Docs / conventions updated
+- ☑ New tests
+- ☑ Existing tests updated (`store.test.ts`)
+- ☑ Docs / conventions updated
 - — Generated code: n/a
-- ☐ `.claude/resources/project.md` updated (Layout; Conventions: UI-only config,
+- ☑ `.claude/resources/project.md` updated (Layout; Conventions: UI-only config,
   including UI-only prompts, lives in `config/app.yaml`, never in a decision-path file)
