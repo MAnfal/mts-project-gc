@@ -193,6 +193,7 @@ export function RunPanel({
   title,
   where,
   iteration,
+  scope,
   suiteId,
   runsById,
   checks,
@@ -201,6 +202,8 @@ export function RunPanel({
   title: string;
   where: string;
   iteration: string;
+  /** Replaces "iteration NN" when the case belongs to one setup in one suite (the Models drill-down). */
+  scope?: string;
   suiteId: string;
   runsById: ReadonlyMap<string, FactRun>;
   checks: Record<string, TraceCheck[]>;
@@ -220,7 +223,7 @@ export function RunPanel({
         <div className="flex flex-col gap-0.5">
           <span className="leading-snug font-semibold">{title}</span>
           <span className="text-xs text-muted-foreground">
-            {row.doc} · {where} · iteration {iteration}
+            {row.doc} · {where} · {scope ?? `iteration ${iteration}`}
           </span>
         </div>
         {repeats.length ? (

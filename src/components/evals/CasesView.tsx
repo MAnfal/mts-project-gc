@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { filterCases, type CaseFilter, type CaseKey, type CaseRun } from "@/lib/evals/cases";
-import { activeFilter, casesPageState, computeCases, filterChoices, selectedRow } from "@/lib/evals/casesState";
+import { activeFilter, casesPageState, computeCases, filterChoices, selectedRow, type CasesQuery } from "@/lib/evals/casesState";
 import type { EvalDirectory } from "@/lib/evals/evalsetInfo";
 import type { EvalIndex } from "@/lib/evals/index-schema";
 import { loadAnswerKey, loadSuiteRuns, loadTraceChecks, loadWeekDocs, type TraceCheck } from "@/lib/evals/loader";
@@ -85,14 +85,21 @@ function Body({ children }: { children: ReactNode }) {
   return <div className="flex flex-col gap-3.5 px-4 pt-4 pb-8 sm:px-6">{children}</div>;
 }
 
+/** Part of the URL was ignored (casesState decides which, and words it). */
+function Note({ text }: { text?: string }) {
+  return text ? <p className="m-0 rounded-md bg-status-blue-surface px-3 py-2 text-status-blue-fg">{text}</p> : null;
+}
+
 /**
- * /evals/cases: the cases one iteration changed (design/HiEvalCases.dc.html). Counts are computed in the browser
- * from the iteration's suite (runs.jsonl.gz + the answer keys) by cases.ts; nothing is typed.
+ * /evals/cases: the cases one iteration changed (design/HiEvalCases.dc.html), or one setup's cases in one suite
+ * (?suite=&setup=, from the Models page). Counts are computed in the browser from the suite (runs.jsonl.gz + the
+ * answer keys) by cases.ts; nothing is typed.
  */
-export function CasesView({ sidebar, iterationId, directory, story }: { sidebar: ReactNode; iterationId: string | null; directory: EvalDirectory; story: EvalStory }) {
+export function CasesView({ sidebar, query, directory, story }: { sidebar: ReactNode; query: CasesQuery; directory: EvalDirectory; story: EvalStory }) {
   const { index, error } = useEvalIndex();
-  const st = useMemo(() => (index ? casesPageState(index, iterationId) : null), [index, iterationId]);
-  const it = st?.kind === "iteration" ? st : null;
+  const { iteration, suite: suiteParam, setup: setupParam } = query;
+  const st = useMemo(() => (index ? casesPageState(index, iteration, { suite: suiteParam, setup: setupParam }) : null), [index, iteration, suiteParam, setupParam]);
+  const it = st?.kind === "iteration" || st?.kind === "setup" ? st : null;
   const suite = (it && index?.suites.find((s) => s.id === it.suite)) || null;
   const loaded = useSuiteData(suite, directory);
   const [filter, setFilter] = useState<CaseFilter | null>(null);
@@ -112,8 +119,36 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
       <>
         <Header title="Cases" sub="Each rule an iteration's setup was graded on, with how often its repeats flagged it." />
         <Body>
+          <Note text={st.note} />
           {st.kind === "error" ? <LoadState error={st.message} /> : <p className="m-0">There is no iteration “{st.requested}” in the recorded evaluation. Pick one:</p>}
           <IterationNav index={index} current="" />
+        </Body>
+      </>,
+    );
+  if (st.kind === "unknownSuite" || st.kind === "unknownSetup")
+    return shell(
+      <>
+        <Header title="Cases" sub="One setup's cases in one suite, opened from the Models page." />
+        <Body>
+          {st.kind === "unknownSuite" ? (
+            <p className="m-0">There is no suite “{st.suite}” in the recorded evaluation.</p>
+          ) : (
+            <>
+              <p className="m-0">
+                {st.setup ? `Suite ${shortSuite(st.suite)} did not run “${st.setup}”.` : `Pick a setup in suite ${shortSuite(st.suite)}.`} Its setups:
+              </p>
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                {st.setups.map((key) => (
+                  <li key={key}>
+                    <Link href={`/evals/cases?suite=${encodeURIComponent(st.suite)}&setup=${encodeURIComponent(key)}`}>{key}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <Link href="/evals/models" className="self-start">
+            Back to Models
+          </Link>
         </Body>
       </>,
     );
@@ -122,6 +157,7 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
       <>
         <Header title={`Iteration ${st.no} has no cases`} sub={story.iterations[st.id]?.label ?? st.id} />
         <Body>
+          <Note text={st.note} />
           <IterationNav index={index} current={st.id} />
           <p className="m-0 max-w-[70ch] leading-relaxed">
             Iteration {st.no} is evidence only: it records the error analysis behind the next change, but no setup was run for it, so no case was graded.
@@ -134,9 +170,22 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
     );
 
   const setupLabel = (key: string) => index.setups.find((s) => s.key === key)?.label ?? key;
-  const sub = st.comparedTo
-    ? `Repeats that flagged each rule, out of each setup's finished repeats · After = ${setupLabel(st.setup)}, Before = ${setupLabel(st.comparedTo)} · suite ${shortSuite(st.suite)} · held-out weeks are scored, never tuned on`
-    : `Repeats that flagged each rule, out of the setup's finished repeats · ${setupLabel(st.setup)} · suite ${shortSuite(st.suite)} · the reference point: nothing to compare it with`;
+  const sub =
+    st.kind === "setup"
+      ? `Repeats that flagged each rule, out of the setup's finished repeats · ${setupLabel(st.setup)} · suite ${shortSuite(st.suite)} · one setup, opened from the Models page`
+      : st.comparedTo
+        ? `Repeats that flagged each rule, out of each setup's finished repeats · After = ${setupLabel(st.setup)}, Before = ${setupLabel(st.comparedTo)} · suite ${shortSuite(st.suite)} · held-out weeks are scored, never tuned on`
+        : `Repeats that flagged each rule, out of the setup's finished repeats · ${setupLabel(st.setup)} · suite ${shortSuite(st.suite)} · the reference point: nothing to compare it with`;
+  // Above the filters: the iteration picker, or, for one setup in one suite, the way back to the Models page.
+  const nav =
+    st.kind === "iteration" ? (
+      <IterationNav index={index} current={st.id} />
+    ) : (
+      <Link href="/evals/models" className="self-start text-[13px]">
+        Back to Models
+      </Link>
+    );
+  const no = st.kind === "iteration" ? st.no : "";
   const rows = computed.rows;
 
   if (!loaded?.data || !rows)
@@ -144,13 +193,14 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
       <>
         <Header title={st.title} sub={sub} />
         <Body>
-          <IterationNav index={index} current={st.id} />
+          <Note text={st.note} />
+          {nav}
           {loaded?.error || computed.error ? <LoadState error={loaded?.error ?? computed.error} /> : <p className="m-0 text-muted-foreground" aria-live="polite">Loading the suite&apos;s runs and answer keys…</p>}
         </Body>
       </>,
     );
 
-  const choices = filterChoices(rows, st.no, !!st.comparedTo);
+  const choices = filterChoices(rows, no, !!st.comparedTo);
   const active = activeFilter(filter, choices);
   const shown = filterCases(rows, active);
   const sel = selectedRow(shown, selected);
@@ -165,7 +215,8 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
     <>
       <Header title={st.title} sub={sub} />
       <Body>
-        <IterationNav index={index} current={st.id} />
+        <Note text={st.note} />
+        {nav}
         <CaseFilters choices={choices} value={active} onChange={setFilter} />
         {shown.length ? (
           <CasesTable rows={shown} titles={titles} evalsets={directory.evalsets} showBefore={!!st.comparedTo} selected={sel?.id ?? null} onSelect={select} />
@@ -183,7 +234,8 @@ export function CasesView({ sidebar, iterationId, directory, story }: { sidebar:
         row={sel}
         title={titles.get(sel.doc) ?? sel.doc}
         where={caseWhere(directory.evalsets[sel.evalset], sel.evalset)}
-        iteration={st.no}
+        iteration={no}
+        scope={st.kind === "setup" ? `${st.setup} in ${shortSuite(st.suite)}` : undefined}
         suiteId={st.suite}
         runsById={runsById}
         checks={checks}
