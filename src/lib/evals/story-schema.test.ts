@@ -37,6 +37,19 @@ describe("config/eval-story.yaml", () => {
     expect(s.iterations["07-next"].outcome).toBe("next");
   });
 
+  it("reconciles iteration 06's computed noise verdict with the band its recorded decision used", () => {
+    const s = story();
+    expect(s.iterations["06-passages"].noiseNote).toMatch(/four of its identical-config suites/);
+    const record = IterationRecordSchema.parse(readJson("iterations/06-passages/iteration.json"));
+    expect(record.decision).toContain("across its four identical-config suites");
+  });
+
+  it("rejects a typed number in a noise note", () => {
+    const s = structuredClone(story());
+    s.iterations["06-passages"].noiseNote = "Band was 4.4 across suites.";
+    expect(EvalStorySchema.safeParse(s).success).toBe(false);
+  });
+
   it("fills every template from the shipped index, and the computed heading reads off the data", () => {
     const s = story();
     const idx = shippedIndex();

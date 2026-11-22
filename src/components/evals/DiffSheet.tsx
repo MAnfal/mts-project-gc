@@ -22,7 +22,7 @@ function lineClass(line: string): string {
 /** A unified diff, one coloured line each; scrolls inside its own box. */
 function Diff({ text }: { text: string }) {
   return (
-    <pre className="m-0 overflow-x-auto rounded-md border border-border bg-stone-50 py-2 text-xs leading-5">
+    <pre className="m-0 overflow-x-auto rounded-md border border-border bg-background py-2 text-xs leading-5">
       {text.split("\n").map((line, i) => (
         <span key={i} className={cn("block px-3 whitespace-pre", lineClass(line))}>
           {line || " "}

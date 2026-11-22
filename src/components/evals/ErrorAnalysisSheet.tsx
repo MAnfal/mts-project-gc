@@ -40,7 +40,7 @@ function Analysis({ raw }: { raw: string }) {
     <Collapsible>
       <CollapsibleTrigger render={<Button variant="outline" size="sm" />}>Raw error-analysis.json</CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-2 max-h-[60vh] overflow-auto rounded-md border border-border bg-stone-50 p-3 text-xs">{raw}</pre>
+        <pre className="mt-2 max-h-[60vh] overflow-auto rounded-md border border-border bg-background p-3 text-xs">{raw}</pre>
       </CollapsibleContent>
     </Collapsible>
   );

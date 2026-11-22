@@ -33,7 +33,15 @@ export type Quote = z.infer<typeof QuoteSchema>;
 export const MovedSchema = z.object({ tag: z.enum(MOVED_TAGS), text: Prose, quote: QuoteSchema.optional() }).strict();
 export type Moved = z.infer<typeof MovedSchema>;
 
-export const IterationStorySchema = z.object({ label: Prose, outcome: z.enum(OUTCOMES), moved: z.array(MovedSchema) }).strict();
+export const IterationStorySchema = z
+  .object({
+    label: Prose,
+    outcome: z.enum(OUTCOMES),
+    moved: z.array(MovedSchema),
+    /** Optional sentence after the noise-band line, e.g. reconciling it with a band the recorded decision used. */
+    noiseNote: Prose.optional(),
+  })
+  .strict();
 export type IterationStory = z.infer<typeof IterationStorySchema>;
 
 /** Where a CARL row's one link goes: the cases view, the iteration log, the scoreboard, or the live iteration. */

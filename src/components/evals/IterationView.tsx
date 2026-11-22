@@ -117,13 +117,16 @@ function ResultTable({ index, it, c, p, story }: { index: EvalIndex; it: Iterati
   );
 }
 
-function NoiseNote({ index, it }: { index: EvalIndex; it: Iteration }) {
+/** The band behind the noise verdicts; `note` (eval-story.yaml) reconciles it with the recorded decision. */
+function NoiseNote({ index, it, note }: { index: EvalIndex; it: Iteration; note?: string }) {
   const nb = index.noiseBand;
   if (!nb) return <p className="m-0 text-[13px] text-caption">No noise band: the data has no unchanged control run in two suites, so no gap is called within or beyond noise.</p>;
   const size = (id: string) => index.suites.find((s) => s.id === id)?.evalsets.length;
   const band = `${nb.setup} re-run unchanged in ${nb.suites.map(shortSuite).join(" and ")}: recall swung ${formatPoints(nb.measures.recall.value ?? 0)}, precision ${formatPoints(nb.measures.precision.value ?? 0)}`;
   return it.suite && bandApplies(index, it.suite) ? (
-    <p className="m-0 text-[13px] text-caption">Noise band: {band}. A gap under the band is within noise.</p>
+    <p className="m-0 text-[13px] text-caption">
+      Noise band: {band}. A gap under the band is within noise.{note ? ` ${note}` : ""}
+    </p>
   ) : (
     <p className="m-0 text-[13px] text-caption">
       No noise verdict here: this suite has {it.suite ? size(it.suite) : "no"} company-weeks, and the band ({band}) was measured on suites of{" "}
@@ -267,11 +270,17 @@ export function IterationView({ id, story }: { id: string; story: EvalStory }) {
 
       {m ? (
         <Section
-          title={m.comparedTo ? "Result against the setup it replaced" : "Result (reference point)"}
+          title={
+            !m.comparedTo
+              ? "Result (reference point)"
+              : s.outcome === "rejected" || s.outcome === "not promoted"
+                ? "Result against the setup it would have replaced"
+                : "Result against the setup it replaced"
+          }
           aside={`suite ${it.suite ? shortSuite(it.suite) : "—"} · ${m.candidate.runCounts.all.graded}${m.comparedTo ? ` and ${m.comparedTo.runCounts.all.graded}` : ""} graded runs · all ${evalsets ?? "—"} company-weeks`}
         >
           <ResultTable index={index} it={it} c={m.candidate} p={m.comparedTo} story={story} />
-          {m.comparedTo ? <NoiseNote index={index} it={it} /> : null}
+          {m.comparedTo ? <NoiseNote index={index} it={it} note={s.noiseNote} /> : null}
           <AllMeasures c={m.candidate} p={m.comparedTo} story={story} />
         </Section>
       ) : null}
