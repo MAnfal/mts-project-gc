@@ -116,8 +116,9 @@ and, only if the chunk touches them, `public/evals/**`, `scripts/*eval*` (no doc
       passages the filter read, when that run recorded them for that document (as many as
       were recorded), and nothing when it did not; trace checks as "All N passed" or the
       failing ones named; judge verdicts with votes and reasoning collapsed, and an explicit
-      "not judged" state for a repeat the panel did not grade; links "Open this run's
-      report" and "Raw trace · N events" with N taken from data
+      "not judged" state for a repeat the panel did not grade; a "Raw trace · N events"
+      link for every repeat, with N taken from data (the run-report link moved to chunk 06,
+      plan amendment 2)
 - [ ] A failed repeat (status not `done`) appears in the tabs with its status, not silently
       dropped, and its raw trace is still reachable
 
@@ -137,9 +138,9 @@ and, only if the chunk touches them, `public/evals/**`, `scripts/*eval*` (no doc
 
 ### Run report
 
-- [ ] "Open this run's report" renders the run's items, tiers, owners and dates; the report
-      explains whether an existing report component was reused or a thin eval-side adapter
-      written, and an adapter imports nothing GC-route-only
+- N/A: moved to chunk 06 by plan amendment 2 (lead, 2026-11-23). Chunk 04's `ReportView`
+  wasn't merged when this chunk was cut, and chunk 06 builds the recorded-run adapter. The
+  rubric is amended in the same sweep (lead, after review i1).
 
 ### Reachability and numbers
 
