@@ -13,6 +13,8 @@ import {
   pickerOptions,
   runFor,
   runSummary,
+  switchPrompt,
+  areasNote,
   type NewRunState,
 } from "./new-run";
 import { blankProfile, profileToForm } from "./profileForm";
@@ -167,5 +169,38 @@ describe("config/app.yaml → defaultPreset", () => {
 describe("initialState with no presets", () => {
   it("refuses, rather than opening on an empty form the GC can't run", () => {
     expect(() => initialState([])).toThrow("No preset company is configured.");
+  });
+});
+
+describe("switchPrompt (the inline confirm's sentence)", () => {
+  it("names the edited profile and the one asked for", () => {
+    const asking = newRunReducer(edit(initialState(all()), { summary: "x" }), { type: "pick", value: "preset:hearth", profile: hearth() });
+    expect(switchPrompt(asking)).toBe("You've edited Ledgerly Inc. Switch to Hearth Home Appliances and lose those edits?");
+  });
+
+  it("calls a nameless new company 'this profile' and the blank target 'a new company'", () => {
+    const blank = newRunReducer(initialState(all()), { type: "pick", value: "new", profile: blankProfile("custom-1") });
+    const asking = newRunReducer(edit(blank, { summary: "draft" }), { type: "pick", value: "new", profile: blankProfile("custom-2") });
+    expect(asking.pending).toBeNull(); // already on "New company…": picking it again does nothing
+    const toPreset = newRunReducer(edit(blank, { summary: "draft" }), { type: "pick", value: "preset:hearth", profile: hearth() });
+    expect(switchPrompt(toPreset)).toBe("You've edited this profile. Switch to Hearth Home Appliances and lose those edits?");
+    const toNew = newRunReducer(edit(initialState(all()), { summary: "x" }), { type: "pick", value: "new", profile: blankProfile("custom-3") });
+    expect(switchPrompt(toNew)).toBe("You've edited Ledgerly Inc. Switch to a new company and lose those edits?");
+  });
+
+  it("is null when nothing is pending", () => {
+    expect(switchPrompt(initialState(all()))).toBeNull();
+  });
+});
+
+describe("areasNote (under the owners table)", () => {
+  it("with no areas, says every item goes to the general counsel", () => {
+    const s = initialState(all());
+    expect(areasNote({ ...s.form, areas: [] })).toBe("No areas yet, so every item goes to Jordan Blake, the general counsel.");
+    expect(areasNote(profileToForm(blankProfile("x")))).toBe("No areas yet, so every item goes to you, the general counsel.");
+  });
+
+  it("with areas, says where items outside them go", () => {
+    expect(areasNote(initialState(all()).form)).toBe("Items outside these areas go to Jordan Blake, the general counsel.");
   });
 });

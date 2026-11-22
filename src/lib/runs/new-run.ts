@@ -2,7 +2,7 @@
 // what picking one does to unsaved edits, what Run sends, and every sentence the screen derives. Pure, client-safe.
 import type { CompanyProfile } from "../types";
 import { formErrors, formToProfile, isEdited, profileToForm, type FormErrors, type ProfileForm } from "./profileForm";
-import { formatWindow } from "./report";
+import { formatWindow, ownerName, stop } from "./report";
 import type { RunRequest, SavedProfile } from "./types";
 import type { Window } from "./weeks";
 
@@ -125,4 +125,20 @@ export function ownersDetail(p: CompanyProfile): string {
   const n = new Set(Object.values(p.areas).map((a) => a.owner.email)).size;
   if (n === 0) return "no owners yet";
   return n === 1 ? "1 owner" : `${n} owners`;
+}
+
+/** The inline confirm shown while a switch waits on the GC; null when nothing is pending. */
+export function switchPrompt(state: NewRunState): string | null {
+  if (!state.pending) return null;
+  const from = state.form.base.name.trim() || "this profile";
+  const to = state.pending.profile.name.trim() || "a new company";
+  return `You've edited ${stop(from)} Switch to ${to} and lose those edits?`;
+}
+
+/** Under the owners table: where an item no area claims goes (the pipeline routes it to the general counsel). */
+export function areasNote(form: ProfileForm): string {
+  const name = ownerName(form.base.generalCounsel);
+  const gc = name === "You" ? "you, the general counsel" : `${name}, the general counsel`;
+  const anyArea = form.areas.some((r) => r.area.trim() || r.covers.trim() || r.owner.trim());
+  return anyArea ? `Items outside these areas go to ${gc}.` : `No areas yet, so every item goes to ${gc}.`;
 }
