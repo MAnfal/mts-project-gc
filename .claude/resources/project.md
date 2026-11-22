@@ -36,17 +36,31 @@ disk, and run each command before writing it into the table.
 
 ## Stack
 
-**Not yet measured — nothing is installed.** Chunk 01 of the bootstrap plan scaffolds the
-project and writes this section from what actually landed (versions read off disk, not
-from manifest ranges).
+Measured 2026-11-22 by chunk 01 of `2026-11-22-demo-build`: each version below was read from
+`node_modules/<pkg>/package.json`, and `package.json` pins every one exactly (no ranges). The set
+matches the POC's lockfile (`git show poc:poc/pnpm-lock.yaml`).
 
-What the RFC fixes, recorded here as requirements rather than measurements:
+| Layer | Package | Version |
+| ----- | ------- | ------- |
+| Runtime / package manager | Node (local) · pnpm (`packageManager`) | 24.13.0 · 9.15.4 |
+| Framework | `next` (App Router, `src/`, Turbopack build) | 16.4.6 |
+| UI | `react` · `react-dom` | 19.3.0 · 19.3.0 |
+| Language | `typescript` | 5.9.3 |
+| Styling | `tailwindcss` · `@tailwindcss/turbopack` · `tw-animate-css` | 4.3.3 · 4.3.3 · 1.4.0 |
+| Components | `shadcn` (style `base-nova`) · `@base-ui/react` · `class-variance-authority` · `cn` · `lucide-react` | 4.23.0 · 1.9.0 · 0.7.1 · 0.5.2 · 1.77.0 |
+| Model calls | `ai` · `@ai-sdk/gateway` | 7.0.179 · 4.0.152 |
+| Config | `yaml` · `zod` | 2.9.1 · 4.6.7 |
+| Server marker | `server-only` | 0.0.1 |
+| Tests / lint | `vitest` · `eslint` · `eslint-config-next` | 5.1.1 · 9.39.5 · 16.4.6 |
 
-- **Agent harness**: Flue (https://flueframework.com/), an open-source framework built on
-  top of Pi. Language, runtime and package manager follow from what Flue requires —
-  established by chunk 01, not assumed here.
-- **Primary data source**: the Federal Register API. The agent may also use web search for
-  leads, but only items that resolve to a primary-source record are surfaced.
+- **Harness: plain Vercel AI SDK + AI Gateway (Flue/Pi deferred; no sandbox/shell needed).**
+  The RFC named Flue, built on Pi. The POC pipeline already runs on the AI SDK, Flue/Pi would
+  need its own server, and this workflow needs no sandbox, shell or code execution
+  (`plans/2026-11-22-demo-build/ORCHESTRATOR.md`, Design Decision 1). Deferred, not rejected.
+- **Hosting:** Vercel, Next.js preset, pnpm, repository root. Route functions may run up to 300 s
+  on Hobby with Fluid compute (ORCHESTRATOR Design Decision 7); unverified until the first deploy.
+- **Primary data source:** the Federal Register API. Web search may supply leads, but only items
+  that resolve to a primary-source record are surfaced.
 
 ## Commands
 
@@ -63,14 +77,17 @@ All commands run from the repository root.
 
 | Gate | Command |
 | ---- | ------- |
-| Install | N/A |
-| Bootstrap a fresh worktree | N/A |
-| Type check | N/A |
-| Lint | N/A |
-| Unit tests | N/A |
-| Build | N/A |
+| Install | `pnpm install --frozen-lockfile` |
+| Bootstrap a fresh worktree | `bash scripts/bootstrap.sh` — runs `pnpm install --frozen-lockfile`, then provides `.env.local`: symlinks the main checkout's `.env.local` if it exists, else writes `AI_GATEWAY_API_KEY` from the main checkout's `.env` (renaming the POC's `VERCEL_AI_GATEWAY_API_KEY`). Never prints the key. |
+| Type check | `pnpm typecheck` (`tsc --noEmit`) |
+| Lint | `pnpm lint` (`eslint`) |
+| Unit tests | `pnpm test` (`vitest run`; discovers `src/**/*.test.ts`) |
+| Build | `pnpm build` (`next build`) |
 | Run a monitor pass | N/A |
 | Run the evals | N/A |
+
+Local production server for runtime checks: `pnpm start -p <port>` after `pnpm build`. Use ports
+3101 and up, and stop the server afterwards.
 
 ## Principles
 
@@ -83,9 +100,8 @@ Amend deliberately: a principle changed mid-plan invalidates the reasoning of ev
 approved under it, so record the date and the reason when one changes, and note which
 version each plan was checked against.
 
-**Draft, 2026-11-21 — derived from the Regulatory Monitoring RFC, to be ratified at the
-first `/plan:brainstorm`.** Each restates an RFC requirement; none yet names a file, because
-none exists.
+**Ratified 2026-11-22** (plan `2026-11-22-demo-build`, chunk 01), unchanged from the draft of
+2026-11-21 derived from the Regulatory Monitoring RFC. Each restates an RFC requirement.
 
 1. **Tier is assigned by code, never by a model.** A deadline under 90 days is Critical.
    Violation: a tier value produced by, or overridable by, an LLM output. Same input, same
@@ -124,8 +140,10 @@ one.
 
 | Files | Gates | Review checks | Doc |
 | ----- | ----- | ------------- | --- |
-
-*Empty until chunk 01 establishes the layout.*
+| `src/lib/**/*.ts` | `pnpm test`, `pnpm lint`, `pnpm typecheck` | Pure logic has a colocated `*.test.ts` that asserts what a caller receives. No React imports. Modules that touch the filesystem or secrets import `server-only`. | `.claude/resources/bibles/swe/testing.md` |
+| `src/app/api/**/route.ts` | `pnpm test`, `pnpm build`, `pnpm typecheck` | Server-only. Request input (query, body) is parsed with zod before use. No secrets or stack traces in responses. Exports only HTTP handlers and segment config (`runtime`, `maxDuration`); helpers live in a sibling module with their own test. | `.claude/resources/bibles/swe/testing.md` |
+| `src/components/**/*.tsx` | `pnpm lint`, `pnpm build` | Colours, radii and shadows come from theme tokens (`bg-primary`, `text-heading`, `bg-status-*-surface`, `rounded-lg`, `shadow-xs`), never raw hex or `rgba()`. Interactive elements are real `button` / `a` / `input`. Nothing overflows sideways at 390 px. `src/components/shell/*` is owned by chunk 01: compose it, don't edit it. | — |
+| `config/**/*.yaml` | `pnpm test`, `pnpm build` | Has a zod schema (`src/lib/config/schemas.ts` or the owning module's schema file). Read only through `readYaml`. A test loads the real file and asserts the parsed value. | `.claude/resources/bibles/swe/testing.md` |
 
 **Anything under `.claude/` is governed by the prompt-engineering bible** whether or not a
 row above matches it. `generate-chunk-rubric` adds those citations on its own — see that
@@ -137,15 +155,61 @@ Things an implementing agent would otherwise get wrong. Add to this as they surf
 convention learned during execution belongs here in the same change that learned it, not in
 a follow-up.
 
-*None recorded yet.*
+- **Gateway key: `AI_GATEWAY_API_KEY`.** `@ai-sdk/gateway@4.0.152` reads this name on its own
+  (`node_modules/@ai-sdk/gateway/dist/index.js`, `environmentVariableName: "AI_GATEWAY_API_KEY"`),
+  so no code passes the key explicitly. Set this variable in Vercel (Project → Settings →
+  Environment Variables). The POC read `VERCEL_AI_GATEWAY_API_KEY` from `../.env`; nothing here
+  reads that name except `scripts/bootstrap.sh`, which renames it.
+- **Config is read only through `readYaml(relPath, schema)`** (`src/lib/config/load.ts`). It reads
+  `config/<relPath>` under `process.cwd()` at call time and throws
+  `Config error in config/<relPath>: <field.path>: <message>`. Keep the default path statically
+  scoped to `config/`: a computed directory makes Turbopack trace the whole project (build warning
+  "Dynamic filesystem access"). `next.config.ts` adds `config/**` to every route's trace with
+  `outputFileTracingIncludes`; check `.next/server/app/**/*.nft.json` when adding a config file.
+- **Pages that read config must render per request.** Call `await connection()` (from
+  `next/server`) before reading; otherwise the page is prerendered at build and never re-reads the
+  YAML. Segment `export const dynamic` is not used (removed when Cache Components is on in Next 16).
+- **Theme tokens live only in `src/app/globals.css`**, in shadcn's variable names plus `--heading`,
+  `--caption`, `--status-{red,orange,yellow,green,blue,purple,neutral}-{surface,fg}` and the
+  `--elev-*` shadows. GC AI's radius scale is set explicitly: `rounded-sm` 4 px, `rounded-md` 6 px
+  (buttons, nav rows), `rounded-lg` 12 px (panels), `rounded-xl` 16 px. Light theme only.
+- **shadcn components** are added with `pnpm exec shadcn add <name>` (`components.json`, style
+  `base-nova`, Base UI primitives). `src/components/ui/button.tsx` is adjusted to GC AI's 34 px /
+  6 px primary button; re-adding it with `--overwrite` would undo that.
+- **`server-only` under vitest:** `vitest.config.mts` aliases it to its empty module, because the
+  package throws outside Next's react-server build. Don't remove the alias.
+- **Don't rely on Next's generated global types** (`LayoutProps`, `PageProps`): they exist only
+  after `next build`/`next dev`, so `pnpm typecheck` on a fresh tree fails. Type props explicitly.
+- **`next dev` writes `AGENTS.md`** at the repo root when it detects a coding agent
+  (`node_modules/next/dist/server/lib/generate-agent-files.js`). Use `pnpm build && pnpm start`
+  for runtime checks, or commit the file if it appears.
 
 ## Layout
 
 Where things live, and what belongs where.
 
 ```
-.claude/        The spec-driven loop: prompts, bibles, skills, and this file.
-plans/          Plan directories — one per plan, with SPEC, chunks and retro.
+.claude/                      The spec-driven loop: prompts, bibles, skills, and this file.
+plans/                        Plan directories — one per plan, with SPEC, chunks and retro.
+config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
+  app.yaml                    App-wide settings (appName, maxWindowDays).
+scripts/bootstrap.sh          Fresh-worktree setup: install + .env.local with AI_GATEWAY_API_KEY.
+src/
+  app/                        Next.js App Router.
+    layout.tsx                Root layout: Inter via next/font, globals.css.
+    page.tsx                  `/` — placeholder in the GC shell; reads config/app.yaml per request.
+    globals.css               GC AI theme tokens (the only place raw colour values live).
+    api/probe/stream/         Deploy probe: route.ts streams `tick N` lines then `done`;
+                              seconds.ts parses ?seconds= (zod, clamped 1–120).
+  components/
+    shell/                    AppShell (three-pane layout) and SidebarNav parts. Owned by chunk 01.
+    ui/                       shadcn primitives (button, badge).
+  lib/
+    config/                   load.ts (readYaml) and schemas.ts (zod schemas for config/*.yaml).
+    utils.ts                  `cn` class merging.
+next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
+vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
+components.json               shadcn settings.
 ```
 
-Everything else is written here by chunk 01 once it exists.
+Tests sit next to the module they cover as `*.test.ts`.
