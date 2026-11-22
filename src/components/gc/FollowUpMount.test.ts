@@ -4,6 +4,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RunEvent } from "@/lib/pipeline/events";
+import { reduceEvents } from "@/lib/runs/reduce";
+import { sortItems } from "@/lib/runs/report";
 import type { ExampleRun, RunStatus, StoredRun } from "@/lib/runs/types";
 
 // Where the follow-up chat mounts (amendment 1): under the Report of a finished live run and of an example, and nowhere
@@ -40,6 +42,11 @@ function storedRun(status: RunStatus): StoredRun {
   const result = status === "done" ? (ex.events[doneIdx] as StoredRun["result"]) : null;
   return { id: "r1", createdAt: "2026-11-23T10:00:00.000Z", request: { profileId: "ledgerly", windowStart: ex.windowStart, windowEnd: ex.windowEnd }, events, status, result, profile: ex.profile };
 }
+const renderExample = (example: ExampleRun) => {
+  const view = reduceEvents(example.events);
+  return renderToStaticMarkup(createElement(ExampleReport, { example, view, items: sortItems(view.items), suggestions: SUGGESTIONS }));
+};
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const renderRun = () => renderToStaticMarkup(createElement(RunView, { id: "r1", appName: "Reg Monitor", user: null, suggestions: SUGGESTIONS }));
 
 describe("RunView mounts the follow-up chat only under a finished report", () => {
@@ -68,13 +75,13 @@ describe("RunView mounts the follow-up chat only under a finished report", () =>
 
 describe("ExampleView mounts the follow-up chat under a finished example", () => {
   it("shows the chips and the composer under a recorded example's report", () => {
-    const html = renderToStaticMarkup(createElement(ExampleReport, { example: ex, suggestions: SUGGESTIONS }));
+    const html = renderExample(ex);
     expect(html).toContain("Continuation of the National Emergency With Respect to Iran");
     expect(hasChat(html)).toBe(true);
   });
 
   it("renders no chat for an example whose events end in a failure", () => {
-    expect(hasChat(renderToStaticMarkup(createElement(ExampleReport, { example: { ...ex, events: failedEvents }, suggestions: SUGGESTIONS })))).toBe(false);
+    expect(hasChat(renderExample({ ...ex, events: failedEvents }))).toBe(false);
   });
 });
 
@@ -82,7 +89,7 @@ describe("FollowUpChat", () => {
   it("renders the chips and the composer as real buttons and a labelled textarea", async () => {
     const { FollowUpChat } = await import("./FollowUpChat");
     const html = renderToStaticMarkup(createElement(FollowUpChat, { chatId: "example:x", context: null as never, suggestions: SUGGESTIONS }));
-    for (const s of SUGGESTIONS) expect(html).toMatch(new RegExp(`<button[^>]*type="button"[^>]*>${s}</button>`));
+    for (const s of SUGGESTIONS) expect(html).toMatch(new RegExp(`<button[^>]*type="button"[^>]*>${escape(s)}</button>`));
     expect(html).toMatch(/<label[^>]*for="([^"]+)"[^>]*>Ask about this report<\/label><textarea[^>]*id="\1"/);
     expect(html).toMatch(/<button[^>]*type="submit"[^>]*aria-label="Send"/);
     expect(html).toContain("Answers use this report and its sources only");
