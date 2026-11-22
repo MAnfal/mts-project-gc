@@ -249,3 +249,67 @@ describe("createRunner: list", () => {
     expect((await after.store.get(stale.id))?.status).toBe("interrupted");
   });
 });
+
+// Amendment 5: "Add after checking" stores the document number on the run (StoredRun.confirmed); the run's events
+// are never changed. The run below holds one item back (constructed: no recorded run did).
+describe("createRunner: confirmHeldBack", () => {
+  const HELD = { document_number: "2026-90001", title: "Card fee rule", reason: "The compliance date isn't in the published text." };
+  const done = EVENTS.at(-1)!;
+  if (done.type !== "run.done") throw new Error("EVENTS must end with run.done");
+  const WITH_HELD: RunEvent[] = [...EVENTS.slice(0, -1), { ...done, dropped: [HELD] }];
+
+  it("saves the confirmation on the run, and it survives a reload (a new page over the same IndexedDB)", async () => {
+    const { runner, idb } = await setup(() => ndjson(WITH_HELD));
+    const { id, finished } = await runner.start(request, profile);
+    await finished;
+    const saved = await runner.confirmHeldBack(id, HELD.document_number);
+    expect(saved?.confirmed).toEqual([HELD.document_number]);
+    // This page's own copy is updated too: useRun reads snapshot() before the store.
+    expect(runner.snapshot(id)?.confirmed).toEqual([HELD.document_number]);
+    const reloaded = await setup(() => ndjson([]), idb, "p2-");
+    const again = await reloaded.runner.load(id);
+    expect(again?.confirmed).toEqual([HELD.document_number]);
+    expect(again?.events).toEqual(WITH_HELD);
+  });
+
+  it("confirms each document once, however often the button is pressed", async () => {
+    const { runner } = await setup(() => ndjson(WITH_HELD));
+    const { id, finished } = await runner.start(request, profile);
+    await finished;
+    await runner.confirmHeldBack(id, HELD.document_number);
+    expect((await runner.confirmHeldBack(id, HELD.document_number))?.confirmed).toEqual([HELD.document_number]);
+  });
+
+  it("notifies subscribers, so the open report re-renders", async () => {
+    const { runner } = await setup(() => ndjson(WITH_HELD));
+    const { id, finished } = await runner.start(request, profile);
+    await finished;
+    let calls = 0;
+    const off = runner.subscribe(() => calls++);
+    await runner.confirmHeldBack(id, HELD.document_number);
+    off();
+    expect(calls).toBe(1);
+  });
+
+  it("answers null for a run this browser doesn't have", async () => {
+    const { runner } = await setup(() => ndjson(WITH_HELD));
+    expect(await runner.confirmHeldBack("nope", HELD.document_number)).toBeNull();
+  });
+
+  it("refuses a document the run didn't hold back, and a run that hasn't finished", async () => {
+    const { runner, store } = await setup(() => ndjson(WITH_HELD));
+    const { id, finished } = await runner.start(request, profile);
+    await finished;
+    await expect(runner.confirmHeldBack(id, "2026-11111")).rejects.toThrow(`Run ${id} held back no document 2026-11111`);
+    await store.save({ id: "failed-1", createdAt: "2026-11-23T09:00:00.000Z", request, events: FAILED, status: "failed", result: null, profile });
+    await expect(runner.confirmHeldBack("failed-1", HELD.document_number)).rejects.toThrow("Run failed-1 has no finished report to add to");
+  });
+
+  it("treats a run saved before confirmations existed as having none", async () => {
+    const { runner, store } = await setup(() => ndjson([]));
+    const run = { id: "old-1", createdAt: "2026-11-20T09:00:00.000Z", request, events: WITH_HELD, status: "done" as const, result: WITH_HELD.at(-1) as never, profile };
+    await store.save(run);
+    expect((await runner.load("old-1"))?.confirmed).toBeUndefined();
+    expect((await runner.confirmHeldBack("old-1", HELD.document_number))?.confirmed).toEqual([HELD.document_number]);
+  });
+});

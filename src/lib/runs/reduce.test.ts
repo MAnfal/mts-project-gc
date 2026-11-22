@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { runReplay } from "../pipeline/__fixtures__/replay";
 import type { RunEvent, StepKey } from "../pipeline/events";
-import { reduceEvents, stepStatusText } from "./reduce";
+import { applyConfirmed, frDocUrl, reduceEvents, stepStatusText } from "./reduce";
 
 // The real public events of a recorded run of the live setup (Brightside, 2026-11-02..06), replayed through the ported
 // pipeline at no cost. Constructed sequences below cover what that run never did: retries and failures.
@@ -160,5 +160,51 @@ describe("stepStatusText", () => {
 
   it("says a step cut off by an interrupted stream stopped, not that it is in progress", () => {
     expect(stepStatusText("running", false)).toBe("stopped");
+  });
+});
+
+// Amendment 5: a held-back item enters the table only when the GC confirms it, and never with a tier code didn't
+// compute. The recorded run held nothing back, so a held-back item is added to its real run.done (constructed).
+describe("applyConfirmed", () => {
+  const gc = { name: "Aisha Grant (General Counsel)", email: "gc@brightside.example" };
+  const held = [
+    { document_number: "2026-90001", title: "Card fee rule", reason: "The compliance date we found isn't in the published text." },
+    { document_number: "2026-90002", title: "Wire rule", reason: "The citation didn't match." },
+  ];
+  const withHeld = () => {
+    const done = events.at(-1);
+    if (done?.type !== "run.done") throw new Error("fixture does not end with run.done");
+    return reduceEvents([...events.slice(0, -1), { ...done, dropped: held }]);
+  };
+
+  it("without the GC's confirmation, a held-back item stays held back and out of the table", () => {
+    const view = applyConfirmed(withHeld(), [], gc);
+    expect(view.dropped).toEqual(held);
+    expect(view.checkedByYou).toEqual([]);
+    expect(view.items).toEqual(withHeld().items);
+  });
+
+  it("moves a confirmed item into the table as a row with no tier, no deadline, the GC as owner and its Federal Register link", () => {
+    const view = applyConfirmed(withHeld(), ["2026-90002"], gc);
+    expect(view.dropped).toEqual([held[0]]);
+    expect(view.checkedByYou).toEqual([{ ...held[1], owner: gc, url: "https://www.federalregister.gov/d/2026-90002" }]);
+    expect(view.checkedByYou[0]).not.toHaveProperty("tier");
+    expect(view.checkedByYou[0]).not.toHaveProperty("deadline");
+    // The tiered items are untouched: a confirmation never adds to or changes them.
+    expect(view.items).toEqual(withHeld().items);
+  });
+
+  it("keeps the run's order, and ignores numbers the run didn't hold back and repeats", () => {
+    const view = applyConfirmed(withHeld(), ["2026-90002", "2026-11111", "2026-90001", "2026-90002"], gc);
+    expect(view.checkedByYou.map((r) => r.document_number)).toEqual(["2026-90001", "2026-90002"]);
+    expect(view.dropped).toEqual([]);
+  });
+
+  it("starts with no confirmed rows", () => {
+    expect(reduceEvents([]).checkedByYou).toEqual([]);
+  });
+
+  it("builds the record's link from the document number alone", () => {
+    expect(frDocUrl("2026-22685")).toBe("https://www.federalregister.gov/d/2026-22685");
   });
 });

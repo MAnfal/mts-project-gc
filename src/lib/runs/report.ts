@@ -39,41 +39,67 @@ interface Ctx {
   windowEnd: string;
 }
 
-/** "3 notices for Marcus Lee, nothing Critical". */
-export function reportHeading(items: ActionItem[], ctx: Ctx): string {
+/** "3 notices for Marcus Lee, nothing Critical"; `checked` counts the held-back items the GC added (never tiered). */
+export function reportHeading(items: ActionItem[], ctx: Ctx, checked = 0): string {
+  if (!items.length && checked) return `${checked} ${plural(checked, "item")} you added after checking ${checked === 1 ? "it" : "them"}`;
   if (!items.length) return `Nothing published ${formatWindow(ctx.windowStart, ctx.windowEnd, { year: false })} affects ${ctx.company}`;
   const types = new Set(items.map((i) => i.type));
   const noun = types.size === 1 ? DOC_NOUN[items[0].type] : "item";
   const owners = uniqueOwners(items);
   const who = owners.length === 1 ? ownerName(owners[0]) : `${owners.length} owners`;
   const critical = items.filter((i) => i.tier === "Critical").length;
-  return `${items.length} ${plural(items.length, noun)} for ${who}, ${critical ? `${critical} Critical` : "nothing Critical"}`;
+  const added = checked ? `, plus ${checked} you added` : "";
+  return `${items.length} ${plural(items.length, noun)} for ${who}, ${critical ? `${critical} Critical` : "nothing Critical"}${added}`;
 }
 
-type SummaryView = Pick<RunViewState, "items" | "scanned" | "dropped">;
+type SummaryView = Pick<RunViewState, "items" | "scanned" | "dropped"> & Partial<Pick<RunViewState, "checkedByYou">>;
 
-/** The paragraph under the heading: what was read, what matters, what was checked, what was held back. */
+/** The paragraph under the heading: what was read, what matters, what was checked, what was held back or added. */
 export function reportSummary(view: SummaryView, ctx: Ctx): string {
   const window = formatWindow(ctx.windowStart, ctx.windowEnd, { year: false });
   const n = view.items.length;
+  const checked = view.checkedByYou?.length ?? 0;
   const docs = `${view.scanned} federal ${plural(view.scanned, "document")}`;
   const parts: string[] = [];
-  if (!n) parts.push(stop(`None of the ${docs} published ${window} affects ${ctx.company}`));
+  if (!n && checked) parts.push(stop(`None of the ${docs} published ${window} passed verification for ${ctx.company}`));
+  else if (!n) parts.push(stop(`None of the ${docs} published ${window} affects ${ctx.company}`));
   else {
     parts.push(stop(`Of ${docs} published ${window}, ${n} ${n === 1 ? "affects" : "affect"} ${ctx.company}`));
     const tiers = TIERS.map((t) => [t, view.items.filter((i) => i.tier === t).length] as const).filter(([, c]) => c > 0);
     parts.push(`Priority: ${tiers.map(([t, c]) => `${c} ${t}`).join(", ")}.`);
     const unmatched = view.items.filter((i) => !i.citationVerified).length;
+    // A row the GC added sits in the same table unverified, so "below" would overclaim once there is one.
+    const where = checked ? "of the tiered items" : "below";
     parts.push(
       unmatched
-        ? `Every deadline below matched the Federal Register; ${unmatched} ${plural(unmatched, "citation")} couldn't be matched and ${unmatched === 1 ? "is" : "are"} marked.`
-        : "Every deadline and citation below matched the Federal Register.",
+        ? `Every deadline ${where} matched the Federal Register; ${unmatched} ${plural(unmatched, "citation")} couldn't be matched and ${unmatched === 1 ? "is" : "are"} marked.`
+        : `Every deadline and citation ${where} matched the Federal Register.`,
     );
   }
+  if (checked)
+    parts.push(
+      checked === 1
+        ? "You added 1 held-back item after checking it: it has no priority and its dates weren't verified."
+        : `You added ${checked} held-back items after checking them: they have no priority and their dates weren't verified.`,
+    );
   const held = view.dropped.length;
   if (held) parts.push(`${held} more ${held === 1 ? "was" : "were"} held back because ${held === 1 ? "its" : "their"} dates or citation couldn't be confirmed.`);
   return parts.join(" ");
 }
+
+/** The nothing-applies state: no items, nothing held back, nothing the GC added. Otherwise the report renders. */
+export const isNothingToReport = (view: Pick<RunViewState, "items" | "dropped" | "checkedByYou">) => !view.items.length && !view.dropped.length && !view.checkedByYou.length;
+
+/** The nothing-applies paragraph: how many documents were checked, from which window. */
+export function emptySummary(view: Pick<RunViewState, "scanned">, ctx: Ctx): string {
+  const window = formatWindow(ctx.windowStart, ctx.windowEnd, { year: false });
+  return view.scanned === 1
+    ? `The 1 federal document published ${window} was checked against ${ctx.company}'s profile. It needs no action.`
+    : `All ${view.scanned} federal documents published ${window} were checked against ${ctx.company}'s profile. None needs action.`;
+}
+
+/** The documents that came closest: the first 3 the final screen rejected (screenedOut is most relevant first). */
+export const closestCalls = (view: Pick<RunViewState, "screenedOut">) => view.screenedOut.slice(0, 3);
 
 /** Badge counts. Each comes from its own list: the lists can sum to less than `scanned`. */
 export function reportCounts(view: Pick<RunViewState, "items" | "dropped" | "screenedOut" | "notReviewedCount">) {
@@ -119,6 +145,7 @@ export function reportJson(view: RunViewState, ctx: { company: string }): string
       asOf: view.asOf,
       scanned: view.scanned,
       items: sortItems(view.items),
+      addedAfterChecking: view.checkedByYou,
       heldBack: view.dropped,
       screenedOut: view.screenedOut,
       notReviewedCount: view.notReviewedCount,

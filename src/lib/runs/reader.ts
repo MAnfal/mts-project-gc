@@ -105,6 +105,23 @@ export function createRunner(deps: RunnerDeps) {
       const runs = await deps.store.list();
       return Promise.all(runs.map(async (run) => (run.status === "running" && !streaming.has(run.id) ? ((await deps.store.markInterrupted(run.id)) ?? run) : run)));
     },
+    /**
+     * Adds a held-back document to the run's `confirmed` list ("Add after checking") and saves it; this page's copy
+     * is updated too, so the open report re-renders. Null if this browser has no such run. Throws for a run that
+     * didn't finish, or a document it didn't hold back: only a held-back item can be confirmed.
+     */
+    async confirmHeldBack(id: string, documentNumber: string): Promise<StoredRun | null> {
+      const run = live.get(id) ?? (await deps.store.get(id));
+      if (!run) return null;
+      if (run.status !== "done" || !run.result) throw new Error(`Run ${id} has no finished report to add to`);
+      if (!run.result.dropped.some((d) => d.document_number === documentNumber)) throw new Error(`Run ${id} held back no document ${documentNumber}`);
+      const confirmed = run.confirmed ?? [];
+      const next: StoredRun = confirmed.includes(documentNumber) ? run : { ...run, confirmed: [...confirmed, documentNumber] };
+      if (live.has(id)) live.set(id, next);
+      await deps.store.save(next);
+      notify();
+      return next;
+    },
     /** The latest state of a run started in this page. */
     snapshot: (id: string) => live.get(id),
     isStreaming: (id: string) => streaming.has(id),

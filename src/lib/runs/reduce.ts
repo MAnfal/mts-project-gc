@@ -1,7 +1,7 @@
 // The one place a run's events become screen state. Live rendering folds each streamed event in; reopening a saved
 // run folds its stored events, so both always agree. Pure: no React, no I/O.
 import type { DocNote, RunEvent, StepKey } from "../pipeline/events";
-import type { ActionItem } from "../types";
+import type { ActionItem, Owner } from "../types";
 
 export type StepState = "waiting" | "running" | "done" | "failed";
 
@@ -20,6 +20,16 @@ export interface StepView {
   message: string | null;
 }
 
+/**
+ * A held-back item the GC added to the report after checking it themselves ("Confirmed by you"). Deliberately not an
+ * ActionItem: it has no tier, because code never computed one (Principle 1), and no deadline, because none was
+ * verified (Principle 3). It goes to the general counsel, and links to the record by its document number.
+ */
+export interface CheckedRow extends DocNote {
+  owner: Owner;
+  url: string;
+}
+
 export interface RunViewState {
   status: "running" | "done" | "failed";
   company: string | null;
@@ -31,7 +41,10 @@ export interface RunViewState {
   confirmed: ActionItem[];
   // Everything run.done carries.
   items: ActionItem[];
+  /** Held back and not (yet) confirmed by the GC. */
   dropped: DocNote[];
+  /** Held back, then confirmed by the GC: set only by applyConfirmed, never by an event. */
+  checkedByYou: CheckedRow[];
   screenedOut: DocNote[];
   notReviewedCount: number;
   scanned: number;
@@ -51,6 +64,7 @@ export const initialView = (): RunViewState => ({
   confirmed: [],
   items: [],
   dropped: [],
+  checkedByYou: [],
   screenedOut: [],
   notReviewedCount: 0,
   scanned: 0,
@@ -102,6 +116,23 @@ export function applyEvent(s: RunViewState, e: RunEvent): RunViewState {
 }
 
 export const reduceEvents = (events: RunEvent[]): RunViewState => events.reduce(applyEvent, initialView());
+
+/** The Federal Register's own short link to a document, which needs only its number. */
+export const frDocUrl = (documentNumber: string) => `https://www.federalregister.gov/d/${encodeURIComponent(documentNumber)}`;
+
+/**
+ * Moves the held-back items the GC confirmed (`StoredRun.confirmed`, document numbers) out of `dropped` and into
+ * `checkedByYou`, in the run's order. Applied after reduceEvents: the run's events stay exactly what the server sent.
+ * A number the run didn't hold back is ignored. The tiered items are never touched.
+ */
+export function applyConfirmed(view: RunViewState, confirmed: readonly string[], generalCounsel: Owner): RunViewState {
+  const yes = new Set(confirmed);
+  return {
+    ...view,
+    dropped: view.dropped.filter((d) => !yes.has(d.document_number)),
+    checkedByYou: view.dropped.filter((d) => yes.has(d.document_number)).map((d) => ({ ...d, owner: generalCounsel, url: frDocUrl(d.document_number) })),
+  };
+}
 
 /**
  * The screen-reader word for a step. `live` is false once the stream is over: a step still "running" then was cut off

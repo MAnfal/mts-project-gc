@@ -30,6 +30,12 @@ export interface StoredRun {
   result: RunDone | null;
   /** The profile the run used, as it was when the run started (a preset or the GC's own). */
   profile: CompanyProfile;
+  /**
+   * Document numbers of held-back items the GC added after checking them ("Add after checking"), in the order added.
+   * Applied after reduceEvents (applyConfirmed); `events` stay what the server sent. Absent on runs saved before
+   * confirmations existed, which read as none confirmed.
+   */
+  confirmed?: string[];
 }
 
 /**

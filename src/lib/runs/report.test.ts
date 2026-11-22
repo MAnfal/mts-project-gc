@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { runReplay } from "../pipeline/__fixtures__/replay";
 import type { ActionItem, Deadline, Tier } from "../types";
 import { reduceEvents, type RunViewState } from "./reduce";
-import { deadlineLabel, draftEmails, formatWindow, ownerName, reportCounts, reportHeading, reportJson, reportSummary, sortItems, whyTier } from "./report";
+import { closestCalls, deadlineLabel, draftEmails, emptySummary, formatWindow, isNothingToReport, ownerName, reportCounts, reportHeading, reportJson, reportSummary, sortItems, whyTier } from "./report";
 
 let recorded: RunViewState;
 beforeAll(async () => {
@@ -190,9 +190,62 @@ describe("draftEmails", () => {
 describe("reportJson", () => {
   it("is the report the GC downloads: window, counts and lists, nothing internal", () => {
     const parsed = JSON.parse(reportJson(recorded, { company: "Brightside Foods Co." }));
-    expect(Object.keys(parsed)).toEqual(["company", "windowStart", "windowEnd", "asOf", "scanned", "items", "heldBack", "screenedOut", "notReviewedCount"]);
+    expect(Object.keys(parsed)).toEqual(["company", "windowStart", "windowEnd", "asOf", "scanned", "items", "addedAfterChecking", "heldBack", "screenedOut", "notReviewedCount"]);
+    expect(parsed.addedAfterChecking).toEqual([]);
     expect(parsed).toMatchObject({ company: "Brightside Foods Co.", windowStart: "2026-11-02", windowEnd: "2026-11-06", asOf: "2026-11-06", scanned: 466, notReviewedCount: 407 });
     expect(parsed.items).toEqual(sortItems(recorded.items));
     expect(parsed.screenedOut).toHaveLength(56);
+  });
+});
+
+// A held-back item the GC confirmed (reduce.ts applyConfirmed): in the table, but neither tiered nor verified.
+const checked = { document_number: "2026-90001", title: "Card fee rule", reason: "r", owner: { name: "Jordan Blake (General Counsel)", email: "gc@ledgerly.example" }, url: "https://www.federalregister.gov/d/2026-90001" };
+
+describe("report sentences with rows the GC confirmed", () => {
+  it("heading counts them apart from the tiered items", () => {
+    expect(reportHeading([item(1)], ctx, 1)).toBe("1 rule for Marcus Lee, nothing Critical, plus 1 you added");
+    expect(reportHeading([], ctx, 2)).toBe("2 items you added after checking them");
+    expect(reportHeading([], ctx, 1)).toBe("1 item you added after checking it");
+  });
+
+  it("summary never says every row below matched the Federal Register once a confirmed row is in the table", () => {
+    const s = reportSummary({ ...recorded, scanned: 466, items: [item(1)], dropped: [], checkedByYou: [checked] }, ctx);
+    expect(s).toBe(
+      "Of 466 federal documents published Nov 2–6, 1 affects Ledgerly Inc. Priority: 1 Medium. Every deadline and citation of the tiered items matched the Federal Register. You added 1 held-back item after checking it: it has no priority and its dates weren't verified.",
+    );
+    expect(s).not.toContain("below matched");
+  });
+
+  it("summary with only confirmed rows doesn't say nothing affects the company", () => {
+    expect(reportSummary({ ...recorded, scanned: 466, items: [], dropped: [], checkedByYou: [checked, { ...checked, document_number: "2" }] }, ctx)).toBe(
+      "None of the 466 federal documents published Nov 2–6 passed verification for Ledgerly Inc. You added 2 held-back items after checking them: they have no priority and their dates weren't verified.",
+    );
+  });
+
+  it("the .json download lists them on their own", () => {
+    const parsed = JSON.parse(reportJson({ ...recorded, checkedByYou: [checked] }, { company: "Ledgerly Inc." }));
+    expect(parsed.addedAfterChecking).toEqual([checked]);
+  });
+});
+
+describe("the nothing-applies state", () => {
+  const empty = { ...recorded, items: [], dropped: [], checkedByYou: [], scanned: 448 };
+
+  it("shows only when there are no items, nothing held back and nothing the GC added", () => {
+    expect(isNothingToReport(empty)).toBe(true);
+    expect(isNothingToReport({ ...empty, items: [item(1)] })).toBe(false);
+    expect(isNothingToReport({ ...empty, dropped: [{ document_number: "x", title: "X", reason: "r" }] })).toBe(false);
+    expect(isNothingToReport({ ...empty, checkedByYou: [checked] })).toBe(false);
+  });
+
+  it("says how many documents were checked, from which week", () => {
+    expect(emptySummary(empty, ctx)).toBe("All 448 federal documents published Nov 2–6 were checked against Ledgerly Inc.'s profile. None needs action.");
+    expect(emptySummary({ ...empty, scanned: 1 }, ctx)).toBe("The 1 federal document published Nov 2–6 was checked against Ledgerly Inc.'s profile. It needs no action.");
+  });
+
+  it("closest calls are the first 3 documents the screen rejected, most relevant first", () => {
+    expect(closestCalls(recorded)).toEqual(recorded.screenedOut.slice(0, 3));
+    expect(closestCalls({ ...recorded, screenedOut: recorded.screenedOut.slice(0, 2) })).toHaveLength(2);
+    expect(closestCalls({ ...recorded, screenedOut: [] })).toEqual([]);
   });
 });
