@@ -185,6 +185,25 @@ a follow-up.
 - **`next dev` writes `AGENTS.md`** at the repo root when it detects a coding agent
   (`node_modules/next/dist/server/lib/generate-agent-files.js`). Use `pnpm build && pnpm start`
   for runtime checks, or commit the file if it appears.
+- **The eval bundle is generated: never hand-edit `public/evals/`; rebuild it from `poc`** with
+  `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh`. The verify script
+  recomputes `index.json` with the POC's `suiteReport` and byte-compares every run, trace and
+  iteration against the `poc` branch, so a hand edit fails it. Each `suites/*/manifest.json` carries
+  `export.mts`'s `exportedAt`, so those 9 files change on every rebuild; nothing else does.
+- **POC code runs only from `<main checkout>/.worktrees/poc-src`**, a detached checkout of `poc` that
+  `scripts/poc-src.sh` creates and checks (HEAD equals `poc`, no edits to tracked files). It sits
+  outside every chunk worktree, so no `poc/` path can be staged. Run POC scripts with that
+  checkout's own `poc/node_modules/.bin/tsx`; this repo has no `tsx` dependency. The app's build
+  and runtime never read it.
+- **Eval numbers come from `index.json`, labelled.** Every live/baseline number is
+  `{value, split, runs, suite}` (`src/lib/evals/index-schema.ts`). `runs` is the denominator
+  `suiteReport` used: graded runs for key-graded metrics, finished runs for `judgePass`,
+  `traceChecks` and `secondsPerRun`, all runs for `costPerRunUsd`. Live pools both iteration-06
+  suites; baseline pools `w0i` + `cb0`, because neither suite alone covers all four weeks.
+- **Read the bundle in the browser with `src/lib/evals/loader.ts`.** `.gz` files are served as
+  `application/gzip` with no `Content-Encoding` (measured under `pnpm start`), so the loader gunzips
+  them with `DecompressionStream`. Traces stream as an async iterator; never `res.json()` a `.gz`.
+  No route imports `public/evals`, so the files ship as static assets, not inside function bundles.
 
 ## Layout
 
@@ -196,6 +215,16 @@ plans/                        Plan directories — one per plan, with SPEC, chun
 config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
   app.yaml                    App-wide settings (appName, maxWindowDays).
 scripts/bootstrap.sh          Fresh-worktree setup: install + .env.local with AI_GATEWAY_API_KEY.
+scripts/build-eval-bundle.sh  Rebuilds public/evals/ from `poc` with the POC's own export.mts.
+scripts/build-eval-index.mts  Derives index.json, iteration.json, user-view/index.json (POC suiteReport).
+scripts/verify-eval-bundle.sh Nothing-lost check against `poc` + index recompute (--check).
+scripts/poc-src.sh            Sourced by the two eval scripts: the detached poc checkout and its tsx.
+public/evals/                 GENERATED eval bundle, served as static files (never hand-edit):
+  index.json                  suites, setups, iterations, live, baseline, counts (index-schema.ts).
+  config/                     One copy of poc/config, answer keys included.
+  suites/<arenaId>/           manifest/report/trace-checks.json, runs.jsonl.gz, traces/<runId>.jsonl.gz.
+  user-view/                  index.json, runs/<runId>.json, traces/<runId>.jsonl.gz (all 22, failed too).
+  iterations/<NN-slug>/       iteration.json + the POC's files verbatim (spec, record, diffs, evidence, config/).
 src/
   app/                        Next.js App Router.
     layout.tsx                Root layout: Inter via next/font, globals.css.
@@ -208,6 +237,8 @@ src/
     ui/                       shadcn primitives (button, badge).
   lib/
     config/                   load.ts (readYaml) and schemas.ts (zod schemas for config/*.yaml).
+    evals/                    index-schema.ts (zod contract for public/evals/index.json) and
+                              loader.ts (browser fetch + gunzip reader for the bundle).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
