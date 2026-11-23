@@ -9,10 +9,15 @@ import type { EvalIndex, Metric, SetupResult } from "./index-schema";
 
 type SetupInfo = EvalIndex["setups"][number];
 
-/** One setup's results in one suite, with what it ran. `live` = it runs the live setup's model. */
+/**
+ * One setup's results in one suite, with what it ran. `live` = it runs the live setup's model. `winner` = the row the
+ * live setup came from: the live setup itself when the suite ran it, else the setup with the same model, method and
+ * prompt set (the one later promoted). At most one per suite.
+ */
 export type ModelRow = Pick<SetupInfo, "label" | "model" | "modelLabel" | "method" | "promptSet"> & {
   setup: string;
   live: boolean;
+  winner: boolean;
   result: SetupResult;
 };
 
@@ -69,9 +74,13 @@ export function modelComparisons(index: Pick<EvalIndex, "suites" | "setups" | "s
       .map((result): ModelRow => {
         const i = infoOf.get(result.setup);
         if (!i) throw new Error(`suite ${s.id} has results for setup ${result.setup}, which index.setups lacks`);
-        return { setup: i.key, label: i.label, model: i.model, modelLabel: i.modelLabel, method: i.method, promptSet: i.promptSet, live: i.model === live.model, result };
+        return { setup: i.key, label: i.label, model: i.model, modelLabel: i.modelLabel, method: i.method, promptSet: i.promptSet, live: i.model === live.model, winner: false, result };
       })
       .sort(rowOrder);
+    const winner =
+      rows.find((r) => r.setup === live.setup) ??
+      rows.find((r) => r.model === live.model && r.method === liveInfo.method && promptOf(r) === promptOf(live));
+    if (winner) winner.winner = true;
     // The builder writes one result per suite × setup; a listed setup without one would vanish from the table
     // and could turn a two-model suite into "single model", so it is an error, not a smaller table.
     const missing = s.setups.find((x) => !rows.some((r) => r.setup === x.key));
