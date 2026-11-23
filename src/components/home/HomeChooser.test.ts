@@ -13,6 +13,11 @@ describe("HomeChooser (/)", () => {
     expect(html).toContain("Reg Monitor");
     expect(hrefs(html)).toEqual(expect.arrayContaining(["/runs/new", "/evals"]));
   });
+
+  it("links the submission page (resources and build transcripts)", () => {
+    const html = renderToStaticMarkup(createElement(HomeChooser, { appName: "Reg Monitor" }));
+    expect(hrefs(html)).toContain("/submission");
+  });
 });
 
 describe("EvalSidebar wordmark", () => {

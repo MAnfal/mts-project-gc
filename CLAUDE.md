@@ -1,14 +1,15 @@
 # Project
 
-**Regulatory Monitoring** gives a GC at a mid-size fintech a weekly triage of federal  
+**Regulatory Monitoring** (the app's name is Reg Monitor) gives a GC at a mid-size fintech a weekly triage of federal  
 rules: run the monitor over a date window and get back only the rules that affect the  
 company, each as one action item (tier, deadline, owner, affected areas, source link) in  
 `report.json` + a markdown report. Any deadline under 90 days is Critical, and every date  
 and citation is checked against the primary source, so items can be forwarded without  
 re-checking.
 
-Pipeline: Config → Scan (Federal Register API + web leads) → Filter (LLM) → Verify + Tier  
-(code) → Output (LLM) → `report.json`/`.md`.  
+Pipeline: Config → Scan (Federal Register API; web leads exist but are off in the live setup)  
+→ Filter (decision-model screen, then LLM) → Verify + Tier (code) → Output (LLM) →  
+`report.json`/`.md`. The live setup is `config/experiment.yaml` → `userView.setup`.  
 Harness: plain Vercel AI SDK + AI Gateway (Flue/Pi deferred).
 
 Success, measured on a frozen hand-labeled eval set (3 companies × 4 past weeks): recall  
@@ -60,6 +61,11 @@ the copy a session happens to read first wins.
 ## Recent Work
 
 <!-- One line per completed plan, newest first. Added by /plan:complete. -->
+
+- **Demo build merged** 2026-11-23 (`plans/2026-11-22-demo-build/`, PR #10, then #12 and #13):
+  the GC app, the eval view (with `/evals/setup`) and a landing page at `/`; the submission
+  page with design and build transcripts at `/submission`. Not yet closed with `/plan:complete`;
+  retro Part 2 is unfilled.
 
 - **Knowledge layer added** 2026-09-19: `.claude/resources/bibles/` holds the engineering  
 and prompt-authoring standards the loop cites. Brainstorm, planning, rubric generation,  

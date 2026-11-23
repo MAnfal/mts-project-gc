@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 1</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 1/29</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-029.html">29</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-11-21T10-49-00-500Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T10-49-00-500Z" class="timestamp-link"><time datetime="2026-11-21T10:49:00.500Z" data-timestamp="2026-11-21T10:49:00.500Z">2026-11-21T10:49:00.500Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Yo, I am going to start building this project.</p>
+<p><pasted_content id="b1e0">
+RFC: Regulatory Monitoring
+User Stories
+Weekly triage: As a GC at a mid-size fintech, I want to run the monitor over last week’s federal rules and get back only the ones that affect us, each with a tier, deadline, and owner, so I can triage in 10 minutes.
+Trust and urgency: As a GC, I want any rule with a deadline under 90 days flagged Critical, with every date and citation checked against the primary source, so I can forward it to the business without re-checking it myself.
+Functional Requirements
+Accept a run config: company profile, agencies/topics, a date window, and any other relevant information.
+Scan the Federal Register API for the window; the agent may also use web search for leads, but only items that resolve to a primary-source record get surfaced.
+Label each doc relevant or not against the profile, with a one-line reason.
+Re-fetch each relevant doc from its primary source, drop any date or citation that doesn’t match, and assign a tier by rule (deadline &lt; 90 days = Critical).
+Output one action item per doc (tier, deadline, owner, affected areas, source link) as JSON + a markdown report.
+System Design
+Config → Scan (federal register API + web leads) → Filter (LLM) → Verify + Tier (code) → Output (LLM) → report.json/.md
+Harness: built on an open-source framework: https://flueframework.com/. It’s a framework built on top of Pi.
+What “success” looks like
+Good means the GC trusts the output enough to triage in 10 minutes and forward items without re-checking them. Proven by:
+Recall &gt;= 0.9: during evals (frozen, hand-labeled set: 3 companies × 4 past weeks).
+Precision &gt;= 0.8: little enough noise that it doesn’t get ignored.
+100% verified: every date and citation matches the official record.
+Consistent: tier identical across 3 runs (guaranteed by code), and the relevance decision agrees across 3 runs on &gt;= 90% of docs.
+Beats the baselines: a single-prompt LLM request ran through frontier models.
+Out of scope
+Paid API fetches, scheduled runs, internal doc mapping, state-level-resources.</p>
+<p></pasted_content id="b1e0"></p>
+<p>But before I do, I wanna run some experiments to solidify the implementation. For you context, here is the conversation I had with interviewer. </p>
+<p><pasted_content id="b1e0">
+Speaker 1: Hey, good morning. Um, sorry, it's a little blurry. Let's see...
+Speaker 1:  Can you hear me okay?
+Anfal Mushtaq (You):  Yeah, I can. Can you hear me?
+Speaker 1:  Yeah, that's a lot clearer.
+Anfal Mushtaq (You):  Oh, nice. I'm actually, uh, vacationing in Pakistan right now. It's, uh, I know it's not the best location.
+Speaker 1:  I love it.
+Anfal Mushtaq (You):  Yeah, it's not the best location to vacation, but unfortunately the internet is a bit choppy right now.
+Speaker 1:  Okay. Um, would it be—hey, how's it going? Uh, by the way, how do you pronounce your name?
+Anfal Mushtaq (You):  It is—you can just call me Anfal.
+Speaker 1:  Anfal?
+Anfal Mushtaq (You):  Yeah.
+Speaker 1:  Okay. Um, well, nice to meet you. Is this a good time, or would you prefer—I mean, since we're on vacation, I mean, we can reschedule if—
+Anfal Mushtaq (You):  No, no, no, it's—
+Speaker 1:  Another time.
+Anfal Mushtaq (You):  That's absolutely fine. I'm actually going to keep my camera off because of the internet connectivity issue, so I'll just turn it off for that, but otherwise it's absolutely fine.
+Speaker 1:  Okay. Um, okay. Let's get started then.
+Speaker 1:  Um, so this is the—I'm going to—I mean, if you're off, I'm going to turn mine off too.
+Anfal Mushtaq (You):  Yeah, that will help. Video streaming is always, you know, going to be more network-intensive.
+Speaker 1:  Yeah. Um, okay, well, nice to meet you. This is the, um, the whiteboarding portion of our interview process.
+Speaker 1:  Um, have you received the take-home instructions?
+Anfal Mushtaq (You):  I did, yeah, and I have created a document based on that for us to go over. So, yep, I'm all set and ready.
+Speaker 1:  Okay. That sounds good. Um, also, Anfal, I wonder if it's possible—I know the, um, bandwidth may be laggy, but do you think we could try video to start, and if it doesn't work, then we turn it off?
+Speaker 1:  I just think it would be nice to see each other here.
+Anfal Mushtaq (You):  Uh, I'm just going to—yeah. So, actually, what happened was, yesterday, I think, something happened to the sea cable 11 kilometers off the coast of Pakistan, so that's why the internet is really—like, really choppy right now. Uh, but I'm happy to, you know, keep it on.
+Anfal Mushtaq (You):  If it starts to get buggy, we can, you know, turn it off.
+Speaker 1:  Yeah, that's great. It's actually working fine for me right now. Like, I can see and hear you well, so if you're okay with it, um.
+Anfal Mushtaq (You):  Oh, yeah, absolutely.
+Speaker 1:  Let's start this way.
+Anfal Mushtaq (You):  Yeah, yeah.
+Speaker 1:  Perfect. Um, okay, cool. So, nice to meet you.
+Speaker 1:  Quickly introductions. I'm Brian.
+Speaker 1:  Um, I've worked at GC AI since January. Um, and I've worked on the core harness.
+Speaker 1:  Uh, I've worked on evaluations, platform work, uh, pretty much, you know, anything that would be useful, um, to the product since then. You know, it's a startup of one of many hats, but always on the applied AI side.
+Speaker 1:  Uh, before that, I was an evening law student and a full-time data scientist. Um, I started to make some legal AI apps while I was in law school for my classmates and for people without lawyers.
+Speaker 1:  Um, and before that, I, uh, you know, studied computer engineering and, um, and data science and AI, so kind of been doing this for a while. Um, would love to hear a little bit about you before jumping into your design document.
+Anfal Mushtaq (You):  Yeah, yeah, absolutely. So, I am, uh, I have over 12 years of, uh, engineering experience. Um, and I've been working on the entire stack, from the backend to the frontend, everything.
+Anfal Mushtaq (You):  Uh, but most recently, for the past 4 years, I've been, uh, trying to build scalable AI applications. Um, so right now I'm working as a staff engineer at a company called Luxury Presence.
+Anfal Mushtaq (You):  We deal with ultra-high net worth clients and real estates. Um, I've been—I'm, I'm the founding engineer of the AI-powered site generation solution that is currently working for the entire company.
+Anfal Mushtaq (You):  Uh, I've also created a meta framework on top of Claude code that my entire team uses to ship features to the product. It's the AI—it's based off of AI native SDLC.
+Anfal Mushtaq (You):  Uh, before this, I was working as a founder. I built quite a few products using AI for different, um, cohorts, like, uh, an AI native solution for vibe coders who are looking to get a Datadog alternative.
+Anfal Mushtaq (You):  Before that, I was working at Durable, where I was the technical lead. I built their entire infrastructure that was supporting all of their—all the different apps that they were building.
+Anfal Mushtaq (You):  Um, so I would say that's a brief intro about myself.
+Speaker 1:  Cool. Yeah, that sounds great. Um, okay, so you said you have a document to share.
+Speaker 1:  I would love to see it and start talking about it.
+Anfal Mushtaq (You):  Yeah, I've shared the link in the chat. Let me know if you can open it.
+Speaker 1:  Yeah, one second here. I need to, uh, sign in, I think, here. Actually, it sent me to the wrong—this may be the problem one.
+Speaker 1:  One second. Let me actually switch my Gmail here.
+Speaker 1:  I don't know why it's sending me to a personal Gmail.
+Anfal Mushtaq (You):  Um, you should be able to open it without an account because the setting is anyone with the link, so you should be able to open it as is.
+Speaker 1:  I'm in now.
+Anfal Mushtaq (You):  All right, cool. Um, so I'm going to walk you through it really quickly, and then we can talk about it. So the idea is, I'm looking to build a regulatory monitoring, um, workflow for general counsels.
+Anfal Mushtaq (You):  Um, I am—since the nature of the assignment is to keep it really scoped down and limited to a 10-hour build, I'm trying to be very careful on how I'm scoping it. So that's why I'm only going for two user stories, as you can see.
+Anfal Mushtaq (You):  One is the weekly triage. The other one is the trust and agency.
+Anfal Mushtaq (You):  The boiled-down version of this is, someone would want to go in weekly. They would want to see if there is any regulatory change that could apply to their company.
+Anfal Mushtaq (You):  And if there is, who is the right person to take care of that so they can quickly assign it. So it requires citations, check against the primary source, um, fetching the right, uh, regulatory, um, documents, all that from the web.
+Anfal Mushtaq (You):  So it contains all of that. So these are my user stories.
+Anfal Mushtaq (You):  So before I move on to the next step, the functional requirements, do you have any concerns about the user stories?
+Speaker 1:  Um, not yet. So I think the first one makes sense. Um, my question is, like, how specific to get with them?
+Speaker 1:  So I assume you'll build out maybe, like, a specific company, or, you know, how would you describe it?
+Anfal Mushtaq (You):  Yeah, so the way I'm imagining that the assignment will be, um, graded would be through the evals that I'm going to be building. You might ask it questions, but the evals would be the first, um, way to understand whether it's performing well or not. So I will be hard-coding a few company profiles and using them to build the evals off of.
+Anfal Mushtaq (You):  And that's how you will be able to see what the answer looks like and all of that. Does that make sense?
+Speaker 1:  It does, yeah. Um, so we'll make sure with this weekly triage—weekly triage, um, as well as this trust and urgency. Um, are you going to be checking any specific rules or just all the federal rules?
+Anfal Mushtaq (You):  I, I would—my idea is I'm going to let the LLM explore and deduce what kind of rules it wants to check. But the idea is, if I'm hitting the federal registrar API for, for the recent regulatory changes, then I would filter them down to the specific ones that apply to the company. Now, the way I'm going to do it is, in the profile for that company, I will be putting in information on what's applicable to that company, what's not applicable, and all that.
+Anfal Mushtaq (You):  So that will give AI the idea that this rule might apply, that rule might not apply.
+Speaker 1:  Okay. And the idea is that this markup, um, like, you know, per eval, for instance, um, would be something that the company or, like, the GC would specify themselves, or would this be, like, during their own onboarding process? Like, AI decides for them what rules matter?
+Anfal Mushtaq (You):  Okay, so there are two ways of, uh—so to answer your question, any company that will be onboarded, if this was a real workflow, then they would be providing the information about their company. And that's where they will provide information around what matters to them. And I can even scrape through their websites to figure that stuff out as well.
+Anfal Mushtaq (You):  You don't have to manually provide that to me. Maybe you could add, like, a whitelisted rule if you want.
+Anfal Mushtaq (You):  However, in this case, I will be hard-coding it because of, uh, because I want to build evals and I need stubbed-out data for it. But at the same time, it will serve a dual purpose where you can look at the results of the evals to figure out how good the overall harness is performing without having to run it n number of times to figure out whether it's going to perform or not.
+Anfal Mushtaq (You):  So it just makes your life easier as well, in or, you know, to figure out whether it's working or not.
+Speaker 1:  Yep. Yeah, no, this makes sense. Um, yeah, no further questions at this stage.
+Anfal Mushtaq (You):  Okay. So as far as the functional requirements are concerned, uh, the system design and functional requirements, they go hand in hand. So if you go from top to bottom, you're going to notice there is a run config for the company profile phase.
+Anfal Mushtaq (You):  It's exactly what we were just discussing. We gather the information either by the company, like they provide us, or we scrape it in case it's a production workflow, but for now it's going to be hard-coded.
+Anfal Mushtaq (You):  Uh, a date window. Um, so as in the weekly triage, we were talking about the last week, and in the next one we were talking about 90 days.
+Anfal Mushtaq (You):  So that would be our, you know, date window in, in case of the workflow trigger. Then the scan of the federal register API or web search will happen after that, and this would be our information gathering phase.
+Anfal Mushtaq (You):  Based on the profile selected and all the company information, the agent will go and fetch all that information. It's then going to label the relevant documents it fetched from the internet or the JSON rules that it fetched from the registrar API.
+Anfal Mushtaq (You):  So we can only work on them instead of literally working everything that's out there, which is not relevant to us. Then the fourth one is refetch any other relevant document because the num the very first document that we fetched may not have all the information, so we may want to do some recursive fetching to make sure that we have enough information to work off of.
+Anfal Mushtaq (You):  And the fifth one is we analyze it and, based on the rules that we are going to set, for example, classify the information into different tiers or, um, tag someone or flag something. We will do all of that, and we will output it into a JSON mark format.
+Anfal Mushtaq (You):  And in a production workflow, we could also output it through the rest of the system, like maybe generate an event and send it to someone. So JSON markup is something specific for this assignment, not overall.
+Anfal Mushtaq (You):  So any question from functional requirements or the system design?
+Speaker 1:  Um, not yet at here. Why don't we go through the rest of this, and then maybe we can come back and discuss any requirements once we—once I go through everything.
+Anfal Mushtaq (You):  Makes sense. Now, for this overall exercise, I'm going to be working with the Flow framework. It is a framework written on top of Py.
+Anfal Mushtaq (You):  And the reason why I want to use this as compared to something like Claude code's agents SDK is because that one is tightly coupled to Anthropic's infrastructure and their models, whereas I want to run some, uh, experiments with diverse models, frontier models like Google's Gemini or some Anthropic models to figure out which one's going to perform better. So that's why I think it's best for us to build on top of Flow.
+Anfal Mushtaq (You):  And it also gives you the framework for building evals on top of, like, agentic evals as well. So that's kind of like a plus for us.
+Anfal Mushtaq (You):  So that will be the framework of choice for this entire exercise. And as far as the overall success looks like, the overall goal is you build something that the general counsel is able to trust, which means that we have a high precision and our recall value is really high as well.
+Anfal Mushtaq (You):  Uh, of course, this is an agentic system based on probabilistic, um, models that we will have a tolerance for some sort of error threshold. So that is catered into this.
+Anfal Mushtaq (You):  But the, the goal is, even if there is a mismatch, you at least have some sort of citation that, that the counsel can go and follow so they are able to figure out whether, you know, um, they need to do anything further or maybe the AI is not guiding them properly. So that's why the overall result is have a greater than equal to 0.9 recall, greater than equal to 0.8 precision.
+Anfal Mushtaq (You):  Uh, the results are 100% verified, meaning the citations are matching the official records. The overall, uh, runs are consistent.
+Anfal Mushtaq (You):  So the overall relevance degree is we have maybe 3 runs, 10 runs, however many. And the overall document citation is, like, greater than or equal to 90%.
+Anfal Mushtaq (You):  And the baseline for me would be I give the same prompt to an AI without any of the workflow that I've just mentioned and see what the result looks like there and compare it using a judge model to the results that I'm going to be generating through this harness. And that will give us a baseline test on, like, how better are we as compared to just throwing the prompt to an AI and asking it to basically give us, like, the regulatory changes that, that are coming out
+Anfal Mushtaq (You):  there. Um, out of scope, any kind of paid API fetches, like the federal register API that I was talking about, I looked into it. Turns out it's free.
+Anfal Mushtaq (You):  I can make some calls. It's rate limited, but I can still work with it.
+Anfal Mushtaq (You):  But any paid API fetches for any state-level resources, I'll exclude that. The internal document mapping, which is something that while this workflow is running, you're like, I want to upload a few PDFs of my own as well.
+Anfal Mushtaq (You):  That is out of scope to keep the assignment small enough to fit in the window with all the assignments and evals and everything. And the scheduled runs where you would specify a cron to run this workflow on as set intervals, that will be out of scope as well.
+Anfal Mushtaq (You):  Uh, once this workflow is there, it's very easy to build on top of that, like this, this cron job. So we don't really have to worry about it right now.
+Anfal Mushtaq (You):  So this is it. Um, and yeah, now we can discuss it.
+Speaker 1:  Hey, Anfal. Sorry about that. Um, I think it's mine or yours.
+Speaker 1:  Um, yeah, I think I'll, uh, I'll finish saying no paid API fetches.
+Anfal Mushtaq (You):  Uh, yeah. So what I was saying was, I, I have turned my video off because of the same reason, the internet. Uh, what I was saying was.
+Speaker 1:  I think it was actually on my end, but yeah, that's okay.
+Anfal Mushtaq (You):  Uh, okay. I mean, if that's the case, then we can keep it on as well. Like, I don't really mind.
+Anfal Mushtaq (You):  Um.
+Speaker 1:  Yeah, so a little context. I'm actually, um, I usually am in the on the East Coast in New York, but I'm actually in San Francisco. Uh, and so it's, it's an early meeting for me, and I'm working from the hotel.
+Speaker 1:  So it's actually my, uh, Wi-Fi, not yours, I think.
+Anfal Mushtaq (You):  No worries. No worries. Uh, yeah, it's, it's very hard to figure that out.
+Anfal Mushtaq (You):  But, um, if I drop again or, like, something happens, we can figure something out. But, uh, anyways, what I was saying was, in case of paid API fetches, what I'm not looking to do is pay for any state-level APIs.
+Anfal Mushtaq (You):  The federal register API, I took a look at that, and it turns out it's, uh, free, rate limited, but free to use for a certain number of queries. So I can definitely use it to fetch the regulations.
+Anfal Mushtaq (You):  But if I'm looking into states, like, hey, in the US, there are 50 states, so which one of those, uh, states have regulations that we need to look into? I'm going to skip on that because they might have paid APIs.
+Anfal Mushtaq (You):  So it's like, let's just keep it out of scope. We can always expand on the regulations that we want.
+Anfal Mushtaq (You):  But the web searches are free, so we'll, we'll do, like, a blanket web search to gather the results out of it. And, uh, the last one was the internal document mapping.
+Anfal Mushtaq (You):  So if, uh, like, in case if the workflow is running and you're like, I want to upload a few ma PDF documents of my own to give AI more context, we're going to keep it out of scope for now because I'm trying to keep the assignment scoped down enough that it fits into the timeframe that we are working with. However, that would be something that we can easily extend into and provide AI as context, like, hey, please choose these PDF documents or marked on documents as your
+Anfal Mushtaq (You):  context as well.
+Speaker 1:  Cool. Um, I'm curious if you could you mentioned that the Flow framework has eval, uh, some kind of evals built into it, like the ability to run evals. I'm actually looking through the documentation, and I didn't see that quite yet.
+Speaker 1:  I was just curious if you could talk about that a little bit more.
+Anfal Mushtaq (You):  So they don't have any evals built into it. It's like they support agentic evals. So, like, uh, the, the agentic evals, as you know, they're complicated.
+Anfal Mushtaq (You):  They're not like a simple unit test where you get back a response and you can just, like, match it in the code. Agents are going to make web search calls, tool calls, all that.
+Anfal Mushtaq (You):  So Flow basically supports that because the agent, like, the tool calls or, or the web calls are going to may be made by the agent. So that's why it's easier and faster to use Flow to make those calls and then verify the results as compared to, you know, just going and starting writing your own sandbox where the internet access is available and all that.
+Speaker 1:  I see. You're just saying that the traces are available, um, afterwards?
+Anfal Mushtaq (You):  Yeah. Yeah. Traces are.
+Speaker 1:  I'm not sure.
+Anfal Mushtaq (You):  Yeah. Traces are available. And at the same time, you have the internet access sandbox and all the tools that you will use to pull data from.
+Anfal Mushtaq (You):  So they're all available. You don't have to go and start writing your own boilerplate for them.
+Speaker 1:  Got it. Got it. Okay.
+Speaker 1:  Um, I'd like to talk a little bit about that design. So I know you, you have system design here.
+Speaker 1:  Um.
+Anfal Mushtaq (You):  Yeah.
+Speaker 1:  Can you just talk through each of the steps and, like, which aspects of the Flow framework you think you'll use? Um, you know, tools, skills, um, sandbox. I see, I see code here as well.
+Speaker 1:  Like, what do you expect to actually use?
+Anfal Mushtaq (You):  Yeah, absolutely. So config, um, in a production system, you would probably save it in the database. I'm going to save it in a Markdown file or, uh, if it's a config, maybe YAML file, whatever works.
+Anfal Mushtaq (You):  The scan of the federal API and the web leads will definitely be made through the web search tool call. So there is a tool in Flow available for web search.
+Anfal Mushtaq (You):  So that will be, in simple terms, I'll be making a Google call to figure out if there are any regulatory changes. But at the same time, the federal API call would literally just be like an API call.
+Anfal Mushtaq (You):  I don't need to I mean, I'll build a tool for it, but it doesn't have to go through web search. It's an API call.
+Anfal Mushtaq (You):  Um, and, and the filter part is going to be basically done on the language model stuff side. So once the data is retrieved, the filtering would literally be, uh, which one of these items are relevant.
+Anfal Mushtaq (You):  I have two options I'm going to be using to basically see which one is the best option. One is Jev decision model, and the other one is a normal frontier LLM for filtering.
+Anfal Mushtaq (You):  So I will figure out, like, which of these web calls or the API calls are relevant to us. Then the verification and tier stuff is where when we have gotten all the results, we want to figure out which, uh, like, which tier does this result fit into.
+Anfal Mushtaq (You):  A tier would be, is it a critical tier? Is it something it's like a warning?
+Anfal Mushtaq (You):  It's like, uh, if you look at the user story number two, it mentions if there is any dead uh, rule that is under a 90-day deadline, then we need to flag it immediately. So tier is basically for that.
+Anfal Mushtaq (You):  Like, you immediately flag it. So that's where, uh, the code-based logic comes in.
+Anfal Mushtaq (You):  You basically generate a structured output out of lang large language model, pass it over to the method, and it basically gives you the tier for it. And the, the input parameter for that method would be what is the, like, uh, application deadline for this specific rule.
+Anfal Mushtaq (You):  So based on that, we can figure out, okay, so this is the timestamp. This rule falls under 90 seconds.
+Anfal Mushtaq (You):  So we can immediately, um, assign it to one of the stakeholders. And of course, at the end, the output and the JSON, uh, that's pretty much self-explanatory.
+Speaker 1:  Yeah. Quick question. So when, when you say code, it's not, uh, you're not talking about actual code execution here.
+Speaker 1:  You're talking about ranking it in terms of its, like, criticality?
+Anfal Mushtaq (You):  No, there will be code execution.
+Speaker 1:  You're actually using code.
+Anfal Mushtaq (You):  Yeah, yeah, yeah. There will be actual code execution.
+Speaker 1:  I'm trying to understand, yeah, why do you need code at that step? I don't know if I understand, like, like, what's the utility of code there.
+Anfal Mushtaq (You):  Um, so there will be, like, the, the company profile and config that I'm saving, it will have rules around, uh, the, the, the proper stakeholder. So let's, let's take stakeholder as an example, right? Uh, the rule is if this value is under 90 days, like, this rule regulatory rule has a deadline of under 90 days, assign it to the counsel of this company.
+Anfal Mushtaq (You):  And the counsel would have probably in the config, you would have their email address or something. That would be in the YAML config.
+Speaker 1:  Mm-hmm.
+Anfal Mushtaq (You):  So what you're doing is, one, you get back the structured output from the LLM. That structured output would contain the date timestamp within it that you pass over to the method where the execution will happen. You get the, like, the, the total days remaining for that rule from today's date.
+Speaker 1:  Okay.
+Anfal Mushtaq (You):  And if it's less than 90 days, you send an email to the config value that is saved. So that's where the code execution really helps. And the reason why we want to do code execution and not a large language model call is because this is this needs to be a deterministic step.
+Anfal Mushtaq (You):  Like, if an action needs to be taken immediately, you don't want the LLM to do it because LLMs tend to hallucinate because they are stochastic in nature. You want it as, like, a solid step that happens after the overall generation and happen always.
+Speaker 1:  Got it. Okay. So basically, date time math is, is the real answer.
+Speaker 1:  You want to do some, some math.
+Anfal Mushtaq (You):  Exactly. Yeah, yeah, yeah.
+Speaker 1:  Okay.
+Anfal Mushtaq (You):  Yeah. And, and you want it to happen, like, always deterministically. So that's why you don't want it to go through the LLM.
+Anfal Mushtaq (You):  You, you want it to happen as, like, a solid step.
+Speaker 1:  Um, you mentioned an email tool or some kind of email workflow. Is that sco in scope here?
+Anfal Mushtaq (You):  No, it won't be in scope. You're not going to send out an email, uh, to the to the user. It would probably be the, the, the function that is calculating the time and then, uh, getting the config value.
+Anfal Mushtaq (You):  It will just output a dummy value. It's not going to literally send an email to the user.
+Speaker 1:  Okay. Um, can you tell me about the verify step again? Like, what's happening within the verify step?
+Anfal Mushtaq (You):  Yeah. So the verification step is when you have, like, it's kind of like a crossmatch between the, the company profile and the information you have versus the regulations that you have pulled. So it's sort of like a verification step for that.
+Anfal Mushtaq (You):  Like, which of these rules are important to us? Which of these rules should we be catering for?
+Anfal Mushtaq (You):  And if you recall in the beginning, I said that you can have your own whitelist as well on top of the company profile where you are adding things like keep an eye on this stuff or that stuff. That's where you would use this verification step to figure out if something important in that regards is going to be applied or not.
+Speaker 1:  Okay. But I guess what who's doing the when you write LLM here, by the way, are you talking about a, a separate structured LLM call, or are you just talking about the Pi agent or, like, the Flow agent?
+Anfal Mushtaq (You):  No, they're so Flow agent allows you to make LLM calls. Like, it's just an agent harness. So you will be making the calls to an actual large language model.
+Anfal Mushtaq (You):  They are, you know, they're part of the harness. Harness gives you, like, web search tool calls, um, any other functionality that you might want, but the call is actually going to a large language model.
+Anfal Mushtaq (You):  And this verification step is going to the large language model as well.
+Speaker 1:  Sure. But so to be clear, we're talking about the main agent, or it writes a tool call to a separate LLM with a specific request?
+Anfal Mushtaq (You):  No, this will be a main.
+Speaker 1:  Like, it's a main agent?
+Anfal Mushtaq (You):  Yeah, yeah, yeah.
+Speaker 1:  Okay.
+Anfal Mushtaq (You):  There is I, I don't believe there is a need for an orchestrator subagent architecture here. So you can have, like, a state machine where you go from step to step.
+Speaker 1:  Okay. Got it. Um, another question is about sequencing.
+Speaker 1:  So.
+Anfal Mushtaq (You):  Yeah.
+Speaker 1:  We kind of talked about this already, but scanning the full federal register and then doing filter. Um, is there any filtering going into that scan?
+Anfal Mushtaq (You):  Yeah. So the federal registry API actually gives you a few filtering options. So, uh, I full disclaimer, I haven't looked at all the API options they give you because the implementation comes after the whiteboarding.
+Anfal Mushtaq (You):  But I will be making sure that I'm going to use all the filters that are relevant to me. Uh, beyond that, let's assume I look at it and it only gives me the option to filter on date and nothing else.
+Anfal Mushtaq (You):  The rest of the filtering would be happening on my side. So the filtering and reranking, and that's where I might, uh, experiment with the with a model like Jev, uh, a decision model that helps me rerank which of the API options are relevant, like, the most relevant to the work that we are doing here.
+Anfal Mushtaq (You):  So I'll, I'll probably use something like that on my end.
+Speaker 1:  Okay. Yeah, that makes sense. I was just a little concerned that it'd be too much coming back.
+Speaker 1:  And, um, I mean, do you anticipate any context management issues with what comes back from the scan? I guess you, it, you yeah, it depends on what comes back, how big it is, but.
+Anfal Mushtaq (You):  You, you're absolutely right. There can be. However, for the sake of this assignment, I'm keeping it simple.
+Anfal Mushtaq (You):  And, uh, even if there is, I'm going to make sure that I mutate the data to fit in the context. However, the in, in a production workflow, it's definitely a concern.
+Anfal Mushtaq (You):  And you probably would need, like, an ETL pipeline that is fetching the data for you, putting it maybe in a RAG database and maybe a, a most probably in a GraphDB. And then you are able to query there and rerank based on that.
+Anfal Mushtaq (You):  So you're not, like, literally fetching everything out there in the world. So, but, but that is out of scope for this, uh, assignment.
+Anfal Mushtaq (You):  Like, I'm not going to build an ETL pipeline with a GraphDB RAG on in front.
+Speaker 1:  Yep. That makes sense. Um, so just to be clear, you know, if you had to, let's say you do this scan and you get back, like, 5 million tokens worth of results.
+Anfal Mushtaq (You):  Mm-hmm.
+Speaker 1:  How do you think you would mutate the data so that it fits, uh, to the main agent?
+Anfal Mushtaq (You):  I'm actually going to, uh, so this is a brute force answer. I'll probably try to optimize it further. But the very first thing I would do is I would divide that, like, the entire data set for, uh, filtering on multiple subagent async subagent calls that are running in parallel to basically filter down what is required.
+Anfal Mushtaq (You):  And the mutations for me will come from a hard check that I need the top 10 or 15 or so results. So that's where I'll basically cap it out.
+Anfal Mushtaq (You):  Um, even if I have, like, 5 million records, it makes zero sense that I would only make five subagent calls to filter the data because you don't want 1 million context window. You probably would want to cap it around, like, 200,000 tokens per subagent call.
+Anfal Mushtaq (You):  So I would use a tokenizer to divide that entire data set and then run multiple calls on it to basically filter it down in multiple sequences instead of, like, just one.
+Speaker 1:  Okay. Yeah. I think it'll also depend, um, on just what the API returns.
+Speaker 1:  Um, you know, whether it's will it return front matter, do you know? Or will it return full results?
+Anfal Mushtaq (You):  No, I don't I don't think so. Yeah, it, it just returns full results. I don't think it returns for a front matter, but it is paginated.
+Anfal Mushtaq (You):  So that will help definitely help me.
+Speaker 1:  Okay. Yeah. Um, yeah, I think some of this will come out of the empirical study.
+Speaker 1:  Um.
+Anfal Mushtaq (You):  Yeah.
+Speaker 1:  Yeah. I'd be curious to see that. Yeah.
+Anfal Mushtaq (You):  No, I, I 100% agree with you. The good thing about the way, like, I was describing, like, breaking down the entire, like, uh, corpus into multiple subagent calls is since it's not a RAG call, you don't have to worry about having relevance score between different paragraphs and missing out on the context on that level. Uh, you're literally just grabbing I mean, uh, the register API, it actually gives you headings as well.
+Anfal Mushtaq (You):  So you could literally just grab the headings and filter based on that as well. Like, does it does this heading belong to us?
+Anfal Mushtaq (You):  Does that heading belong to us? So it will definitely drastically cut down on overall context in that regards without worrying about losing the context while, you know, chunking the overall data set.
+Speaker 1:  For sure. Yeah. I don't know if it's necessarily the most, uh, cost-efficient, um, right, putting a, a subagent on every single source, but you won't miss anything hopefully.
+Anfal Mushtaq (You):  It will be, um, my thinking is if I'm using a Jev decision model, it is, uh, advertised as really cost-efficient. So.
+Speaker 1:  Yeah. Okay. So you're thinking that, yeah, the filtering would be Jev for that.
+Anfal Mushtaq (You):  Yeah, yeah, yeah.
+Speaker 1:  Relevance.
+Anfal Mushtaq (You):  Yeah. So it will really help with the cost in that regards.
+Speaker 1:  Okay. Um, in that case, yeah. That's not the same as your filter.
+Speaker 1:  Your filter step here is the agent, but this is some, like, in between scan and filter?
+Anfal Mushtaq (You):  No, this is the filter step.
+Speaker 1:  This is the.
+Anfal Mushtaq (You):  The yeah.
+Speaker 1:  Okay.
+Anfal Mushtaq (You):  This is the this is the filter step. Like, you use Jev decision model to figure out which of these items actually relate to us. And then the compilation part, the one that where we were doing the review comes after it.
+Anfal Mushtaq (You):  Like, now you filter it down. Now let's look at what the, the, the document matter looks like and what it's saying, how it relates to us, and how do we refine it and, you know, cite it properly.
+Speaker 1:  Okay. Um, cool. So let's jump to the evals.
+Speaker 1:  You have some metrics here. Can you talk about the structure of the evals exactly, like, with, with some exactness about, you know, how you think you'll set them up?
+Anfal Mushtaq (You):  Yeah. So what I'm thinking is I will probably use a few different types of evals. One would be code-based eval where I would be looking at the traces for the entire agentic call to see whether it's calling XYZ tools.
+Anfal Mushtaq (You):  So that gives me the baseline on tool calls that it is actually referencing real data instead of just hallucinating it itself. The other thing would be I will be setting up an LLM as a judge.
+Anfal Mushtaq (You):  I'm going to capture the data insights for the past three to four weeks, and I'm going to be building it on top of, like, three to four company profiles that I'm going to be just building, like, uh, stubbing out, as I said in the very beginning. Now, what this judge model is going to do is it's going to run a few different questions and rate them based on their overall relevance, the precision score, and the code-based evals will tell us if the specific tool was called
+Anfal Mushtaq (You):  or not. And that will give us our overall, uh, index on how the system is performing. The baseline would be against making a prompt and having the judge rate that as well.
+Anfal Mushtaq (You):  So we get sort of like a comparison on the baseline is performing at 50%, but we are performing at, say, 80 or 90% or whatever that number looks like. The one thing that I'm not going to do and is out of scope in this case is the, like, when, when you do judge-based evals, you want to align that judge to some real human.
+Anfal Mushtaq (You):  But in this case, I'm not going to be aligning it to a human being. Uh, so that's why I'm keeping it out of scope.
+Anfal Mushtaq (You):  So for me, a judge would be just prompts and just, like, prompt-based tuning. And that would that is what I will be using for evaluating the performance.
+Speaker 1:  Have you done LLM judges before?
+Anfal Mushtaq (You):  I have, yeah. In our current company, um, the system that I've built, I had to create quite a few LLM judges for that.
+Speaker 1:  Have you found them to be successful? Or maybe I should say, like, are there any techniques that you've learned to make sure that they're consistent?
+Anfal Mushtaq (You):  Um, I've used the standard approaches for the LLM judges, and they have been enough for us. But again, this is a multi-year project in the company. So, of course, there will be edge cases that will come up a little bit later.
+Anfal Mushtaq (You):  So I'm not going to claim that I know everything about the LLM judges, but the baseline technique of using direct preference optimization has worked for me.
+Speaker 1:  I guess what I'm wondering is, um, do you anticipate that how do you how can you trust these LLM judges? I know you said you're not going to go to the step of aligning them with a human, but how will you know that you can trust them?
+Anfal Mushtaq (You):  Yeah, that is a great question. Like, one LLM is checking the output of another LLM, and it's like an echo chamber. So which is absolutely great.
+Anfal Mushtaq (You):  The answer to that one is in, in case of running an LLM judge, you want to align it to a human being. So you would want to cherry-pick a few items, like the LLM judge responses every week, and comp like, send them to the actual human.
+Anfal Mushtaq (You):  So basically, they can quality control whether the overall result is good or not. However, in this case, the overall data set for evals will be small enough where we will know what we are anticipating, and it will be in the evals data set as well.
+Anfal Mushtaq (You):  So if we wanted to compare, okay, so this is the result that we were expecting. This is what we got generated, and the judge said it looks great.
+Anfal Mushtaq (You):  Then we will be able to quickly manually verify whether it works or not. It's only for the assignment.
+Anfal Mushtaq (You):  It's not running on the scale. So that's why it works.
+Anfal Mushtaq (You):  Otherwise, you would want to do that cherry-pick logic that I was talking about where you cherry-pick few items on random, send them to an actual human, and have them review it every week.
+Speaker 1:  Yeah. Well, something I'm actually wondering is, do you think that you could evaluate these, uh, test cases in a deterministic way?
+Anfal Mushtaq (You):  So the code-based eval definitely helps you with that. However, the issue with code-based eval is it is only good for base level baseline, um, evaluations. Something like, uh, I'll, I'll it's a very basic example, but what is the result of one plus one?
+Anfal Mushtaq (You):  The LLM results returns two. You compare it to a hard-coded value, and then you say it looks good.
+Anfal Mushtaq (You):  So but however, in this case, when you're running a multi-step workflow where there are Google searches involved, searches where data is going to change, you can't really use those kind of deterministic evals in this case. So my mindset says if you are using LLM judge, you have a greater chance of catching those kinds of issues.
+Anfal Mushtaq (You):  But deterministic evals will not hold in this regards. So that's why I want to keep the deterministic evals, but only for things like was a certain tool call made while the, the workflow was running.
+Anfal Mushtaq (You):  And that's where I said I'm going to have, like, code-based evals for those kinds of checks.
+Speaker 1:  Yeah. I guess what I'm wondering is, can you I may have missed it, but what exactly the LLM judge prompt will be and what it will be evaluating? Um, because I'm wondering, like, could you for some of these companies and maybe the date ranges, could you know ahead of time what the most important rule changes are and.
+Anfal Mushtaq (You):  You're, you're absolutely.
+Speaker 1:  Yeah. I'm trying to.
+Anfal Mushtaq (You):  But it will contain the information that the end result needs to match this result, the hard the, the, the result that we already know. So it will be in the hard-coded data set. The only issue is it is going to be in natural language, so you can't have a code-based eval for that.
+Anfal Mushtaq (You):  So that's where the LLM judge kicks in. It's like, okay, so this is the result I was supposed to have.
+Anfal Mushtaq (You):  This is what the judge, uh, like, the AI returned. This is the closest relevance.
+Anfal Mushtaq (You):  And the failure metric would be if it's let's say it's the, the return result is less than 90% or whatever, we fail the prompt and we're like, yeah, it's not working. We need to, like, go and either fix the LLM judge, something is going wrong with it, or go and fix the actual workflow because it's not producing quality results for us.
+Speaker 1:  Okay. Makes sense. I think my last question on evals is it sounded like most of these would be end-to-end evals.
+Speaker 1:  I mean, the code the tool and code evals would check the trajectories. But do you plan on evaluating and optimizing any of the intermediate steps?
+Anfal Mushtaq (You):  Well, I am not like, let me let me give give me one sec. I'll let me just think about it one more time before I answer this one.
+Speaker 1:  Sure.
+Anfal Mushtaq (You):  The reason why I wanted to keep the end-to-end evals instead of the unit test evals was it would help scope down the overall, um, exercise. Because if you think about it, the very first version of the workflow is not going to perform as good, right? So you would want you would be looking into improving it, debugging what's going wrong, figuring out the traces, and you have to build it as well.
+Anfal Mushtaq (You):  So that's why I went with just the end-to-end. Um, however, you are absolutely right.
+Anfal Mushtaq (You):  Like, if we had to, we could actually do unit test evals as well. I just intentionally skipped over them because of this reason.
+Speaker 1:  I think it's a sensible approach to start with end-to-end, um, to understand the performance, definitely. Um, yeah. I mean, you're, you have a you're going to have a dis like, a decision model as a filter.
+Speaker 1:  So it's see, I mean, do you anticipate needing to calibrate in some way?
+Anfal Mushtaq (You):  Beyond prompt engineering, I'm not expecting to calibrate Jev a lot, to be honest with you. Like, the decision model, I'm not looking into fine-tuning it. Truth be told, I'm not even sure if, uh, TypeSafe allows you to fine-tune Jev right now.
+Speaker 1:  No, no, no. Yeah. So not fine-tune.
+Speaker 1:  I'm thinking more in terms of a threshold, depending on how you use the decision model. Like, um, will you use a binary?
+Speaker 1:  Will you use a probability? And if there's a probability, you probably need a threshold, right?
+Anfal Mushtaq (You):  Absolutely. Yeah. And I'm going to be going for the probability metric, not the binary metric.
+Anfal Mushtaq (You):  Because I want to grab, uh, when we are filtering results from each batch, I would want to grab the top five results or whatever. So my criteria is it's a general council solution, which requires a high level of confidence.
+Anfal Mushtaq (You):  So I will probably be either calibrating at 95% accuracy confidence or 90%. If 95 is not performing really well and, like, it's too strict, then I'll lower it down to 90%.
+Anfal Mushtaq (You):  But nothing beyond that. Like, 90% would be my floor.
+Speaker 1:  Okay. Okay. Um, last question.
+Speaker 1:  I know we're running out of time. Um, we haven't talked at all here about the user interface, um, and the user experience.
+Speaker 1:  Um, so I'm just curious, do you have any thoughts on, uh, this with this layer on top of Flue? I mean, will you also have a, a user interface?
+Speaker 1:  Do you have any thoughts on important goals and components to include?
+Anfal Mushtaq (You):  Yeah, absolutely. So as far as the UX is concerned, I'm happy to build, like, a base level UI so anyone can chat with the AI and see the results happening in real time. However, my the assumption that I made was once this assignment is done, I will freeze the eval data set and I will, uh, freeze the scores and everything so you don't have to worry about running the overall harness, like, n times to figure out whether it's performing good or not.
+Anfal Mushtaq (You):  You can go in, you can look at results, the data set that was used to evaluate it. Like, you would get all of that.
+Anfal Mushtaq (You):  So that's why I did not deem it necessary that I need to have, like, a conversational interface or a CLI or anything. I mean, as, as a product engineer, CLI for general counsel is not going to fly in production.
+Anfal Mushtaq (You):  So it will probably be a web-based interface. So that was my thought.
+Anfal Mushtaq (You):  But if you think it is, uh, something I should build, I'm more than happy to, you know, like, add it in the final output.
+Speaker 1:  Yeah. So I think it's, uh, interesting. I, I, I think you actually proposed an interesting approach here, which is, like, to get this backend version working really well and do the evaluations and show that the agent is doing what you want.
+Speaker 1:  Um, I would be curious still to know your vision for, like, what the product should look like since it shouldn't be a CLI. Um, but because it's a shorter assignment, I'm also open to it not, um, you know, you not having to build, like, a fully functional conversational web interface.
+Speaker 1:  But, um, at least, I mean, if you have the data, you could build a, a mock-up prototype with, um, everything that you have. Um, and I don't know.
+Speaker 1:  I think UIs are not hard to prototype these days, right? It's they're just a few prompts away.
+Speaker 1:  So.
+Anfal Mushtaq (You):  Yeah, you're absolutely right.
+Speaker 1:  Thank you.
+Anfal Mushtaq (You):  And, um, even if I froze over the data, I would have to show it to you somehow, right? So that's where I was going to build a UI for it. However, uh, this is valuable feedback.
+Anfal Mushtaq (You):  I'll make sure to build it in mid-file to high-file so you can at least get some idea on what kind of UI I might be thinking about if I had to build around it.
+Speaker 1:  Yeah. I think that sounds great. And I think one other question around UI is actually just, who is it for?
+Speaker 1:  Um, is it for the users, like, the actual users of this, or is it for the builders, um, like, the engineers as a evaluation, you know, UI, um, to understand what you built and whether it works?
+Anfal Mushtaq (You):  So the final assignment is, um, I've seen all the people that Carissa mentioned, and they're all engineers. So I was going to keep it, like, the UI would be plain and simple so you can see all the evals data set. Like, you literally don't have to go on GitHub and, like, look at the eval data set.
+Anfal Mushtaq (You):  That's not my intention. You get some sort of UI.
+Speaker 1:  Yeah.
+Anfal Mushtaq (You):  However, the final output, like, if I had to productionize this system, the final stakeholder for me is the general counsel. So it would be built for them, like, a conversational interface that allows them to work with, you know, whatever tasks they have, set up the cron jobs so they get alerts around, you know, um, different regulatory announcements and changes. So yeah, that, that would be my go-to.
+Speaker 1:  Cool. Yeah. Well, I'm interested to see what you come up with, um, for both audiences.
+Speaker 1:  And yeah, we've talked I mean, it's a good design doc. Like, a lot of good details in here that we've discussed.
+Speaker 1:  So I'm excited to see what you build. Um, yeah.
+Speaker 1:  I guess last piece of advice is just to bring some personality and, uh, we'd love to see something that works, um, you know, that you understand how it's built and you've taken some craftsmanship. So I'm pretty excited to see what you build here.
+Anfal Mushtaq (You):  Great. Same, yeah. Thanks for your input.
+Anfal Mushtaq (You):  I really appreciate it.
+Speaker 1:  Yeah. Likewise, Anfal. Um, yeah, talk to you soon.
+Anfal Mushtaq (You):  Same. Bye.
+</pasted_content id="b1e0"></p>
+<p>So let's brainstorm on the approach here together then we'll go over the building. The goal for our exercise right now is to do RnD on the approach, run some experiments and eventually once we are done, I'll boot up new agents to actually build the entire thing. </p>
+<p><pasted_content id="b1e0">
+During our discussion here one thing I want you to follow is that I don't want you to give me long walls of text because I'm not going to read them. One paragraph max. Keep it high-level. Use my voice and tone. In case I want more details I'll ask for it on demand so don't try to start giving me that information.
+Feel free to introduce visualizations, ASCII diagrams, or any other UML diagram that might help us understand how we're going to implement. The main goal of this exercise is to run a scrappy proof of concept, which will be local to what I am doing, and figure out:
+- whether what I have in that document is good enough
+- whether we should be using the Flue framework or not
+- whether the main loop that I'm talking about here will perform better
+- what the evals will look like if we had to build them
+We're going to be doing some Google research and it's mostly R&amp;D.
+</pasted_content id="b1e0"></p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-49-07-501Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-49-07-501Z" class="timestamp-link"><time datetime="2026-11-21T10:49:07.501Z" data-timestamp="2026-11-21T10:49:07.501Z">2026-11-21T10:49:07.501Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-49-08-499Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-49-08-499Z" class="timestamp-link"><time datetime="2026-11-21T10:49:08.499Z" data-timestamp="2026-11-21T10:49:08.499Z">2026-11-21T10:49:08.499Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_018MNCVsTvF9LhmN7gDm7w1G">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">List project files and .claude setup</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">ls -la &amp;&amp; ls .claude .claude/resources 2&gt;/dev/null | head -50</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-49-09-942Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-49-09-942Z" class="timestamp-link"><time datetime="2026-11-21T10:49:09.942Z" data-timestamp="2026-11-21T10:49:09.942Z">2026-11-21T10:49:09.942Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>total 16
+drwxr-xr-x@  5 anfal  staff   160 Nov 21 03:37 .
+drwxr-xr-x@ 10 anfal  staff   320 Nov 21 03:31 ..
+drwxr-xr-x@  8 anfal  staff   256 Sep 19 21:55 .claude
+-rw-r--r--@  1 anfal  staff  3576 Nov 21 03:37 CLAUDE.md
+-rw-r--r--@  1 anfal  staff     3 Nov 21 03:36 README.md
+.claude:
+agents
+commands
+README.md
+resources
+settings.json
+skills
+
+.claude/resources:
+bibles
+project.md
+prompts
+sops
+templates</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-49-18-275Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-49-18-275Z" class="timestamp-link"><time datetime="2026-11-21T10:49:18.275Z" data-timestamp="2026-11-21T10:49:18.275Z">2026-11-21T10:49:18.275Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-49-18-281Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-49-18-281Z" class="timestamp-link"><time datetime="2026-11-21T10:49:18.281Z" data-timestamp="2026-11-21T10:49:18.281Z">2026-11-21T10:49:18.281Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Repo's greenfield, so this is a clean R&amp;D slate. My main flag: Brian pushed twice on deterministic evals, and he's right. If the ground truth is a hand-labeled list of FR document numbers, recall and precision are just set math, so the judge only needs to grade the fuzzy fields (reason, owner). I'd run 4 scrappy spikes before committing to anything:</p>
+<pre><code>E1 Data spike   → 1 week of FR API: doc count, tokens, structured date fields?
+E2 Labels       → hand-label 1 company × 1 week (the eval seed)
+E3 Bake-off     → single-prompt baseline vs per-doc filter, scored vs E2, 3 runs
+E4 Flue spike   → can it run the loop + swap models + give traces in ~1hr?
+</code></pre>
+<p>Want to start with E1? It answers the context-size question and whether "verify" can be pure code.</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T10-51-04-191Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T10-51-04-191Z" class="timestamp-link"><time datetime="2026-11-21T10:51:04.191Z" data-timestamp="2026-11-21T10:51:04.191Z">2026-11-21T10:51:04.191Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Before we further continue anything, I think it's worth it for us to at least initiate the git repository so we can commit whatever we have right now as of this moment. After that it'll be very easy for us to clean up the experiment once we are done. </p>
+<p>https://github.com/MAnfal/mts-project-gc.git</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-06-289Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-06-289Z" class="timestamp-link"><time datetime="2026-11-21T10:51:06.289Z" data-timestamp="2026-11-21T10:51:06.289Z">2026-11-21T10:51:06.289Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-07-412Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-07-412Z" class="timestamp-link"><time datetime="2026-11-21T10:51:07.412Z" data-timestamp="2026-11-21T10:51:07.412Z">2026-11-21T10:51:07.412Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_015G2dBETGkx9eTcgmjQ6sDg">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">List all files and scan for secrets</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">find . -type f | grep -v &#39;^./.git/&#39; | head -80 &amp;&amp; cat README.md &amp;&amp; grep -rliE &#39;api[_-]?key|secret|token|password&#39; . 2&gt;/dev/null | head</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-51-07-621Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-51-07-621Z" class="timestamp-link"><time datetime="2026-11-21T10:51:07.621Z" data-timestamp="2026-11-21T10:51:07.621Z">2026-11-21T10:51:07.621Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>./README.md
+./CLAUDE.md
+./.claude/settings.json
+./.claude/README.md
+./.claude/resources/project.md
+./.claude/agents/code-reviewer.md
+./.claude/agents/implementer.md
+./.claude/skills/plan-retro/SKILL.md
+./.claude/skills/plan-list/SKILL.md
+./.claude/skills/plan-scaffold/SKILL.md
+./.claude/skills/plan-check/SKILL.md
+./.claude/skills/generate-chunk-rubric/SKILL.md
+./.claude/skills/plan-list/scripts/plan-list.sh
+./.claude/skills/plan-scaffold/scripts/plan-new.sh
+./.claude/skills/plan-check/scripts/check-prereqs.sh
+./.claude/resources/bibles/README.md
+./.claude/resources/prompts/worktree.md
+./.claude/resources/prompts/planning.md
+./.claude/resources/prompts/fan-in.md
+./.claude/resources/prompts/evidence.md
+./.claude/resources/prompts/preflight.md
+./.claude/resources/prompts/completion.md
+./.claude/resources/prompts/execution-journal.md
+./.claude/resources/prompts/git.md
+./.claude/resources/prompts/rollback.md
+./.claude/resources/prompts/gates.md
+./.claude/resources/prompts/review.md
+./.claude/resources/prompts/brainstorm.md
+./.claude/resources/prompts/execute.md
+./.claude/resources/templates/orchestrator.md
+./.claude/resources/templates/pr-description.md
+./.claude/resources/templates/completion-report.md
+./.claude/resources/templates/idea.md
+./.claude/resources/templates/retro.md
+./.claude/resources/templates/rubric.md
+./.claude/resources/templates/spec.md
+./.claude/resources/templates/chunk.md
+./.claude/resources/sops/decision-tree.md
+./.claude/commands/plan/complete.md
+./.claude/commands/plan/list.md
+./.claude/commands/plan/brainstorm.md
+./.claude/commands/plan/execute.md
+./.claude/resources/sops/planning/boundary-validation.md
+./.claude/resources/sops/planning/accuracy.md
+./.claude/resources/sops/planning/verify-tooling-commands.md
+./.claude/resources/sops/planning/reuse-audit.md
+./.claude/resources/sops/planning/grep-pattern-checklist.md
+./.claude/resources/sops/planning/dynamic-discovery.md
+./.claude/resources/sops/planning/audit-before-create.md
+./.claude/resources/sops/planning/verify-file-references.md
+./.claude/resources/sops/implementation/file-move-checklist.md
+./.claude/resources/bibles/prompt-engineering/decision-tree.md
+./.claude/resources/bibles/prompt-engineering/README.md
+./.claude/resources/bibles/swe/code-comments.md
+./.claude/resources/bibles/swe/decision-tree.md
+./.claude/resources/bibles/swe/testing.md
+./.claude/resources/bibles/prompt-engineering/foundation/determinism-ladder.md
+./.claude/resources/bibles/prompt-engineering/foundation/module-contracts.md
+./.claude/resources/bibles/prompt-engineering/foundation/composition-at-scale.md
+./.claude/resources/bibles/prompt-engineering/foundation/resource-placement.md
+./.claude/resources/bibles/prompt-engineering/foundation/single-concern.md
+./.claude/resources/bibles/prompt-engineering/foundation/prompt-taxonomy.md
+./.claude/resources/bibles/prompt-engineering/foundation/index.md
+./.claude/resources/bibles/prompt-engineering/recipes/scaffold-with-templates.md
+./.claude/resources/bibles/prompt-engineering/recipes/phase-from-scratch.md
+./.claude/resources/bibles/prompt-engineering/recipes/orchestrator-from-scratch.md
+./.claude/resources/bibles/prompt-engineering/recipes/command-from-scratch.md
+./.claude/resources/bibles/prompt-engineering/recipes/skill-from-scratch.md
+./.claude/resources/bibles/prompt-engineering/recipes/index.md
+./.claude/resources/bibles/prompt-engineering/evolution/updating-existing-prompts.md
+./.claude/resources/bibles/prompt-engineering/evolution/index.md
+./.claude/resources/bibles/prompt-engineering/evolution/adding-to-bible.md
+./.claude/resources/bibles/prompt-engineering/conventions/ai-optimized-writing.md
+./.claude/resources/bibles/prompt-engineering/conventions/xml-structure.md
+./.claude/resources/bibles/prompt-engineering/conventions/sizing.md
+./.claude/resources/bibles/prompt-engineering/conventions/frontmatter-slim.md
+./.claude/resources/bibles/prompt-engineering/conventions/frontmatter.md
+./.claude/resources/bibles/prompt-engineering/conventions/index.md
+./.claude/resources/bibles/prompt-engineering/conventions/variables-and-injection.md
+./.claude/resources/bibles/prompt-engineering/conventions/skill-invocation.md
+TBD.claude/resources/bibles/prompt-engineering/foundation/composition-at-scale.md
+.claude/resources/bibles/prompt-engineering/foundation/single-concern.md
+.claude/resources/bibles/prompt-engineering/conventions/ai-optimized-writing.md
+.claude/resources/bibles/prompt-engineering/conventions/frontmatter.md
+.claude/resources/bibles/prompt-engineering/conventions/frontmatter-slim.md
+.claude/resources/bibles/prompt-engineering/conventions/context-budget.md
+.claude/resources/bibles/swe/decision-tree.md
+.claude/resources/prompts/evidence.md
+.claude/resources/bibles/swe/patterns/service-design.md
+.claude/resources/templates/rubric.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-09-285Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-09-285Z" class="timestamp-link"><time datetime="2026-11-21T10:51:09.285Z" data-timestamp="2026-11-21T10:51:09.285Z">2026-11-21T10:51:09.285Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-10-763Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-10-763Z" class="timestamp-link"><time datetime="2026-11-21T10:51:10.763Z" data-timestamp="2026-11-21T10:51:10.763Z">2026-11-21T10:51:10.763Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01TarFZaptPSsFLByenqxzFi">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check for real credential patterns</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">grep -rnE &#39;(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,})&#39; . ; echo &#34;exit=$?&#34;; cat .claude/settings.json</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-51-10-984Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-51-10-984Z" class="timestamp-link"><time datetime="2026-11-21T10:51:10.984Z" data-timestamp="2026-11-21T10:51:10.984Z">2026-11-21T10:51:10.984Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>exit=1
+{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(git status)&quot;,
+      &quot;Bash(git diff *)&quot;,
+      &quot;Bash(git log *)&quot;,
+      &quot;Bash(git branch *)&quot;,
+      &quot;Read(plans/**)&quot;,
+      &quot;Edit(plans/**)&quot;
+    ]
+  }
+}</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-12-489Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-12-489Z" class="timestamp-link"><time datetime="2026-11-21T10:51:12.489Z" data-timestamp="2026-11-21T10:51:12.489Z">2026-11-21T10:51:12.489Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Clean, no secrets. Initializing and pushing.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-14-479Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-14-479Z" class="timestamp-link"><time datetime="2026-11-21T10:51:14.479Z" data-timestamp="2026-11-21T10:51:14.479Z">2026-11-21T10:51:14.479Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_012qAnrack4j6ZEzAartVMUu">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Init repo, add remote, make initial commit, check remote</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat &gt; .gitignore &lt;&lt;&#39;EOF&#39;
+.DS_Store
+.env
+.env.*
+node_modules/
+.claude/settings.local.json
+EOF
+git init -b main -q &amp;&amp; git remote add origin https://github.com/MAnfal/mts-project-gc.git &amp;&amp; git add -A &amp;&amp; git commit -q -m &#34;Initial commit: project scaffolding and .claude workflow
+
+Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;&#34; &amp;&amp; git log --oneline &amp;&amp; git ls-remote origin 2&gt;&amp;1 | head -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-51-14-650Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-51-14-650Z" class="timestamp-link"><time datetime="2026-11-21T10:51:14.650Z" data-timestamp="2026-11-21T10:51:14.650Z">2026-11-21T10:51:14.650Z</time></a></div><div class="message-content"><div class="tool-result tool-error"><div class="truncatable"><div class="truncatable-content"><pre>The user doesn&#x27;t want to proceed with this tool use. The tool use was rejected (eg. if it was a file edit, the new_string was NOT written to the file). STOP what you are doing and wait for the user to tell you how to proceed.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message user" id="msg-2026-11-21T10-51-14-652Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T10-51-14-652Z" class="timestamp-link"><time datetime="2026-11-21T10:51:14.652Z" data-timestamp="2026-11-21T10:51:14.652Z">2026-11-21T10:51:14.652Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>[Request interrupted by user for tool use]</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T10-51-23-433Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T10-51-23-433Z" class="timestamp-link"><time datetime="2026-11-21T10:51:23.433Z" data-timestamp="2026-11-21T10:51:23.433Z">2026-11-21T10:51:23.433Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Make sure to use the SSH URL I gave you. The repo link, but use the SSH URL.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-26-365Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-26-365Z" class="timestamp-link"><time datetime="2026-11-21T10:51:26.365Z" data-timestamp="2026-11-21T10:51:26.365Z">2026-11-21T10:51:26.365Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_014KdyKQ9SUbDhwskf6T7eqQ">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Init repo with SSH remote and make initial commit</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat &gt; .gitignore &lt;&lt;&#39;EOF&#39;
+.DS_Store
+.env
+.env.*
+node_modules/
+.claude/settings.local.json
+EOF
+git init -b main -q &amp;&amp; git remote add origin git@github.com:MAnfal/mts-project-gc.git &amp;&amp; git add -A &amp;&amp; git commit -q -m &#34;Initial commit: project scaffolding and .claude workflow
+
+Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;&#34; &amp;&amp; git log --oneline &amp;&amp; git ls-remote origin 2&gt;&amp;1 | head -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-51-31-054Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-51-31-054Z" class="timestamp-link"><time datetime="2026-11-21T10:51:31.054Z" data-timestamp="2026-11-21T10:51:31.054Z">2026-11-21T10:51:31.054Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>9224db5 Initial commit: project scaffolding and .claude workflow</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-33-373Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-33-373Z" class="timestamp-link"><time datetime="2026-11-21T10:51:33.373Z" data-timestamp="2026-11-21T10:51:33.373Z">2026-11-21T10:51:33.373Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-34-130Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-34-130Z" class="timestamp-link"><time datetime="2026-11-21T10:51:34.130Z" data-timestamp="2026-11-21T10:51:34.130Z">2026-11-21T10:51:34.130Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Ck5CusL1ecVTnBEmoM1jse">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Push initial commit to GitHub</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git push -u origin main 2&gt;&amp;1 | tail -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-51-41-992Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-51-41-992Z" class="timestamp-link"><time datetime="2026-11-21T10:51:41.992Z" data-timestamp="2026-11-21T10:51:41.992Z">2026-11-21T10:51:41.992Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>To github.com:MAnfal/mts-project-gc.git
+ * [new branch]      main -&gt; main
+branch &#x27;main&#x27; set up to track &#x27;origin/main&#x27;.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-51-43-801Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-51-43-801Z" class="timestamp-link"><time datetime="2026-11-21T10:51:43.801Z" data-timestamp="2026-11-21T10:51:43.801Z">2026-11-21T10:51:43.801Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I set up the repo with the SSH remote. The first commit is <code>9224db5</code> on <code>main</code>, it's pushed, and it includes a basic <code>.gitignore</code> for <code>.env</code>, <code>node_modules</code> and local settings. Want to kick off E1, the 1-week Federal Register data spike?</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T10-53-38-775Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T10-53-38-775Z" class="timestamp-link"><time datetime="2026-11-21T10:53:38.775Z" data-timestamp="2026-11-21T10:53:38.775Z">2026-11-21T10:53:38.775Z</time></a></div><div class="message-content">
+<div class="user-content"><p><pasted_content id="b1e0">
+GC AI Take-Home: Applied AI Engineer
+Pay: 500 CAD</p>
+<p>Estimated time: ~10 hours (including prep)
+Background
+GC AI is building autonomous legal agents for companies: a system that empowers corporate legal teams and their business stakeholders to accelerate their legal practice through long-running, multi-agent tasks that draw on organizational and user-specific context. Projects. File collections. Repeatable workflows encoded as skills. This is core harness engineering work and is the responsibility of the Applied AI engineering team.</p>
+<p>We are building a legal AI harness focused solely on the needs of in-house counsel. From the interface, to the writing style, to the available tools, workflows, and file-processing infrastructure, every layer of the harness has to be designed with in-house counsel in mind. General-purpose harnesses do not suffice. See video.</p>
+<p>Some other context on what life is like for in-house lawyers:
+A day in the life of a general counsel
+Ten Things: Essential Issues for In-House Counsel (2025 Edition)
+Format
+Part 0 - Prepare - before we meet:</p>
+<p>Pick one multi-step in-house legal workflow and research it. Example workflows:
+Regulatory Monitoring: Scan for regulatory developments, filter for relevance, verify sources, and produce prioritized action items. (see GC AI Skills library for reference)
+Contract Redlining: Review a contract against negotiating positions and produce a redlined document with explanations.
+You may also select another challenging multi-step in-house legal workflow inspired by GC AI's skill library.
+Write a short design doc. 1 page max, covering: requirements, system design, 1–3 user stories, and what "good" looks like. Write it yourself, do not use AI. This is your starting point for the whiteboard, and you'll submit it with your final work. 
+Come with questions. Bring the spec-refinement questions you'd ask before building: about the workflow, the users, or the system.</p>
+<p>Part 1 - Whiteboard - on Zoom: you'll have 45 minutes with our team to review your design doc together, pressure-test it, refine scope, and align on what to build. Expect your plan to change; we may also add requirements during the session. Don’t build before the Whiteboard session. </p>
+<p>Part 2 - Build - asynchronous: following your discussion with our engineering team, you'll have approximately 3 business days to build your eval set and agent harness (detailed below).</p>
+<p>Part 3 - Review - on Zoom: you'll have 1 hour to present your work to our team including questions and discussion.
+Instructions
+Your task is to design, build, and validate a set of tools for an open-source harness, customized for the multi-step in-house counsel workflow you selected.</p>
+<p>Sign up for GC AI. You will receive an invitation to a GC AI trial, subject line "Set up your GC AI account before your interview," active for 14 days without message limits. If you don't see it, please check your email spam and follow up with your recruiter.
+Develop a small, high-quality eval set for your workflow.
+Design and build it. Start from an open-source harness framework, such as Vercel's Eve or Pi, or another framework.
+Implement a set of the following capabilities that produces "good" responses to your defined task: tools, code execution, filesystem access, built-in skills, subagents.
+Evaluate and iterate until the quality of the experience reaches the level you would feel comfortable shipping to a practicing in-house attorney.
+Evaluate more than one AI model. Decide which one to use.</p>
+<p>Be prepared to explain your design decisions and learnings. We would rather see a few features that you understand and that work well than a project that tries to do too much without building anything shippable.</p>
+<p>A UI is welcomed, but not required. You decide where to invest to highlight your applied AI skillset - both substantive response quality and user-centric interface design shape the experience for in-house counsel.
+Non-goals
+Do not build:</p>
+<p>Authentication
+Full-scale database implementation. An in-memory data model is acceptable.
+Production deployment or infrastructure
+Deliverables
+Working code (GitHub repo)
+Exported AI coding session logs (Cursor, Claude Code, Codex, whatever you used)
+Your original design doc from Part 0
+A short write-up (~1 page) covering:
+Your design decisions
+What changed from your original design doc, and why
+Insights and iterative improvements generated through evaluation
+How you defined "good" and why
+What you tried that didn't work
+Do not use AI for the write-up (See AI Use Guidelines below).
+What We're Looking For
+Design decisions and execution. How well does your design meet task needs? How well does it generalize/expand to other in-house counsel workflows?
+Evaluation insights and iterative improvements generated by harness evaluation.
+Reliability. How your system handles failures, bad tool outputs, and long-running work — and where a human needs to stay in the loop.
+Output Quality and UX for your task. Would it bring users delight?
+Presentation. How effectively you communicate your work, through the demo and a human-digestible writeup.
+AI Use Guidelines
+GC AI is an AI-native company. We build legal AI for companies, and we expect all of our employees to use AI in their day-to-day work. AI tool selection is part of the strategy. Use the tools that best fit the work. Bonus points for trying GC AI.
+A few ground rules that reflect how we work:
+Own the outcomes. AI can help, but the words should be yours.
+Don’t skip thinking. Use AI to sharpen your judgment rather than to replace it.
+Be concise. Respect the reader’s time. 
+Human touch matters. It should sound like it came from a person who cares.
+Questions
+If you have questions, please text your recruiter (call or email is OK too, but text is preferred to cut through email noise). 
+Submission
+Create a GitHub repository with the project and invite the GC AI engineering team: bardia-pourvakil, bjrhindress, gburtini, shahar-zep, and distrill.</p>
+<p></pasted_content id="b1e0"></p>
+<p>Also just enough: why this is the actual assignment text. What I'm trying to do here is I'm just doing the POC. I have to create all these different artifacts for this assignment. I've done this kind of assignment before as well. I'll just share it with you so you know what I mean. </p>
+<p>https://github.com/MAnfal/swe-project-x</p>
+<p>Read the readme.md for this one. What I'm saying is I'm going to do all that but in this session it's pure POC because I want to figure out the approach. When I start building it I'm not doing a lot of back and forth because I want to show the actual process instead of worrying about how or what I implement.</p>
+<p>That's why we're going to be running all these POCs but we're going to discard them or maybe move them somewhere else (or maybe ignore them) so we can reference back to them once we are building it. That's the goal: let's just validate everything and then we'll start building it.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-40-592Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-40-592Z" class="timestamp-link"><time datetime="2026-11-21T10:53:40.592Z" data-timestamp="2026-11-21T10:53:40.592Z">2026-11-21T10:53:40.592Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-41-381Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-41-381Z" class="timestamp-link"><time datetime="2026-11-21T10:53:41.381Z" data-timestamp="2026-11-21T10:53:41.381Z">2026-11-21T10:53:41.381Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01MzDZ61idwzuNhEkEjKaS8D">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Fetch README of the reference repo</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">gh api repos/MAnfal/swe-project-x/readme -H &#34;Accept: application/vnd.github.raw&#34; 2&gt;&amp;1 | head -200</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-53-43-109Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-53-43-109Z" class="timestamp-link"><time datetime="2026-11-21T10:53:43.109Z" data-timestamp="2026-11-21T10:53:43.109Z">2026-11-21T10:53:43.109Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre># Grain
+
+See what happened in your packages while you weren&#x27;t looking — and how each change was
+built.
+
+Grain reads a TypeScript monorepo&#x27;s merged pull requests over a window and draws three
+levels: the package topology with what was touched, the changes that reached one package,
+and the ordered steps that produced one change. It ships with pre-analyzed snapshots and
+can analyze any public GitHub repository on demand.
+
+## Submission
+
+**→ [Resources and execution history](https://swe-project-x.vercel.app/submission)** — one page
+with everything below, including the eight build transcripts as rendered HTML. The transcripts
+do not render on GitHub, so read them there rather than here.
+
+| | |
+| --- | --- |
+| **Prototype** | https://swe-project-x.vercel.app |
+| **Video walkthrough** | [Loom, ~5 min](https://www.loom.com/share/13273d9f4c384711bb2fd908b4c74a73) — the problem, the prototype driven end to end, and how it was built |
+| **Design rationale** | [Google Doc](https://docs.google.com/document/d/1B6-XtsuPth4XSiOevKFVXq4RyE39KCGvYjSAGURytJ4/edit?usp=sharing) — why this theme, what makes it non-obvious, the tradeoffs, and what&#x27;s next |
+| **Spec-driven development** | [The method this was built with](https://anfalmushtaq.com/articles/primitives-of-spec-driven-development) |
+| **Lo-fi sketch** | [Drawing](https://swe-project-x.vercel.app/submission/lofi-three-levels.png) — the three levels, before anything else |
+| **Mid-fi design** | [Claude artifact](https://claude.ai/artifact/P1zvfQgt23ZYJUezR9u7i1) — the sketch made interactive, what the canvas was built against ([PDF](https://swe-project-x.vercel.app/submission/mid-fi.pdf)) |
+| **Build transcripts** | [Eight Claude Code sessions](https://swe-project-x.vercel.app/submission#execution), in the order they ran |
+
+The spec, the six chunk plans, every review iteration and the retro are checked in under
+[`plans/completed/2026-09-20-project-grain-prototype/`](plans/completed/2026-09-20-project-grain-prototype/).
+
+## Running locally
+
+Requires Node.js 24 (`.mts` scripts run under bare Node) and pnpm 9.
+
+```bash
+pnpm install
+cp .env.example .env.local   # then fill it in — see below
+pnpm dev                     # http://localhost:3000
+```
+
+`pnpm dev` is enough to browse the committed snapshots: they are static imports in the
+bundle, so the landing page needs no network request, no database and no credential. The
+environment variables below are needed only for live analysis and on-demand enrichment.
+
+To exercise what actually deploys — the static prerender plus the client chunks that ship
+— run the production build instead:
+
+```bash
+pnpm build &amp;&amp; pnpm start
+```
+
+### Environment variables
+
+Both are read **only** inside route handlers (`src/app/api/**/route.ts`) and the scripts
+under `scripts/`. Neither is ever exposed to the browser, and neither is prefixed
+`NEXT_PUBLIC_`. `.env.local` is gitignored.
+
+| Variable | Required for | Notes |
+| -------- | ------------ | ----- |
+| `GITHUB_TOKEN` | Live analysis (`/api/analysis`) and the ingest CLI | A classic or fine-grained token with public-repository read access is enough. Without it the app still serves the committed snapshots; live analysis answers with a clear error. |
+| `ANTHROPIC_API_KEY` | On-demand enrichment (`/api/enrichment`) and `scripts/ingest.mts --enrich` | Spends money: one model call per pull request the reader expands. Without it a change node falls back to the pull request&#x27;s own title rather than going blank. |
+
+Two optional settings bound a live analysis. Both have defaults and neither is a
+credential:
+
+| Variable | Default | Notes |
+| -------- | ------- | ----- |
+| `GRAIN_ANALYSIS_WINDOW_DAYS` | `90` | How far back a live analysis looks. Whole number, 1–365. |
+| `GRAIN_MAX_PULL_REQUESTS` | `100` | The ceiling on pull requests analyzed, applied before any fetch starts. Whole number, 1–500. |
+| `ENRICHMENT_MODEL` | `claude-haiku-4-5` | The model on-demand enrichment and the bake command use. |
+
+A value that is present but unusable makes the route fail loudly rather than silently
+falling back to the default.
+
+## Commands
+
+| Command | What it does |
+| ------- | ------------ |
+| `pnpm dev` | Development server on http://localhost:3000 |
+| `pnpm build` | Production build. Regenerates the snapshot index first (`prebuild`) |
+| `pnpm start` | Serves the production build |
+| `pnpm test` | Vitest, once |
+| `pnpm lint` | ESLint over the project |
+| `pnpm typecheck` | `tsc --noEmit` |
+
+Baking a new committed snapshot (spends money — one model call per pull request):
+
+```bash
+node scripts/ingest.mts --repo &lt;owner/repo&gt; \
+  --since &lt;iso&gt; --until &lt;iso&gt; \
+  --out src/lib/snapshots/&lt;owner&gt;-&lt;repo&gt;-&lt;since-date&gt;.json --enrich
+```
+
+## Deploying
+
+The app targets a serverless host with no writable filesystem and no git binary at request
+time — Vercel is what it was built against. Nothing depends on either: ingest is GitHub
+API work, and the committed snapshots are static imports rather than files read at
+runtime.
+
+1. Import the repository into the host and let it detect Next.js. The default
+   `pnpm build` / `pnpm start` pipeline is correct; no custom build command is needed.
+2. Set `GITHUB_TOKEN` and `ANTHROPIC_API_KEY` as **server-side** environment variables for
+   the environments you want live analysis in. Do not prefix either with `NEXT_PUBLIC_`.
+3. Optionally set `GRAIN_ANALYSIS_WINDOW_DAYS` and `GRAIN_MAX_PULL_REQUESTS` to narrow the
+   work a single request may do.
+
+Both API routes declare `export const runtime = &#x27;nodejs&#x27;` — Octokit and the AI SDK do not
+run on the Edge runtime — and an explicit `maxDuration`: 300 seconds for `/api/analysis`,
+which is the ceiling Vercel&#x27;s free tier allows and cannot be raised there, and 60 for
+`/api/enrichment`, which is one model call.
+
+**There are no background jobs.** A live analysis runs inside the request that asked for
+it. Closing the tab ends it, a retry starts it over, and nothing is queued, stored or
+resumed. The enrichment cache is in-memory and lives only as long as the serving instance
+that holds it — a cold instance re-asks the model, which is a normal miss and not an
+error.
+
+## How work happens here
+
+Non-trivial changes run through the spec-driven loop in `.claude/`. Read
+`.claude/README.md` for the loop and `.claude/resources/project.md` for the stack,
+commands, principles and conventions a reviewer will cite.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-49-304Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-49-304Z" class="timestamp-link"><time datetime="2026-11-21T10:53:49.304Z" data-timestamp="2026-11-21T10:53:49.304Z">2026-11-21T10:53:49.304Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-52-853Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-52-853Z" class="timestamp-link"><time datetime="2026-11-21T10:53:52.853Z" data-timestamp="2026-11-21T10:53:52.853Z">2026-11-21T10:53:52.853Z</time></a></div><div class="message-content"><div class="file-tool write-tool" data-tool-id="toolu_01PdwZmAp1S8KLiEBDfHzBL9">
+<div class="file-tool-header write-header"><span class="file-tool-icon">📝</span> Write <span class="file-tool-path">poc-before-build.md</span></div>
+<div class="file-tool-fullpath">/Users/anfal/.claude/projects/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/memory/poc-before-build.md</div>
+<div class="truncatable"><div class="truncatable-content"><pre class="file-content">---
+name: poc-before-build
+description: Current sessions are throwaway R&amp;D POCs; the real build happens later in clean, showcase-able sessions
+metadata:
+  type: project
+---
+As of 2026-11-21 the user is running scrappy POC experiments (FR API data spike, labels, filter bake-off, Flue spike) to validate the RFC approach before building. POC code is disposable/reference-only; the real build runs later via fresh agents through the /plan loop, with transcripts submitted to GC AI (same pattern as github.com/MAnfal/swe-project-x).
+
+**Why:** the build transcripts are a deliverable showing process; the user doesn&#39;t want R&amp;D back-and-forth polluting them.
+**How to apply:** keep POC work isolated from the build story; distill findings into something the later build sessions can cite. See [[keep-project-docs-current]].
+</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-53-53-095Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-53-53-095Z" class="timestamp-link"><time datetime="2026-11-21T10:53:53.095Z" data-timestamp="2026-11-21T10:53:53.095Z">2026-11-21T10:53:53.095Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>File created successfully at: /Users/anfal/.claude/projects/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/memory/poc-before-build.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-54-005Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-54-005Z" class="timestamp-link"><time datetime="2026-11-21T10:53:54.005Z" data-timestamp="2026-11-21T10:53:54.005Z">2026-11-21T10:53:54.005Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0174cXfYgLQwGNVMyrLMwJ99">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Add memory index pointer</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">echo &#34;- [POC before build](poc-before-build.md) — current work is throwaway R&amp;D; real build later in clean showcase sessions&#34; &gt;&gt; /Users/anfal/.claude/projects/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/memory/MEMORY.md</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T10-53-54-199Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T10-53-54-199Z" class="timestamp-link"><time datetime="2026-11-21T10:53:54.199Z" data-timestamp="2026-11-21T10:53:54.199Z">2026-11-21T10:53:54.199Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-57-712Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-57-712Z" class="timestamp-link"><time datetime="2026-11-21T10:53:57.712Z" data-timestamp="2026-11-21T10:53:57.712Z">2026-11-21T10:53:57.712Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T10-53-57-732Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T10-53-57-732Z" class="timestamp-link"><time datetime="2026-11-21T10:53:57.732Z" data-timestamp="2026-11-21T10:53:57.732Z">2026-11-21T10:53:57.732Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Got it: same playbook as Grain, so this session is pure R&amp;D and the build sessions stay clean for the transcripts. My suggestion is to keep the scrappy code on a <code>poc</code> branch that never merges. Only a distilled <code>research/findings.md</code> lands on <code>main</code>, and <code>/plan:brainstorm</code> cites it later. That also gives you "what we tried that didn't work" material for the write-up later.</p>
+<pre><code>main ── scaffolding ── research/findings.md ── (build via /plan loop)
+  └─ poc ── e1-fr-api/ ── e2-labels/ ── e3-bakeoff/ ── e4-flue/   (reference only)
+</code></pre>
+<p>Good with that, and want me to cut the branch and start E1?</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<span class="disabled">&larr; Prev</span>
+<span class="current">1</span>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-013.html">13</a>
+<a href="page-014.html">14</a>
+<a href="page-015.html">15</a>
+<a href="page-016.html">16</a>
+<a href="page-017.html">17</a>
+<a href="page-018.html">18</a>
+<a href="page-019.html">19</a>
+<a href="page-020.html">20</a>
+<a href="page-021.html">21</a>
+<a href="page-022.html">22</a>
+<a href="page-023.html">23</a>
+<a href="page-024.html">24</a>
+<a href="page-025.html">25</a>
+<a href="page-026.html">26</a>
+<a href="page-027.html">27</a>
+<a href="page-028.html">28</a>
+<a href="page-029.html">29</a>
+<a href="page-002.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>
