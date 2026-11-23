@@ -55,6 +55,10 @@ iterations:
   00-baseline:
     label: "Baseline"
     outcome: reference
+    summary: "One prompt to Sonnet with web search. It flags little but misses rules that change what a company must do: the bar to beat."
+    gist:
+      why: "Can one strong model with web search do the whole weekly triage in a single prompt?"
+      change: "No pipeline: one task prompt plus web search, then a formatting step, graded by the same code as everything else."
     moved:
       - tag: worse
         text: "Missed rules that directly change what a company must do."
@@ -65,6 +69,10 @@ iterations:
   01-first-pipeline:
     label: "First pipeline"
     outcome: kept
+    summary: "Switched to the staged pipeline: it found almost everything that matters, but fell for look-alike rules."
+    gist:
+      why: "A cheap screen, then an LLM filter, then code-checked dates and tiers should find more than one prompt can."
+      change: "The pipeline as designed, with default prompts: four model and method setups plus the baseline, each run three times."
     moved:
       - tag: better
         text: "Found far more of what matters than the baseline."
@@ -75,6 +83,10 @@ iterations:
   02-strict-prompt:
     label: "Strict prompt"
     outcome: kept
+    summary: "Told the filter what does not count: false alarms fell sharply for a small loss in recall. Went live."
+    gist:
+      why: "Most false flags were look-alikes: other models or industries, closed deadlines, paperwork renewals."
+      change: "A strict filter prompt that lists those exclusions. Nothing else changed."
     moved:
       - tag: better
         text: "Far fewer false alarms."
@@ -88,6 +100,10 @@ iterations:
   03-strict-v2:
     label: "Prompt fixes"
     outcome: rejected
+    summary: "Prompt fixes from error analysis raised false alarms, so the prompt was rejected; its every-date card was kept."
+    gist:
+      why: "Cards showed only one date, the filter missed rules that affect supply, and some actions were vague."
+      change: "A revised strict prompt: a supply-effects inclusion, one more exclusion, sharper actions, and every verified date on the card."
     moved:
       - tag: worse
         text: "More false alarms on the tuning weeks."
@@ -98,6 +114,10 @@ iterations:
   04-filter-vote:
     label: "Majority vote"
     outcome: rejected
+    summary: "Ran the filter three times and kept the majority answer: steadier on tuning weeks, but no better on held-out weeks at twice the cost. Rejected."
+    gist:
+      why: "The same setup gave different answers between repeats, and every flip happened at the LLM filter."
+      change: "Same setup, but the LLM filter runs three times and a document is kept only if most passes flag it."
     moved:
       - tag: better
         text: "Steadier and more precise on the tuning weeks."
@@ -111,6 +131,10 @@ iterations:
   05-strict-v3:
     label: "Exclusions"
     outcome: not promoted
+    summary: "Told the filter to skip rules that bind only the agency or other kinds of entity: no measurable effect. Not promoted."
+    gist:
+      why: "The filter's biggest precision loss was flagging rules whose duty falls on someone else."
+      change: "Another revised strict prompt: the strict prompt plus two exclusions, and a guard keeping supply and price effects relevant."
     moved:
       - tag: worse
         text: "The targeted documents did not move."
@@ -121,6 +145,10 @@ iterations:
   06-passages:
     label: "Passages"
     outcome: promoted
+    summary: "Let the filter read the most relevant passages of each rule, not just the abstract: it found the rule every earlier run missed. Promoted to live."
+    gist:
+      why: "The filter was the only lossy step: it rejected a real rule whose key provision wasn't in the abstract."
+      change: "For the screen's top-ranked documents, the screen picks the best passages of the full text and the filter reads them too."
     noiseNote: "The recorded decision below measured noise differently: the control's swing across all four of its identical-config suites, per eighteen runs. That wider band is why the decision calls the overall gains inside the noise, while this table, using only the two suites shown, puts the precision gap beyond it."
     moved:
       - tag: fixed
@@ -164,3 +192,49 @@ models:
     oneSuite: "One suite. The rationale above rests on suite {{models.suite}} alone: {{models.suiteWeeks}} weeks, {{models.suiteEvalsets}} company-weeks."
     tuning: "Tuned on one model. The live setup's {{models.livePromptSet}} prompt ran only on {{models.livePromptSetModels}}; {{models.other}} ran only with the {{models.otherPromptSets}} prompt."
   judges: "The judge panel is a separate use of models. It grades the wording of every setup's actions alike, so it played no part in choosing the pipeline's model. A verdict needs {{judges.minAgree}} of the {{judges.count}} judges to agree:"
+
+# Under the summary's number cards. {{live.label}} / {{live.setup}} come from index.json.
+cards:
+  liveLine: "These numbers are the setup every GC run uses now: {{live.label}}."
+  liveLink: "See its configuration and prompts"
+
+# The Live setup page (/evals/setup). Placeholders come from liveSetupContext (src/lib/evals/liveSetup.ts), read from
+# config/ on each request, so the page shows what a GC's run executes; match/mismatch compare it with index.json.
+liveSetup:
+  title: "Live setup"
+  description: "What every GC run executes today · read from config/ on each request"
+  intro: "Every run a GC starts uses {{setup.label}} ({{setup.id}}): {{model.label}}, through the {{method.label}} method."
+  match: "This is the setup the evals promoted, in iteration {{iteration.number}} · {{iteration.label}}. The summary's scores are its runs."
+  mismatch: "Not the setup the evals scored: the recorded live setup is {{recorded}}, but user runs now use {{setup.id}}."
+  facts:
+    model: "Model"
+    method: "Method"
+    screen: "Screen model"
+    cutoff: "Screen cut-off"
+    promptSet: "Prompt set"
+    passages: "Full-text passages"
+    votes: "Filter passes per run"
+    webLeads: "Web leads"
+  passages: "For the top {{passages.topN}} documents by screen score, the filter also reads the best {{passages.perDoc}} passages (about {{passages.chunkChars}} characters each) of the full text."
+  noPassages: "Off: the filter reads each document's abstract only."
+  stagesHeading: "The prompts, stage by stage"
+  stages:
+    screen:
+      title: "Screen"
+      text: "A cheap model ({{jevModel}}) scores every document in the window; anything under {{jevThreshold}} never reaches the LLM."
+    filter:
+      title: "Filter"
+      text: "{{model.label}} decides which documents create, change or remove something this company must do."
+    extract:
+      title: "Extract dates"
+      text: "{{model.label}} quotes every dated obligation verbatim; code then checks each date against the Federal Register."
+    actions:
+      title: "Write actions"
+      text: "{{model.label}} writes one plain-English action per item. It writes no dates or citations: those are rendered from verified data."
+  code:
+    title: "Verify and tier (code, no model)"
+    text: "Dates and citations are checked against the primary source, and the tier is assigned by code: a deadline under {{tiering.criticalWindowDays}} days is Critical."
+  overridden: "Replaced by the {{promptSet}} prompt set: the default on the left, what live runs use on the right."
+  defaultPane: "Default · config/prompts.yaml"
+  livePane: "Live · config/prompt-sets/{{promptSet}}.yaml"
+  placeholders: "Names in double braces are filled on each run: the company's profile, its areas, and the documents."

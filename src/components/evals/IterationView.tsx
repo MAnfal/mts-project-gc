@@ -203,6 +203,16 @@ function Quoted({ rec, quote }: { rec: IterationRecord; quote: Quote }) {
   );
 }
 
+/** A recorded paragraph under its one-line gist: the gist reads first, the full record follows in smaller type. */
+function Recorded({ gist, text }: { gist: string | undefined; text: string | null | undefined }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      {gist ? <p className="m-0 leading-relaxed font-medium text-foreground">{gist}</p> : null}
+      <p className={cn("m-0 leading-relaxed whitespace-pre-line", gist && "text-[13px] text-muted-foreground")}>{text ?? "—"}</p>
+    </div>
+  );
+}
+
 /**
  * One iteration (design/HiEvalIteration.dc.html): outcome, why and change, the result against the setup it
  * replaced, what moved, the decision, and the evidence. Recorded text comes from iteration.json verbatim;
@@ -251,7 +261,10 @@ export function IterationView({ id, story }: { id: string; story: EvalStory }) {
         </span>
         <span className={cn("rounded-full px-2.5 py-0.5 font-semibold", OUTCOME_CLASS[s.outcome])}>{badge}</span>
       </div>
-      <h1 className="m-0 max-w-[48ch] text-2xl leading-snug font-bold">{it.title ?? "Evidence for the next change (not run)"}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="m-0 max-w-[48ch] text-2xl leading-snug font-bold">{it.title ?? "Evidence for the next change (not run)"}</h1>
+        {s.summary ? <p className="m-0 max-w-[74ch] text-[15px] leading-relaxed text-muted-foreground">{s.summary}</p> : null}
+      </div>
 
       {it.evidenceOnly ? (
         <p className="m-0 max-w-[74ch] leading-relaxed text-muted-foreground">
@@ -260,10 +273,10 @@ export function IterationView({ id, story }: { id: string; story: EvalStory }) {
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Section title="Why">
-            <p className="m-0 leading-relaxed whitespace-pre-line">{rec.hypothesis ?? "—"}</p>
+            <Recorded gist={s.gist?.why} text={rec.hypothesis} />
           </Section>
           <Section title="Change">
-            <p className="m-0 leading-relaxed whitespace-pre-line">{rec.change ?? "—"}</p>
+            <Recorded gist={s.gist?.change} text={rec.change} />
           </Section>
         </div>
       )}
