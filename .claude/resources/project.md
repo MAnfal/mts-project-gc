@@ -92,6 +92,7 @@ All commands run from the repository root.
 | Lint | `pnpm lint` (`eslint`) |
 | Unit tests | `pnpm test` (`vitest run`; discovers `src/**/*.test.ts`; `pool: "forks"`, because some tests call `process.chdir`, which worker threads reject) |
 | Build | `pnpm build` (`next build`) |
+| Run locally (dev server) | `pnpm dev` (`next dev`, port 3000; `-p <port>` to change) — after `pnpm install` and a `.env.local` with `AI_GATEWAY_API_KEY` (in a worktree, `bash scripts/bootstrap.sh` provides both). Keyless (`AI_GATEWAY_API_KEY= pnpm dev`) `/runs/new`, `/evals` and `/examples/<id>` load; requests that call a model fail. |
 | Run a monitor pass (**spends real Gateway credit, ~$0.24 a run**, `setups.yaml` estUsd of the live setup; needs `pnpm build && pnpm start`) | `curl -sN -X POST localhost:3000/api/run -H 'content-type: application/json' -d '{"profileId":"ledgerly","windowStart":"2026-11-02","windowEnd":"2026-11-06"}'` — streams NDJSON `RunEvent`s ending in `run.done` or `run.failed`. With `AI_GATEWAY_API_KEY=` set empty on `pnpm start` it costs nothing and ends in `run.failed` at the ranking step. |
 | Run the evals | N/A |
 | Rebuild the eval bundle (needs the `poc` branch; writes `public/evals/`) | `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh` |
@@ -301,9 +302,11 @@ a follow-up.
   package throws outside Next's react-server build. Don't remove the alias.
 - **Don't rely on Next's generated global types** (`LayoutProps`, `PageProps`): they exist only
   after `next build`/`next dev`, so `pnpm typecheck` on a fresh tree fails. Type props explicitly.
-- **`next dev` writes `AGENTS.md`** at the repo root when it detects a coding agent
-  (`node_modules/next/dist/server/lib/generate-agent-files.js`). Use `pnpm build && pnpm start`
-  for runtime checks, or commit the file if it appears.
+- **`agentRules: false` in `next.config.ts` stops `next dev` writing `AGENTS.md`.** Without it, Next
+  16 generates an untracked `AGENTS.md` at the repo root whenever it detects a coding agent
+  (`node_modules/next/dist/server/lib/generate-agent-files.js`; option documented in
+  `node_modules/next/dist/server/config-shared.d.ts`), which dirties every worktree that runs `pnpm dev`.
+  Keep the option; if an `AGENTS.md` appears, delete it rather than committing it.
 - **The eval bundle is generated: never hand-edit `public/evals/`; rebuild it from `poc`** with
   `bash scripts/build-eval-bundle.sh && bash scripts/verify-eval-bundle.sh`. The verify script
   recomputes `index.json` with the POC's `suiteReport` and byte-compares every run, trace and
@@ -369,7 +372,9 @@ Where things live, and what belongs where.
 .claude/                      The spec-driven loop: prompts, bibles, skills, and this file.
 plans/                        Plan directories — one per plan, with SPEC, chunks and retro.
 config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
-                              Everything but app.yaml is copied from poc:poc/config/ (see Conventions).
+                              app.yaml and eval-story.yaml are this repo's own; everything else is copied from
+                              poc:poc/config/, with one recorded `use: eval` line in companies/brightside.yaml
+                              (see Conventions).
   app.yaml                    App-wide settings (appName, maxWindowDays, evalTargets for /evals, defaultPreset and
                               suggestAreas {model, prompt} for /runs/new, followUp {model, system, suggestions, caps} for
                               the follow-up chat).
@@ -491,7 +496,7 @@ src/
                               followup-context.ts (the follow-up chat's context whitelist, which runs get a chat, and
                               askFollowUp: one question's request, stream and save).
     utils.ts                  `cn` class merging.
-next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
+next.config.ts                Tracing includes for config/, Tailwind via Turbopack, agentRules: false.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.
 components.json               shadcn settings.
 ```
