@@ -22,7 +22,7 @@ export { iterationNumber };
 
 /**
  * The reviewer-facing sidebar: Summary, Iterations, Cases, Runs, Models, and the iteration log with each outcome. Marked
- * with an "Evals" badge so it never reads as the GC's sidebar; the GC sidebar does not link here.
+ * with an "Evals" badge so it never reads as the GC's sidebar; the GC sidebar does not link here (the wordmark goes to /, which offers both).
  * Server-safe: the page passes `active` and the parsed config/eval-story.yaml.
  */
 export function EvalSidebar({ appName, story, active }: { appName: string; story: EvalStory; active: "summary" | "cases" | "runs" | "models" | string }) {
@@ -31,7 +31,7 @@ export function EvalSidebar({ appName, story, active }: { appName: string; story
   return (
     <SidebarNav label="Evaluation">
       <div className="flex items-center gap-2">
-        <SidebarWordmark href="/evals">{appName}</SidebarWordmark>
+        <SidebarWordmark>{appName}</SidebarWordmark>
         <Badge className="mb-2 rounded-sm bg-status-purple-surface text-status-purple-fg">Evals</Badge>
       </div>
       <SidebarNavItem href="/evals" icon={<ChartColumn />} active={active === "summary"}>
