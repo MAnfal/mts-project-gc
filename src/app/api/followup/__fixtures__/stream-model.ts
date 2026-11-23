@@ -15,7 +15,7 @@ const FINISH = { type: "finish", finishReason: { unified: "stop", raw: undefined
  * What one model call does: stream these text pieces (then finish), stream them then fail, or fail at the request. A
  * refused request is a retryable 503, the kind the SDK's own retries (when on) would re-send.
  */
-export type Answer = { text: string[] } | { text: string[]; thenError: string } | { reject: string };
+export type Answer = { text: string[]; chunkDelayMs?: number } | { text: string[]; thenError: string } | { reject: string };
 
 /** Provider stream chunks for `a` (the mock's own format: `delta`, not the SDK's `text`). */
 function chunks(a: Exclude<Answer, { reject: string }>): unknown[] {
@@ -56,7 +56,7 @@ export function stubStreamingModel(answer: (n: number) => Answer, set: typeof se
           });
           const a = answer(calls.length);
           if ("reject" in a) throw new APICallError({ message: a.reject, url: "https://gateway.test", requestBodyValues: {}, statusCode: 503, isRetryable: true });
-          return { stream: simulateReadableStream({ chunks: chunks(a) }) } as never;
+          return { stream: simulateReadableStream({ chunks: chunks(a), chunkDelayInMs: "chunkDelayMs" in a ? a.chunkDelayMs : undefined }) } as never;
         },
       }),
     decision: () => {

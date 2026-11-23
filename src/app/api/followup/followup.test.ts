@@ -42,6 +42,10 @@ describe("config/app.yaml → followUp", () => {
     expect(r.success).toBe(false);
   });
 
+  it("rejects a key it doesn't know (a misspelt cap would otherwise be ignored)", () => {
+    expect(FollowUpConfigSchema.safeParse({ followUp: { ...real(), maxTurn: 5 } }).success).toBe(false);
+  });
+
   it("rejects a missing or non-positive cap", () => {
     const { maxTurns: _drop, ...noTurns } = real();
     void _drop;
@@ -188,6 +192,29 @@ describe("streamFollowUp", () => {
   it("a model that finishes without text streams only the done line", async () => {
     stubStreamingModel(() => ({ text: [] }));
     expect(await readLines(await streamFollowUp({ context, messages }, { config, policy: NO_WAIT }))).toEqual([{ type: "done" }]);
+  });
+
+  it("an answer aborted before its first text (the GC closed the tab) is not retried", async () => {
+    stubStreamingModel(() => ({ text: ["Never read."], chunkDelayMs: 20 }));
+    const ac = new AbortController();
+    ac.abort();
+    const err = await streamFollowUp({ context, messages }, { config, policy: NO_WAIT, abortSignal: ac.signal }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(RetriesExhausted);
+    expect((err as RetriesExhausted).attempts).toBe(1); // stopped after the first try, not tried 3 times
+  });
+
+  it("an answer aborted part-way ends with no done line, so it never reads as finished", async () => {
+    stubStreamingModel(() => ({ text: ["One ", "two ", "three."], chunkDelayMs: 20 }));
+    const ac = new AbortController();
+    const body = await streamFollowUp({ context, messages }, { config, policy: NO_WAIT, abortSignal: ac.signal });
+    const reader = body.getReader();
+    const first = await reader.read();
+    ac.abort();
+    let rest = "";
+    for (let r = await reader.read(); !r.done; r = await reader.read()) rest += new TextDecoder().decode(r.value);
+    expect(JSON.parse(new TextDecoder().decode(first.value))).toEqual({ type: "text", text: "One " });
+    expect(rest).not.toContain('"done"');
+    expect(rest).not.toContain("three.");
   });
 
   it("with no Gateway key, refuses before any request (the real resolver)", async () => {

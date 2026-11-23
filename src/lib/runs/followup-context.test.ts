@@ -88,6 +88,26 @@ describe("buildFollowUpContext on a recorded example run", () => {
     expect(ctx.profile.generalCounsel).toEqual(ex.profile.generalCounsel);
   });
 
+  it("a live run's item lists every date it shows (datesShown), each as date and kind only", () => {
+    const item: ActionItem = {
+      ...view.items[0],
+      datesShown: [
+        { date: "2026-11-14", kind: "effective", source: "extracted", quote: "must continue in effect", verified: true, verifyNote: "found" },
+        { date: "2026-12-14", kind: "comment", source: "fr_field", verified: true },
+      ],
+    };
+    const c = buildFollowUpContext({ ...view, items: [item] }, ex.profile);
+    expect(c.items[0].dates).toEqual([
+      { date: "2026-11-14", kind: "effective" },
+      { date: "2026-12-14", kind: "comment" },
+    ]);
+  });
+
+  it("falls back to the profile's name when the run never said which company (no run.start)", () => {
+    const c = buildFollowUpContext({ ...view, company: null, windowStart: null, windowEnd: null }, ex.profile);
+    expect([c.company, c.windowStart, c.windowEnd]).toEqual(["Ledgerly Inc.", "", ""]);
+  });
+
   it("a run with nothing to report is still a valid context: 0 items, its closest calls kept", () => {
     const empty = example("l14a");
     const c = buildFollowUpContext(viewOf(empty), empty.profile);
@@ -223,6 +243,28 @@ describe("askFollowUp", () => {
   it("an answer that isn't the route's own (an HTML error page, a platform timeout) is never shown", async () => {
     const r = await ask(async () => new Response("<html>504 Gateway Timeout</html>", { status: 504, headers: { "content-type": "text/html" } }));
     expect(r.result).toEqual({ ok: false, message: FOLLOWUP_UNAVAILABLE });
+  });
+
+  it("a connection that breaks after some text: the answer stopped, nothing saved", async () => {
+    const first = enc.encode(lines({ type: "text", text: "Three it" }));
+    let sent = false;
+    const broken = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (!sent) {
+          sent = true;
+          c.enqueue(first);
+        } else c.error(new TypeError("network error"));
+      },
+    });
+    const r = await ask(async () => new Response(broken, { status: 200, headers: { "content-type": "application/x-ndjson" } }));
+    expect(r.texts).toEqual(["Three it"]);
+    expect(r.result).toEqual({ ok: false, message: FOLLOWUP_FAILED });
+    expect(r.saved).toBeNull();
+  });
+
+  it("an ok answer with no body, or a plain refusal with no sentence, gets the fixed sentence", async () => {
+    expect((await ask(async () => new Response(null, { status: 200 }))).result).toEqual({ ok: false, message: FOLLOWUP_UNAVAILABLE });
+    expect((await ask(async () => plain("", 400))).result).toEqual({ ok: false, message: FOLLOWUP_UNAVAILABLE });
   });
 
   it("a request that never reaches the server (offline) gets the fixed sentence", async () => {

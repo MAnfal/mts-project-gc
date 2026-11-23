@@ -116,6 +116,8 @@ const line = (l: FollowUpLine) => encoder.encode(JSON.stringify(l) + "\n");
  * `streamText` returns before the request is made and reports failures inside its stream, so a retry wraps the wait
  * for the first piece of text: a call that fails before any text is sent again (at most `policy.attempts` tries, the
  * SDK's own retries off). Once text has gone to the browser it can't be taken back, so a later failure isn't retried.
+ * `abortSignal` (the request's: the GC closed the tab) stops the answer; an aborted call is never retried, and an answer
+ * aborted part-way ends with no terminal line, since nobody is reading it.
  */
 export async function streamFollowUp(
   input: { context: FollowUpContext; messages: ChatTurn[] },
@@ -132,9 +134,10 @@ export async function streamFollowUp(
       if (next.done) return { parts, first: null };
       const p = next.value;
       if (p.type === "error") throw p.error;
+      if (p.type === "abort") throw new Error("the request was aborted before the answer started");
       if (p.type === "text-delta") return { parts, first: p.text };
     }
-  }, opts.policy ?? RETRY);
+  }, opts.policy ?? RETRY, undefined, () => opts.abortSignal?.aborted ?? false);
 
   const { parts } = started;
   let first = started.first;
@@ -166,9 +169,6 @@ export async function streamFollowUp(
         controller.enqueue(line({ type: "failed", message: FOLLOWUP_FAILED }));
       }
       controller.close();
-    },
-    async cancel() {
-      await parts.return?.();
     },
   });
 }
