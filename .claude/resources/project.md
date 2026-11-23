@@ -205,7 +205,8 @@ a follow-up.
   load. Every event is appended to the IndexedDB record (`src/lib/runs/store.ts`: database `reg-monitor`, store `runs`,
   record `{id, createdAt, request, events, status, result, profile, confirmed?}`; version 2 (chunk 05) adds store `profiles`, record
   `SavedProfile {key, savedAt, profile}`, the GC's own profiles keyed apart from `profile.id` because an edited preset
-  keeps the preset's id). A record still `running` that this page isn't
+  keeps the preset's id; version 3 (chunk 11) adds store `chats`, record `StoredChat {id, savedAt, turns}` keyed
+  `live:<runId>` or `example:<exampleId>`, because an example has no run record). A record still `running` that this page isn't
   streaming was cut off by a reload, so it is marked `interrupted`: it can be retried, never resumed. The record never
   holds the server's `RunConfig` or decisions (model ids, internal scores). Screen state always comes from
   `reduceEvents(run.events)` (`src/lib/runs/reduce.ts`), live or reopened.
@@ -231,21 +232,25 @@ a follow-up.
   `UNEXPECTED_MESSAGE`), never `error.message`: SDK errors name model ids. Internal detail goes to the server log
   (`[Pipeline]` prefix; the full internal trace with `DEBUG_PIPELINE=1`).
 - **Every external call is tried at most 3 times, through `withRetry`** (`src/lib/pipeline/retry.ts`: 2 s then
-  4 s). Model calls retry in `RunCtx` (and in `src/app/api/suggest-areas/suggest.ts`, which takes the policy as a
-  parameter so tests pass `{attempts: 3, delaysMs: [0, 0]}`); Federal Register and govinfo fetches retry in `fr.ts` (thrown fetch, 5xx,
+  4 s). Model calls retry in `RunCtx` (and in `src/app/api/suggest-areas/suggest.ts` and `src/app/api/followup/followup.ts`,
+  which take the policy as a parameter so tests pass `{attempts: 3, delaysMs: [0, 0]}`). `streamText` (`ai` 7.0.179) returns
+  before the request is made and puts failures inside its stream, so `withRetry` around the call alone never retries:
+  `followup.ts` awaits the first text part inside it. Federal Register and govinfo fetches retry in `fr.ts` (thrown fetch, 5xx,
   429 only) and report to the run through `withRetryScope`. The AI SDK's own retries are off (`maxRetries: 0`):
   setting them back would multiply the attempts past 3.
 - **Tests never call a model or the network.** `installModels` (`src/lib/pipeline/__fixtures__/harness.ts`)
-  swaps the gateway for the AI SDK's mock models through `setModelsForTests`; tests stub `fetch`. `fr.ts` caches
+  swaps the gateway for the AI SDK's mock models through `setModelsForTests`; tests stub `fetch`. It stubs only `doGenerate`;
+  streamed calls use `stubStreamingModel` (`src/app/api/followup/__fixtures__/stream-model.ts`, a mock `doStream`). A refused
+  request there is a retryable `APICallError`: a plain `Error` is never retried by the SDK, so it can't show `maxRetries: 0` works. `fr.ts` caches
   listings and texts in memory per module, so a test that runs the pipeline twice uses `vi.resetModules()` or
   distinct windows and document numbers.
 - **`configHash()` covers every `.yaml` under `config/` except `evalsets/`**, chunk 01's `app.yaml`
   included, so adding or editing any config YAML changes the hash stamped on a run. The POC's final
   config hashes to `9a0f857741`; this repo's config hashed to `a113914a72` at chunk 02 (brightside's
   `use: eval` plus `app.yaml`), to `242bd91ef7` at chunk 08 (`eval-story.yaml` plus `evalTargets` in
-  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`) and to `bc2b5bdec1` at chunk 10
+  `app.yaml`), to `36599b6308` at chunk 05 (`defaultPreset` and `suggestAreas` in `app.yaml`), to `bc2b5bdec1` at chunk 10
   (the `models` section of `eval-story.yaml`; measured on chunk 10's branch, so a later merge that also edits config moves it
-  again). Compare hashes only between runs of this repo.
+  again) and to `179451fef1` at chunk 11 (`followUp` in `app.yaml`). Compare hashes only between runs of this repo.
 - **No filesystem writes in server code.** Vercel functions can't persist files, so anything a
   server module needs to remember lives in memory for the life of the process (see the HTTP cache in
   `src/lib/fr.ts`), and runs persist in the browser. Gate:
@@ -254,10 +259,22 @@ a follow-up.
   (`writeFile`, `mkdir`, `rm`, `rename`, `copyFile`, `createWriteStream`, …). Tests may write temp
   fixtures under `os.tmpdir()`.
 - **UI-only settings live in `config/app.yaml`, never in a decision-path file** — UI-only prompts and model ids included
-  (`suggestAreas: {model, prompt}`, chunk 05). `prompts.yaml` and `experiment.yaml` must stay byte-identical to the POC.
-  Each key gets its own slice schema in `src/lib/config/schemas.ts` (`NewRunConfigSchema`, `SuggestAreasConfigSchema`),
-  so a page reads only the slice it needs; a page passes the browser single values as props, never a parsed slice that
-  names a model.
+  (`suggestAreas: {model, prompt}`, chunk 05; `followUp: {model, system, suggestions, maxTurns, maxMessageChars,
+  maxContextChars, maxAnswerTokens}`, chunk 11). `prompts.yaml` and `experiment.yaml` must stay byte-identical to the POC.
+  Each key gets its own slice schema in `src/lib/config/schemas.ts` (`NewRunConfigSchema`, `SuggestAreasConfigSchema`,
+  `FollowUpConfigSchema`, and `FollowUpSuggestionsSchema` for the pages), so a page reads only the slice it needs; a page
+  passes the browser single values as props, never a parsed slice that names a model. Keep each `model:` at two spaces:
+  chunk 05's and 11's gates read every `^  model:` line of `app.yaml` as a needle.
+- **The follow-up chat answers from the report the browser sends, and the server checks it twice.** The browser builds
+  the context with `buildFollowUpContext(view, profile)` (`src/lib/runs/followup-context.ts`): named fields copied from
+  the `applyConfirmed` view, never a spread, so verification quotes and internal scores stay out. `/api/followup` re-parses
+  it with a strict zod schema (an unknown field is a 400), then runs `assertPublicText` on it minus `profile` (the GC's
+  own words: "Google/Apple Pay" matches the vendor pattern, and the profile is in no public event) and on the configured
+  system prompt, and enforces the `followUp` caps, all before resolving the model. The answer streams as NDJSON
+  (`FollowUpLine`): `text` pieces, then exactly one `done` or `failed` line, because the SDK's text stream just stops on
+  an error. `done` only when the stream's `finish` part says `stop`; no finish (dropped upstream), `length` (cut at
+  `maxAnswerTokens`, its own sentence) or any other reason is `failed`. The browser saves only a pair that ended in `done`. The chat mounts through `ReportView`'s `followUp` prop only when the run's status
+  is `done` (`followUpChatId`), in `RunView` and `ExampleView`, never on the reviewer's `/evals/reports/**`.
 - **The run window is checked by one function on both sides.** `validateWindow` / `windowDays` (inclusive count) in
   `src/lib/runs/weeks.ts` serve the new-run screen and `src/app/api/run/request.ts`. "Today" for the week buttons is
   New York's date (`todayInNewYork`), computed on the server and passed as a prop, so server and browser render the
@@ -354,7 +371,8 @@ plans/                        Plan directories — one per plan, with SPEC, chun
 config/                       Runtime YAML, validated by zod at load, shipped in every function bundle.
                               Everything but app.yaml is copied from poc:poc/config/ (see Conventions).
   app.yaml                    App-wide settings (appName, maxWindowDays, evalTargets for /evals, defaultPreset and
-                              suggestAreas {model, prompt} for /runs/new).
+                              suggestAreas {model, prompt} for /runs/new, followUp {model, system, suggestions, caps} for
+                              the follow-up chat).
   eval-story.yaml             The eval view's prose: verdict, CARL rows, measure labels, per-iteration label,
                               outcome and "what moved" items, and the Models page (models) (EvalStorySchema; no typed
                               numbers).
@@ -413,12 +431,16 @@ src/
                               stream.ts (NDJSON sink: exactly one terminal event, no-op after disconnect).
     api/suggest-areas/        POST {description} → {areas}: route.ts (wiring, fixed failure messages), suggest.ts
                               (body guard, prompt from app.yaml, one structured model call through withRetry).
+    api/followup/             POST {context, messages} → the answer as NDJSON (maxDuration 60): route.ts (wiring, fixed
+                              sentences), followup.ts (strict body guard, caps, assertPublicText, system prompt from
+                              app.yaml, streamText with the first text awaited inside withRetry), __fixtures__/stream-model.ts.
   components/
     shell/                    AppShell (three-pane layout) and SidebarNav parts. Owned by chunk 01.
     gc/                       GC screens: GcSidebar (recent runs from IndexedDB, Examples), RunView (Running / Report /
                               Failed / Interrupted), RunSteps, ReportView, SourcesPanel, StartRunButton, useRun (the page's
                               runner, saved profiles, confirm); edge states: EmptyReport, HeldBack, FailedStep (Retry + Edit
-                              settings); ExampleView; download.ts (saveText); new-run screen: NewRunForm, ProfilePicker, WeekPicker, ProfileEditor,
+                              settings); ExampleView (+ ExampleReport); FollowUpChat (chips, composer, streamed turns, under a
+                              finished report); download.ts (saveText); new-run screen: NewRunForm, ProfilePicker, WeekPicker, ProfileEditor,
                               OwnersTable (render only: decisions come from src/lib/runs/new-run.ts).
     ui/                       shadcn primitives (button, badge, sheet, table, tabs, collapsible, tooltip, chart, select,
                               popover, input, textarea).
@@ -458,14 +480,16 @@ src/
                               story-schema.ts (zod for config/eval-story.yaml), __fixtures__/eval-index.ts,
                               __fixtures__/shipped.ts (node reads of public/evals + stubFetch for tests).
     runs/                     Browser-side runs, pure and client-safe (no config/fs imports): types.ts (StoredRun,
-                              RunRequest), store.ts (IndexedDB + in-memory fallback), reader.ts (NDJSON reader, runner:
+                              RunRequest, StoredChat), store.ts (IndexedDB runs/profiles/chats + in-memory fallback), reader.ts (NDJSON reader, runner:
                               start/retry/load/list), reduce.ts (events → screen state), report.ts (heading, summary,
                               counts, why-tier, mailto drafts, .json download), sidebar-user.ts, weeks.ts (last full
                               weeks, window check, New York today), profileForm.ts (form ⇄ CompanyProfile, owner emails),
                               new-run.ts (picker options, switch-confirm reducer, what Run sends, screen sentences,
                               prefill from a stored run), memo.ts (no-action memo, held-back section), examples.ts
                               (/examples reader, sidebar labels), recorded-view.ts (the one recorded-run mapping, zod),
-                              suggest-client.ts (the browser's suggest-areas request, every outcome a value).
+                              suggest-client.ts (the browser's suggest-areas request, every outcome a value),
+                              followup-context.ts (the follow-up chat's context whitelist, which runs get a chat, and
+                              askFollowUp: one question's request, stream and save).
     utils.ts                  `cn` class merging.
 next.config.ts                Tracing includes for config/, Tailwind via Turbopack.
 vitest.config.mts             `@` alias, server-only alias, discovers src/**/*.test.ts.

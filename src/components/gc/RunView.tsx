@@ -6,20 +6,25 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { Button } from "@/components/ui/button";
+import { buildFollowUpContext, followUpChatId } from "@/lib/runs/followup-context";
 import { withHeldBack } from "@/lib/runs/memo";
 import { applyConfirmed, reduceEvents, type RunViewState } from "@/lib/runs/reduce";
 import { formatWindow, reportJson, sortItems } from "@/lib/runs/report";
 import type { StoredRun } from "@/lib/runs/types";
 import { saveText } from "./download";
 import { FailedStep } from "./FailedStep";
+import { FollowUpChat } from "./FollowUpChat";
 import { GcSidebar, type SidebarUser } from "./GcSidebar";
 import { ReportView } from "./ReportView";
 import { RunSteps } from "./RunSteps";
 import { SourcesPanel } from "./SourcesPanel";
 import { useRun } from "./useRun";
 
-/** One run, live or reopened from IndexedDB: Running, Report, Failed or Interrupted, all from its stored events. */
-export function RunView({ id, appName, user }: { id: string; appName: string; user: SidebarUser | null }) {
+/**
+ * One run, live or reopened from IndexedDB: Running, Report, Failed or Interrupted, all from its stored events. A
+ * finished report gets the follow-up chat under it; `suggestions` are its chips (config/app.yaml → followUp).
+ */
+export function RunView({ id, appName, user, suggestions }: { id: string; appName: string; user: SidebarUser | null; suggestions: string[] }) {
   const { run, persistent, retry, confirm } = useRun(id);
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
@@ -33,6 +38,8 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
   const view = useMemo(() => (run ? applyConfirmed(reduceEvents(run.events), run.confirmed ?? [], run.profile.generalCounsel) : null), [run]);
   const editHref = `/runs/new?from=${encodeURIComponent(id)}`;
   const items = useMemo(() => (view ? sortItems(view.items) : []), [view]);
+  const chatId = run ? followUpChatId("live", id, run.status) : null;
+  const followUpContext = useMemo(() => (chatId && run && view ? buildFollowUpContext(view, run.profile) : null), [chatId, run, view]);
 
   return (
     <AppShell
@@ -52,7 +59,14 @@ export function RunView({ id, appName, user }: { id: string; appName: string; us
           {run === null ? <NotFound /> : null}
           {run && view ? (
             run.status === "done" ? (
-              <ReportView view={view} items={items} company={view.company ?? run.profile.name} trace={<RunSteps steps={view.steps} live={false} />} onConfirm={confirm} />
+              <ReportView
+                view={view}
+                items={items}
+                company={view.company ?? run.profile.name}
+                trace={<RunSteps steps={view.steps} live={false} />}
+                onConfirm={confirm}
+                followUp={chatId && followUpContext ? <FollowUpChat chatId={chatId} context={followUpContext} suggestions={suggestions} /> : undefined}
+              />
             ) : (
               <>
                 <ProfileChip run={run} />

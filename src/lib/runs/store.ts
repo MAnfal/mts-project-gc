@@ -1,17 +1,18 @@
-// Where live runs, and the GC's own company profiles, persist: the browser's IndexedDB (the server keeps nothing).
-// Raw IndexedDB rather than the `idb` wrapper: a handful of calls on two object stores, and a dependency would buy
+// Where live runs, the GC's own company profiles and follow-up conversations persist: the browser's IndexedDB (the server keeps nothing).
+// Raw IndexedDB rather than the `idb` wrapper: a handful of calls on three object stores, and a dependency would buy
 // little over the request → promise helper below.
 //
 // When IndexedDB is missing (some private modes), refuses to open, or fails mid-session (another tab cleared site
 // data), every call falls back to an in-memory copy and `persistent` turns false, so the UI can say runs won't
-// survive a reload. The memory copy holds every run and profile saved in this tab, so nothing already shown disappears.
-import type { SavedProfile, StoredRun } from "./types";
+// survive a reload. The memory copy holds every run, profile and chat saved in this tab, so nothing already shown disappears.
+import type { SavedProfile, StoredChat, StoredRun } from "./types";
 
 const DB = "reg-monitor";
 const RUNS = "runs";
 const PROFILES = "profiles";
-/** 1: runs. 2: + profiles. */
-const VERSION = 2;
+const CHATS = "chats";
+/** 1: runs. 2: + profiles. 3: + chats. */
+const VERSION = 3;
 
 export interface RunStore {
   /** False when runs are kept only in this tab's memory (IndexedDB unavailable or failed). */
@@ -27,6 +28,9 @@ export interface RunStore {
   getProfile(key: string): Promise<SavedProfile | null>;
   /** Newest first, by savedAt. */
   listProfiles(): Promise<SavedProfile[]>;
+  /** Saves (or replaces, by id) a follow-up conversation: `live:<runId>` or `example:<exampleId>`. */
+  saveChat(chat: StoredChat): Promise<void>;
+  getChat(id: string): Promise<StoredChat | null>;
 }
 
 const done = <T>(req: IDBRequest<T>) =>
@@ -38,11 +42,12 @@ const done = <T>(req: IDBRequest<T>) =>
 function openDb(factory: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = factory.open(DB, VERSION);
-    // Create only the stores the old version lacks: an upgrade from version 1 keeps its runs store, and every run in it.
+    // Create only the stores the old version lacks: an upgrade keeps every store the old version had, and its records.
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(RUNS)) db.createObjectStore(RUNS, { keyPath: "id" });
       if (!db.objectStoreNames.contains(PROFILES)) db.createObjectStore(PROFILES, { keyPath: "key" });
+      if (!db.objectStoreNames.contains(CHATS)) db.createObjectStore(CHATS, { keyPath: "id" });
     };
     req.onsuccess = () => {
       const db = req.result;
@@ -60,6 +65,7 @@ const newestSaved = (ps: SavedProfile[]) => [...ps].sort((a, b) => b.savedAt.loc
 export async function openRunStore(factory: IDBFactory | undefined = globalThis.indexedDB): Promise<RunStore> {
   const memory = new Map<string, StoredRun>();
   const memoryProfiles = new Map<string, SavedProfile>();
+  const memoryChats = new Map<string, StoredChat>();
   let db: IDBDatabase | null = null;
   try {
     if (!factory) throw new Error("indexedDB is not defined");
@@ -111,6 +117,13 @@ export async function openRunStore(factory: IDBFactory | undefined = globalThis.
     },
     listProfiles() {
       return idb(PROFILES, "readonly", (s) => s.getAll(), () => newestSaved([...memoryProfiles.values()]), (r) => newestSaved(r as SavedProfile[]));
+    },
+    async saveChat(chat) {
+      memoryChats.set(chat.id, chat);
+      await idb(CHATS, "readwrite", (s) => s.put(chat), () => undefined, () => undefined);
+    },
+    getChat(id) {
+      return idb(CHATS, "readonly", (s) => s.get(id), () => memoryChats.get(id) ?? null, (r) => (r as StoredChat | undefined) ?? null);
     },
   };
   return store;

@@ -9,13 +9,16 @@ import type { CompanyProfile } from "../types";
 import type { RunStore } from "./store";
 import type { RunRequest, StoredRun } from "./types";
 
-/** Calls `onEvent` once per NDJSON line of `body`, in order. Rejects if the stream errors or a line isn't JSON. */
-export async function readNdjson(body: ReadableStream<Uint8Array>, onEvent: (e: RunEvent) => void): Promise<void> {
+/**
+ * Calls `onEvent` once per NDJSON line of `body`, in order. Rejects if the stream errors or a line isn't JSON. Lines are
+ * RunEvents from /api/run unless the caller names another line type (the follow-up chat's, followup-context.ts).
+ */
+export async function readNdjson<T = RunEvent>(body: ReadableStream<Uint8Array>, onEvent: (e: T) => void): Promise<void> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   const flush = (text: string) => {
-    for (const line of text.split("\n")) if (line.trim()) onEvent(JSON.parse(line) as RunEvent);
+    for (const line of text.split("\n")) if (line.trim()) onEvent(JSON.parse(line) as T);
   };
   for (;;) {
     const { value, done } = await reader.read();
