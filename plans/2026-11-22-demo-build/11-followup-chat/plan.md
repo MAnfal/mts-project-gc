@@ -126,7 +126,7 @@ below conflicts with these points, these win:
 
 ### Tasks
 
-- [ ] T001 — write failing tests:
+- [x] T001 — write failing tests:
   - `src/lib/runs/followup-context.test.ts`: `buildFollowUpContext(view, profile)` on a real
     example from `public/examples/` (via `reduceEvents` + `applyConfirmed`) contains only
     whitelisted fields; a constructed view with an extra internal field drops it
@@ -135,18 +135,18 @@ below conflicts with these points, these win:
     caps, streaming via a mock `doStream`, a retry that re-attempts (amendments 2, 9, 10).
   - `src/lib/runs/store.test.ts`: the `chats` store (VERSION 3) round-trip and upgrade
     (amendment 6).
-- [ ] T002 — create `src/lib/runs/followup-context.ts` (whitelist copy) and the server-only
+- [x] T002 — create `src/lib/runs/followup-context.ts` (whitelist copy) and the server-only
   prompt in `src/app/api/followup/followup.ts` (amendment 4).
-- [ ] T003 — create `src/app/api/followup/route.ts` (handlers only) + `followup.ts`: zod
+- [x] T003 — create `src/app/api/followup/route.ts` (handlers only) + `followup.ts`: zod
   validation, `assertPublicText`, `streamText` via the Gateway with the configured model,
   first stream part awaited inside `withRetry`, `maxRetries: 0` (amendments 2–4).
-- [ ] T004 — create `src/components/gc/FollowUpChat.tsx`, with chips, composer and
+- [x] T004 — create `src/components/gc/FollowUpChat.tsx`, with chips, composer and
   streamed turns, styled from the hi-fi. Use a fetch stream reader (no new dependency;
   amendment 5).
-- [ ] T005 — mount `<FollowUpChat/>` via `ReportView`'s `followUp` prop in `RunView.tsx` and
+- [x] T005 — mount `<FollowUpChat/>` via `ReportView`'s `followUp` prop in `RunView.tsx` and
   `ExampleView.tsx`, only when status is `done`; pages pass `suggestions` (amendment 1).
-- [ ] T006 — edit `config/app.yaml` and `src/lib/config/schemas.ts`: add `followUp` with caps (amendment 10).
-- [ ] T007 — edit `src/lib/runs/store.ts`: add a `chats` store keyed by run ID (`live:<id>`
+- [x] T006 — edit `config/app.yaml` and `src/lib/config/schemas.ts`: add `followUp` with caps (amendment 10).
+- [x] T007 — edit `src/lib/runs/store.ts`: add a `chats` store keyed by run ID (`live:<id>`
   or `example:<id>`), holding the turns. Example runs have no IndexedDB run record, so
   chat turns must not live on the run record.
 

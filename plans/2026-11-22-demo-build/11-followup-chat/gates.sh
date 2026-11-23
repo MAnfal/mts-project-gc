@@ -67,7 +67,7 @@ TMP=$(mktemp -d)
 ok=$(node -e '
 const owner = { name: "Jordan Blake", email: "gc@example.com" };
 const context = { company: "Ledgerly Inc.", windowStart: "2026-11-02", windowEnd: "2026-11-06", asOf: "2026-11-06", scanned: 3, notReviewedCount: 0,
-  items: [], heldBack: [], screenedOut: [{ document_number: "2026-1", title: "A notice", reason: "Not about payments." }],
+  items: [], checkedByYou: [], heldBack: [], screenedOut: [{ document_number: "2026-1", title: "A notice", reason: "Not about payments." }],
   profile: { name: "Ledgerly Inc.", summary: "US fintech", businessLines: [], applies: [], doesNotApply: [], areas: [], generalCounsel: owner } };
 console.log(JSON.stringify({ context, messages: [{ role: "user", content: "Summarize for the CEO in 3 lines" }] }));')
 # Each body is assigned before it is posted, so a broken edit stops the gate (set -e) instead of posting nothing.
