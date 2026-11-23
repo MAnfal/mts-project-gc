@@ -73,7 +73,7 @@ export function GcSidebar({ appName, user, activeRunId, active }: { appName: str
       <SidebarNavItem href="/runs/new" icon={<Plus />} active={active === "new"}>
         New run
       </SidebarNavItem>
-      <SidebarNavItem href="/#recent-runs" icon={<History />}>
+      <SidebarNavItem href="/runs/new#recent-runs" icon={<History />}>
         All runs
       </SidebarNavItem>
       {/* The profiles live in the new-run screen's picker: this opens it with the picker focused. */}
