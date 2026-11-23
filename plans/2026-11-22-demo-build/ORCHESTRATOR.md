@@ -48,6 +48,7 @@ See `SPEC.md` in this directory.
 | 09 | US2 | Merged | [#5](https://github.com/MAnfal/mts-project-gc/pull/5) | — |
 | 10 | US2 | Merged | [#6](https://github.com/MAnfal/mts-project-gc/pull/6) | — |
 | 11 | US3 | Merged | [#8](https://github.com/MAnfal/mts-project-gc/pull/8) | — |
+| Extra | — | Merged | [#9](https://github.com/MAnfal/mts-project-gc/pull/9) | — |
 
 Every chunk names the story it serves. A chunk that serves no story is either scaffolding
 that belongs inside another chunk, or scope that crept in.
@@ -128,6 +129,9 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | pr_merged | 11 | #8 → 2890746; plan-tip gates exit 0 (keyless) |
 | 2026-11-23 | user_checkpoint | US3 | Lead live check on an example run: "Summarize for the CEO" streamed a grounded answer citing [1]–[3]; "which model are you" declined and named nothing internal. Deployed check deferred |
 | 2026-11-23 | review_iteration | — | Whole-diff review of the plan branch: 2 project.md facts false, `pnpm dev` writes untracked AGENTS.md, README is TBD → Extra cleanup PR |
+| 2026-11-23 | pr_merged | Extra | #9 → eeccfe1 (README, `agentRules: false`, project.md facts) |
+| 2026-11-23 | gates_passed | all | Final keyless full chain on plan tip: 816 tests, parity, no-fs-writes, no-typed-numbers, verify-eval-bundle, Gate 5, examples, poc/ 0/0; plan branch 0 behind main |
+| 2026-11-23 | plan_delivered | — | Final PR feat/plan--demo-build → main opened for the user to merge; Vercel deploy checks listed in it |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
