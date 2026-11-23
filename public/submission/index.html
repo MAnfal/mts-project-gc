@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reg Monitor — Submission</title>
+<meta name="description" content="Resources and full execution history for Reg Monitor, a weekly regulatory triage prototype for in-house counsel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* The app's own tokens (src/app/globals.css): cream canvas, navy headings, stone accents. */
+  :root {
+    --bg: #f4f5f1;
+    --fg: #061118;
+    --muted: #494849;
+    --caption: #436271;
+    --heading: #173c51;
+    --border: rgba(21, 57, 78, 0.14);
+    --border-strong: rgba(21, 57, 78, 0.28);
+    --card: #fefeff;
+    --card-hover: #fbfaf7;
+    --stone: #ede2d8;
+    --accent: #173c51;
+    --shadow: 0 1px 2px rgba(6, 17, 24, .05);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 740px; margin: 0 auto; padding: 72px 16px 96px; }
+
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--caption); margin: 0 0 14px; font-weight: 600; }
+  h1 { font-size: 2.25rem; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 14px; font-weight: 700; color: var(--heading); }
+  .lede { font-size: 1.0625rem; color: var(--muted); margin: 0 0 28px; max-width: 36em; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 8px;
+    font-size: .9375rem; font-weight: 500; text-decoration: none;
+    border: 1px solid var(--border); background: var(--card);
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { background: var(--card-hover); border-color: var(--border-strong); }
+  .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn-primary:hover { opacity: .9; background: var(--accent); }
+
+  section { margin-top: 64px; }
+  h2 { font-size: 1.25rem; letter-spacing: -.01em; margin: 0 0 6px; font-weight: 600; color: var(--heading); }
+  .section-note { color: var(--muted); font-size: .9375rem; margin: 0 0 22px; }
+
+  .cards { display: grid; gap: 10px; }
+  .card {
+    display: block; text-decoration: none;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--card); box-shadow: var(--shadow);
+    padding: 16px 18px;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  a.card:hover { background: var(--card-hover); border-color: var(--border-strong); }
+  .card-title { font-weight: 600; font-size: .9375rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .card-desc { display: block; color: var(--muted); font-size: .875rem; margin-top: 3px; }
+  .tag {
+    font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--caption); background: var(--stone); border-radius: 4px;
+    padding: 1px 6px; white-space: nowrap;
+  }
+
+
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step { position: relative; padding: 0 0 4px 44px; }
+  .step:not(:last-child)::before {
+    content: ""; position: absolute; left: 13px; top: 30px; bottom: -4px;
+    width: 1px; background: var(--border-strong);
+  }
+  .step-num {
+    position: absolute; left: 0; top: 2px;
+    width: 27px; height: 27px; border-radius: 50%;
+    border: 1px solid var(--border-strong); background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-variant-numeric: tabular-nums; color: var(--heading); font-weight: 600;
+  }
+  .step + .step { margin-top: 24px; }
+  .step-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .step-title { font-weight: 600; font-size: .9375rem; text-decoration: none; color: var(--heading); }
+  .step-title:hover { text-decoration: underline; }
+  .step-meta { font-size: .8125rem; color: var(--caption); }
+  .step-desc { color: var(--muted); font-size: .875rem; margin: 4px 0 0; }
+  .step-link { font-size: .8125rem; display: inline-block; margin-top: 7px; color: var(--heading); }
+  .after { margin-top: 26px; font-size: .875rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; }
+
+  footer {
+    margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: .8125rem;
+  }
+  footer a { text-decoration: underline; text-underline-offset: 2px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <p class="eyebrow">GC AI · Applied AI Engineer Take-Home</p>
+  <h1>Reg Monitor</h1>
+  <p class="lede">
+    A weekly triage of federal rules for the general counsel of a mid-size company. Pick a
+    company and a week; get back only the rules that affect it, each as one action item with a
+    tier, deadline, owner and source link. Every date and citation is checked against the
+    Federal Register, and any deadline under 90 days is Critical.
+  </p>
+  <div class="actions">
+    <a class="btn btn-primary" href="/">Open the prototype</a>
+    <a class="btn" href="/evals">See the eval results</a>
+    <a class="btn" href="https://github.com/MAnfal/mts-project-gc" target="_blank" rel="noopener">View the code</a>
+  </div>
+
+  <section>
+    <h2>The prototype</h2>
+    <p class="section-note">Two surfaces for two audiences, behind one landing page.</p>
+    <div class="cards">
+      <a class="card" href="/runs/new">
+        <span class="card-title">Run the monitor <span class="tag">GC app</span></span>
+        <span class="card-desc">
+          Pick a company profile and a week, watch the run stream step by step, and read the
+          report: one action item per rule that matters, plus a follow-up chat grounded in that
+          report. Recorded example runs in the sidebar replay without an API key.
+        </span>
+      </a>
+      <a class="card" href="/evals">
+        <span class="card-title">Eval results <span class="tag">Reviewers</span></span>
+        <span class="card-desc">
+          The verdict and headline numbers against a single-prompt baseline first, then drill down: the iteration log, every
+          case, model comparisons, raw traces, and the live setup with its prompts in full.
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Design</h2>
+    <p class="section-note">
+      Designed before any product code, in three passes on one canvas: lo-fi to agree on the
+      screens, mid-fi to settle the flows, and hi-fi in GC AI&rsquo;s own visual language.
+    </p>
+    <div class="cards">
+      <a class="card" href="/submission/design-screens.html" target="_blank" rel="noopener">
+        <span class="card-title">Lo-fi, mid-fi and hi-fi screens <span class="tag">HTML</span></span>
+        <span class="card-desc">
+          The new-run screen, the live run, the report and the eval drill-down at each fidelity.
+          The hi-fi row is what the build was checked against. A large self-contained file, so
+          it takes a moment to open.
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="execution">Execution</h2>
+    <p class="section-note">
+      Four Claude Code sessions, in the order they ran. Each is a complete transcript: the
+      prompts, the model&rsquo;s reasoning, the tool calls, and the reviews that sent work back.
+      The build runs on the loop described in
+      <a href="https://anfalmushtaq.com/articles/primitives-of-spec-driven-development" target="_blank" rel="noopener">Primitives of spec-driven development</a>.
+    </p>
+
+    <ol class="steps">
+
+      <li class="step">
+        <span class="step-num">1</span>
+        <div class="step-head">
+          <a class="step-title" href="/submission/transcripts/step1-poc-workflow-and-evals/index.html">Proof of concept &amp; eval harness</a>
+          <span class="step-meta">Nov 21</span>
+        </div>
+        <p class="step-desc">
+          From the RFC to a working pipeline and a way to judge it. Settled the harness (plain
+          AI SDK through the AI Gateway), built frozen eval weeks with hand-checked answer keys
+          for three companies, pitted four vendors&rsquo; models against a single-prompt baseline,
+          moved every prompt, model and threshold into YAML, and recorded the first iterations
+          with their diffs.
+        </p>
+        <a class="step-link" href="/submission/transcripts/step1-poc-workflow-and-evals/index.html">Read transcript →</a>
+      </li>
+
+      <li class="step">
+        <span class="step-num">2</span>
+        <div class="step-head">
+          <a class="step-title" href="/submission/transcripts/step2-poc-eval-iterations/index.html">Eval iterations</a>
+          <span class="step-meta">Nov 21</span>
+        </div>
+        <p class="step-desc">
+          Improving the system under a fixed budget, one change at a time. Every change had to
+          be chosen from error analysis on the tuning weeks and hold up on held-out weeks. A
+          majority vote and an exclusion prompt were rejected; reading the best passages of each
+          rule&rsquo;s full text found the rule every earlier run missed, and went live.
+        </p>
+        <a class="step-link" href="/submission/transcripts/step2-poc-eval-iterations/index.html">Read transcript →</a>
+      </li>
+
+      <li class="step">
+        <span class="step-num">3</span>
+        <div class="step-head">
+          <a class="step-title" href="/submission/transcripts/step3-brainstorm-and-plan/index.html">Brainstorm, design &amp; plan</a>
+          <span class="step-meta">Nov 22</span>
+        </div>
+        <p class="step-desc">
+          Turning the POC into a demo. Decided what the GC sees (generic progress, never
+          internal model names), where runs live (the browser&rsquo;s IndexedDB, not a server),
+          and how the evals read (verdict first, drill-down on demand). Designed the screens at
+          three fidelities, then wrote the spec and an 11-chunk plan.
+        </p>
+        <a class="step-link" href="/submission/transcripts/step3-brainstorm-and-plan/index.html">Read transcript →</a>
+      </li>
+
+      <li class="step">
+        <span class="step-num">4</span>
+        <div class="step-head">
+          <a class="step-title" href="/submission/transcripts/step4-build-execution/index.html">Build</a>
+          <span class="step-meta">Nov 22–23</span>
+        </div>
+        <p class="step-desc">
+          The plan executed end to end. Each chunk went to an implementer agent and was graded
+          by a fresh reviewer against its rubric, then merged through its own pull request. The
+          pipeline&rsquo;s decision path was ported byte-identical to the POC and checked by a
+          parity gate, so the recorded evals still describe what runs.
+        </p>
+        <a class="step-link" href="/submission/transcripts/step4-build-execution/index.html">Read transcript →</a>
+      </li>
+
+    </ol>
+
+    <p class="after">
+      After the build, the landing page, the Live setup page and the summary&rsquo;s headline
+      cards landed in
+      <a href="https://github.com/MAnfal/mts-project-gc/pull/12" target="_blank" rel="noopener">#12</a> and
+      <a href="https://github.com/MAnfal/mts-project-gc/pull/13" target="_blank" rel="noopener">#13</a>.
+      The spec, every chunk plan, each review and the execution log are checked in under
+      <code>plans/2026-11-22-demo-build/</code>.
+    </p>
+  </section>
+
+  <footer>
+    Built by <a href="https://anfalmushtaq.com" target="_blank" rel="noopener">Anfal Mushtaq</a> ·
+    <a href="https://github.com/MAnfal/mts-project-gc" target="_blank" rel="noopener">github.com/MAnfal/mts-project-gc</a>
+  </footer>
+
+</main>
+</body>
+</html>

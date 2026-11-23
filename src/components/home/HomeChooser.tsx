@@ -41,6 +41,10 @@ export function HomeChooser({ appName }: { appName: string }) {
             How the monitor was measured: scores, iterations, cases and raw traces.
           </Choice>
         </div>
+        {/* A static page (public/submission/, rewritten in next.config.ts), so a plain link: not an app route. */}
+        <a href="/submission" className="self-start text-[13px] text-caption underline-offset-2 hover:text-heading">
+          How it was built: the design, the build transcripts and the code →
+        </a>
       </div>
     </main>
   );

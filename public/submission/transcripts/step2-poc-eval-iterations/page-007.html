@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 7</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 7/10</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-006.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<span class="current">7</span>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-008.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-11-21T22-10-43-615Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T22-10-43-615Z" class="timestamp-link"><time datetime="2026-11-21T22:10:43.615Z" data-timestamp="2026-11-21T22:10:43.615Z">2026-11-21T22:10:43.615Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Hmmmm we should use subset logic. If the docs in the key are flagged, we should be good with it. There is no harm in flagging more important docs. We are not doing a 1-1 match.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-10-48-424Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-10-48-424Z" class="timestamp-link"><time datetime="2026-11-21T22:10:48.424Z" data-timestamp="2026-11-21T22:10:48.424Z">2026-11-21T22:10:48.424Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-10-52-278Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-10-52-278Z" class="timestamp-link"><time datetime="2026-11-21T22:10:52.278Z" data-timestamp="2026-11-21T22:10:52.278Z">2026-11-21T22:10:52.278Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Mostly agree, with one exception: <strong>traps should still count against us.</strong></p>
+<p>Your RFC sets precision ≥ 80% for a reason. The promise is that the GC gets <em>only</em> the rules that affect the company and can forward them without re-checking. A trap is a doc we <em>know</em> doesn't matter (a different aircraft model, an expired comment period). Flagging it wastes the GC's time, and that's exactly what precision measures. If extras never cost anything, the system could flag 100 docs, hit every key doc and score perfectly.</p>
+<p>So I'd split it:
+- <strong>Key doc flagged:</strong> ✅ counts as right.
+- <strong>Trap flagged:</strong> ❌ counts as wrong. We know it's noise.
+- <strong>Anything else flagged</strong> (blank lines, never reviewed): ➖ no penalty. Following your subset logic, it might well matter. It's listed separately so we can see how many there are, and you can review them later.</p>
+<p>On the practice weeks that gives 30 right and 5 traps, so precision is <strong>86%</strong>. It applies the same way to every setup, the baseline included, and every past suite gets re-graded. Should I go with that?</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T22-11-19-833Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T22-11-19-833Z" class="timestamp-link"><time datetime="2026-11-21T22:11:19.833Z" data-timestamp="2026-11-21T22:11:19.833Z">2026-11-21T22:11:19.833Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Of course so the judge LLM needs to be tuned to still raise the flags but if a doc looks relevant but not in key, ignore it.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-23-909Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-23-909Z" class="timestamp-link"><time datetime="2026-11-21T22:11:23.909Z" data-timestamp="2026-11-21T22:11:23.909Z">2026-11-21T22:11:23.909Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-24-593Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-24-593Z" class="timestamp-link"><time datetime="2026-11-21T22:11:24.593Z" data-timestamp="2026-11-21T22:11:24.593Z">2026-11-21T22:11:24.593Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>One small correction: the judge LLMs aren't involved here. "Flag or not" is graded by <strong>code</strong> (<code>grade.ts</code>) against the key, so the change goes there. The judges stay as they are. Test first:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-26-203Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-26-203Z" class="timestamp-link"><time datetime="2026-11-21T22:11:26.203Z" data-timestamp="2026-11-21T22:11:26.203Z">2026-11-21T22:11:26.203Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01RFxZ6rK2TCLbGtz1mrt3Tj">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read precision formula and its tests/consumers</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -n &#39;1,12p&#39; src/lib/grade.ts &amp;&amp; sed -n &#39;125,150p&#39; src/lib/grade.ts &amp;&amp; grep -n &#34;precision&#34; tests/*.ts src/lib/*.ts src/app -r | grep -v &#34;^src/lib/grade.ts&#34; | head -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-27-183Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-27-183Z" class="timestamp-link"><time datetime="2026-11-21T22:11:27.183Z" data-timestamp="2026-11-21T22:11:27.183Z">2026-11-21T22:11:27.183Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01VsRuDzbXhWdQbwDEtMN4Dc">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Find precision assertions in grade tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">grep -n &#34;precision\|unlabeled&#34; tests/grade.test.ts | head -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-27-441Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-27-441Z" class="timestamp-link"><time datetime="2026-11-21T22:11:27.441Z" data-timestamp="2026-11-21T22:11:27.441Z">2026-11-21T22:11:27.441Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>74:  it(&quot;splits outcomes: found / missed / trap hit / correctly ignored / unlabeled extra&quot;, () =&gt; {
+75:    expect(g.counts).toEqual({ tp: 1, fn: 1, trapHit: 1, tn: 1, unlabeled: 1 });
+131:  it(&quot;sums counts and checks across eval sets; recall/precision from the totals&quot;, () =&gt; {
+135:    expect(a.counts).toEqual({ tp: 3, fn: 1, trapHit: 1, tn: 3, unlabeled: 0 });
+137:    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit + unlabeled)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-27-452Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-27-452Z" class="timestamp-link"><time datetime="2026-11-21T22:11:27.452Z" data-timestamp="2026-11-21T22:11:27.452Z">2026-11-21T22:11:27.452Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>import { assignTier, type TierRules } from &quot;./tier&quot;;
+import type { CompanyProfile, LabelSet, RunRecord } from &quot;./types&quot;;
+
+/**
+ * Eval v2 grading (code only — no model). Every key case is either a FLAG (should be found) or a TRAP
+ * (looks relevant, should be left out). Documents in neither list that a run flags are &quot;unlabeled&quot; extras.
+ * Exact facts (date, tier, owner) are checked by code against the key; judgment calls go to the judge panel.
+ */
+
+export interface Ratio {
+  correct: number;
+  total: number;
+}
+
+/** Sum many run grades (e.g. one setup across every eval set) into headline numbers. */
+export function aggregate(grades: RunGrade[]) {
+  const counts = { tp: 0, fn: 0, trapHit: 0, tn: 0, unlabeled: 0 };
+  const slices: Record&lt;string, Ratio&gt; = {};
+  const checks = { date: ratio(), tier: ratio(), owner: ratio() };
+  for (const g of grades) {
+    for (const k of Object.keys(counts) as (keyof typeof counts)[]) counts[k] += g.counts[k];
+    for (const [k, v] of Object.entries(g.slices)) slices[k] = add(slices[k] ?? ratio(), v);
+    for (const k of [&quot;date&quot;, &quot;tier&quot;, &quot;owner&quot;] as const) checks[k] = add(checks[k], g.checks[k]);
+  }
+  const div = (a: number, b: number) =&gt; (b ? a / b : null);
+  return {
+    runs: grades.length,
+    counts,
+    slices,
+    checks,
+    recall: div(counts.tp, counts.tp + counts.fn),
+    precision: div(counts.tp, counts.tp + counts.trapHit + counts.unlabeled),
+    trapAvoidance: div(counts.tn, counts.tn + counts.trapHit),
+    madeUp: grades.reduce((a, g) =&gt; a + g.madeUp, 0),
+    costUsd: grades.reduce((a, g) =&gt; a + g.costUsd, 0),
+    msMean: div(grades.reduce((a, g) =&gt; a + g.ms, 0), grades.length),
+  };
+}
+tests/grade.test.ts:131:  it(&quot;sums counts and checks across eval sets; recall/precision from the totals&quot;, () =&gt; {
+tests/grade.test.ts:137:    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit + unlabeled)
+tests/suite.test.ts:6:    expect(overallScore({ recall: 1, precision: 0.5 }, { recall: 2, precision: 1 })).toBeCloseTo(2.5 / 3);
+tests/suite.test.ts:7:    expect(overallScore({ recall: 1, precision: null }, { recall: 2, precision: 1 })).toBeCloseTo(1);
+src/lib/config.ts:79:    gates: z.object({ recall: z.number(), precision: z.number() }),
+src/lib/config.ts:80:    scoreWeights: z.record(z.enum([&quot;recall&quot;, &quot;precision&quot;, &quot;trapAvoidance&quot;, &quot;datesRight&quot;, &quot;tierRight&quot;, &quot;ownerRight&quot;, &quot;judgePass&quot;, &quot;consistency&quot;, &quot;traceChecks&quot;]), z.number().min(0)),
+src/lib/iterations.ts:16:  precision: number | null;
+src/lib/suite.ts:121:      precision: agg.precision,
+src/app/progress/page.tsx:31:  [&quot;precision&quot;, &quot;Precision&quot;],
+src/app/progress/page.tsx:38:function IterationCard({ it, gates }: { it: Iteration; gates: { recall: number; precision: number } }) {
+src/app/progress/page.tsx:41:  const meets = (c.recall ?? 0) &gt;= gates.recall &amp;&amp; (c.precision ?? 0) &gt;= gates.precision;
+src/app/progress/page.tsx:159:/** How the evals evolved the system: every iteration, what changed, why, and what it did to precision and recall. */
+src/app/progress/page.tsx:179:          &lt;ProgressChart points={its.map((i) =&gt; ({ id: i.id, recall: i.results.candidate.recall, precision: i.results.candidate.precision, judgePass: i.results.candidate.judgePass }))} gates={gates} /&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-30-054Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-30-054Z" class="timestamp-link"><time datetime="2026-11-21T22:11:30.054Z" data-timestamp="2026-11-21T22:11:30.054Z">2026-11-21T22:11:30.054Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01St4wc98EJdGDR2SoUdPigC">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">View grade test fixtures around counts</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -n &#39;60,80p;125,142p&#39; tests/grade.test.ts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-30-278Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-30-278Z" class="timestamp-link"><time datetime="2026-11-21T22:11:30.278Z" data-timestamp="2026-11-21T22:11:30.278Z">2026-11-21T22:11:30.278Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>  items,
+  totalCostUsd: 0.1,
+  totalMs: 1000,
+  ...over,
+});
+
+describe(&quot;gradeRun&quot;, () =&gt; {
+  const r = run([
+    item(&quot;A&quot;, { deadline: { date: &quot;2027-01-11&quot;, kind: &quot;effective&quot;, source: &quot;fr_field&quot;, verified: true }, tier: &quot;Critical&quot;, owner: owner(&quot;maria&quot;) }),
+    item(&quot;T1&quot;),
+    item(&quot;X&quot;),
+  ]);
+  const g = gradeRun(r, key, profile, rules);
+
+  it(&quot;splits outcomes: found / missed / trap hit / correctly ignored / unlabeled extra&quot;, () =&gt; {
+    expect(g.counts).toEqual({ tp: 1, fn: 1, trapHit: 1, tn: 1, unlabeled: 1 });
+  });
+
+  it(&quot;slices recall by kind and trap avoidance by trap type&quot;, () =&gt; {
+    expect(g.slices[&quot;kind:direct&quot;]).toEqual({ correct: 1, total: 1 });
+    expect(g.slices[&quot;kind:indirect&quot;]).toEqual({ correct: 0, total: 1 });
+    expect(majority([&quot;PASS&quot;, &quot;FAIL&quot;, &quot;UNKNOWN&quot;], 2)).toBe(&quot;CONTESTED&quot;);
+    expect(majority([&quot;PASS&quot;, &quot;UNKNOWN&quot;, &quot;UNKNOWN&quot;], 2)).toBe(&quot;CONTESTED&quot;);
+  });
+});
+
+describe(&quot;aggregate&quot;, () =&gt; {
+  it(&quot;sums counts and checks across eval sets; recall/precision from the totals&quot;, () =&gt; {
+    const g1 = gradeRun(run([item(&quot;A&quot;), item(&quot;T1&quot;)]), key, profile, rules);
+    const g2 = gradeRun(run([item(&quot;A&quot;), item(&quot;B&quot;)]), key, profile, rules);
+    const a = aggregate([g1, g2]);
+    expect(a.counts).toEqual({ tp: 3, fn: 1, trapHit: 1, tn: 3, unlabeled: 0 });
+    expect(a.recall).toBeCloseTo(3 / 4);
+    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit + unlabeled)
+    expect(a.trapAvoidance).toBeCloseTo(3 / 4);
+  });
+});</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-33-851Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-33-851Z" class="timestamp-link"><time datetime="2026-11-21T22:11:33.851Z" data-timestamp="2026-11-21T22:11:33.851Z">2026-11-21T22:11:33.851Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-37-654Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-37-654Z" class="timestamp-link"><time datetime="2026-11-21T22:11:37.654Z" data-timestamp="2026-11-21T22:11:37.654Z">2026-11-21T22:11:37.654Z</time></a></div><div class="message-content"><div class="file-tool edit-tool" data-tool-id="toolu_0167Amvj4iSNWeH4qHkgHESY">
+<div class="file-tool-header edit-header"><span class="file-tool-icon">✏️</span> Edit <span class="file-tool-path">grade.test.ts</span></div>
+<div class="file-tool-fullpath">/Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/poc/tests/grade.test.ts</div>
+<div class="truncatable"><div class="truncatable-content">
+<div class="edit-section edit-old"><div class="edit-label">−</div><pre class="edit-content">    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit + unlabeled)
+    expect(a.trapAvoidance).toBeCloseTo(3 / 4);
+  });
+});</pre></div>
+<div class="edit-section edit-new"><div class="edit-label">+</div><pre class="edit-content">    expect(a.precision).toBeCloseTo(3 / 4); // tp / (tp + trapHit)
+    expect(a.trapAvoidance).toBeCloseTo(3 / 4);
+  });
+
+  it(&#34;subset grading: flags outside the key (unlabeled) are reported but never count against precision; traps do&#34;, () =&gt; {
+    const a = aggregate([gradeRun(run([item(&#34;A&#34;), item(&#34;T1&#34;), item(&#34;X&#34;)]), key, profile, rules)]);
+    expect(a.counts).toMatchObject({ tp: 1, trapHit: 1, unlabeled: 1 });
+    expect(a.precision).toBeCloseTo(1 / 2); // not 1/3: X is outside the key, so it is neither right nor wrong
+    expect(a.unlabeledPerRun).toBeCloseTo(1);
+  });
+});</pre></div>
+</div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-38-784Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-38-784Z" class="timestamp-link"><time datetime="2026-11-21T22:11:38.784Z" data-timestamp="2026-11-21T22:11:38.784Z">2026-11-21T22:11:38.784Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01XFvtq8WkggbkUMfkfQpnEy">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Run grade tests and confirm the new one fails</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">npx vitest run tests/grade.test.ts 2&gt;&amp;1 | grep -E &#34;×|Tests |expected&#34; | head -6</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-39-026Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-39-026Z" class="timestamp-link"><time datetime="2026-11-21T22:11:39.026Z" data-timestamp="2026-11-21T22:11:39.026Z">2026-11-21T22:11:39.026Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>The file /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/poc/tests/grade.test.ts has been updated successfully.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-41-306Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-41-306Z" class="timestamp-link"><time datetime="2026-11-21T22:11:41.306Z" data-timestamp="2026-11-21T22:11:41.306Z">2026-11-21T22:11:41.306Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     × subset grading: flags outside the key (unlabeled) are reported but never count against precision; traps do 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 0.3333333333333333 to be close to 0.5, received difference is 0.16666666666666669, but expected 0.005
+      Tests  1 failed | 9 passed (10)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-43-412Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-43-412Z" class="timestamp-link"><time datetime="2026-11-21T22:11:43.412Z" data-timestamp="2026-11-21T22:11:43.412Z">2026-11-21T22:11:43.412Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Red for the right reason: it's currently 1/3, it should be 1/2. Implementing:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-47-611Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-47-611Z" class="timestamp-link"><time datetime="2026-11-21T22:11:47.611Z" data-timestamp="2026-11-21T22:11:47.611Z">2026-11-21T22:11:47.611Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Kk5cPy2jw7M25fNnymdMjg">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Change precision formula; run tests and typecheck</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+def sub(p, old, new):
+  s=open(p).read(); assert s.count(old)==1,(p,old[:60]); open(p,&#34;w&#34;).write(s.replace(old,new))
+P=&#34;src/lib/grade.ts&#34;
+sub(P,&#34;&#34;&#34; * (looks relevant, should be left out). Documents in neither list that a run flags are &#34;unlabeled&#34; extras.&#34;&#34;&#34;,&#34;&#34;&#34; * (looks relevant, should be left out). Documents in neither list that a run flags are &#34;unlabeled&#34; extras.
+ * Subset grading (2026-11-22): precision = found / (found + traps flagged). Unlabeled extras are reported
+ * (unlabeledPerRun) but never count against precision: flagging a doc nobody judged irrelevant isn&#39;t a known
+ * mistake (it includes docs the key reviewers dropped as 50/50). Traps are known noise, so they still count.&#34;&#34;&#34;)
+sub(P,&#34;    precision: div(counts.tp, counts.tp + counts.trapHit + counts.unlabeled),&#34;,&#34;    precision: div(counts.tp, counts.tp + counts.trapHit),\n    unlabeledPerRun: div(counts.unlabeled, grades.length),&#34;)
+EOF
+npx vitest run 2&gt;&amp;1 | grep -E &#34;Tests |×&#34;; npx tsc --noEmit -p . 2&gt;&amp;1 | head -3; grep -rn &#34;unlabeled&#34; src/lib/suite.ts src/app src/components | head</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-54-481Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-54-481Z" class="timestamp-link"><time datetime="2026-11-21T22:11:54.481Z" data-timestamp="2026-11-21T22:11:54.481Z">2026-11-21T22:11:54.481Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>      Tests  79 passed (79)
+src/lib/suite.ts:43:type Counts = { tp: number; fn: number; trapHit: number; tn: number; unlabeled: number };
+src/lib/suite.ts:47:  return { tp: d(c.tp), fn: d(c.fn), trapHit: d(c.trapHit), tn: d(c.tn), unlabeled: d(c.unlabeled) };
+src/components/SuiteDashboard.tsx:162:  { key: &quot;unlabeled&quot;, label: &quot;Other extra flags&quot;, color: &quot;var(--status-warning)&quot; },</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-56-971Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-56-971Z" class="timestamp-link"><time datetime="2026-11-21T22:11:56.971Z" data-timestamp="2026-11-21T22:11:56.971Z">2026-11-21T22:11:56.971Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-56-974Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-56-974Z" class="timestamp-link"><time datetime="2026-11-21T22:11:56.974Z" data-timestamp="2026-11-21T22:11:56.974Z">2026-11-21T22:11:56.974Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Green, all 79 tests pass. Checking for UI text that still describes the old formula:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-11-58-311Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-11-58-311Z" class="timestamp-link"><time datetime="2026-11-21T22:11:58.311Z" data-timestamp="2026-11-21T22:11:58.311Z">2026-11-21T22:11:58.311Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01EvYMpg7jhczReiTXY1SHH7">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Find UI copy describing precision</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">grep -rn -i &#34;precision&#34; src/components src/app | grep -iv &#34;precision:\|\&#34;precision\&#34;\|\.precision\|precision\]&#34; | head</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-11-59-220Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-11-59-220Z" class="timestamp-link"><time datetime="2026-11-21T22:11:59.220Z" data-timestamp="2026-11-21T22:11:59.220Z">2026-11-21T22:11:59.220Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>src/components/ProgressChart.tsx:11:/** Precision and recall per iteration against the RFC targets (one axis, percent). */
+src/app/progress/page.tsx:159:/** How the evals evolved the system: every iteration, what changed, why, and what it did to precision and recall. */
+src/app/progress/page.tsx:175:          &lt;CardTitle&gt;Precision and recall per iteration&lt;/CardTitle&gt;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-00-753Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-00-753Z" class="timestamp-link"><time datetime="2026-11-21T22:12:00.753Z" data-timestamp="2026-11-21T22:12:00.753Z">2026-11-21T22:12:00.753Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-01-963Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-01-963Z" class="timestamp-link"><time datetime="2026-11-21T22:12:01.963Z" data-timestamp="2026-11-21T22:12:01.963Z">2026-11-21T22:12:01.963Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01AnDPjX1Q3K8qYd6dJKzkNA">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Find docs that describe the precision formula</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">grep -rn -i &#34;precision\|unlabeled&#34; README.md SCHEMA.md config/README.md AGENTS.md ../.claude/resources/project.md 2&gt;/dev/null | head</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-12-02-259Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-12-02-259Z" class="timestamp-link"><time datetime="2026-11-21T22:12:02.259Z" data-timestamp="2026-11-21T22:12:02.259Z">2026-11-21T22:12:02.259Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>(Bash completed with no output)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-06-574Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-06-574Z" class="timestamp-link"><time datetime="2026-11-21T22:12:06.574Z" data-timestamp="2026-11-21T22:12:06.574Z">2026-11-21T22:12:06.574Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-06-577Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-06-577Z" class="timestamp-link"><time datetime="2026-11-21T22:12:06.577Z" data-timestamp="2026-11-21T22:12:06.577Z">2026-11-21T22:12:06.577Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>No docs describe the old formula. Now re-grading every recorded iteration (00–04) under the new rule, keeping their config snapshots, with a note in each:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-09-689Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-09-689Z" class="timestamp-link"><time datetime="2026-11-21T22:12:09.689Z" data-timestamp="2026-11-21T22:12:09.689Z">2026-11-21T22:12:09.689Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01V3nG9r3dDcDV4j6poMAyGe">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Re-grade iterations 00-04 under subset grading</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">for d in 00-baseline 01-first-pipeline 02-strict-prompt 03-strict-v2 04-filter-vote; do
+python3 - &#34;data/iterations/$d/spec.yaml&#34; &lt;&lt;&#39;EOF&#39;
+import sys; p=sys.argv[1]; s=open(p).read()
+line=&#34;&#34;&#34;regradedSubset: &gt;-
+  2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are
+  reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50).
+&#34;&#34;&#34;
+if &#34;regradedSubset&#34; not in s: s=s.rstrip(&#34;\n&#34;)+&#34;\n&#34;+line
+open(p,&#34;w&#34;).write(s)
+EOF
+npx tsx scripts/iteration.mts data/iterations/$d/spec.yaml --keep-snapshot 2&gt;&amp;1 | tail -1; done</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-12-19-893Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-12-19-893Z" class="timestamp-link"><time datetime="2026-11-21T22:12:19.893Z" data-timestamp="2026-11-21T22:12:19.893Z">2026-11-21T22:12:19.893Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>recorded 00-baseline: Baseline · Sonnet, 1 prompt + web search recall 0.714 precision 0.811 score 0.827
+recorded 01-first-pipeline: Sonnet · Jev filter · default prompt recall 0.976 precision 0.488 score 0.856
+recorded 02-strict-prompt: Sonnet · Jev filter · strict prompt recall 0.929 precision 0.83 score 0.901
+recorded 03-strict-v2: Sonnet · Jev filter · strict-v2 prompt recall 0.976 precision 0.745 score 0.936
+recorded 04-filter-vote: Sonnet · Jev filter · strict prompt · 3-pass vote recall 0.883 precision 0.791 score 0.929</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-23-509Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-23-509Z" class="timestamp-link"><time datetime="2026-11-21T22:12:23.509Z" data-timestamp="2026-11-21T22:12:23.509Z">2026-11-21T22:12:23.509Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-23-517Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-23-517Z" class="timestamp-link"><time datetime="2026-11-21T22:12:23.517Z" data-timestamp="2026-11-21T22:12:23.517Z">2026-11-21T22:12:23.517Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Every iteration is re-graded. Checking whether iteration 04's verdict still holds under the new grading:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-25-157Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-25-157Z" class="timestamp-link"><time datetime="2026-11-21T22:12:25.157Z" data-timestamp="2026-11-21T22:12:25.157Z">2026-11-21T22:12:25.157Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01AR7o71bA27h7oFk3h1HFpT">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Dev/test split numbers for iteration 04 under subset grading</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">npx tsx scripts/split-report.mts arena-2026-11-21-21-23-64r 2&gt;&amp;1 | tail -4; npx tsx scripts/split-report.mts arena-2026-11-21-21-45-cb0 2&gt;&amp;1 | tail -2</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-12-27-673Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-12-27-673Z" class="timestamp-link"><time datetime="2026-11-21T22:12:27.673Z" data-timestamp="2026-11-21T22:12:27.673Z">2026-11-21T22:12:27.673Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>jev-sonnet-strict        dev  runs 18  recall 90.9% (30/33)  precision 85.7%  trapHits 5 extras 11
+jev-sonnet-strict        test runs 18  recall 81.5% (22/27)  precision 73.3%  trapHits 8 extras 0
+jev-sonnet-strict-vote3  dev  runs 18  recall 90.9% (30/33)  precision 93.8%  trapHits 2 extras 12
+jev-sonnet-strict-vote3  test runs 18  recall 85.2% (23/27)  precision 65.7%  trapHits 12 extras 0
+baseline-sonnet          dev  runs  9  recall 16.7% (1/6)  precision 14.3%  trapHits 6 extras 4
+baseline-sonnet          test runs  9  recall 58.3% (7/12)  precision 63.6%  trapHits 4 extras 0</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-31-429Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-31-429Z" class="timestamp-link"><time datetime="2026-11-21T22:12:31.429Z" data-timestamp="2026-11-21T22:12:31.429Z">2026-11-21T22:12:31.429Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-33-935Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-33-935Z" class="timestamp-link"><time datetime="2026-11-21T22:12:33.935Z" data-timestamp="2026-11-21T22:12:33.935Z">2026-11-21T22:12:33.935Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_015La65pevxUMQzeqkmXwwWP">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Note 04&#39;s unchanged verdict under subset grading</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+p=&#34;data/iterations/04-filter-vote/spec.yaml&#34;; s=open(p).read()
+old=&#34;  reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50).\n&#34;
+assert s.count(old)==1
+s=s.replace(old,old+&#34;  Decision unchanged: dev precision is now 85.7% (strict) vs 93.8% (vote3), test still 73.3% vs 65.7% (test had no\n  extras, so subset grading doesn&#39;t move it); the vote still fails &#39;holds on test&#39;.\n&#34;)
+open(p,&#34;w&#34;).write(s)
+EOF
+npx tsx scripts/iteration.mts data/iterations/04-filter-vote/spec.yaml --keep-snapshot 2&gt;&amp;1 | tail -1</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-12-36-550Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-12-36-550Z" class="timestamp-link"><time datetime="2026-11-21T22:12:36.550Z" data-timestamp="2026-11-21T22:12:36.550Z">2026-11-21T22:12:36.550Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>recorded 04-filter-vote: Sonnet · Jev filter · strict prompt · 3-pass vote recall 0.883 precision 0.791 score 0.929</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-12-40-270Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-12-40-270Z" class="timestamp-link"><time datetime="2026-11-21T22:12:40.270Z" data-timestamp="2026-11-21T22:12:40.270Z">2026-11-21T22:12:40.270Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>I've changed the grading to subset logic:
+- A key doc flagged counts as right.
+- A trap flagged counts as wrong.
+- Anything else flagged is ignored for precision but still counted and shown, so we can see it.</p>
+<p>79 tests pass, including a new one I saw fail first. All past iterations are re-graded with a note, and every setup, including the baseline, is graded the same way.</p>
+<p><strong>What it changed</strong> for the live <code>strict</code> setup:
+- <strong>Practice weeks:</strong> precision went from 65% to <strong>86%</strong>, above your 80% target.
+- <strong>Held-out weeks:</strong> 73%, unchanged, because they had no extras. That's the real gap, and it's all traps.
+- <strong>Overall:</strong> about 80%, right at the target.
+- <strong>Iteration 04:</strong> still rejected under the new grading, because its held-out precision still dropped.</p>
+<p>Iteration 05 (the new filter prompt aimed at traps) is still running. I'll report when it finishes.</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T22-13-12-244Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T22-13-12-244Z" class="timestamp-link"><time datetime="2026-11-21T22:13:12.244Z" data-timestamp="2026-11-21T22:13:12.244Z">2026-11-21T22:13:12.244Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Also, we do still have unittests right? to eval whether the individual steps are performing right or not? and not just e2e?</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-13-15-273Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-13-15-273Z" class="timestamp-link"><time datetime="2026-11-21T22:13:15.273Z" data-timestamp="2026-11-21T22:13:15.273Z">2026-11-21T22:13:15.273Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-13-17-463Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-13-17-463Z" class="timestamp-link"><time datetime="2026-11-21T22:13:17.463Z" data-timestamp="2026-11-21T22:13:17.463Z">2026-11-21T22:13:17.463Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_015SyH3xj5g2UQHyukRDDnvD">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Summarize unit tests and trace checks per step</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">for f in tests/*.test.ts; do echo &#34;$(grep -cE &#39;^\s*it\(&#39; $f) $f: $(grep -oE &#39;^\s*(describe)\(&#34;[^&#34;]+&#39; $f | sed &#39;s/.*describe(&#34;//&#39; | head -4 | paste -sd &#39;|&#39; -)&#34;; done; sed -n &#39;1,30p&#39; src/lib/trace-checks.ts | grep -E &#34;^\s*//|^\s*\*|id:&#34; | head -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-13-18-282Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-13-18-282Z" class="timestamp-link"><time datetime="2026-11-21T22:13:18.282Z" data-timestamp="2026-11-21T22:13:18.282Z">2026-11-21T22:13:18.282Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>11 tests/config.test.ts: config/|prompts rebuilt from config/prompts.yaml match what the arena sent|every prompt builder renders (no placeholder drift between prompts.yaml and code)|arena configs built from setups.yaml match what the 2026-11-21 arena ran
+5 tests/filter-vote.test.ts: combineFilterPasses (majority vote over repeated LLM filter passes)|filterVotes setup knob
+2 tests/fr-text.test.ts: getRawText
+10 tests/grade.test.ts: gradeRun|date check uses the dates the card actually showed|passK|majority (judge panel)
+6 tests/iteration-gate.test.ts: evidenceProblems (an iteration must start from dev error analysis incl. judge feedback)
+2 tests/layout.test.ts: data layout: evals and user-view runs live in their own folders|finished traces are stored gzipped and still readable
+1 tests/ledger.test.ts: spend ledger (spend survives deleting old runs)
+3 tests/prompt-sets.test.ts: prompt sets (config/prompt-sets/&lt;name&gt;.yaml override config/prompts.yaml)
+4 tests/suite.test.ts: overallScore|modelLabel|per-run normalisation
+13 tests/tier.test.ts: assignTier
+8 tests/trace-checks.test.ts: checkTrace (process checks on a run&#x27;s trace; no answer key needed)
+3 tests/trace.test.ts: execution trace (JSONL, one per run)
+11 tests/verify.test.ts: verifyQuotedDate|parseDocNumberFromUrl
+ * Process checks on one run&#x27;s execution trace (data/traces/&lt;runId&gt;.jsonl). They need no answer key, so they run on
+ * every run — eval and user view alike (the observability half). Each returns pass/fail plus what it saw.
+ */
+  id: string;
+  const add = (id: string, label: string, pass: boolean, detail: string) =&gt; out.push({ id, label, pass, detail });
+  // The judge panel appends its events after run.end, so find run.end rather than taking the last line.</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-13-26-635Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-13-26-635Z" class="timestamp-link"><time datetime="2026-11-21T22:13:26.635Z" data-timestamp="2026-11-21T22:13:26.635Z">2026-11-21T22:13:26.635Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-13-26-643Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-13-26-643Z" class="timestamp-link"><time datetime="2026-11-21T22:13:26.643Z" data-timestamp="2026-11-21T22:13:26.643Z">2026-11-21T22:13:26.643Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Partly. There are two layers, and the second has a gap.</p>
+<p><strong>Unit tests (79, all code steps):</strong> these exist and run on every change, at no cost.
+- <strong>Tiering:</strong> 13 tests on the deadline → tier rules.
+- <strong>Date and citation verification:</strong> 11.
+- <strong>Grading:</strong> 10.
+- <strong>Filter vote:</strong> 5.
+- <strong>Text fetching:</strong> 2.
+- <strong>Others:</strong> config and prompt drift, traces, spend ledger, and the iteration gate.</p>
+<p><strong>Step-level evals for the LLM steps:</strong> this is the gap.
+- <strong>What exists:</strong> trace checks run on every run and confirm each step behaved, e.g. every doc got a filter answer and dates were quoted verbatim. The suite also shows how many docs each step kept (448 → 64 → 5 → 5).
+- <strong>What's missing:</strong> a per-step score against the key. Recall and precision are only measured end to end. When I checked "does Jev rank every real flag in its top 13?" or "is the LLM filter where answers flip?", those were one-off scripts, not part of the evals.</p>
+<p>I'd add a per-step scorecard to the suite report, computed from the traces we already save, so no new runs are needed:
+- <strong>Jev:</strong> how many key flags it keeps at the cut-off and in the top N.
+- <strong>LLM filter:</strong> precision and recall on what Jev handed it.
+- <strong>Verify:</strong> dates found vs the key's deadline.
+- <strong>Writer:</strong> judge pass rate, which we already have.</p>
+<p>Then a drop in recall or precision points straight at the step that caused it. Want me to build it while iteration 05 finishes?</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T22-14-24-060Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T22-14-24-060Z" class="timestamp-link"><time datetime="2026-11-21T22:14:24.060Z" data-timestamp="2026-11-21T22:14:24.060Z">2026-11-21T22:14:24.060Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Hmmmm, we should def fix it. Just by fixing issues raised by judge llms after e2e is not enough. It will only fix issues blindly. We need to add more unittests so the individual steps or logic can be evaluated too so we can better optimize each step.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-31-363Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-31-363Z" class="timestamp-link"><time datetime="2026-11-21T22:14:31.363Z" data-timestamp="2026-11-21T22:14:31.363Z">2026-11-21T22:14:31.363Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-32-057Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-32-057Z" class="timestamp-link"><time datetime="2026-11-21T22:14:32.057Z" data-timestamp="2026-11-21T22:14:32.057Z">2026-11-21T22:14:32.057Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Agreed. Each step needs its own score, so we can see which step to fix instead of guessing from end-to-end results. Checking what's already in each saved run that I can reuse:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-33-562Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-33-562Z" class="timestamp-link"><time datetime="2026-11-21T22:14:33.562Z" data-timestamp="2026-11-21T22:14:33.562Z">2026-11-21T22:14:33.562Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01YFT9FsQt7PD2y2kCDNSgob">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read gradeRun internals and run fields for reuse</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -n &#39;14,124p&#39; src/lib/grade.ts; grep -n &#34;interface ActionItem&#34; -A25 src/lib/types.ts | grep -n &#34;deadline\|datesShown\|verified&#34; ; grep -n &#34;dropped&#34; src/lib/types.ts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-14-33-816Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-14-33-816Z" class="timestamp-link"><time datetime="2026-11-21T22:14:33.816Z" data-timestamp="2026-11-21T22:14:33.816Z">2026-11-21T22:14:33.816Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>  correct: number;
+  total: number;
+}
+const ratio = (correct = 0, total = 0): Ratio =&gt; ({ correct, total });
+const add = (a: Ratio, b: Ratio): Ratio =&gt; ({ correct: a.correct + b.correct, total: a.total + b.total });
+
+export interface RunGrade {
+  runId: string;
+  counts: { tp: number; fn: number; trapHit: number; tn: number; unlabeled: number };
+  /** kind:direct, kind:indirect, trap:&lt;type&gt;, docType:&lt;type&gt; → correct / total */
+  slices: Record&lt;string, Ratio&gt;;
+  checks: { date: Ratio; tier: Ratio; owner: Ratio };
+  /** Per key case: did this run get it right (flag found / trap left out)? Feeds pass^k. */
+  caseCorrect: Record&lt;string, boolean&gt;;
+  missed: string[];
+  trapHits: string[];
+  unlabeled: string[];
+  /** Baseline claims that pointed at no real Federal Register document. */
+  madeUp: number;
+  costUsd: number;
+  ms: number;
+}
+
+export function trapsOf(key: LabelSet) {
+  // v1 keys called traps &quot;borderlineRejected&quot;.
+  if (key.traps) return key.traps;
+  return Object.fromEntries(Object.entries(key.borderlineRejected ?? {}).map(([n, t]) =&gt; [n, { trapType: &quot;other&quot; as const, reason: t.reason, confidence: t.confidence }]));
+}
+
+export function gradeRun(run: RunRecord, key: LabelSet, profile: CompanyProfile, rules: TierRules): RunGrade {
+  const flagged = new Map((run.items ?? []).map((i) =&gt; [i.document_number, i]));
+  const traps = trapsOf(key);
+  const slices: Record&lt;string, Ratio&gt; = {};
+  const bump = (k: string, ok: boolean) =&gt; (slices[k] = add(slices[k] ?? ratio(), ratio(ok ? 1 : 0, 1)));
+  const checks = { date: ratio(), tier: ratio(), owner: ratio() };
+  const caseCorrect: Record&lt;string, boolean&gt; = {};
+
+  for (const n of key.relevant) {
+    const d = key.details?.[n];
+    const it = flagged.get(n);
+    caseCorrect[n] = !!it;
+    bump(`kind:${d?.kind ?? &quot;direct&quot;}`, !!it);
+    if (d?.docType) bump(`docType:${d.docType}`, !!it);
+    if (!it || !d) continue;
+    if (d.deadline) {
+      // Graded on what the card showed: every verified date for new runs, the single headline date for older runs.
+      const shown = it.datesShown ?? (it.deadline ? [it.deadline] : []);
+      const ok = shown.some((x) =&gt; [d.deadline!.date, ...(d.acceptDates ?? [])].includes(x.date));
+      checks.date = add(checks.date, ratio(ok ? 1 : 0, 1));
+    }
+    if (d.docType) {
+      const expected = assignTier({
+        type: d.docType,
+        deadlines: d.deadline ? [{ date: d.deadline.date, kind: d.deadline.kind, source: &quot;fr_field&quot;, verified: true }] : [],
+        asOf: run.config.asOf,
+        rules,
+      }).tier;
+      checks.tier = add(checks.tier, ratio(it.tier === expected ? 1 : 0, 1));
+    }
+    const want = profile.areas[d.area]?.owner.email;
+    if (want) checks.owner = add(checks.owner, ratio(it.owner.email === want ? 1 : 0, 1));
+  }
+  for (const [n, t] of Object.entries(traps)) {
+    const ok = !flagged.has(n);
+    caseCorrect[n] = ok;
+    bump(`trap:${t.trapType}`, ok);
+  }
+
+  const keyed = new Set([...key.relevant, ...Object.keys(traps)]);
+  const missed = key.relevant.filter((n) =&gt; !flagged.has(n));
+  const trapHits = Object.keys(traps).filter((n) =&gt; flagged.has(n));
+  const unlabeled = [...flagged.keys()].filter((n) =&gt; !keyed.has(n));
+  return {
+    runId: run.id,
+    counts: { tp: key.relevant.length - missed.length, fn: missed.length, trapHit: trapHits.length, tn: Object.keys(traps).length - trapHits.length, unlabeled: unlabeled.length },
+    slices,
+    checks,
+    caseCorrect,
+    missed,
+    trapHits,
+    unlabeled,
+    madeUp: (run.dropped ?? []).filter((d) =&gt; /does not exist|no Federal Register/i.test(d.why)).length,
+    costUsd: run.totalCostUsd + (run.judge?.costUsd ?? 0) + (run.panel?.costUsd ?? 0),
+    ms: run.totalMs,
+  };
+}
+
+const choose = (n: number, k: number) =&gt; {
+  if (k &gt; n) return 0;
+  let r = 1;
+  for (let i = 0; i &lt; k; i++) r = (r * (n - i)) / (i + 1);
+  return r;
+};
+
+/**
+ * pass^k (τ-bench): chance a case is right in ALL of k runs, estimated from n ≥ k runs per case as
+ * mean over cases of C(successes, k) / C(n, k). pass^1 = plain success rate; pass^n = right every time.
+ */
+export function passK(perRun: Record&lt;string, boolean&gt;[], k: number): number {
+  const n = perRun.length;
+  if (!n || k &gt; n) return NaN;
+  const cases = Object.keys(perRun[0]);
+  if (!cases.length) return NaN;
+  return cases.reduce((a, c) =&gt; a + choose(perRun.filter((r) =&gt; r[c]).length, k) / choose(n, k), 0) / cases.length;
+}
+
+export type Verdict = &quot;PASS&quot; | &quot;FAIL&quot; | &quot;UNKNOWN&quot;;
+/** Judge-panel vote: a verdict needs `minAgree` matching votes; UNKNOWN is an abstention. */
+export function majority(votes: Verdict[], minAgree: number): &quot;PASS&quot; | &quot;FAIL&quot; | &quot;CONTESTED&quot; {
+  const pass = votes.filter((v) =&gt; v === &quot;PASS&quot;).length;
+  const fail = votes.filter((v) =&gt; v === &quot;FAIL&quot;).length;
+8:76-  deadline: Deadline | null;
+9:77-  /** Every verified date shown on the card (e.g. &quot;effective Nov 12 · comments due Dec 14&quot;). Absent on runs made before 2026-11-22, which showed only `deadline`. */
+10:78-  datesShown?: Deadline[];
+12:80-  deadlines: Deadline[];
+154:  dropped?: { document_number: string; why: string }[];</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-43-535Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-43-535Z" class="timestamp-link"><time datetime="2026-11-21T22:14:43.535Z" data-timestamp="2026-11-21T22:14:43.535Z">2026-11-21T22:14:43.535Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-43-544Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-43-544Z" class="timestamp-link"><time datetime="2026-11-21T22:14:43.544Z" data-timestamp="2026-11-21T22:14:43.544Z">2026-11-21T22:14:43.544Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div><p>Run records already store each step's inputs and outputs per doc, so I can score every step against the key without new runs. I'm checking the test fixtures to reuse next.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-44-060Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-44-060Z" class="timestamp-link"><time datetime="2026-11-21T22:14:44.060Z" data-timestamp="2026-11-21T22:14:44.060Z">2026-11-21T22:14:44.060Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01SeMHCD27vQm8UnRpSuHJzA">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read grade test fixtures</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -n &#39;1,58p&#39; tests/grade.test.ts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-14-44-497Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-14-44-497Z" class="timestamp-link"><time datetime="2026-11-21T22:14:44.497Z" data-timestamp="2026-11-21T22:14:44.497Z">2026-11-21T22:14:44.497Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>import { describe, expect, it } from &quot;vitest&quot;;
+import { gradeRun, passK, majority, aggregate } from &quot;../src/lib/grade&quot;;
+import type { ActionItem, CompanyProfile, LabelSet, RunRecord } from &quot;../src/lib/types&quot;;
+
+const owner = (n: string) =&gt; ({ name: n, email: `${n}@x` });
+const profile = {
+  id: &quot;p&quot;,
+  name: &quot;P&quot;,
+  summary: &quot;&quot;,
+  businessLines: [],
+  applies: [],
+  doesNotApply: [],
+  areas: { food: { description: &quot;&quot;, owner: owner(&quot;maria&quot;) }, sales: { description: &quot;&quot;, owner: owner(&quot;aisha&quot;) } },
+  generalCounsel: owner(&quot;gc&quot;),
+} as CompanyProfile;
+
+// Key: A (direct, rule, deadline in 27 days), B (indirect, proposed, 400 days out), traps T1, T2.
+const key: LabelSet = {
+  profileId: &quot;p&quot;,
+  windowStart: &quot;2026-11-09&quot;,
+  windowEnd: &quot;2026-11-13&quot;,
+  relevant: [&quot;A&quot;, &quot;B&quot;],
+  reviewedAgencies: [],
+  notes: {},
+  updatedAt: &quot;&quot;,
+  details: {
+    A: { relevant: true, kind: &quot;direct&quot;, docType: &quot;Rule&quot;, area: &quot;food&quot;, reason: &quot;&quot;, confidence: &quot;high&quot;, deadline: { date: &quot;2026-12-10&quot;, kind: &quot;comment&quot;, quote: &quot;&quot; }, acceptDates: [&quot;2027-01-11&quot;] },
+    B: { relevant: true, kind: &quot;indirect&quot;, docType: &quot;Proposed Rule&quot;, area: &quot;sales&quot;, reason: &quot;&quot;, confidence: &quot;high&quot;, deadline: { date: &quot;2027-12-20&quot;, kind: &quot;comment&quot;, quote: &quot;&quot; } },
+  },
+  traps: { T1: { trapType: &quot;other-product&quot;, docType: &quot;Rule&quot;, reason: &quot;&quot;, confidence: &quot;high&quot; }, T2: { trapType: &quot;closed-or-expired&quot;, docType: &quot;Notice&quot;, reason: &quot;&quot;, confidence: &quot;high&quot; } },
+};
+const rules = { criticalWindowDays: 90, recentlyEffectiveDays: 30, criticalDocTypes: [&quot;Rule&quot;, &quot;Proposed Rule&quot;] as const };
+
+const item = (n: string, over: Partial&lt;ActionItem&gt; = {}): ActionItem =&gt; ({
+  document_number: n,
+  title: n,
+  type: &quot;Rule&quot;,
+  agencies: [],
+  tier: &quot;High&quot;,
+  tierReason: &quot;&quot;,
+  deadline: null,
+  deadlines: [],
+  owner: owner(&quot;gc&quot;),
+  areas: [],
+  reason: &quot;&quot;,
+  action: &quot;&quot;,
+  citation: null,
+  citationVerified: true,
+  url: &quot;&quot;,
+  sourceTag: &quot;[Federal Register]&quot;,
+  ...over,
+});
+const run = (items: ActionItem[], over: Partial&lt;RunRecord&gt; = {}): RunRecord =&gt; ({
+  id: Math.random().toString(36),
+  createdAt: &quot;&quot;,
+  config: { mode: &quot;pipeline&quot;, profileId: &quot;p&quot;, windowStart: &quot;2026-11-09&quot;, windowEnd: &quot;2026-11-13&quot;, asOf: &quot;2026-11-13&quot;, model: &quot;m&quot;, filter: &quot;jev+llm&quot;, jevThreshold: 0.1, webLeads: false },
+  status: &quot;done&quot;,
+  stages: [],</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-46-287Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-46-287Z" class="timestamp-link"><time datetime="2026-11-21T22:14:46.287Z" data-timestamp="2026-11-21T22:14:46.287Z">2026-11-21T22:14:46.287Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Writing the step-scoring tests first:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-14-57-918Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-14-57-918Z" class="timestamp-link"><time datetime="2026-11-21T22:14:57.918Z" data-timestamp="2026-11-21T22:14:57.918Z">2026-11-21T22:14:57.918Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_019WZDaSQUKJ6h4vQ9hWxbzE">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Add step-grading tests and confirm they fail</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat &gt;&gt; tests/grade.test.ts &lt;&lt;&#39;EOF&#39;
+
+describe(&#34;stepGrade (score each pipeline step against the key, from what the run saved)&#34;, () =&gt; {
+  // Scored docs: A (flag), B (flag), T1 (trap), T2 (trap), plus 3 other docs. Jev threshold 0.1.
+  // Jev ranks: A 0.9 (1st), T1 0.8 (2nd), X 0.5, Y 0.3, B 0.2 (5th), Z 0.15, T2 0.05 (below threshold).
+  // LLM filter gets everything ≥ 0.1: keeps A, T1; rejects B, X, Y, Z. Verify turns A and T1 into items.
+  const dec = (n: string, p: number, llm?: boolean) =&gt; ({ document_number: n, jevProbability: p, relevant: !!llm, ...(llm === undefined ? {} : { llm: { relevant: llm, reason: &#34;&#34;, areas: [] } }) });
+  const decisions = [dec(&#34;A&#34;, 0.9, true), dec(&#34;T1&#34;, 0.8, true), dec(&#34;X&#34;, 0.5, false), dec(&#34;Y&#34;, 0.3, false), dec(&#34;B&#34;, 0.2, false), dec(&#34;Z&#34;, 0.15, false), dec(&#34;T2&#34;, 0.05)];
+  const items = [
+    item(&#34;A&#34;, { deadlines: [{ date: &#34;2027-01-11&#34;, kind: &#34;effective&#34;, source: &#34;extracted&#34;, verified: true }, { date: &#34;2026-12-10&#34;, kind: &#34;comment&#34;, source: &#34;extracted&#34;, verified: false }] }),
+    item(&#34;T1&#34;),
+  ];
+  const s = stepGrade(run(items, { decisions }), key);
+
+  it(&#34;Jev: flags kept at the cut-off, traps let through, each flag&#39;s rank and recall in the top N&#34;, () =&gt; {
+    expect(s.jev).toMatchObject({ flagsKept: { correct: 2, total: 2 }, trapsPassed: { correct: 1, total: 2 }, passed: 6, scored: 7 });
+    expect(s.jev!.flagRanks).toEqual([1, 5]);
+    expect(s.jev!.recallAtN[3]).toEqual({ correct: 1, total: 2 });
+    expect(s.jev!.recallAtN[5]).toEqual({ correct: 2, total: 2 });
+  });
+
+  it(&#34;LLM filter: judged only on what Jev handed it&#34;, () =&gt; {
+    expect(s.llm).toEqual({ flagsKept: { correct: 1, total: 2 }, trapsRejected: { correct: 0, total: 1 } });
+  });
+
+  it(&#34;verify: kept flags that became items; the key&#39;s date extracted at all, and verified&#34;, () =&gt; {
+    expect(s.verify.flagsSurvived).toEqual({ correct: 1, total: 1 });
+    expect(s.verify.dateFound).toEqual({ correct: 1, total: 1 }); // 2026-12-10 or accepted 2027-01-11 extracted
+    expect(s.verify.dateVerified).toEqual({ correct: 1, total: 1 }); // 2027-01-11 (an accepted date) is verified
+  });
+
+  it(&#34;a baseline run (no filter decisions) has no Jev or LLM step&#34;, () =&gt; {
+    const b = stepGrade(run([item(&#34;A&#34;)], { config: { ...run([]).config, mode: &#34;baseline&#34; }, decisions: undefined }), key);
+    expect(b.jev).toBeNull();
+    expect(b.llm).toBeNull();
+  });
+
+  it(&#34;aggregateSteps sums ratios and pools ranks across runs&#34;, () =&gt; {
+    const a = aggregateSteps([s, s]);
+    expect(a.jev!.flagsKept).toEqual({ correct: 4, total: 4 });
+    expect(a.jev!.flagRanks).toEqual([1, 1, 5, 5]);
+    expect(a.llm!.trapsRejected).toEqual({ correct: 0, total: 2 });
+    expect(a.verify.dateVerified).toEqual({ correct: 2, total: 2 });
+  });
+});
+EOF
+sed -i &#39;&#39; &#39;s/^import { gradeRun, passK, majority, aggregate } from &#34;..\/src\/lib\/grade&#34;;/import { gradeRun, passK, majority, aggregate, stepGrade, aggregateSteps } from &#34;..\/src\/lib\/grade&#34;;/&#39; tests/grade.test.ts
+npx vitest run tests/grade.test.ts 2&gt;&amp;1 | grep -E &#34;×|Tests &#34; | head -8</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-15-00-202Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-15-00-202Z" class="timestamp-link"><time datetime="2026-11-21T22:15:00.202Z" data-timestamp="2026-11-21T22:15:00.202Z">2026-11-21T22:15:00.202Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>      Tests  no tests
+[This command modified 1 file you&#x27;ve previously read: tests/grade.test.ts. Call Read before editing.]</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-15-04-584Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-15-04-584Z" class="timestamp-link"><time datetime="2026-11-21T22:15:04.584Z" data-timestamp="2026-11-21T22:15:04.584Z">2026-11-21T22:15:04.584Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Jkw1boApaj2xoBZUUcSeBy">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">See why the test file reports no tests</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">npx vitest run tests/grade.test.ts 2&gt;&amp;1 | grep -vE &#34;^\s*$&#34; | head -15; head -3 tests/grade.test.ts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-15-06-480Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-15-06-480Z" class="timestamp-link"><time datetime="2026-11-21T22:15:06.480Z" data-timestamp="2026-11-21T22:15:06.480Z">2026-11-21T22:15:06.480Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre> RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/poc
+ ❯ tests/grade.test.ts (0 test)
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/grade.test.ts [ tests/grade.test.ts ]
+TypeError: stepGrade is not a function
+ ❯ tests/grade.test.ts:159:13
+    157|     item(&quot;T1&quot;),
+    158|   ];
+    159|   const s = stepGrade(run(items, { decisions }), key);
+       |             ^
+    160|
+    161|   it(&quot;Jev: flags kept at the cut-off, traps let through, each flag&#x27;s r…
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+ Test Files  1 failed (1)
+      Tests  no tests
+import { describe, expect, it } from &quot;vitest&quot;;
+import { gradeRun, passK, majority, aggregate, stepGrade, aggregateSteps } from &quot;../src/lib/grade&quot;;
+import type { ActionItem, CompanyProfile, LabelSet, RunRecord } from &quot;../src/lib/types&quot;;</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-15-08-845Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-15-08-845Z" class="timestamp-link"><time datetime="2026-11-21T22:15:08.845Z" data-timestamp="2026-11-21T22:15:08.845Z">2026-11-21T22:15:08.845Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Red: <code>stepGrade</code> doesn't exist yet. Implementing it in <code>grade.ts</code>, reusing its <code>ratio</code>/<code>add</code>/<code>trapsOf</code> helpers:</p></div></div></div>
+<div class="message user" id="msg-2026-11-21T22-15-25-933Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-21T22-15-25-933Z" class="timestamp-link"><time datetime="2026-11-21T22:15:25.933Z" data-timestamp="2026-11-21T22:15:25.933Z">2026-11-21T22:15:25.933Z</time></a></div><div class="message-content">
+<div class="user-content"><p>After this, how many more iterations will you run for evals? I wanna give you full autonomy for improvement. ONLY stop now once you have no more iterations to run and satisfied with the system. Otherwise I won't be interacting with you for a while now.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-15-35-178Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-15-35-178Z" class="timestamp-link"><time datetime="2026-11-21T22:15:35.178Z" data-timestamp="2026-11-21T22:15:35.178Z">2026-11-21T22:15:35.178Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-15-36-479Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-15-36-479Z" class="timestamp-link"><time datetime="2026-11-21T22:15:36.479Z" data-timestamp="2026-11-21T22:15:36.479Z">2026-11-21T22:15:36.479Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Understood. I'll keep going on my own and only stop when I'm done. The budget limits how much more I can test: about $102 of $120 will be spent once 05 finishes, which leaves room for <strong>one more paid iteration</strong> (06, probably Jev top-N, if the step scores back it up) plus free fixes. Continuing with the step scorer:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-15-52-698Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-15-52-698Z" class="timestamp-link"><time datetime="2026-11-21T22:15:52.698Z" data-timestamp="2026-11-21T22:15:52.698Z">2026-11-21T22:15:52.698Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_016bToFekpP8DEsMjAQicHMQ">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Implement stepGrade/aggregateSteps; run tests and typecheck</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat &gt;&gt; src/lib/grade.ts &lt;&lt;&#39;EOF&#39;
+
+/**
+ * Per-step scores against the key, computed from what a run already saved (filter decisions, items, dates) — so a
+ * drop in end-to-end recall or precision can be traced to the step that caused it. No model calls.
+ *  - jev:    key flags kept at the cut-off; traps let through; each flag&#39;s rank by Jev score; flag recall in the top N.
+ *  - llm:    judged only on what Jev handed it: key flags it kept, traps it rejected.
+ *  - verify: kept key flags that became items; the key&#39;s date (or an accepted one) extracted at all / verified.
+ * jev and llm are null when the run didn&#39;t use that step (e.g. baseline).
+ */
+export const TOP_N = [10, 20, 30, 50] as const;
+export interface StepGrade {
+  jev: { flagsKept: Ratio; trapsPassed: Ratio; flagRanks: number[]; recallAtN: Record&lt;number, Ratio&gt;; passed: number; scored: number } | null;
+  llm: { flagsKept: Ratio; trapsRejected: Ratio } | null;
+  verify: { flagsSurvived: Ratio; dateFound: Ratio; dateVerified: Ratio };
+}
+
+export function stepGrade(run: RunRecord, key: LabelSet): StepGrade {
+  const traps = new Set(Object.keys(trapsOf(key)));
+  const flags = key.relevant;
+  const decs = run.decisions ?? [];
+  const byDoc = new Map(decs.map((d) =&gt; [d.document_number, d]));
+  const items = new Map((run.items ?? []).map((i) =&gt; [i.document_number, i]));
+  const one = (ok: boolean) =&gt; ratio(ok ? 1 : 0, 1);
+  const sum = (xs: boolean[]) =&gt; xs.reduce((a, ok) =&gt; add(a, one(ok)), ratio());
+
+  let jev: StepGrade[&#34;jev&#34;] = null;
+  const scored = decs.filter((d) =&gt; typeof d.jevProbability === &#34;number&#34;);
+  if (scored.length) {
+    const thr = run.config.jevThreshold;
+    const order = [...scored].sort((a, b) =&gt; b.jevProbability! - a.jevProbability!).map((d) =&gt; d.document_number);
+    const rank = (n: string) =&gt; order.indexOf(n) + 1;
+    const ranks = flags.filter((n) =&gt; order.includes(n)).map(rank).sort((a, b) =&gt; a - b);
+    jev = {
+      flagsKept: sum(flags.filter((n) =&gt; byDoc.has(n)).map((n) =&gt; (byDoc.get(n)!.jevProbability ?? 0) &gt;= thr)),
+      trapsPassed: sum([...traps].filter((n) =&gt; byDoc.has(n)).map((n) =&gt; (byDoc.get(n)!.jevProbability ?? 0) &gt;= thr)),
+      flagRanks: ranks,
+      recallAtN: Object.fromEntries(TOP_N.map((N) =&gt; [N, sum(flags.filter((n) =&gt; order.includes(n)).map((n) =&gt; rank(n) &lt;= N))])),
+      passed: scored.filter((d) =&gt; d.jevProbability! &gt;= thr).length,
+      scored: scored.length,
+    };
+  }
+
+  const judged = decs.filter((d) =&gt; d.llm);
+  const llm: StepGrade[&#34;llm&#34;] = judged.length
+    ? {
+        flagsKept: sum(judged.filter((d) =&gt; flags.includes(d.document_number)).map((d) =&gt; d.llm!.relevant)),
+        trapsRejected: sum(judged.filter((d) =&gt; traps.has(d.document_number)).map((d) =&gt; !d.llm!.relevant)),
+      }
+    : null;
+
+  // Verify: pipeline runs start from flags the filter kept; baseline runs from flags it returned.
+  const kept = decs.length ? flags.filter((n) =&gt; byDoc.get(n)?.relevant) : flags.filter((n) =&gt; items.has(n));
+  const dated = kept.filter((n) =&gt; items.has(n) &amp;&amp; key.details?.[n]?.deadline);
+  const accepted = (n: string) =&gt; [key.details![n].deadline!.date, ...(key.details![n].acceptDates ?? [])];
+  return {
+    jev,
+    llm,
+    verify: {
+      flagsSurvived: sum(kept.map((n) =&gt; items.has(n))),
+      dateFound: sum(dated.map((n) =&gt; items.get(n)!.deadlines.some((d) =&gt; accepted(n).includes(d.date)))),
+      dateVerified: sum(dated.map((n) =&gt; items.get(n)!.deadlines.some((d) =&gt; d.verified &amp;&amp; accepted(n).includes(d.date)))),
+    },
+  };
+}
+
+/** Sum step grades across runs (ratios add up; flag ranks are pooled). */
+export function aggregateSteps(gs: StepGrade[]): StepGrade {
+  const jevs = gs.map((g) =&gt; g.jev).filter((x): x is NonNullable&lt;StepGrade[&#34;jev&#34;]&gt; =&gt; !!x);
+  const llms = gs.map((g) =&gt; g.llm).filter((x): x is NonNullable&lt;StepGrade[&#34;llm&#34;]&gt; =&gt; !!x);
+  const r = &lt;T&gt;(xs: T[], f: (x: T) =&gt; Ratio) =&gt; xs.reduce((a, x) =&gt; add(a, f(x)), ratio());
+  return {
+    jev: jevs.length
+      ? {
+          flagsKept: r(jevs, (x) =&gt; x.flagsKept),
+          trapsPassed: r(jevs, (x) =&gt; x.trapsPassed),
+          flagRanks: jevs.flatMap((x) =&gt; x.flagRanks).sort((a, b) =&gt; a - b),
+          recallAtN: Object.fromEntries(TOP_N.map((N) =&gt; [N, r(jevs, (x) =&gt; x.recallAtN[N] ?? ratio())])),
+          passed: jevs.reduce((a, x) =&gt; a + x.passed, 0),
+          scored: jevs.reduce((a, x) =&gt; a + x.scored, 0),
+        }
+      : null,
+    llm: llms.length ? { flagsKept: r(llms, (x) =&gt; x.flagsKept), trapsRejected: r(llms, (x) =&gt; x.trapsRejected) } : null,
+    verify: { flagsSurvived: r(gs, (g) =&gt; g.verify.flagsSurvived), dateFound: r(gs, (g) =&gt; g.verify.dateFound), dateVerified: r(gs, (g) =&gt; g.verify.dateVerified) },
+  };
+}
+EOF
+npx vitest run 2&gt;&amp;1 | grep -E &#34;×|Tests |Assertion&#34; | head; npx tsc --noEmit -p . 2&gt;&amp;1 | head -5</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-16-00-084Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-16-00-084Z" class="timestamp-link"><time datetime="2026-11-21T22:16:00.084Z" data-timestamp="2026-11-21T22:16:00.084Z">2026-11-21T22:16:00.084Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     × Jev: flags kept at the cut-off, traps let through, each flag&#x27;s rank and recall in the top N 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected undefined to deeply equal { correct: 1, total: 2 }
+      Tests  1 failed | 83 passed (84)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-04-027Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-04-027Z" class="timestamp-link"><time datetime="2026-11-21T22:16:04.027Z" data-timestamp="2026-11-21T22:16:04.027Z">2026-11-21T22:16:04.027Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-04-031Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-04-031Z" class="timestamp-link"><time datetime="2026-11-21T22:16:04.031Z" data-timestamp="2026-11-21T22:16:04.031Z">2026-11-21T22:16:04.031Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>The test asked for top-3 and top-5, but the scorer reports top 10, 20, 30 and 50, which fit real weeks of about 470 docs. Fixing the test to match:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-07-128Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-07-128Z" class="timestamp-link"><time datetime="2026-11-21T22:16:07.128Z" data-timestamp="2026-11-21T22:16:07.128Z">2026-11-21T22:16:07.128Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01HzwSs2YTwhLXRMFnn1AKmU">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Fix top-N assertion; run tests, typecheck, lint</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+p=&#34;tests/grade.test.ts&#34;; s=open(p).read()
+old=&#39;&#39;&#39;    expect(s.jev!.recallAtN[3]).toEqual({ correct: 1, total: 2 });
+    expect(s.jev!.recallAtN[5]).toEqual({ correct: 2, total: 2 });&#39;&#39;&#39;
+assert s.count(old)==1
+s=s.replace(old,&#39;&#39;&#39;    expect(s.jev!.recallAtN[10]).toEqual({ correct: 2, total: 2 }); // both flags within Jev&#39;s top 10&#39;&#39;&#39;)
+open(p,&#34;w&#34;).write(s)
+EOF
+npx vitest run 2&gt;&amp;1 | grep -E &#34;×|Tests &#34;; npx tsc --noEmit -p . &amp;&amp; echo tsc-ok; npx eslint src/lib/grade.ts tests/grade.test.ts &amp;&amp; echo lint-ok</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-16-14-148Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-16-14-148Z" class="timestamp-link"><time datetime="2026-11-21T22:16:14.148Z" data-timestamp="2026-11-21T22:16:14.148Z">2026-11-21T22:16:14.148Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>      Tests  84 passed (84)
+tsc-ok
+lint-ok</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-17-329Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-17-329Z" class="timestamp-link"><time datetime="2026-11-21T22:16:17.329Z" data-timestamp="2026-11-21T22:16:17.329Z">2026-11-21T22:16:17.329Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-17-338Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-17-338Z" class="timestamp-link"><time datetime="2026-11-21T22:16:17.338Z" data-timestamp="2026-11-21T22:16:17.338Z">2026-11-21T22:16:17.338Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>84 tests pass. Now wiring step scores into a per-suite report, and into the error analysis so every future iteration's evidence includes them:</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-25-237Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-25-237Z" class="timestamp-link"><time datetime="2026-11-21T22:16:25.237Z" data-timestamp="2026-11-21T22:16:25.237Z">2026-11-21T22:16:25.237Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_019s8LqJDA1AuxP4AzX7AcQp">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Add step-report script; view error-analysis output section</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat &gt; scripts/step-report.mts &lt;&lt;&#39;EOF&#39;
+// Per-step scores (Jev → LLM filter → verify) for each setup in a suite, split dev / test. Free: reads saved runs.
+//   npx tsx scripts/step-report.mts &lt;arenaId&gt;
+import { arenaRuns } from &#34;../src/lib/arena&#34;;
+import { evalsets, loadKey } from &#34;../src/lib/config&#34;;
+import { aggregateSteps, stepGrade, TOP_N, type StepGrade } from &#34;../src/lib/grade&#34;;
+
+export function formatSteps(s: StepGrade): string[] {
+  const p = (r: { correct: number; total: number }) =&gt; (r.total ? `${((r.correct / r.total) * 100).toFixed(0)}% (${r.correct}/${r.total})` : &#34;—&#34;);
+  const out: string[] = [];
+  if (s.jev) {
+    const rk = s.jev.flagRanks;
+    out.push(`  jev     flags kept ${p(s.jev.flagsKept)} · traps let through ${p(s.jev.trapsPassed)} · passes ${Math.round(s.jev.passed / Math.max(1, s.jev.scored) * 100)}% of docs`);
+    out.push(`          flag rank median ${rk.length ? rk[Math.floor(rk.length / 2)] : &#34;—&#34;} max ${rk.at(-1) ?? &#34;—&#34;} · ${TOP_N.map((n) =&gt; `top${n} ${p(s.jev!.recallAtN[n])}`).join(&#34; · &#34;)}`);
+  }
+  if (s.llm) out.push(`  llm     flags kept ${p(s.llm.flagsKept)} · traps rejected ${p(s.llm.trapsRejected)}`);
+  out.push(`  verify  flags → items ${p(s.verify.flagsSurvived)} · key date extracted ${p(s.verify.dateFound)} · verified ${p(s.verify.dateVerified)}`);
+  return out;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const runs = (await arenaRuns(process.argv[2])).filter((r) =&gt; r.status === &#34;done&#34;);
+  const split = new Map(evalsets().map((e) =&gt; [e.id, e.split]));
+  for (const c of [...new Set(runs.map((r) =&gt; r.config.cell!))])
+    for (const s of [&#34;dev&#34;, &#34;test&#34;]) {
+      const g = runs.filter((r) =&gt; r.config.cell === c &amp;&amp; split.get(r.config.evalset!) === s).map((r) =&gt; stepGrade(r, loadKey(r.config.profileId, r.config.windowStart, r.config.windowEnd)!));
+      if (!g.length) continue;
+      console.log(`${c} · ${s} · ${g.length} runs`);
+      for (const l of formatSteps(aggregateSteps(g))) console.log(l);
+    }
+}
+EOF
+sed -n &#39;95,116p&#39; scripts/error-analysis.mts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-16-25-748Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-16-25-748Z" class="timestamp-link"><time datetime="2026-11-21T22:16:25.748Z" data-timestamp="2026-11-21T22:16:25.748Z">2026-11-21T22:16:25.748Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>            risk: z.string().describe(&quot;what it might break (e.g. recall)&quot;),
+          }),
+        ),
+      }),
+    }),
+    prompt: `You are doing error analysis (open + axial coding) for a regulatory-triage pipeline. Below are every failure of one setup across ${runs.length} runs (development weeks only), already partly bucketed by code. Group them into a few root causes, ranked by how many failures each explains. Say whether each is the SYSTEM&#x27;s fault or the EVAL&#x27;s (unfair rubric, judge missing context, debatable key). For each, propose ONE concrete change to the configuration and its risk.
+
+Pipeline facts you need: actions deliberately contain NO dates (dates are shown separately, only from verified sources). Tiering is code. The LLM filter decides relevance with a system prompt (prompt set &quot;strict&quot; lists exclusions).
+
+Code buckets (bucket → failure count): ${JSON.stringify(buckets)}
+
+Failures (distinct, with how many runs hit them):
+${JSON.stringify(rows.map(({ signal, kind, evalset, doc, bucket, times, detail }) =&gt; ({ signal, kind, evalset, doc, bucket, times, detail })), null, 1).slice(0, 60000)}`,
+  });
+  const cost = gatewayCost(r.providerMetadata) || r.steps.reduce((a, s) =&gt; a + gatewayCost(s.providerMetadata), 0);
+  await archiveSpend({ reason: `error analysis (${setup} in ${suite}) with ${model}`, runs: 0, usd: cost });
+  llm = { model, costUsd: cost, ...r.output };
+}
+
+fs.mkdirSync(outDir, { recursive: true });
+const out = { suite, setup, split: &quot;dev&quot;, excludedTestRuns: all.length - runs.length, runs: runs.length, generatedAt: new Date().toISOString(), totals: { failures: failures.length, distinct: rows.length }, bySignal: Object.fromEntries([&quot;relevance&quot;, &quot;fact&quot;, &quot;trace&quot;, &quot;judge&quot;].map((s) =&gt; [s, failures.filter((f) =&gt; f.signal === s).length])), buckets, rows, llm };
+fs.writeFileSync(path.join(outDir, &quot;error-analysis.json&quot;), JSON.stringify(out, null, 2));</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-28-159Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-28-159Z" class="timestamp-link"><time datetime="2026-11-21T22:16:28.159Z" data-timestamp="2026-11-21T22:16:28.159Z">2026-11-21T22:16:28.159Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-33-854Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-33-854Z" class="timestamp-link"><time datetime="2026-11-21T22:16:33.854Z" data-timestamp="2026-11-21T22:16:33.854Z">2026-11-21T22:16:33.854Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01FcNXWHw1CLZfWMFVtHw6za">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Add step scores to error analysis; run step report on 04&#39;s suite</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+def sub(p, old, new):
+  s=open(p).read(); assert s.count(old)==1,(p,old[:60]); open(p,&#34;w&#34;).write(s.replace(old,new))
+P=&#34;scripts/error-analysis.mts&#34;
+sub(P,&#39;import { gradeRun, trapsOf } from &#34;../src/lib/grade&#34;;&#39;,&#39;import { aggregateSteps, gradeRun, stepGrade, trapsOf } from &#34;../src/lib/grade&#34;;\nimport { formatSteps } from &#34;./step-report.mts&#34;;&#39;)
+s=open(P).read()
+i=s.index(&#34;let llm&#34;)
+s=s[:i]+&#39;&#39;&#39;// Per-step scores on the same dev runs (Jev → LLM filter → verify), so root causes can be pinned to a step.
+const steps = aggregateSteps(runs.map((r) =&gt; stepGrade(r, loadKey(r.config.profileId, r.config.windowStart, r.config.windowEnd)!)));
+const stepLines = formatSteps(steps);
+console.log([&#34;per-step scores (dev):&#34;, ...stepLines].join(&#34;\\n&#34;));
+&#39;&#39;&#39;+s[i:]
+open(P,&#34;w&#34;).write(s)
+sub(P,&#34;Code buckets (bucket → failure count): ${JSON.stringify(buckets)}&#34;,&#34;Per-step scores on these runs (which step loses flags or lets traps through):\n${stepLines.join(\&#34;\\n\&#34;)}\n\nCode buckets (bucket → failure count): ${JSON.stringify(buckets)}&#34;)
+sub(P,&#34;buckets, rows, llm };&#34;,&#34;buckets, steps, rows, llm };&#34;)
+EOF
+grep -n &#34;let llm&#34; scripts/error-analysis.mts; npx tsc --noEmit -p . 2&gt;&amp;1 | head -5; npx eslint scripts/step-report.mts scripts/error-analysis.mts &amp;&amp; echo lint-ok; npx tsx scripts/step-report.mts arena-2026-11-21-21-23-64r</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-16-39-117Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-16-39-117Z" class="timestamp-link"><time datetime="2026-11-21T22:16:39.117Z" data-timestamp="2026-11-21T22:16:39.117Z">2026-11-21T22:16:39.117Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>86:let llm: unknown = null;
+scripts/error-analysis.mts(14,29): error TS5097: An import path can only end with a &#x27;.mts&#x27; extension when &#x27;allowImportingTsExtensions&#x27; is enabled.
+lint-ok
+jev-sonnet-strict · dev · 18 runs
+  jev     flags kept 100% (33/33) · traps let through 73% (171/234) · passes 13% of docs
+          flag rank median 4 max 13 · top10 91% (30/33) · top20 100% (33/33) · top30 100% (33/33) · top50 100% (33/33)
+  llm     flags kept 91% (30/33) · traps rejected 97% (166/171)
+  verify  flags → items 100% (30/30) · key date extracted 100% (30/30) · verified 100% (30/30)
+jev-sonnet-strict · test · 18 runs
+  jev     flags kept 100% (27/27) · traps let through 69% (163/237) · passes 11% of docs
+          flag rank median 2 max 17 · top10 78% (21/27) · top20 100% (27/27) · top30 100% (27/27) · top50 100% (27/27)
+  llm     flags kept 81% (22/27) · traps rejected 95% (155/163)
+  verify  flags → items 100% (22/22) · key date extracted 100% (22/22) · verified 100% (22/22)
+jev-sonnet-strict-vote3 · dev · 18 runs
+  jev     flags kept 100% (33/33) · traps let through 74% (173/234) · passes 14% of docs
+          flag rank median 3 max 12 · top10 91% (30/33) · top20 100% (33/33) · top30 100% (33/33) · top50 100% (33/33)
+  llm     flags kept 91% (30/33) · traps rejected 99% (171/173)
+  verify  flags → items 100% (30/30) · key date extracted 100% (30/30) · verified 100% (30/30)
+jev-sonnet-strict-vote3 · test · 18 runs
+  jev     flags kept 100% (27/27) · traps let through 68% (161/237) · passes 11% of docs
+          flag rank median 2 max 15 · top10 78% (21/27) · top20 100% (27/27) · top30 100% (27/27) · top50 100% (27/27)
+  llm     flags kept 85% (23/27) · traps rejected 93% (149/161)
+  verify  flags → items 100% (23/23) · key date extracted 100% (23/23) · verified 100% (23/23)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-50-488Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-50-488Z" class="timestamp-link"><time datetime="2026-11-21T22:16:50.488Z" data-timestamp="2026-11-21T22:16:50.488Z">2026-11-21T22:16:50.488Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-50-491Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-50-491Z" class="timestamp-link"><time datetime="2026-11-21T22:16:50.491Z" data-timestamp="2026-11-21T22:16:50.491Z">2026-11-21T22:16:50.491Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div><p>Jev keeps every real flag and the top 20 catches them all, while the LLM filter drops 3 of 33; I'm moving the formatter into src/lib so the import typechecks, then testing on practice data whether a top-20 cut would remove the traps the filter falls for.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-16-55-514Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-16-55-514Z" class="timestamp-link"><time datetime="2026-11-21T22:16:55.514Z" data-timestamp="2026-11-21T22:16:55.514Z">2026-11-21T22:16:55.514Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01GcgKJw16KJPmntzGMFCRem">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Move formatter into grade.ts; re-run checks and report</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+import re
+sr=open(&#34;scripts/step-report.mts&#34;).read()
+m=re.search(r&#34;export function formatSteps[\s\S]*?\n}\n&#34;, sr); fn=m.group(0)
+sr=sr.replace(fn,&#34;&#34;).replace(&#39;import { aggregateSteps, stepGrade, TOP_N, type StepGrade } from &#34;../src/lib/grade&#34;;&#39;,&#39;import { aggregateSteps, formatSteps, stepGrade } from &#34;../src/lib/grade&#34;;&#39;)
+sr=sr.replace(&#34;if (import.meta.url === `file://${process.argv[1]}`) {\n&#34;,&#34;&#34;).rstrip()
+assert sr.endswith(&#34;}&#34;); sr=sr[:-1].rstrip()+&#34;\n&#34;
+# dedent body
+sr=&#34;\n&#34;.join(l[2:] if l.startswith(&#34;  &#34;) and not l.startswith(&#34;//&#34;) else l for l in sr.split(&#34;\n&#34;))
+open(&#34;scripts/step-report.mts&#34;,&#34;w&#34;).write(sr)
+g=open(&#34;src/lib/grade.ts&#34;).read(); g+=&#34;\n/** Human-readable lines for a step grade (used by step-report and error-analysis). */\n&#34;+fn
+open(&#34;src/lib/grade.ts&#34;,&#34;w&#34;).write(g)
+ea=open(&#34;scripts/error-analysis.mts&#34;).read().replace(&#39;import { aggregateSteps, gradeRun, stepGrade, trapsOf } from &#34;../src/lib/grade&#34;;\nimport { formatSteps } from &#34;./step-report.mts&#34;;&#39;,&#39;import { aggregateSteps, formatSteps, gradeRun, stepGrade, trapsOf } from &#34;../src/lib/grade&#34;;&#39;)
+open(&#34;scripts/error-analysis.mts&#34;,&#34;w&#34;).write(ea)
+EOF
+cat scripts/step-report.mts; npx tsc --noEmit -p . &amp;&amp; echo tsc-ok; npx eslint scripts src/lib/grade.ts &amp;&amp; echo lint-ok; npx vitest run 2&gt;&amp;1 | grep &#34;Tests &#34;; npx tsx scripts/step-report.mts arena-2026-11-21-21-23-64r | head -5</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-17-04-603Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-17-04-603Z" class="timestamp-link"><time datetime="2026-11-21T22:17:04.603Z" data-timestamp="2026-11-21T22:17:04.603Z">2026-11-21T22:17:04.603Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>// Per-step scores (Jev → LLM filter → verify) for each setup in a suite, split dev / test. Free: reads saved runs.
+//   npx tsx scripts/step-report.mts &lt;arenaId&gt;
+import { arenaRuns } from &quot;../src/lib/arena&quot;;
+import { evalsets, loadKey } from &quot;../src/lib/config&quot;;
+import { aggregateSteps, formatSteps, stepGrade } from &quot;../src/lib/grade&quot;;
+
+
+const runs = (await arenaRuns(process.argv[2])).filter((r) =&gt; r.status === &quot;done&quot;);
+const split = new Map(evalsets().map((e) =&gt; [e.id, e.split]));
+for (const c of [...new Set(runs.map((r) =&gt; r.config.cell!))])
+  for (const s of [&quot;dev&quot;, &quot;test&quot;]) {
+    const g = runs.filter((r) =&gt; r.config.cell === c &amp;&amp; split.get(r.config.evalset!) === s).map((r) =&gt; stepGrade(r, loadKey(r.config.profileId, r.config.windowStart, r.config.windowEnd)!));
+    if (!g.length) continue;
+    console.log(`${c} · ${s} · ${g.length} runs`);
+    for (const l of formatSteps(aggregateSteps(g))) console.log(l);
+  }
+tsc-ok
+lint-ok
+      Tests  84 passed (84)
+jev-sonnet-strict · dev · 18 runs
+  jev     flags kept 100% (33/33) · traps let through 73% (171/234) · passes 13% of docs
+          flag rank median 4 max 13 · top10 91% (30/33) · top20 100% (33/33) · top30 100% (33/33) · top50 100% (33/33)
+  llm     flags kept 91% (30/33) · traps rejected 97% (166/171)
+  verify  flags → items 100% (30/30) · key date extracted 100% (30/30) · verified 100% (30/30)
+node:events:486
+      throw er; // Unhandled &#x27;error&#x27; event
+      ^
+
+Error: write EPIPE
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at console.value (node:internal/console/constructor:313:16)
+    at console.log (node:internal/console/constructor:416:26)
+    at &lt;anonymous&gt; (/Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/poc/scripts/step-report.mts:14:13)
+Emitted &#x27;error&#x27; event on Socket instance at:
+    at Socket.onerror (node:internal/streams/readable:1031:14)
+    at Socket.emit (node:events:508:28)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  errno: -32,
+  code: &#x27;EPIPE&#x27;,
+  syscall: &#x27;write&#x27;
+}
+
+Node.js v24.13.0</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-07-064Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-07-064Z" class="timestamp-link"><time datetime="2026-11-21T22:17:07.064Z" data-timestamp="2026-11-21T22:17:07.064Z">2026-11-21T22:17:07.064Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-07-069Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-07-069Z" class="timestamp-link"><time datetime="2026-11-21T22:17:07.069Z" data-timestamp="2026-11-21T22:17:07.069Z">2026-11-21T22:17:07.069Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Works; the EPIPE is just from piping into <code>head</code>. Now the dev-only top-N evidence: where do the traps the filter falls for sit in Jev's ranking?</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-12-425Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-12-425Z" class="timestamp-link"><time datetime="2026-11-21T22:17:12.425Z" data-timestamp="2026-11-21T22:17:12.425Z">2026-11-21T22:17:12.425Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01SVk6Yf86nw57N4GU2HxWDU">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Dev-only: Jev rank of trap hits vs flags for strict setup</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -i &#39;&#39; &#39;/^$/N;/^\n$/D&#39; scripts/step-report.mts &amp;&amp; python3 - &lt;&lt;&#39;EOF&#39;
+import json,glob,yaml,collections
+man=yaml.safe_load(open(&#34;config/evalsets/manifest.yaml&#34;)); dev={w[&#34;id&#34;] for w in man[&#34;weeks&#34;] if w[&#34;split&#34;]==&#34;dev&#34;}
+for arena in [&#34;arena-2026-11-21-21-23-64r&#34;,&#34;arena-2026-11-21-20-41-gip&#34;,&#34;arena-2026-11-21-18-40-w0i&#34;]:
+  res=collections.Counter(); hits=[]
+  for f in glob.glob(f&#34;data/evals/{arena}/runs/*.json&#34;):
+    d=json.load(open(f)); c=d[&#34;config&#34;]
+    if c.get(&#34;cell&#34;)!=&#34;jev-sonnet-strict&#34; or d[&#34;status&#34;]!=&#34;done&#34; or c[&#34;evalset&#34;].split(&#34;_&#34;,1)[1] not in dev: continue
+    k=json.load(open(f&#34;config/evalsets/keys/{c[&#39;evalset&#39;]}.json&#34;)); traps=set(k.get(&#34;traps&#34;,{}))
+    order=[x[&#34;document_number&#34;] for x in sorted(d[&#34;decisions&#34;],key=lambda x:-(x.get(&#34;jevProbability&#34;) or 0))]
+    flagged={i[&#34;document_number&#34;] for i in d[&#34;items&#34;]}
+    for n in flagged:
+      r=order.index(n)+1 if n in order else None
+      kind=&#34;flag&#34; if n in k[&#34;relevant&#34;] else &#34;trap&#34; if n in traps else &#34;extra&#34;
+      res[(kind, &#34;top20&#34; if r and r&lt;=20 else &#34;&gt;20&#34;)]+=1
+      if kind==&#34;trap&#34;: hits.append((c[&#34;evalset&#34;][:10],n,r))
+  print(arena[-3:], dict(res), &#34;trap hits (evalset,doc,rank):&#34;, sorted(hits,key=lambda x:x[2] or 0))
+EOF</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-17-13-178Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-17-13-178Z" class="timestamp-link"><time datetime="2026-11-21T22:17:13.178Z" data-timestamp="2026-11-21T22:17:13.178Z">2026-11-21T22:17:13.178Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>64r {(&#x27;extra&#x27;, &#x27;top20&#x27;): 10, (&#x27;trap&#x27;, &#x27;top20&#x27;): 5, (&#x27;flag&#x27;, &#x27;top20&#x27;): 30, (&#x27;extra&#x27;, &#x27;&gt;20&#x27;): 1} trap hits (evalset,doc,rank): [(&#x27;skyhop_202&#x27;, &#x27;2026-21964&#x27;, 10), (&#x27;brightside&#x27;, &#x27;2026-22865&#x27;, 12), (&#x27;brightside&#x27;, &#x27;2026-22865&#x27;, 14), (&#x27;cornercare&#x27;, &#x27;2026-22743&#x27;, 20), (&#x27;cornercare&#x27;, &#x27;2026-22743&#x27;, 20)]
+gip {(&#x27;flag&#x27;, &#x27;top20&#x27;): 27, (&#x27;trap&#x27;, &#x27;top20&#x27;): 2} trap hits (evalset,doc,rank): [(&#x27;cornercare&#x27;, &#x27;2026-22743&#x27;, 20), (&#x27;cornercare&#x27;, &#x27;2026-22743&#x27;, 20)]
+w0i {(&#x27;flag&#x27;, &#x27;top20&#x27;): 25, (&#x27;trap&#x27;, &#x27;top20&#x27;): 1} trap hits (evalset,doc,rank): [(&#x27;cornercare&#x27;, &#x27;2026-22743&#x27;, 20)]</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-23-093Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-23-093Z" class="timestamp-link"><time datetime="2026-11-21T22:17:23.093Z" data-timestamp="2026-11-21T22:17:23.093Z">2026-11-21T22:17:23.093Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-23-100Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-23-100Z" class="timestamp-link"><time datetime="2026-11-21T22:17:23.100Z" data-timestamp="2026-11-21T22:17:23.100Z">2026-11-21T22:17:23.100Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div><p>A top-20 cut would mainly save cost, since the traps rank 10–20 and stay in; the LLM filter's traps and its three missed real flags remain the main losses. While iteration 05 runs, I'm fixing the text-fetch bug test-first, without touching the cache.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-23-611Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-23-611Z" class="timestamp-link"><time datetime="2026-11-21T22:17:23.611Z" data-timestamp="2026-11-21T22:17:23.611Z">2026-11-21T22:17:23.611Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01X86HkD4ho8qyCXnLyvSohF">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read text-fetch tests and fr.ts</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat tests/fr-text.test.ts; sed -n &#39;1,30p;100,140p&#39; src/lib/fr.ts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-17-23-731Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-17-23-731Z" class="timestamp-link"><time datetime="2026-11-21T22:17:23.731Z" data-timestamp="2026-11-21T22:17:23.731Z">2026-11-21T22:17:23.731Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>import fs from &quot;node:fs&quot;;
+import os from &quot;node:os&quot;;
+import path from &quot;node:path&quot;;
+import { afterEach, beforeEach, describe, expect, it, vi } from &quot;vitest&quot;;
+import type { FrDoc } from &quot;../src/lib/types&quot;;
+
+// Found 2026-11-21: 15 of 22 cached &quot;full texts&quot; were the Federal Register &quot;Request Access&quot; captcha page,
+// so date extraction was reading a block page. Full text now comes from govinfo.gov (same GPO text).
+const BLOCK = &quot;&lt;html&gt;&lt;title&gt;Federal Register :: Request Access&lt;/title&gt; ... captcha ...&lt;/html&gt;&quot;;
+const REAL = &quot;&lt;html&gt;&lt;pre&gt;[Federal Register Volume 91] DATES: Comments must be received by December 10, 2026.&lt;/pre&gt;&lt;/html&gt;&quot;;
+
+const doc = { document_number: &quot;2026-22866&quot;, publication_date: &quot;2026-11-10&quot;, raw_text_url: &quot;https://www.federalregister.gov/documents/full_text/text/2026/11/10/2026-22866.txt&quot; } as FrDoc;
+
+describe(&quot;getRawText&quot;, () =&gt; {
+  let cwd: string;
+  beforeEach(() =&gt; {
+    cwd = process.cwd();
+    process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), &quot;fr-&quot;)));
+    vi.resetModules();
+  });
+  afterEach(() =&gt; {
+    process.chdir(cwd);
+    vi.unstubAllGlobals();
+  });
+
+  it(&quot;reads govinfo first and strips HTML&quot;, async () =&gt; {
+    const fetchMock = vi.fn(async (url: string) =&gt; new Response(url.includes(&quot;govinfo.gov/content/pkg/FR-2026-11-10/html/2026-22866.htm&quot;) ? REAL : BLOCK));
+    vi.stubGlobal(&quot;fetch&quot;, fetchMock);
+    const { getRawText } = await import(&quot;../src/lib/fr&quot;);
+    const t = await getRawText(doc);
+    expect(t).toContain(&quot;December 10, 2026&quot;);
+    expect(t).not.toContain(&quot;&lt;pre&gt;&quot;);
+  });
+
+  it(&quot;never returns or caches a block page; falls back to the FR raw text only if it is real&quot;, async () =&gt; {
+    vi.stubGlobal(&quot;fetch&quot;, vi.fn(async () =&gt; new Response(BLOCK)));
+    const { getRawText } = await import(&quot;../src/lib/fr&quot;);
+    expect(await getRawText(doc)).toBe(&quot;&quot;);
+    // A later successful fetch must not be shadowed by a cached block page.
+    vi.stubGlobal(&quot;fetch&quot;, vi.fn(async (url: string) =&gt; new Response(url.includes(&quot;federalregister.gov&quot;) ? REAL : &quot;&quot;, { status: url.includes(&quot;govinfo&quot;) ? 404 : 200 })));
+    expect(await getRawText(doc)).toContain(&quot;December 10, 2026&quot;);
+  });
+});
+import fs from &quot;node:fs/promises&quot;;
+import path from &quot;node:path&quot;;
+import { frozenWeek } from &quot;./config&quot;;
+import type { FrDoc } from &quot;./types&quot;;
+
+const API = &quot;https://www.federalregister.gov/api/v1&quot;;
+const CACHE = path.resolve(process.cwd(), &quot;data/cache&quot;);
+
+const FIELDS = [
+  &quot;document_number&quot;,
+  &quot;type&quot;,
+  &quot;title&quot;,
+  &quot;abstract&quot;,
+  &quot;agencies&quot;,
+  &quot;publication_date&quot;,
+  &quot;effective_on&quot;,
+  &quot;comments_close_on&quot;,
+  &quot;dates&quot;,
+  &quot;citation&quot;,
+  &quot;cfr_references&quot;,
+  &quot;html_url&quot;,
+  &quot;raw_text_url&quot;,
+  &quot;action&quot;,
+];
+
+const qs = (params: [string, string][]) =&gt; params.map(([k, v]) =&gt; `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join(&quot;&amp;&quot;);
+
+async function cached&lt;T&gt;(key: string, fetcher: () =&gt; Promise&lt;T&gt;, useCache: boolean): Promise&lt;T&gt; {
+  const file = path.join(CACHE, key.replace(/[^a-zA-Z0-9._-]/g, &quot;_&quot;));
+  if (useCache) {
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Full plain text of a document: govinfo first, the Federal Register&#x27;s raw text as fallback. A block page or a
+ * failure returns &quot;&quot; and is NOT cached, so a later run retries instead of reading junk forever.
+ */
+export async function getRawText(doc: FrDoc): Promise&lt;string&gt; {
+  return (await getRawTextWithSource(doc)).text;
+}
+
+/** Same as getRawText, plus where the text came from (for the execution trace). */
+export async function getRawTextWithSource(doc: FrDoc): Promise&lt;{ text: string; source: &quot;cache&quot; | &quot;govinfo&quot; | &quot;federalregister&quot; | &quot;none&quot; }&gt; {
+  const file = path.join(CACHE, `text-${doc.document_number}.json`);
+  try {
+    const hit = JSON.parse(await fs.readFile(file, &quot;utf8&quot;)) as string;
+    if (hit &amp;&amp; !isBlockPage(hit)) return { text: hit, source: &quot;cache&quot; };
+  } catch {}
+  let source: &quot;govinfo&quot; | &quot;federalregister&quot; = &quot;govinfo&quot;;
+  let text = await fetchText(govinfoUrl(doc));
+  if (!text &amp;&amp; doc.raw_text_url) {
+    text = await fetchText(doc.raw_text_url);
+    source = &quot;federalregister&quot;;
+  }
+  if (!text) return { text: &quot;&quot;, source: &quot;none&quot; };
+  await fs.mkdir(CACHE, { recursive: true });
+  await fs.writeFile(file, JSON.stringify(text));
+  return { text, source };
+}
+
+export const agencyNames = (d: FrDoc) =&gt; d.agencies.map((a) =&gt; a.name ?? a.raw_name ?? a.slug ?? &quot;?&quot;);</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-28-699Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-28-699Z" class="timestamp-link"><time datetime="2026-11-21T22:17:28.699Z" data-timestamp="2026-11-21T22:17:28.699Z">2026-11-21T22:17:28.699Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-33-402Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-33-402Z" class="timestamp-link"><time datetime="2026-11-21T22:17:33.402Z" data-timestamp="2026-11-21T22:17:33.402Z">2026-11-21T22:17:33.402Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01VWKyQjm7Bc9xU9iYunnvRQ">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Add failing test for literal &#39;&lt;&#39; in govinfo text</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+p=&#34;tests/fr-text.test.ts&#34;; s=open(p).read()
+old=&#39;&#39;&#39;  it(&#34;never returns or caches a block page&#39;&#39;&#39;
+new=&#39;&#39;&#39;  it(&#34;keeps text after a literal &#39;&lt;&#39; (govinfo serves &#39;&lt;=7.3 percent&#39; unescaped inside &lt;pre&gt;)&#34;, async () =&gt; {
+    // Found 2026-11-22: the tag strip deleted everything from &#34;&lt;=&#34; to the next &#34;&gt;&#34; — up to 34 KB, including the
+    // whole power-bank passage of 2026-21922. Only real tags (&lt;pre&gt;, &lt;/pre&gt;, &lt;!-- --&gt;) may be stripped.
+    const page = &#34;&lt;html&gt;&lt;pre&gt;a concentration of &lt;=7.3 percent.\\n    Passengers may carry two power banks; see Table 3 &gt; below.&lt;/pre&gt;&lt;/html&gt;&#34;;
+    vi.stubGlobal(&#34;fetch&#34;, vi.fn(async () =&gt; new Response(page)));
+    const { getRawText } = await import(&#34;../src/lib/fr&#34;);
+    const t = await getRawText(doc);
+    expect(t).toContain(&#34;&lt;=7.3 percent&#34;);
+    expect(t).toContain(&#34;two power banks&#34;);
+    expect(t).not.toContain(&#34;&lt;pre&gt;&#34;);
+  });
+
+  it(&#34;never returns or caches a block page&#39;&#39;&#39;
+assert s.count(old)==1; open(p,&#34;w&#34;).write(s.replace(old,new))
+EOF
+npx vitest run tests/fr-text.test.ts 2&gt;&amp;1 | grep -E &#34;×|✓|Tests |expected&#34; | head -5</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-17-34-693Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-17-34-693Z" class="timestamp-link"><time datetime="2026-11-21T22:17:34.693Z" data-timestamp="2026-11-21T22:17:34.693Z">2026-11-21T22:17:34.693Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     × keeps text after a literal &#x27;&lt;&#x27; (govinfo serves &#x27;&lt;=7.3 percent&#x27; unescaped inside &lt;pre&gt;) 11ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected &#x27;  a concentration of   below.  &#x27; to contain &#x27;&lt;=7.3 percent&#x27;
+      Tests  1 failed | 2 passed (3)</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-37-356Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-37-356Z" class="timestamp-link"><time datetime="2026-11-21T22:17:37.356Z" data-timestamp="2026-11-21T22:17:37.356Z">2026-11-21T22:17:37.356Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-37-362Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-37-362Z" class="timestamp-link"><time datetime="2026-11-21T22:17:37.362Z" data-timestamp="2026-11-21T22:17:37.362Z">2026-11-21T22:17:37.362Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div><p>The test reproduces the bug: everything from <code>&lt;=</code> to <code>&gt;</code> was being deleted. I'm fixing the tag stripping and versioning the text cache so old cut texts are never read again.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-17-42-452Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-17-42-452Z" class="timestamp-link"><time datetime="2026-11-21T22:17:42.452Z" data-timestamp="2026-11-21T22:17:42.452Z">2026-11-21T22:17:42.452Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01LsDMGcgMmm7CTrrfZ5inUH">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Fix tag strip and cache version; verify on the real document</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">python3 - &lt;&lt;&#39;EOF&#39;
+def sub(p, old, new):
+  s=open(p).read(); assert s.count(old)==1,(p,old[:60]); open(p,&#34;w&#34;).write(s.replace(old,new))
+P=&#34;src/lib/fr.ts&#34;
+sub(P,&#39;&#39;&#39;    return html.replace(/&lt;[^&gt;]+&gt;/g, &#34; &#34;);&#39;&#39;&#39;,&#39;&#39;&#39;    // Strip only real tags (&lt;pre&gt;, &lt;/pre&gt;, &lt;!-- … --&gt;). govinfo leaves a literal &#34;&lt;&#34; unescaped in the text
+    // (&#34;&lt;=7.3 percent&#34;), and a bare /&lt;[^&gt;]+&gt;/ deleted everything up to the next &#34;&gt;&#34; (2026-11-22, up to 34 KB).
+    return html.replace(/&lt;!--[\\s\\S]*?--&gt;|&lt;\\/?[a-zA-Z][^&lt;&gt;]*&gt;/g, &#34; &#34;);&#39;&#39;&#39;)
+sub(P,&#39;&#39;&#39;  const file = path.join(CACHE, `text-${doc.document_number}.json`);&#39;&#39;&#39;,&#39;&#39;&#39;  // v2: texts cached before the tag-strip fix (2026-11-22) may be cut, so they&#39;re never read again.
+  const file = path.join(CACHE, `text-v2-${doc.document_number}.json`);&#39;&#39;&#39;)
+EOF
+npx vitest run 2&gt;&amp;1 | grep -E &#34;×|Tests &#34;; npx tsc --noEmit -p . &amp;&amp; echo tsc-ok; npx tsx /private/tmp/claude-501/-Users-anfal-Projects-hobby-projects-gc-ai-swe-take-home/1b546823-de4b-4e2b-8627-7fa7a6f5e4b6/scratchpad/lt.mts</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-17-52-587Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-17-52-587Z" class="timestamp-link"><time datetime="2026-11-21T22:17:52.587Z" data-timestamp="2026-11-21T22:17:52.587Z">2026-11-21T22:17:52.587Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>      Tests  85 passed (85)
+tsc-ok
+govinfo 310766 power bank found: true 5 raw &#x27;&lt;&#x27; count: 11</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-18-02-568Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-18-02-568Z" class="timestamp-link"><time datetime="2026-11-21T22:18:02.568Z" data-timestamp="2026-11-21T22:18:02.568Z">2026-11-21T22:18:02.568Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-18-02-574Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-18-02-574Z" class="timestamp-link"><time datetime="2026-11-21T22:18:02.574Z" data-timestamp="2026-11-21T22:18:02.574Z">2026-11-21T22:18:02.574Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div><p>The real power-bank document now loads whole at 311 KB with all 5 mentions, and 85 tests pass. I'm committing the grading changes separately from the text fix so that iteration 05 points at the right grader.</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-18-04-805Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-18-04-805Z" class="timestamp-link"><time datetime="2026-11-21T22:18:04.805Z" data-timestamp="2026-11-21T22:18:04.805Z">2026-11-21T22:18:04.805Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_0188EDQVc8V51pqtJKP1VXgg">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Commit subset grading and per-step scoring</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git add src/lib/grade.ts tests/grade.test.ts scripts/step-report.mts scripts/error-analysis.mts data/iterations/0[0-4]-*/spec.yaml data/iterations/0[0-4]-*/iteration.yaml &amp;&amp; git commit -q -m &#34;POC: subset precision grading + per-step scores (Jev, LLM filter, verify)
+
+- Precision = found / (found + traps flagged); flags outside the key are reported, not penalised
+- stepGrade/aggregateSteps score each pipeline step against the key from saved runs (no model calls)
+- scripts/step-report.mts; error analysis now includes per-step scores in its evidence
+- Iterations 00-04 re-graded (snapshots kept), with notes
+
+Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;&#34; &amp;&amp; git log --oneline -1 &amp;&amp; git status --short | grep -v &#34;^??&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-21T22-18-05-607Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-21T22-18-05-607Z" class="timestamp-link"><time datetime="2026-11-21T22:18:05.607Z" data-timestamp="2026-11-21T22:18:05.607Z">2026-11-21T22:18:05.607Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>d714f36 POC: subset precision grading + per-step scores (Jev, LLM filter, verify)
+ M config/setups.yaml
+ M data/iterations/01-first-pipeline/system.diff
+ M data/iterations/02-strict-prompt/system.diff
+ M data/iterations/03-strict-v2/system.diff
+ M data/spend-ledger.json
+ M src/lib/fr.ts
+ M tests/fr-text.test.ts</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-18-10-622Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-18-10-622Z" class="timestamp-link"><time datetime="2026-11-21T22:18:10.622Z" data-timestamp="2026-11-21T22:18:10.622Z">2026-11-21T22:18:10.622Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-21T22-18-10-631Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-21T22-18-10-631Z" class="timestamp-link"><time datetime="2026-11-21T22:18:10.631Z" data-timestamp="2026-11-21T22:18:10.631Z">2026-11-21T22:18:10.631Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Committed as <code>d714f36</code>. Iteration 05's suite is still running in the background. When it finishes I'll:
+1. Record its verdict (decided on dev, must hold on test).
+2. Run the error analysis on its suite, now with per-step scores and judge feedback.
+3. Use the remaining ~$18 for one last evidence-backed iteration, which will also carry the text fix.
+4. Re-export the final results and write up where we landed against your targets.</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-006.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<span class="current">7</span>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-008.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

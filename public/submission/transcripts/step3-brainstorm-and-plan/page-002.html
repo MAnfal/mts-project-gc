@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 2</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 2/12</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-001.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<span class="current">2</span>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-003.html">Next &rarr;</a>
+</div>
+
+        
+<div class="message user" id="msg-2026-11-22T14-28-47-385Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-22T14-28-47-385Z" class="timestamp-link"><time datetime="2026-11-22T14:28:47.385Z" data-timestamp="2026-11-22T14:28:47.385Z">2026-11-22T14:28:47.385Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Also, explore the poc/ dir for what I have done up until this point as well. We will be building a demo ready version around it. We'll discuss the UX in depth. Just look at the POC. Since I have consumed ~130 dollars in tokens already, we are going take the runs/results and everything else here and use them as the stubbed versions of evals I ran, the results of them, the configs and the live workflow someone can run. Does it make snese?</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-28-49-278Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-28-49-278Z" class="timestamp-link"><time datetime="2026-11-22T14:28:49.278Z" data-timestamp="2026-11-22T14:28:49.278Z">2026-11-22T14:28:49.278Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message user" id="msg-2026-11-22T14-28-52-588Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-22T14-28-52-588Z" class="timestamp-link"><time datetime="2026-11-22T14:28:52.588Z" data-timestamp="2026-11-22T14:28:52.588Z">2026-11-22T14:28:52.588Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>[Request interrupted by user]</p></div></div></div>
+<div class="message user" id="msg-2026-11-22T14-28-52-622Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-22T14-28-52-622Z" class="timestamp-link"><time datetime="2026-11-22T14:28:52.622Z" data-timestamp="2026-11-22T14:28:52.622Z">2026-11-22T14:28:52.622Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Also, explore the poc/ dir for what I have done up until this point as well. We will be building a demo ready version around it. We'll discuss the UX in depth. Just look at the POC. Since I have consumed ~130 dollars in tokens already, we are going take the runs/results and everything else here and use them as the stubbed versions of evals I ran, the results of them, the configs and the live workflow someone can run. Does it make sense</p></div></div></div>
+<div class="message user" id="msg-2026-11-22T14-28-56-357Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-22T14-28-56-357Z" class="timestamp-link"><time datetime="2026-11-22T14:28:56.357Z" data-timestamp="2026-11-22T14:28:56.357Z">2026-11-22T14:28:56.357Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Also, explore the poc/ dir for what I have done up until this point as well. We will be building a demo ready version around it. We'll discuss the UX in depth. Just look at the POC. Since I have consumed ~130 dollars in tokens already, we are going take the runs/results and everything else here and use them as the stubbed versions of evals I ran, the results of them, the configs and the live workflow someone can run. Does it make sense?</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-28-58-738Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-28-58-738Z" class="timestamp-link"><time datetime="2026-11-22T14:28:58.738Z" data-timestamp="2026-11-22T14:28:58.738Z">2026-11-22T14:28:58.738Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-00-001Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-00-001Z" class="timestamp-link"><time datetime="2026-11-22T14:29:00.001Z" data-timestamp="2026-11-22T14:29:00.001Z">2026-11-22T14:29:00.001Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01MeY7xg2ZfDf7PRJQH7zAU9">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">List POC directory structure</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cd poc &amp;&amp; ls -la &amp;&amp; echo --- &amp;&amp; find . -path ./node_modules -prune -o -type d -print | grep -v node_modules | head -80 &amp;&amp; echo --- &amp;&amp; find . -path ./node_modules -prune -o -type f -print | grep -v node_modules | wc -l &amp;&amp; du -sh data 2&gt;/dev/null</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-00-469Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-00-469Z" class="timestamp-link"><time datetime="2026-11-22T14:29:00.469Z" data-timestamp="2026-11-22T14:29:00.469Z">2026-11-22T14:29:00.469Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_016YFpsYSRhLiWY41zT9EX5c">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read POC README</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat poc/README.md | head -250</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-29-00-788Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-29-00-788Z" class="timestamp-link"><time datetime="2026-11-22T14:29:00.788Z" data-timestamp="2026-11-22T14:29:00.788Z">2026-11-22T14:29:00.788Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre># Regulatory Monitoring — POC (reference only)
+
+Scrappy proof of concept that validates the RFC before the real build. Lives on the `poc`
+branch and is never merged. The real build cites what this proves.
+
+Three questions it answers:
+
+1. **Does the workflow work?** Config → Scan (Federal Register API + optional Exa leads) →
+   Filter (Jev decision model and/or LLM) → Verify + Tier (code) → Output (LLM).
+2. **What do the evals look like?** Code graders on the outcome, transcript checks as a
+   secondary signal, a 3-judge LLM panel only for action-item quality (`scripts/suite.mts` runs it all).
+3. **Does it beat a baseline?** One prompt + the same model&#x27;s native web search, graded by the
+   same code.
+
+## Run it
+
+```bash
+pnpm install
+# key is read from ../.env (VERCEL_AI_GATEWAY_API_KEY)
+pnpm dev                 # http://localhost:3000 (PORT=3457 in the POC session) — Run · Label · Evals
+pnpm test                # unit tests: tier rules, date verification, scoring
+pnpm run run -- --filter jev+llm --threshold 0.1 --runs 3 --group my-group   # CLI run
+npx tsx scripts/suite.mts --setups jev-sonnet-strict --repeat 3   # eval suite: setups × eval sets × repeats (spends money)
+```
+
+Spend is capped by `config/experiment.yaml → budgetUsd` ($120 for this POC). It is the sum of every saved run&#x27;s
+Gateway-reported cost, and runs refuse to start past it.
+
+## Where things are
+
+| Path | What |
+|---|---|
+| `config/` | **everything the code executes**: companies, prompts, setups, judge panel, knobs, eval sets + answer keys (`config/README.md`) |
+| `SCHEMA.md` | every file format (config, keys, runs, traces, export bundle) — the contract the real build loads |
+| `src/lib/pipeline/` | the workflow: scan → Jev/LLM filter → verify + tier → actions; baseline |
+| `src/lib/grade.ts` · `suite.ts` | code graders vs the answer key (found / missed / trap / dates / tier / owner, pass^k) and the dashboard numbers |
+| `src/lib/panel.ts` | 3-vendor judge panel, 2-of-3 vote |
+| `src/lib/trace.ts` · `trace-checks.ts` | full JSONL execution trace per run + deterministic checks on it |
+| `data/evals/&lt;arenaId&gt;/` | the canonical eval suite: `runs/&lt;id&gt;.json` + `traces/&lt;id&gt;.jsonl` |
+| `data/user-view/` | user-view runs (pre-runs + fresh ones), same shape |
+| `data/exports/&lt;arenaId&gt;/` | portable bundle for the real build (static files; traces gzipped) |
+| `data/iterations/&lt;NN-slug&gt;/` | one improvement iteration each: spec (hypothesis → change → decision), error analysis, results, `system.diff`, `config.diff`, config snapshot |
+| `scripts/` | `suite` (run evals), `error-analysis`, `iteration`, `split-report`, `step-report`, `prerun`, `judge-panel`, `export`, `cleanup`, `freeze-week`, `validate-config`, `report` |
+
+Pages: `/` start an eval · `/arena/&lt;id&gt;` interviewer dashboard · `/progress` iterations · `/runs/&lt;id&gt;/trace` trace viewer · `/try` user view.
+
+## The improvement loop
+
+1. `scripts/error-analysis.mts &lt;prev suite&gt; &lt;live setup&gt; data/iterations/&lt;NN&gt;/ --llm`: dev weeks only (test weeks are
+   refused), every failure signal (code vs key, trace checks, judge verdicts) plus per-step scores, grouped into root
+   causes, each marked system or eval.
+2. Write `spec.yaml` with `targets` naming the buckets / root causes the change addresses; add the candidate setup.
+3. `scripts/suite.mts --setups &lt;live&gt;,&lt;candidate&gt;`: the control re-runs in the same suite.
+4. `scripts/iteration.mts data/iterations/&lt;NN&gt;/spec.yaml`: refuses without step 1&#x27;s evidence (written before the
+   suite) and targets. Decide on dev; a gap counts only if it exceeds the control&#x27;s A/A swing between identical suites.
+
+## Findings (2026-11-22, after iterations 00–06)
+
+**Eval set:** 3 everyday companies (food, pharmacy, airline) × 4 frozen weeks = 12 company-weeks; 2 weeks are dev
+(we look and tune), 2 are held-out test (scored, never analysed). Keys: two blind drafts (Opus + Sonnet) per
+company-week, reconciled by a third blind agent: 20 should-flag rules, 157 traps. Grading: code vs the key (subset
+logic: key flags found = right, traps flagged = wrong, anything else is reported but not penalised), deterministic
+trace checks, per-step scores, and a 3-vendor judge panel (2 of 3) for action wording. Total spend $125 of $130.
+
+**Live setup `jev-sonnet-strict-passages` vs the RFC targets** (69 runs pooled over two identical suites):
+
+| Target | Result | |
+|---|---|---|
+| Recall ≥ 90% | 89.8% (dev 91.2%, test 88.2%) | just short |
+| Precision ≥ 80% | 81.5% (dev 91.2%, test 72.6%) | ✅ overall, short on held-out |
+| Dates and citations verified | 100% dates (97/97), 100% trace checks (measured on both 06 suites) | ✅ |
+| Tier identical across 3 runs | 100% right (97/97) | ✅ |
+| Relevance agrees across 3 runs ≥ 90% | 94.6% of keyed docs (pooled); 82.5% on real flags alone, a regression from 89.5% with `strict` | ✅ overall, ❌ on flags |
+| Beats single-prompt baseline | recall 90% vs 63%, precision 82% vs 69%, dates 100% vs 79%, $0.20 vs $0.52/run. Cross-suite: the baseline&#x27;s old-week runs are from the first suite | ✅ |
+
+The held-out weeks have now gated four decisions (02–06), so these test figures are slightly optimistic. The user
+view&#x27;s demo pre-runs are partly from the previous setup: a Gateway outage on Jev failed most re-runs (failed runs are
+kept in `data/user-view/runs/` with status `error`; the user view hides them).
+
+The previous live setup (`strict`) in the same two suites: recall 86.3%, precision 78.9%, $0.12/run. Flags outside
+the key (not penalised under subset grading) ran at about 0.3 per run, mostly docs the key reviewers called 50/50.
+
+**What the iterations showed** (`/progress`, `data/iterations/`):
+- **02, the strict filter prompt (kept):** listing what does NOT count cut false flags sharply. It&#x27;s the only prompt
+  change that beat the noise.
+- **03, strict-v2:** rejected on dev precision. Its one code fix, showing every verified date on the card, took
+  dates right from 74% to 100% and was kept.
+- **04, a 3-pass majority vote on the filter:** steadier on dev, no held-out gain, 2.2× cost. Not kept.
+- **05, strict-v3 (exclusions from error analysis):** no measurable effect. The targeted docs were flagged identically
+  by the unchanged control in the same suite.
+- **06, Jev-picked passages (promoted):** for Jev&#x27;s top 20 docs, Jev scores ~1,200-char passages of the full text
+  and the filter also reads the best 3. The power-bank rule (2026-21922), missed in every earlier run, was found
+  9 of 9 times. Test misses fell 5.3 → 3.1 and trap hits 10.6 → 8.7 per 18 runs (pooled, replicated). Trade-off:
+  it sometimes drops the DEA quota rules (3 of 8 dev runs) when passages say the duty sits with manufacturers.
+- **The noise band is wide.** The unchanged control swings 3 recall cases and 4 trap hits on the test weeks between
+  two identical suites, and its old-week test recall was 14, 9, 12 and 15 of 15 across four suites. So single-suite
+  gaps of that size are inconclusive. The decision rule now requires a gap
+  larger than the control&#x27;s own A/A swing.
+
+**Per step** (dev): Jev keeps 100% of real flags and ranks every one in its top 20 (median 4th), so it&#x27;s not the
+bottleneck. The LLM filter loses ~9% of real flags and is where false alarms come from. Verify extracts and verifies
+the key&#x27;s date 100% of the time. Top-N on Jev would save cost but wouldn&#x27;t remove the traps the filter falls for:
+they rank 10–20.
+
+**Eval-method findings (fixed or flagged):**
+- *Judge saw only the action text* and penalised dates that live on the card. Fixed: judges see the card&#x27;s dates.
+- *Grader penalised flags outside the key*, including docs reviewers dropped as 50/50. Fixed: subset grading.
+- *Judge &quot;covers&quot; FAIL rate tracks rubric style, not the system:* 0% on gist rubrics written that way, 36% on
+  rewritten dev rubrics, 71% on the original detailed, date-bearing test rubrics (left untouched: test weeks are
+  frozen). Judge pass is not comparable across week groups.
+- *Held-out false alarms are real:* 19 of 20 are on high-confidence traps, so the test precision gap isn&#x27;t key noise.
+- *Text bug:* govinfo text with a literal &quot;&lt;&quot; lost up to 113 KB (11 of 169 keyed docs). Fixed. It never changed a
+  score: the filter reads abstracts, and the date extractor&#x27;s input (first 7,000 chars) was identical before and
+  after for every damaged doc that reached it. It would have mattered in production.
+- *Error analysis disagreed with the grader on dates:* it still checked only the old headline date, so it reported
+  date failures the grader didn&#x27;t count. Fixed: both share one date check (`dateCorrect`).
+- *Possible key bias:* keys were drafted by Claude models; the only non-Claude setup ranked lowest on recall.
+
+**Next, for the real build** (evidence for iteration 07 is ready in `data/iterations/07-next/`):
+- Keep indirect supply/demand rules when passages describe duties on other parties (the DEA quota drops).
+- Judges read rubrics too literally (e.g. fail an informational action for not saying &quot;nothing is required&quot;):
+  loosen the &quot;covers&quot; instruction for informational items.
+- Grow the eval set before tuning further: 20 real flags can&#x27;t resolve gains smaller than ~3 cases.
+- Rewrite the held-out rubrics at gist level with a blind agent, so judge pass is comparable across weeks.
+
+## For the real build
+
+- Load `config/` and the export bundle (`scripts/export.mts`) as-is; formats are in `SCHEMA.md`.
+- Serve eval results as static files (`public/evals/&lt;suite&gt;/`, traces `.jsonl.gz`); stream + window the trace
+  viewer (fetch → DecompressionStream → line parse → virtualized list); split index vs heavy bodies.
+- Scale: add a free rules-based prefilter (agency, CFR part, doc type) before Jev, prompt-cache the profile, and cache
+  verdicts per (profile, doc).</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-29-01-038Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-29-01-038Z" class="timestamp-link"><time datetime="2026-11-22T14:29:01.038Z" data-timestamp="2026-11-22T14:29:01.038Z">2026-11-22T14:29:01.038Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>total 1552
+drwxr-xr-x@ 23 anfal  staff     736 Nov 22 02:15 .
+drwxr-xr-x@  9 anfal  staff     288 Nov 21 17:55 ..
+-rw-r--r--@  1 anfal  staff     715 Nov 22 02:15 .gitignore
+drwxr-xr-x@  5 anfal  staff     160 Nov 22 02:27 .next
+-rw-r--r--@  1 anfal  staff     679 Nov 21 17:56 AGENTS.md
+-rw-r--r--@  1 anfal  staff     520 Nov 21 20:14 components.json
+drwxr-xr-x@ 11 anfal  staff     352 Nov 22 03:44 config
+drwxr-xr-x@  8 anfal  staff     256 Nov 22 00:43 data
+-rw-r--r--@  1 anfal  staff     465 Nov 21 17:55 eslint.config.mjs
+-rw-r--r--@  1 anfal  staff     296 Nov 22 01:57 next-env.d.ts
+-rw-r--r--@  1 anfal  staff     372 Nov 21 18:08 next.config.ts
+drwxr-xr-x@ 48 anfal  staff    1536 Nov 22 02:15 node_modules
+-rw-r--r--@  1 anfal  staff    1239 Nov 22 02:15 package.json
+-rw-r--r--@  1 anfal  staff  223914 Nov 22 02:15 pnpm-lock.yaml
+drwxr-xr-x@  7 anfal  staff     224 Nov 21 17:55 public
+-rw-r--r--@  1 anfal  staff    9801 Nov 22 04:50 README.md
+-rw-r--r--@  1 anfal  staff    7228 Nov 22 04:50 SCHEMA.md
+drwxr-xr-x@ 19 anfal  staff     608 Nov 22 03:17 scripts
+drwxr-xr-x@  5 anfal  staff     160 Nov 21 18:06 src
+drwxr-xr-x@ 17 anfal  staff     544 Nov 22 03:47 tests
+-rw-r--r--@  1 anfal  staff     670 Nov 21 17:55 tsconfig.json
+-rw-r--r--@  1 anfal  staff  508824 Nov 22 04:45 tsconfig.tsbuildinfo
+-rw-r--r--@  1 anfal  staff     229 Nov 21 18:15 vitest.config.mts
+---
+.
+./config
+./tests
+./.next
+./public
+./scripts
+./data
+./src
+./config/prompt-sets
+./config/evalsets
+./config/companies
+./tests/fixtures
+./.next/types
+./.next/cache
+./.next/dev
+./data/evals
+./data/cache
+./data/exports
+./data/user-view
+./data/iterations
+./src/app
+./src/components
+./src/lib
+./config/evalsets/weeks
+./config/evalsets/keys
+./.next/dev/types
+./.next/dev/cache
+./.next/dev/server
+./.next/dev/logs
+./.next/dev/static
+./.next/dev/build
+./data/evals/arena-2026-11-21-21-23-64r
+./data/evals/arena-2026-11-21-22-52-l92
+./data/evals/arena-2026-11-21-20-41-gip
+./data/evals/arena-2026-11-21-23-16-du8
+./data/evals/arena-2026-11-21-22-48-27v
+./data/evals/arena-2026-11-21-21-04-ly9
+./data/evals/arena-2026-11-21-22-04-jq4
+./data/evals/arena-2026-11-21-18-40-w0i
+./data/evals/arena-2026-11-21-21-45-cb0
+./data/exports/arena-2026-11-21-23-16-du8
+./data/exports/arena-2026-11-21-22-04-jq4
+./data/user-view/traces
+./data/user-view/runs
+./data/iterations/00-baseline
+./data/iterations/04-filter-vote
+./data/iterations/01-first-pipeline
+./data/iterations/03-strict-v2
+./data/iterations/05-strict-v3
+./data/iterations/06-passages
+./data/iterations/07-next
+./data/iterations/02-strict-prompt
+./src/app/progress
+./src/app/try
+./src/app/api
+./src/app/arena
+./src/app/runs
+./src/components/ui
+./src/lib/pipeline
+./data/evals/arena-2026-11-21-21-23-64r/traces
+./data/evals/arena-2026-11-21-21-23-64r/runs
+./data/evals/arena-2026-11-21-22-52-l92/traces
+./data/evals/arena-2026-11-21-22-52-l92/runs
+./data/evals/arena-2026-11-21-20-41-gip/traces
+./data/evals/arena-2026-11-21-20-41-gip/runs
+./data/evals/arena-2026-11-21-23-16-du8/traces
+./data/evals/arena-2026-11-21-23-16-du8/runs
+./data/evals/arena-2026-11-21-22-48-27v/traces
+./data/evals/arena-2026-11-21-22-48-27v/runs
+./data/evals/arena-2026-11-21-21-04-ly9/traces
+./data/evals/arena-2026-11-21-21-04-ly9/runs
+./data/evals/arena-2026-11-21-22-04-jq4/traces
+./data/evals/arena-2026-11-21-22-04-jq4/runs
+./data/evals/arena-2026-11-21-18-40-w0i/traces
+./data/evals/arena-2026-11-21-18-40-w0i/runs
+./data/evals/arena-2026-11-21-21-45-cb0/traces
+./data/evals/arena-2026-11-21-21-45-cb0/runs
+./.next/dev/cache/turbopack
+./.next/dev/server/app
+./.next/dev/server/chunks
+---
+    2737
+271M	data</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-02-962Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-02-962Z" class="timestamp-link"><time datetime="2026-11-22T14:29:02.962Z" data-timestamp="2026-11-22T14:29:02.962Z">2026-11-22T14:29:02.962Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-05-341Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-05-341Z" class="timestamp-link"><time datetime="2026-11-22T14:29:05.341Z" data-timestamp="2026-11-22T14:29:05.341Z">2026-11-22T14:29:05.341Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_019xvukmeL3w6mvQ7FnSh7y3">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check data sizes, config, app routes, ignored paths</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">du -sh data/* config &amp;&amp; du -sh data/exports/* &amp;&amp; ls data/user-view/runs | wc -l &amp;&amp; ls config config/companies config/prompt-sets &amp;&amp; ls src/app/* src/lib src/lib/pipeline &amp;&amp; git -C .. check-ignore -v poc/data/cache poc/data/evals 2&gt;/dev/null; cat .gitignore</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-29-05-749Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-29-05-749Z" class="timestamp-link"><time datetime="2026-11-22T14:29:05.749Z" data-timestamp="2026-11-22T14:29:05.749Z">2026-11-22T14:29:05.749Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre> 32M	data/cache
+164M	data/evals
+ 40M	data/exports
+1.3M	data/iterations
+4.0K	data/spend-ledger.json
+ 33M	data/user-view
+2.9M	config
+ 15M	data/exports/arena-2026-11-21-22-04-jq4
+ 24M	data/exports/arena-2026-11-21-23-16-du8
+      22
+config:
+companies
+evalsets
+experiment.yaml
+judges.yaml
+pipeline.yaml
+prompt-sets
+prompts.yaml
+README.md
+setups.yaml
+
+config/companies:
+brightside.yaml
+cornercare.yaml
+hearth.yaml
+ledgerly.yaml
+skyhop.yaml
+
+config/prompt-sets:
+strict-v2.yaml
+strict-v3.yaml
+strict.yaml
+src/app/favicon.ico
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+
+src/app/api:
+arena
+report
+trace
+try
+
+src/app/arena:
+[id]
+
+src/app/progress:
+page.tsx
+
+src/app/runs:
+[id]
+
+src/app/try:
+[id]
+page.tsx
+
+src/lib:
+arena.ts
+config.ts
+fr.ts
+gateway.ts
+grade.ts
+iterations.ts
+models.ts
+panel.ts
+paths.ts
+pipeline
+prompts.ts
+store.ts
+suite.ts
+tier.ts
+trace-checks.ts
+trace.ts
+types.ts
+utils.ts
+verify.ts
+
+src/lib/pipeline:
+context.ts
+excerpts.ts
+run.ts
+stages.ts
+poc/.gitignore:44:/data/cache/	poc/data/cache
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# POC: HTTP cache of Federal Register responses (re-fetchable, free)
+/data/cache/
+
+# eval reports (regenerate with pnpm evals:json)
+
+# Export bundles are generated from data/evals + data/user-view by scripts/export.mts
+/data/exports/</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-07-601Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-07-601Z" class="timestamp-link"><time datetime="2026-11-22T14:29:07.601Z" data-timestamp="2026-11-22T14:29:07.601Z">2026-11-22T14:29:07.601Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-09-448Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-09-448Z" class="timestamp-link"><time datetime="2026-11-22T14:29:09.448Z" data-timestamp="2026-11-22T14:29:09.448Z">2026-11-22T14:29:09.448Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_013E7ihZ8cwBE9pkVcVLn9FV">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check deps, harness usage, Jev model, main branch contents</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">cat package.json &amp;&amp; grep -rln &#34;flue\|@mariozechner\|pi-agent&#34; src scripts | head; grep -n &#34;jev\|Jev&#34; -i src/lib/models.ts | head -15; ls data/user-view/runs | head -5; ls /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home; git -C .. ls-tree --name-only main | head -30</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-29-09-717Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-29-09-717Z" class="timestamp-link"><time datetime="2026-11-22T14:29:09.717Z" data-timestamp="2026-11-22T14:29:09.717Z">2026-11-22T14:29:09.717Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>{
+  &quot;name&quot;: &quot;poc&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;private&quot;: true,
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;next dev&quot;,
+    &quot;build&quot;: &quot;next build&quot;,
+    &quot;start&quot;: &quot;next start&quot;,
+    &quot;lint&quot;: &quot;eslint&quot;,
+    &quot;test&quot;: &quot;vitest run&quot;,
+    &quot;run&quot;: &quot;tsx scripts/run.mts&quot;,
+    &quot;typecheck&quot;: &quot;tsc --noEmit&quot;
+  },
+  &quot;dependencies&quot;: {
+    &quot;@ai-sdk/anthropic&quot;: &quot;^4.0.107&quot;,
+    &quot;@ai-sdk/gateway&quot;: &quot;^4.0.152&quot;,
+    &quot;@ai-sdk/google&quot;: &quot;^4.0.124&quot;,
+    &quot;@ai-sdk/openai&quot;: &quot;^4.0.122&quot;,
+    &quot;@base-ui/react&quot;: &quot;^1.9.0&quot;,
+    &quot;ai&quot;: &quot;^7.0.179&quot;,
+    &quot;class-variance-authority&quot;: &quot;^0.7.1&quot;,
+    &quot;cn&quot;: &quot;^0.5.2&quot;,
+    &quot;date-fns&quot;: &quot;^4.4.0&quot;,
+    &quot;dotenv&quot;: &quot;^18.0.10&quot;,
+    &quot;lucide-react&quot;: &quot;^1.77.0&quot;,
+    &quot;next&quot;: &quot;16.4.6&quot;,
+    &quot;p-limit&quot;: &quot;^7.3.3&quot;,
+    &quot;react&quot;: &quot;19.3.0&quot;,
+    &quot;react-dom&quot;: &quot;19.3.0&quot;,
+    &quot;react-json-view-lite&quot;: &quot;^2.5.0&quot;,
+    &quot;recharts&quot;: &quot;3.8.0&quot;,
+    &quot;shadcn&quot;: &quot;^4.23.0&quot;,
+    &quot;tw-animate-css&quot;: &quot;^1.4.0&quot;,
+    &quot;yaml&quot;: &quot;^2.9.1&quot;,
+    &quot;zod&quot;: &quot;^4.6.7&quot;
+  },
+  &quot;devDependencies&quot;: {
+    &quot;@tailwindcss/turbopack&quot;: &quot;4.3.3&quot;,
+    &quot;@types/node&quot;: &quot;^24.19.2&quot;,
+    &quot;@types/react&quot;: &quot;^19&quot;,
+    &quot;@types/react-dom&quot;: &quot;^19&quot;,
+    &quot;eslint&quot;: &quot;^9&quot;,
+    &quot;eslint-config-next&quot;: &quot;16.4.6&quot;,
+    &quot;tailwindcss&quot;: &quot;4.3.3&quot;,
+    &quot;tsx&quot;: &quot;^4.23.15&quot;,
+    &quot;typescript&quot;: &quot;^5&quot;,
+    &quot;vitest&quot;: &quot;^5.1.1&quot;
+  },
+  &quot;packageManager&quot;: &quot;pnpm@9.15.4&quot;
+}2026-11-21T19-22-35-745Z_pipeline_xzrc.json
+2026-11-21T19-22-35-757Z_pipeline_0wdc.json
+2026-11-21T19-22-35-757Z_pipeline_46g3.json
+2026-11-21T19-22-35-758Z_pipeline_t6m4.json
+2026-11-21T19-23-36-145Z_pipeline_l14a.json
+CLAUDE.md
+poc
+README.md
+.claude
+.gitignore
+CLAUDE.md
+README.md</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-20-734Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-20-734Z" class="timestamp-link"><time datetime="2026-11-22T14:29:20.734Z" data-timestamp="2026-11-22T14:29:20.734Z">2026-11-22T14:29:20.734Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-29-20-744Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-29-20-744Z" class="timestamp-link"><time datetime="2026-11-22T14:29:20.744Z" data-timestamp="2026-11-22T14:29:20.744Z">2026-11-22T14:29:20.744Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Yes, it makes sense. The 06 suites, iterations 00–06, the 22 user-view runs and <code>config/</code> become read-only "recorded" data, and the live run stays the only thing that spends money. The POC already planned for this: <code>scripts/export.mts</code> writes a static bundle (40 MB, gzipped traces) that <code>SCHEMA.md</code> defines as the contract. Two gaps came out of the look. First, the POC is plain Next.js + AI SDK through the Gateway with no Flue/Pi anywhere, even though both the RFC and the assignment promise an open-source harness with tools, skills and subagents. Second, a live run on Vercel can't write <code>data/</code> or the file-based budget ledger, because the filesystem is read-only, so those need in-memory or <code>/tmp</code> handling.</p>
+<pre><code>recorded (static, $0)                    live (spends)
+config/ ─┐                               /try → pipeline run → in-memory result
+evals 06 ├─ export bundle → /evals UI    budget cap needs non-file storage
+iters    ┘                 /progress     harness: Flue/Pi? ← gap
+</code></pre>
+<p>Is wrapping the pipeline in Flue/Pi in scope for the build, or did the whiteboard drop that?</p></div></div></div>
+<div class="message user" id="msg-2026-11-22T14-35-05-969Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-11-22T14-35-05-969Z" class="timestamp-link"><time datetime="2026-11-22T14:35:05.969Z" data-timestamp="2026-11-22T14:35:05.969Z">2026-11-22T14:35:05.969Z</time></a></div><div class="message-content">
+<div class="user-content"><p>Before we start on anything, confirm one thing for me. What is the workflow the POC is encoding right now? for getting the regulatory monitoring?</p></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-08-272Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-08-272Z" class="timestamp-link"><time datetime="2026-11-22T14:35:08.272Z" data-timestamp="2026-11-22T14:35:08.272Z">2026-11-22T14:35:08.272Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-09-508Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-09-508Z" class="timestamp-link"><time datetime="2026-11-22T14:35:09.508Z" data-timestamp="2026-11-22T14:35:09.508Z">2026-11-22T14:35:09.508Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01C1kjTExE4gGZZz5AqNbdxg">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read the pipeline orchestration code</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">wc -l src/lib/pipeline/*.ts &amp;&amp; cat src/lib/pipeline/run.ts | head -200</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-35-09-697Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-35-09-697Z" class="timestamp-link"><time datetime="2026-11-22T14:35:09.697Z" data-timestamp="2026-11-22T14:35:09.697Z">2026-11-22T14:35:09.697Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>     148 src/lib/pipeline/context.ts
+      33 src/lib/pipeline/excerpts.ts
+     206 src/lib/pipeline/run.ts
+     346 src/lib/pipeline/stages.ts
+     733 total
+import { z } from &quot;zod&quot;;
+import { agencyNames, getDoc, getRawText, listWindow } from &quot;../fr&quot;;
+import { configHash, experiment, getCompany, pipelineCfg, prompts, setups, withPromptSet } from &quot;../config&quot;;
+import { baselineFormat, baselineTask } from &quot;../prompts&quot;;
+import { saveRun } from &quot;../store&quot;;
+import { searchKind, searchTools } from &quot;../models&quot;;
+import type { ActionItem, Deadline, FilterDecision, RunConfig, RunRecord, Tier } from &quot;../types&quot;;
+import { parseDocNumberFromUrl, verifyQuotedDate } from &quot;../verify&quot;;
+import { RunCtx } from &quot;./context&quot;;
+import { filterJev, filterLlm, filterPassages, renderMarkdown, scan, verifyAndTier, webLeads, writeActions } from &quot;./stages&quot;;
+
+export function newRun(config: RunConfig): RunRecord {
+  const id = `${new Date().toISOString().replace(/[:.]/g, &quot;-&quot;)}_${config.mode}_${Math.random().toString(36).slice(2, 6)}`;
+  return { id, createdAt: new Date().toISOString(), config, configHash: configHash(), status: &quot;running&quot;, stages: [], calls: [], totalCostUsd: 0, totalMs: 0 };
+}
+
+export async function execute(run: RunRecord): Promise&lt;RunRecord&gt; {
+  const ctx = new RunCtx(run);
+  const t0 = Date.now();
+  // Everything the run depends on, resolved, so the trace alone can explain the run.
+  ctx.trace.emit(&quot;run.start&quot;, {
+    config: run.config,
+    configHash: run.configHash,
+    profile: run.config.customProfile ?? (() =&gt; { try { return getCompany(run.config.profileId); } catch { return null; } })(),
+    promptSet: run.config.promptSet ?? null,
+    prompts: await withPromptSet(run.config.promptSet, async () =&gt; prompts()),
+    pipeline: pipelineCfg(),
+    setup: setups().setups.find((s) =&gt; s.id === run.config.cell) ?? null,
+    jevModel: experiment().jevModel,
+  });
+  try {
+    await ctx.init();
+    await saveRun(run);
+    await withPromptSet(run.config.promptSet, () =&gt; (run.config.mode === &quot;baseline&quot; ? baseline(ctx) : pipeline(ctx)));
+    run.status = &quot;done&quot;;
+  } catch (e) {
+    run.status = &quot;error&quot;;
+    run.error = (e as Error).message;
+  }
+  run.totalMs = Date.now() - t0;
+  ctx.trace.emit(&quot;run.end&quot;, { status: run.status, error: run.error, totalCostUsd: run.totalCostUsd, totalMs: run.totalMs, scanned: run.scanned, items: run.items?.length ?? 0, dropped: run.dropped ?? [], itemsFinal: run.items ?? [] });
+  await ctx.trace.flush();
+  await saveRun(run);
+  return run;
+}
+
+async function pipeline(ctx: RunCtx) {
+  const cfg = ctx.run.config;
+  const profile = cfg.customProfile ?? getCompany(cfg.profileId);
+
+  const docs = await scan(ctx);
+  ctx.run.scanned = docs.length;
+  ctx.trace.emit(&quot;scan.result&quot;, { count: docs.length, documents: docs.map((d) =&gt; ({ document_number: d.document_number, type: d.type, title: d.title })) });
+  if (cfg.webLeads) ctx.run.webLeads = await webLeads(ctx, profile, docs);
+
+  const decisions = new Map&lt;string, FilterDecision&gt;(docs.map((d) =&gt; [d.document_number, { document_number: d.document_number, relevant: false }]));
+  let toLlm = docs;
+  let passages: Map&lt;string, string[]&gt; | undefined;
+  if (cfg.filter !== &quot;llm&quot;) {
+    const probs = await filterJev(ctx, profile, docs);
+    for (const [n, p] of probs) decisions.get(n)!.jevProbability = p;
+    toLlm = docs.filter((d) =&gt; (probs.get(d.document_number) ?? 0) &gt;= cfg.jevThreshold);
+    if (cfg.filter === &quot;jev&quot;) for (const d of toLlm) decisions.get(d.document_number)!.relevant = true;
+    if (cfg.filterExcerpts &amp;&amp; cfg.filter !== &quot;jev&quot;) passages = await filterPassages(ctx, profile, toLlm, probs);
+  }
+  if (cfg.filter !== &quot;jev&quot;) {
+    const llm = await filterLlm(ctx, profile, toLlm, passages);
+    for (const [n, v] of llm) {
+      const dec = decisions.get(n)!;
+      dec.llm = v;
+      dec.relevant = v.relevant;
+    }
+  }
+  ctx.run.decisions = [...decisions.values()];
+  const sentToLlm = new Set(toLlm.map((d) =&gt; d.document_number));
+  for (const d of ctx.run.decisions)
+    ctx.trace.emit(&quot;filter.decision&quot;, {
+      document_number: d.document_number,
+      jevProbability: d.jevProbability ?? null,
+      jevThreshold: cfg.filter === &quot;llm&quot; ? null : cfg.jevThreshold,
+      passedJev: cfg.filter === &quot;llm&quot; ? null : sentToLlm.has(d.document_number),
+      llm: d.llm ?? null,
+      relevant: d.relevant,
+    });
+
+  const relevantDocs = docs.filter((d) =&gt; decisions.get(d.document_number)!.relevant);
+  const { items, dropped } = await verifyAndTier(ctx, profile, relevantDocs, decisions);
+  ctx.run.dropped = dropped;
+  ctx.run.items = await writeActions(ctx, profile, items);
+  ctx.run.markdown = renderMarkdown(profile, cfg, ctx.run.items);
+}
+
+// ───────────────────────────── Baseline ─────────────────────────────
+// One task prompt + web search (vendor-native, or Exa where the vendor has none); the model does everything
+// (relevance, dates, tier, owner). Same model as the pipeline cell, so the delta measures the harness.
+
+const baselineSchema = z.object({
+  items: z.array(
+    z.object({
+      document_number: z.string().nullable().describe(&quot;Federal Register document number, e.g. 2026-22809&quot;),
+      title: z.string(),
+      url: z.string(),
+      deadline: z.string().nullable().describe(&quot;YYYY-MM-DD&quot;),
+      deadline_kind: z.enum([&quot;comment&quot;, &quot;effective&quot;, &quot;compliance&quot;, &quot;other&quot;]).nullable(),
+      tier: z.enum([&quot;Critical&quot;, &quot;High&quot;, &quot;Medium&quot;, &quot;Low&quot;]),
+      owner_area: z.string(),
+      reason: z.string(),
+      action: z.string(),
+    }),
+  ),
+});
+
+async function baseline(ctx: RunCtx) {
+  const cfg = ctx.run.config;
+  const profile = cfg.customProfile ?? getCompany(cfg.profileId);
+  const prompt = baselineTask(profile, cfg);
+
+  // Two steps for every model: research freely with web search, then put the answer in our format.
+  // (Some providers skip tool calls when structured output is requested in the same call — Kimi did in smoke tests.)
+  const research = await ctx.stage(
+    `baseline:search (${searchKind(cfg.model)})`,
+    () =&gt; ctx.agent(&quot;baseline:search&quot;, { model: cfg.model, prompt, tools: searchTools(cfg.model), maxSteps: pipelineCfg().baseline.searchMaxSteps }),
+    (r) =&gt; ({ outCount: r.toolCalls.length, note: `${r.toolCalls.length} search calls` }),
+  );
+  const out = await ctx.stage(
+    &quot;baseline:format&quot;,
+    () =&gt;
+      ctx.object(&quot;baseline:format&quot;, {
+        model: cfg.model,
+        prompt: baselineFormat(prompt, research.text),
+        schema: baselineSchema,
+      }),
+    (r) =&gt; ({ outCount: r.items.length }),
+  );
+  ctx.run.claimed = out.items;
+
+  // Resolution + verification use the same code as the pipeline, so both are graded identically.
+  const windowDocs = new Set((await listWindow(cfg.windowStart, cfg.windowEnd)).map((d) =&gt; d.document_number));
+  const dropped: { document_number: string; why: string }[] = [];
+  const items: ActionItem[] = [];
+  await ctx.stage(
+    &quot;baseline:resolve+verify&quot;,
+    async () =&gt; {
+      for (const c of out.items) {
+        const num = c.document_number?.trim() || parseDocNumberFromUrl(c.url);
+        const drop = (document_number: string, why: string) =&gt; {
+          dropped.push({ document_number, why });
+          ctx.trace.emit(&quot;baseline.resolve&quot;, { claim: c, document_number, outcome: &quot;dropped&quot;, why });
+        };
+        if (!num) {
+          drop(c.title, &quot;no Federal Register document number&quot;);
+          continue;
+        }
+        const doc = await getDoc(num);
+        if (!doc) {
+          drop(num, &quot;document number does not exist on federalregister.gov&quot;);
+          continue;
+        }
+        if (!windowDocs.has(num)) {
+          drop(num, `published ${doc.publication_date}, outside window`);
+          continue;
+        }
+        const deadlines: Deadline[] = [];
+        if (c.deadline) {
+          const raw = await getRawText(doc);
+          const fieldHit = c.deadline === doc.comments_close_on || c.deadline === doc.effective_on;
+          // Accept if it equals a structured field or appears in the source text in any common rendering.
+          const textHit = verifyQuotedDate(`${doc.dates ?? &quot;&quot;}\n${raw}`, `${doc.dates ?? &quot;&quot;}\n${raw}`, c.deadline).ok;
+          deadlines.push({ date: c.deadline, kind: c.deadline_kind ?? &quot;other&quot;, source: &quot;extracted&quot;, verified: fieldHit || textHit, verifyNote: fieldHit ? &quot;matches FR field&quot; : textHit ? &quot;date appears in source text&quot; : &quot;date not found in primary source&quot; });
+        }
+        const areaKey = Object.keys(profile.areas).find((k) =&gt; c.owner_area.toLowerCase().includes(k)) ?? null;
+        ctx.trace.emit(&quot;baseline.resolve&quot;, {
+          claim: c,
+          document_number: num,
+          outcome: &quot;kept&quot;,
+          date: deadlines[0] ? { claimed: deadlines[0].date, verified: deadlines[0].verified, note: deadlines[0].verifyNote } : null,
+          owner: { claimedArea: c.owner_area, matchedArea: areaKey },
+        });
+        items.push({
+          document_number: num,
+          title: doc.title,
+          type: doc.type,
+          agencies: agencyNames(doc),
+          tier: c.tier as Tier,
+          tierReason: &quot;model-assigned&quot;,
+          deadline: deadlines[0] ?? null,
+          // The baseline shows the date it claimed whether or not we could verify it (that is what a reader would see).
+          datesShown: deadlines,
+          deadlines,
+          owner: areaKey ? profile.areas[areaKey].owner : profile.generalCounsel,
+          areas: areaKey ? [areaKey] : [],
+          reason: c.reason,
+          action: c.action,
+          citation: doc.citation,
+          citationVerified: true,
+          url: doc.html_url,
+          sourceTag: &quot;[web search — verify]&quot;,
+        });
+      }
+    },</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-12-822Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-12-822Z" class="timestamp-link"><time datetime="2026-11-22T14:35:12.822Z" data-timestamp="2026-11-22T14:35:12.822Z">2026-11-22T14:35:12.822Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01PMbaFN8qyRrScok4zKt2SF">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">List pipeline stages and Jev model config</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">grep -n &#34;^export async function\|^async function\|jev\b\|Jev&#34; src/lib/pipeline/stages.ts | head -40 &amp;&amp; grep -n &#34;jev&#34; -i config/experiment.yaml config/setups.yaml | head -20</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-35-13-072Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-35-13-072Z" class="timestamp-link"><time datetime="2026-11-22T14:35:13.072Z" data-timestamp="2026-11-22T14:35:13.072Z">2026-11-22T14:35:13.072Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>16:export async function scan(ctx: RunCtx): Promise&lt;FrDoc[]&gt; {
+25:export async function webLeads(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
+62:export async function filterJev(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
+66:    &quot;filter:jev&quot;,
+72:            const r = await ctx.jev(jevState(profile, d), question, d.document_number);
+84: * Jev-picked passages (setup knob filterExcerpts): for the top-N docs by Jev score, split the full text into passages,
+85: * let Jev score each against the company, keep the best `perDoc` for the LLM filter. Every pick is traced.
+87:export async function filterPassages(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], probs: Map&lt;string, number&gt;) {
+100:        const scores = await Promise.all(chunks.map((c, i) =&gt; limit(async () =&gt; (await ctx.jev(jevState(profile, { ...d, abstract: c }), question, `${d.document_number}#p${i}`)).p)));
+107:    (m) =&gt; ({ inCount: top.length, outCount: m.size, note: `top ${o.topN} by Jev · ${o.perDoc} passages each` }),
+111:export async function filterLlm(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], passages?: Map&lt;string, string[]&gt;) {
+200:export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], decisions: Map&lt;string, FilterDecision&gt;) {
+281:              reason: dec?.llm?.reason ?? (dec?.jevProbability !== undefined ? `Jev p=${dec.jevProbability.toFixed(2)} (no LLM reason)` : &quot;&quot;),
+302:export async function writeActions(ctx: RunCtx, profile: CompanyProfile, items: ActionItem[]) {
+config/setups.yaml:24:  - id: jev+llm
+config/setups.yaml:25:    label: Pipeline · Jev filter → LLM
+config/setups.yaml:28:    filter: jev+llm
+config/setups.yaml:29:    jevThreshold: 0.1
+config/setups.yaml:36:    jevThreshold: 0.1
+config/setups.yaml:47:  - id: jev-sonnet
+config/setups.yaml:48:    label: Sonnet · Jev filter · default prompt
+config/setups.yaml:50:    method: jev+llm
+config/setups.yaml:57:  - id: jev-gpt
+config/setups.yaml:58:    label: GPT · Jev filter · default prompt
+config/setups.yaml:60:    method: jev+llm
+config/setups.yaml:67:  - id: jev-sonnet-strict
+config/setups.yaml:68:    label: Sonnet · Jev filter · strict prompt
+config/setups.yaml:70:    method: jev+llm
+config/setups.yaml:74:  - id: jev-sonnet-strict-v2
+config/setups.yaml:75:    label: Sonnet · Jev filter · strict-v2 prompt
+config/setups.yaml:77:    method: jev+llm
+config/setups.yaml:80:  - id: jev-sonnet-strict-vote3
+config/setups.yaml:81:    label: Sonnet · Jev filter · strict prompt · 3-pass vote
+config/setups.yaml:83:    method: jev+llm</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-15-908Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-15-908Z" class="timestamp-link"><time datetime="2026-11-22T14:35:15.908Z" data-timestamp="2026-11-22T14:35:15.908Z">2026-11-22T14:35:15.908Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01QJuNPzhV5T9T5DT5trnuqs">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Read scan, verify/tier, and Jev call details</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">sed -n 16,30p src/lib/pipeline/stages.ts; sed -n 200,240p src/lib/pipeline/stages.ts; grep -n &#34;jev&#34; -i src/lib/pipeline/context.ts | head -8; grep -n &#34;jevModel\|webLeads&#34; config/experiment.yaml config/setups.yaml | head</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-11-22T14-35-16-239Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-11-22T14-35-16-239Z" class="timestamp-link"><time datetime="2026-11-22T14:35:16.239Z" data-timestamp="2026-11-22T14:35:16.239Z">2026-11-22T14:35:16.239Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>export async function scan(ctx: RunCtx): Promise&lt;FrDoc[]&gt; {
+  const { windowStart, windowEnd } = ctx.run.config;
+  return ctx.stage(&quot;scan:federal-register&quot;, () =&gt; listWindow(windowStart, windowEnd), (r) =&gt; ({ outCount: r.length }));
+}
+
+/**
+ * Web leads: a bounded tool loop with Exa. Every URL must resolve to a Federal Register
+ * document number; anything that doesn&#x27;t is dropped (no silent supplement from the web).
+ */
+export async function webLeads(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[]) {
+  const { windowStart, windowEnd, model } = ctx.run.config;
+  const inWindow = new Set(docs.map((d) =&gt; d.document_number));
+  return ctx.stage(
+    &quot;scan:web-leads&quot;,
+    async () =&gt; {
+export async function verifyAndTier(ctx: RunCtx, profile: CompanyProfile, docs: FrDoc[], decisions: Map&lt;string, FilterDecision&gt;) {
+  const limit = pLimit(pipelineCfg().verify.concurrency);
+  const tierRules = pipelineCfg().tiering;
+  const dropped: { document_number: string; why: string }[] = [];
+  const items = await ctx.stage(
+    &quot;verify+tier&quot;,
+    async () =&gt; {
+      const res = await Promise.all(
+        docs.map((scanned) =&gt;
+          limit(async (): Promise&lt;ActionItem | null&gt; =&gt; {
+            // 1. Re-fetch from the primary source.
+            const doc = await getDoc(scanned.document_number);
+            if (!doc) {
+              dropped.push({ document_number: scanned.document_number, why: &quot;re-fetch failed: not found on federalregister.gov&quot; });
+              ctx.trace.emit(&quot;verify.doc&quot;, { document_number: scanned.document_number, refetched: false, outcome: &quot;dropped&quot;, why: &quot;re-fetch failed&quot; });
+              return null;
+            }
+            const deadlines: Deadline[] = [];
+            const fieldCheck = (date: string | null, scannedDate: string | null, kind: Deadline[&quot;kind&quot;]) =&gt; {
+              if (!date &amp;&amp; !scannedDate) return;
+              const ok = !!date &amp;&amp; date === scannedDate;
+              deadlines.push({ date: (date ?? scannedDate)!, kind, source: &quot;fr_field&quot;, verified: ok, verifyNote: ok ? &quot;matches FR API field on re-fetch&quot; : `scan said ${scannedDate}, re-fetch says ${date}` });
+            };
+            fieldCheck(doc.comments_close_on, scanned.comments_close_on, &quot;comment&quot;);
+            fieldCheck(doc.effective_on, scanned.effective_on, &quot;effective&quot;);
+
+            // 2. Dates that only live in prose (compliance dates, missing fields): model extracts with a quote, code verifies the quote.
+            const { text: raw, source: textSource } = await getRawTextWithSource(doc);
+            const skippedDuplicates: { date: string; kind: string; quote: string }[] = [];
+            const source = `${doc.dates ?? &quot;&quot;}\n${raw}`;
+            const snippet = `${doc.dates ?? &quot;&quot;}\n\n${raw.slice(0, pipelineCfg().verify.snippetChars)}`;
+            if (snippet.trim().length &gt; 20) {
+              const ex = await ctx.object(`extract-dates:${doc.document_number}`, {
+                model: ctx.run.config.model,
+                system: extractSystem(),
+                prompt: extractPrompt(doc, snippet),
+                schema: extractSchema,
+                logPrompt: false,
+              });
+              for (const e of ex.deadlines) {
+                if (deadlines.some((d) =&gt; d.date === e.date &amp;&amp; d.kind === e.kind)) {
+130:  /** Jev (decision model): returns a probability only. Every call is traced with what it was asked. */
+131:  async jev(state: string, question: string, documentNumber: string): Promise&lt;{ p: number; cost: number; ms: number }&gt; {
+134:    const model = experiment().jevModel;
+145:    this.trace.emit(&quot;jev.call&quot;, { stage: &quot;filter:jev&quot;, model, document_number: documentNumber, question, state, probability: p, costUsd: cost, ms: Date.now() - t0 });
+config/experiment.yaml:5:jevModel: typesafe-ai/jev
+config/setups.yaml:30:    webLeads: false
+config/setups.yaml:37:    webLeads: false</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-21-529Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-21-529Z" class="timestamp-link"><time datetime="2026-11-22T14:35:21.529Z" data-timestamp="2026-11-22T14:35:21.529Z">2026-11-22T14:35:21.529Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-11-22T14-35-21-537Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-11-22T14-35-21-537Z" class="timestamp-link"><time datetime="2026-11-22T14:35:21.537Z" data-timestamp="2026-11-22T14:35:21.537Z">2026-11-22T14:35:21.537Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>The live setup (<code>jev-sonnet-strict-passages</code>) runs this sequence, all fixed in code with no agent choosing steps:</p>
+<pre><code>1 Scan     FR API: every doc published in the window (Exa web leads exist but are off in every setup)
+2 Jev      typesafe-ai/jev gives each doc a relevance probability vs the profile; keep p ≥ 0.1
+3 Passages for Jev's top 20, split full text into ~1,200-char chunks, Jev scores them, keep the best 3
+4 Filter   Sonnet + strict prompt: relevant yes/no + one-line reason (abstract + passages)
+5 Verify   code re-fetches each doc; FR date fields must match; LLM extracts prose dates with a quote,
+           code checks the quote is in the source; unverified → dropped
+6 Tier     code rules (deadline &lt; 90d = Critical)
+7 Output   LLM writes owner/action per item → report.json + markdown
+</code></pre>
+<p>The baseline is a single Sonnet prompt with web search whose claims get resolved and verified by the same code, so the two are graded the same way. Is this the workflow you meant?</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-001.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<span class="current">2</span>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<a href="page-010.html">10</a>
+<a href="page-011.html">11</a>
+<a href="page-012.html">12</a>
+<a href="page-003.html">Next &rarr;</a>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>
