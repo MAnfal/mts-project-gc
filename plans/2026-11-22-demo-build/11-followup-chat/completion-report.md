@@ -49,7 +49,7 @@ Red run (before any implementation), `pnpm exec vitest run` on the five new/chan
 | Test | Red run (before implementation) | Green run |
 | ---- | ------------------------------- | --------- |
 | `followup-context.test.ts` | import error: `Cannot find module './followup-context'` (absence only; discrimination shown by mutations below) | 20 passed |
-| `followup.test.ts`, `route.test.ts` | import error: `Cannot find package '@/lib/runs/followup-context'` | 26 + 11 passed |
+| `followup.test.ts`, `route.test.ts` | import error: `Cannot find package '@/lib/runs/followup-context'` | 31 + 12 passed (after review i1) |
 | `store.test.ts` › chats (5 tests) | assertion-level: `TypeError: store.saveChat is not a function` | 20 passed |
 | `FollowUpMount.test.ts` › finished run | assertion: `expected false to be true` (no chat rendered) | passed |
 | `FollowUpMount.test.ts` › example / FollowUpChat | `Element type is invalid … got: undefined` (no `ExampleReport`), `Cannot find module …/FollowUpChat` | passed |
@@ -76,7 +76,7 @@ with a bare `done` line. Fixed: it now throws inside `withRetry`, whose `stopped
 
 `scratch/mutate.py`: replaces exactly one asserted occurrence, runs the named tests, writes the original
 bytes back and asserts they match (no git). Outputs `scratch/mutations.txt` (33) and `scratch/mutations-2.txt` (9):
-**42 of 42 red** (count generated below), tree clean after each.
+**42 of 42 red**, then 6 of 6 for review i1 (48 in all, count generated below), tree clean after each.
 
 | Contract | Mutation applied | What went red |
 | -------- | ---------------- | ------------- |
@@ -134,15 +134,16 @@ Delta: +4 test files (58), 0 new lint or type diagnostics; test count in the gen
 
 ### Final run (generated)
 
-`bash plans/2026-11-22-demo-build/11-followup-chat/gates.sh` re-run after the last code edit (tree at `98ff4a3`),
-captured to `scratch/gates-final.txt`. Every later commit touches only `plans/…/11-followup-chat/`; check with
-`git diff --stat 98ff4a3..HEAD`. The block below is written by `scratch/selfcheck.sh` from the captured files, not typed.
+`AI_GATEWAY_API_KEY= bash plans/2026-11-22-demo-build/11-followup-chat/gates.sh` re-run after the last code edit
+(review i1's fix, tree at `0087096`), captured to `scratch/gates-final-i2.txt`. Every later commit touches only
+`plans/…/11-followup-chat/`; check with `git diff --stat 0087096..HEAD`. The block below is written by
+`scratch/selfcheck.sh` from the captured files, not typed.
 
 <!-- BEGIN GENERATED (selfcheck.sh) -->
 ```
-# gates-final.txt (bash plans/2026-11-22-demo-build/11-followup-chat/gates.sh)
+# gates-final-i2.txt (AI_GATEWAY_API_KEY= bash plans/2026-11-22-demo-build/11-followup-chat/gates.sh)
  Test Files  58 passed (58)
-      Tests  810 passed (810)
+      Tests  816 passed (816)
 chunk 04 gates: OK
 chunk 05 gates: OK
 chunk 06 gates: OK
@@ -172,8 +173,8 @@ OK   clean: poc count (before) ->
 OK   canary fires: poc/ path planted -> FAIL: 1 poc/ path(s) in planted list
 OK   clean: poc count (after) -> 
 canaries: 17 ok, 0 bad
-# mutations.txt + mutations-2.txt
-RED: 42   NO RED: 0
+# mutations.txt + mutations-2.txt + mutations-3.txt (+ 3 of the first set re-run on moved needles: mutations-3b.txt)
+RED: 48   NO RED: 0   re-run RED: 3
 ```
 <!-- END GENERATED -->
 
@@ -181,18 +182,18 @@ RED: 42   NO RED: 0
 
 | Quoted payload | Captured at | Self-check |
 | -------------- | ----------- | ---------- |
-| Every `FAIL:` / test-count / probe line quoted in this report (17 quotes) | `scratch/{base-gates,base-gate3,base-gate3-curl,gates-run1,red-1,gates-final,canaries,stream-probe,abort-probe}.txt`, `scratch/baseline/tests.txt` | `bash scratch/selfcheck.sh <report>` greps each verbatim (`grep -F`) in its own file; result below |
-| The generated block | `scratch/gates-final.txt`, `canaries.txt`, `mutations*.txt` | written by the same script |
-| Non-vacuity | the same checks pointed at a copy of the scratch dir with `base-gates.txt` replaced by `gates-final.txt` | must exit 1 naming the missing base quotes; result below |
+| Every `FAIL:` / test-count / probe line quoted in this report (19 quotes) | `scratch/{base-gates,base-gate3,base-gate3-curl,gates-run1,red-1,red-i2,gates-final-i2,canaries,stream-probe,abort-probe}.txt`, `scratch/baseline/tests.txt` | `bash scratch/selfcheck.sh <report>` greps each verbatim (`grep -F`) in its own file; result below |
+| The generated block | `scratch/gates-final-i2.txt`, `canaries.txt`, `mutations*.txt` | written by the same script |
+| Non-vacuity | the same checks pointed at a copy of the scratch dir with `base-gates.txt` replaced by `gates-final-i2.txt` | must exit 1 naming the missing base quotes; result below |
 
 ```
 # selfcheck.txt
-self-check: 17 quotes, 0 missing
-generated block written (42 mutations red, 0 not)
+self-check: 19 quotes, 0 missing
+generated block written (48 mutations red, 0 not)
 selfcheck exit 0
-# selfcheck-nonvacuous.txt (base-gates.txt replaced by gates-final.txt)
+# selfcheck-nonvacuous.txt (base-gates.txt replaced by gates-final-i2.txt)
 MISSING in base-gates.txt: No test files found, exiting with code 1
-self-check: 17 quotes, 1 missing
+self-check: 19 quotes, 1 missing
 non-vacuity exit 1
 ```
 
@@ -236,8 +237,9 @@ in this path; they are covered by `followup.test.ts` / `route.test.ts` and the l
   any text retries (3 tries, 2 s / 4 s, policy injectable). The same iterator then feeds the response.
 - **Streaming.** NDJSON lines `{type:"text"}`… then exactly one `{type:"done"}` or `{type:"failed", message}`.
   The client reuses `readNdjson` (now generic) with `fetch`; no new dependency.
-- **Failure signal.** After text has gone out, an `error` part or a thrown iterator ends the stream with
-  `{type:"failed", message: FOLLOWUP_FAILED}` (the SDK error, which can name a model, goes to the server log only).
+- **Failure signal.** After text has gone out, an `error` part, a thrown iterator, or a `finish` that isn't `stop`
+  (none, `length`, `error`, …; review i1) ends the stream with `{type:"failed", message}`: `FOLLOWUP_FAILED`, or
+  `ANSWER_CUT_SHORT` for `length` (the SDK error, which can name a model, goes to the server log only).
   A stream that ends without `done` counts as failed in the browser too. Failed answers are not saved; the question
   goes back into the composer.
 
@@ -269,12 +271,38 @@ in this path; they are covered by `followup.test.ts` / `route.test.ts` and the l
   loads in an effect and a static render shows only "Loading".
 - **`readNdjson` made generic** (reader.ts), reuse over a second NDJSON reader.
 
+## Review i1 fixes (`plans/2026-11-22-demo-build/11-followup-chat/review-1.md`)
+
+- **Blocking: a truncated answer was saved as finished.** `streamFollowUp` ignored the stream's `finish` part, so an
+  answer that ended with no finish (a dropped upstream), finish reason `length` (cut at `maxAnswerTokens`) or `error`
+  still got `done`, and the browser saved it. Now `done` is written only when the `finish` part says `stop`, tracked
+  both before and after the first text. Anything else ends with `failed`.
+  - **Choice for `length`:** treated as failed, with its own sentence `ANSWER_CUT_SHORT` ("The answer was cut short at
+    its length limit. Ask for less at once, such as one item or one part of the report."). The browser shows the
+    route's sentence, does not save the pair, and puts the question back in the composer, the same as any failure.
+    A partial answer kept as "cut short" would need a second saved-turn state for one rare case.
+  - Tests (`followup.test.ts`), constructed streams through the real `streamText` with the stub's new `finish` option:
+    "an answer whose stream closes with no finish (a dropped upstream connection) ends failed, not done", "an answer
+    cut off at maxAnswerTokens (finish reason length) ends failed with its own sentence", "an answer the provider
+    finished with an error ends failed, not done". Red before the fix (`scratch/red-i2.txt`, 6 failed with the two
+    below), green after.
+- **Warning: the GC's own profile text failed the public check.** "Google/Apple Pay" matches `\bgoogle\//i`, so every
+  question on such a run was a 400 with a dead-end sentence. `assertPublicText` now runs on the context minus `profile`
+  (the strict schema still bounds its shape), and the system-prompt check runs on the configured wording, not the
+  rendered prompt (which carries the profile). Tests: "accepts a profile in the GC's own words that happens to look
+  like a vendor id", "renders a profile that looks like a vendor id…", and in `route.test.ts` "answers a question on a
+  run whose profile says \"Google/Apple Pay\"…" (200, streamed).
+  - **Correction:** the first report said the run itself would have failed `assertPublic` the same way. That was
+    wrong: the profile is carried in no public event, and nothing else checks a live profile's text.
+- Mutations for both (`scratch/mutate-i2.py`, output `scratch/mutations-3.txt`): 6 of 6 red. Finish ignored after the
+  text, finish ignored before it, only an `error` finish failing, `length` with the generic sentence, the profile
+  checked again, the system check on the rendered prompt. Three mutations of the first set whose needles moved
+  (context cap, context public check, system public check) were re-run (`scratch/mutations-3b.txt`): 3 of 3 red.
+- `project.md`'s follow-up convention now says `done` only on a `stop` finish, and that the profile is left out of the
+  public check.
+
 ## Left alone
 
-- **A profile whose text contains a vendor-style id** (`google/`, `openai/`, …, the `INTERNAL` patterns in
-  `src/lib/pipeline/events.ts`), for example a custom profile mentioning "google/android", makes every question on
-  that run a 400 whose sentence says to reload. This follows from amendment 3 (`assertPublicText` on the whole
-  context); the run itself would have failed `assertPublic` the same way if such text reached an event.
 - **`!res.body` in `askFollowUp`** is behaviour-equivalent to the `catch` below it (reading a null body throws, and
   with no text yet the catch answers `FOLLOWUP_UNAVAILABLE`), so no mutation of it can go red; it stays for the type
   narrowing `readNdjson` needs.
