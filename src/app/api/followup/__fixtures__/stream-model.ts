@@ -9,20 +9,27 @@ const USAGE = {
   inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined },
   outputTokens: { total: 1, text: 1, reasoning: undefined },
 };
-const FINISH = { type: "finish", finishReason: { unified: "stop", raw: undefined }, usage: USAGE };
+const finish = (unified: "stop" | "length" | "error") => ({ type: "finish", finishReason: { unified, raw: undefined }, usage: USAGE });
 
 /**
  * What one model call does: stream these text pieces (then finish), stream them then fail, or fail at the request. A
  * refused request is a retryable 503, the kind the SDK's own retries (when on) would re-send.
  */
-export type Answer = { text: string[]; chunkDelayMs?: number } | { text: string[]; thenError: string } | { reject: string };
+export type Answer =
+  | { text: string[]; chunkDelayMs?: number; finish?: "stop" | "length" | "error" | "none" }
+  | { text: string[]; thenError: string }
+  | { reject: string };
 
-/** Provider stream chunks for `a` (the mock's own format: `delta`, not the SDK's `text`). */
+/**
+ * Provider stream chunks for `a` (the mock's own format: `delta`, not the SDK's `text`). `finish` is the provider's
+ * finish reason (default `stop`); `none` closes the stream with no finish chunk, as a dropped upstream connection does.
+ */
 function chunks(a: Exclude<Answer, { reject: string }>): unknown[] {
   const deltas = a.text.map((delta) => ({ type: "text-delta", id: "t", delta }));
   const open = a.text.length ? [{ type: "text-start", id: "t" }] : [];
   if ("thenError" in a) return [...open, ...deltas, { type: "error", error: new Error(a.thenError) }];
-  return [...open, ...deltas, ...(a.text.length ? [{ type: "text-end", id: "t" }] : []), FINISH];
+  const reason = "finish" in a && a.finish ? a.finish : "stop";
+  return [...open, ...deltas, ...(a.text.length ? [{ type: "text-end", id: "t" }] : []), ...(reason === "none" ? [] : [finish(reason)])];
 }
 
 export interface StreamCall {

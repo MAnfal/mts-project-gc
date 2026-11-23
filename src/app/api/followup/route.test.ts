@@ -87,6 +87,15 @@ describe("POST /api/followup: answers", () => {
     expect(calls[0].model).toBe("anthropic/claude-sonnet-5.5"); // config/app.yaml → followUp.model
   });
 
+  it("answers a question on a run whose profile says \"Google/Apple Pay\" (the GC's own words are not checked as internal)", async () => {
+    stubStreamingModel(() => ({ text: ["Answer."] }));
+    const b = valid();
+    b.context.profile.businessLines = ["Card payments, including Google/Apple Pay wallets"];
+    const res = await post(route, b);
+    expect(res.status).toBe(200);
+    expect(await readLines(res.body)).toEqual([{ type: "text", text: "Answer." }, { type: "done" }]);
+  });
+
   it("with no Gateway key: a plain 503 that names neither the key's variable nor the model, and no spend", async () => {
     delete process.env.AI_GATEWAY_API_KEY; // the real gateway resolver, with no key: it must refuse before any request
     expect(await expectPlain(await post(route, valid()), 503)).toBe("Answers aren't available right now. Try again in a minute.");

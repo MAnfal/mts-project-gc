@@ -9,7 +9,7 @@ import { buildFollowUpContext, FOLLOWUP_FAILED, type FollowUpContext } from "@/l
 import { applyConfirmed, reduceEvents } from "@/lib/runs/reduce";
 import type { ExampleRun } from "@/lib/runs/types";
 import { readLines, stubStreamingModel } from "./__fixtures__/stream-model";
-import { BAD_BODY, EMPTY_QUESTION, followUpSystem, parseFollowUpBody, REPORT_TOO_LARGE, streamFollowUp, TOO_MANY_TURNS, tooLongMessage } from "./followup";
+import { ANSWER_CUT_SHORT, BAD_BODY, EMPTY_QUESTION, followUpSystem, parseFollowUpBody, REPORT_TOO_LARGE, streamFollowUp, TOO_MANY_TURNS, tooLongMessage } from "./followup";
 
 const NO_WAIT = { attempts: 3, delaysMs: [0, 0] };
 afterEach(() => setModelsForTests(null));
@@ -69,6 +69,12 @@ describe("followUpSystem", () => {
     expect(system).not.toContain("{{");
   });
 
+  it("renders a profile that looks like a vendor id: only the configured wording is checked here", () => {
+    const ctx = structuredClone(context);
+    ctx.profile.summary = "Fintech with Google/Apple Pay wallets";
+    expect(followUpSystem(config, ctx)).toContain("Google/Apple Pay");
+  });
+
   it("throws when the configured prompt names an internal model, so it never reaches the model", () => {
     expect(() => followUpSystem({ ...config, system: "You run on anthropic/claude-sonnet-5.5.\n{{report}}" }, context)).toThrow(/follow-up system prompt/);
   });
@@ -101,6 +107,12 @@ describe("parseFollowUpBody", () => {
     const inner = body();
     (inner.context.items[0] as unknown as Record<string, unknown>).score = 0.9;
     expect(parseFollowUpBody(inner, caps)).toMatchObject({ ok: false, message: BAD_BODY });
+  });
+
+  it("accepts a profile in the GC's own words that happens to look like a vendor id (\"Google/Apple Pay\")", () => {
+    const b = body();
+    b.context.profile.businessLines = ["Card payments, including Google/Apple Pay wallets"];
+    expect(parseFollowUpBody(b, caps).ok).toBe(true);
   });
 
   it("refuses a context that names an internal model inside a whitelisted field (the public-text check, not the schema)", () => {
@@ -187,6 +199,26 @@ describe("streamFollowUp", () => {
     expect(lines).toEqual([{ type: "text", text: "Three it" }, { type: "failed", message: FOLLOWUP_FAILED }]);
     expect(JSON.stringify(lines)).not.toMatch(/anthropic|socket/);
     expect(calls).toHaveLength(1);
+  });
+
+  // An answer counts as finished only when the model says it stopped. Each case below streamed text and then ended
+  // some other way; each must end with a failed line, so the browser never saves it as a complete answer.
+  it("an answer whose stream closes with no finish (a dropped upstream connection) ends failed, not done", async () => {
+    stubStreamingModel(() => ({ text: ["Partial ans"], finish: "none" }));
+    const lines = await readLines(await streamFollowUp({ context, messages }, { config, policy: NO_WAIT }));
+    expect(lines).toEqual([{ type: "text", text: "Partial ans" }, { type: "failed", message: FOLLOWUP_FAILED }]);
+  });
+
+  it("an answer cut off at maxAnswerTokens (finish reason length) ends failed with its own sentence", async () => {
+    stubStreamingModel(() => ({ text: ["Partial ans"], finish: "length" }));
+    const lines = await readLines(await streamFollowUp({ context, messages }, { config, policy: NO_WAIT }));
+    expect(lines).toEqual([{ type: "text", text: "Partial ans" }, { type: "failed", message: ANSWER_CUT_SHORT }]);
+  });
+
+  it("an answer the provider finished with an error ends failed, not done", async () => {
+    stubStreamingModel(() => ({ text: ["Partial ans"], finish: "error" }));
+    const lines = await readLines(await streamFollowUp({ context, messages }, { config, policy: NO_WAIT }));
+    expect(lines).toEqual([{ type: "text", text: "Partial ans" }, { type: "failed", message: FOLLOWUP_FAILED }]);
   });
 
   it("a model that finishes without text streams only the done line", async () => {

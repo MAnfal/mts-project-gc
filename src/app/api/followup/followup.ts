@@ -19,6 +19,8 @@ export const BAD_BODY = "This question couldn't be sent with the report. Reload 
 export const TOO_MANY_TURNS = "This conversation has reached its length limit. Clear it to ask more.";
 export const REPORT_TOO_LARGE = "This report is too large to ask about here.";
 export const tooLongMessage = (max: number) => `Shorten the question to ${max} characters or fewer, then ask again.`;
+/** The failed line when the answer hit followUp.maxAnswerTokens: not saved as an answer, and the GC can narrow it. */
+export const ANSWER_CUT_SHORT = "The answer was cut short at its length limit. Ask for less at once, such as one item or one part of the report.";
 
 // The context's shape, field for field. Strict: a field the builder doesn't copy is refused, not passed on.
 const Owner = z.object({ name: z.string(), email: z.string() }).strict();
@@ -77,7 +79,9 @@ export type ParsedFollowUp = { ok: true; context: FollowUpContext; messages: Cha
 
 /**
  * POST body → the context and the conversation, or a plain sentence for the GC. Checked before any model is resolved:
- * the shape (strict), a question last, the caps, and that the context names no internal component or model.
+ * the shape (strict), a question last, the caps, and that the report names no internal component or model. The
+ * profile is left out of that last check: it is the GC's own text ("Google/Apple Pay" reads like a vendor id), it is
+ * in no public event, and the strict schema already bounds its shape.
  */
 export function parseFollowUpBody(body: unknown, caps: Caps): ParsedFollowUp {
   const parsed = Body.safeParse(body);
@@ -88,21 +92,24 @@ export function parseFollowUpBody(body: unknown, caps: Caps): ParsedFollowUp {
   if (!last.content.trim()) return { ok: false, message: EMPTY_QUESTION };
   if (messages.length > caps.maxTurns) return { ok: false, message: TOO_MANY_TURNS };
   if (messages.some((m) => m.content.length > caps.maxMessageChars)) return { ok: false, message: tooLongMessage(caps.maxMessageChars) };
-  const text = JSON.stringify(context);
-  if (text.length > caps.maxContextChars) return { ok: false, message: REPORT_TOO_LARGE };
+  if (JSON.stringify(context).length > caps.maxContextChars) return { ok: false, message: REPORT_TOO_LARGE };
+  const { profile: _gcOwnWords, ...report } = context;
+  void _gcOwnWords;
   try {
-    assertPublicText(text, "follow-up context");
+    assertPublicText(JSON.stringify(report), "follow-up context");
   } catch (e) {
     return { ok: false, message: BAD_BODY, reason: (e as Error).message };
   }
   return { ok: true, context, messages };
 }
 
-/** The configured system prompt with the report filled in. Throws if it names an internal component or model. */
+/**
+ * The configured system prompt with the report filled in. Throws if the configured wording names an internal component
+ * or model; the report it carries was checked by parseFollowUpBody (the profile, the GC's own words, excepted).
+ */
 export function followUpSystem(config: Pick<FollowUpConfig, "system">, context: FollowUpContext): string {
-  const system = render(config.system, { report: JSON.stringify(context, null, 1) });
-  assertPublicText(system, "follow-up system prompt");
-  return system;
+  assertPublicText(config.system, "follow-up system prompt");
+  return render(config.system, { report: JSON.stringify(context, null, 1) });
 }
 
 const encoder = new TextEncoder();
@@ -110,8 +117,10 @@ const line = (l: FollowUpLine) => encoder.encode(JSON.stringify(l) + "\n");
 
 /**
  * Starts the answer and returns it as NDJSON lines: `text` pieces, then `done`, or `failed` with a fixed sentence when
- * the answer breaks off (the SDK's text stream would just end, and the GC couldn't tell). Resolving the model throws at
- * once when the Gateway key is missing.
+ * the answer breaks off (the SDK's text stream would just end, and the GC couldn't tell). `done` only when the model
+ * finished with reason `stop`: no finish at all (a dropped upstream), `length` (cut at maxAnswerTokens: ANSWER_CUT_SHORT)
+ * or any other reason is `failed`, so the browser never saves a truncated answer. Resolving the model throws at once
+ * when the Gateway key is missing.
  *
  * `streamText` returns before the request is made and reports failures inside its stream, so a retry wraps the wait
  * for the first piece of text: a call that fails before any text is sent again (at most `policy.attempts` tries, the
@@ -129,18 +138,21 @@ export async function streamFollowUp(
   const started = await withRetry(async () => {
     const result = streamText({ model, system, messages: input.messages, maxOutputTokens: config.maxAnswerTokens, maxRetries: 0, abortSignal: opts.abortSignal });
     const parts = result.stream[Symbol.asyncIterator]();
+    let finishReason: string | null = null;
     for (;;) {
       const next = await parts.next();
-      if (next.done) return { parts, first: null };
+      if (next.done) return { parts, first: null, finishReason };
       const p = next.value;
       if (p.type === "error") throw p.error;
       if (p.type === "abort") throw new Error("the request was aborted before the answer started");
-      if (p.type === "text-delta") return { parts, first: p.text };
+      if (p.type === "finish") finishReason = p.finishReason;
+      if (p.type === "text-delta") return { parts, first: p.text, finishReason };
     }
   }, opts.policy ?? RETRY, undefined, () => opts.abortSignal?.aborted ?? false);
 
   const { parts } = started;
   let first = started.first;
+  let finishReason = started.finishReason;
   return new ReadableStream<Uint8Array>({
     async pull(controller) {
       if (first !== null) {
@@ -158,12 +170,17 @@ export async function streamFollowUp(
             return;
           }
           if (p.type === "error") throw p.error;
+          if (p.type === "finish") finishReason = p.finishReason;
           if (p.type === "abort") {
             controller.close();
             return;
           }
         }
-        controller.enqueue(line({ type: "done" }));
+        if (finishReason === "stop") controller.enqueue(line({ type: "done" }));
+        else {
+          console.error("[FollowUp] answer ended without a stop:", finishReason ?? "no finish");
+          controller.enqueue(line({ type: "failed", message: finishReason === "length" ? ANSWER_CUT_SHORT : FOLLOWUP_FAILED }));
+        }
       } catch (e) {
         console.error("[FollowUp] answer broke off:", e);
         controller.enqueue(line({ type: "failed", message: FOLLOWUP_FAILED }));

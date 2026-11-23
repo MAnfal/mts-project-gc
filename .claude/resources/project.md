@@ -268,10 +268,12 @@ a follow-up.
 - **The follow-up chat answers from the report the browser sends, and the server checks it twice.** The browser builds
   the context with `buildFollowUpContext(view, profile)` (`src/lib/runs/followup-context.ts`): named fields copied from
   the `applyConfirmed` view, never a spread, so verification quotes and internal scores stay out. `/api/followup` re-parses
-  it with a strict zod schema (an unknown field is a 400), then runs `assertPublicText` on it and on the rendered system
-  prompt, and enforces the `followUp` caps, all before resolving the model. The answer streams as NDJSON (`FollowUpLine`):
-  `text` pieces, then exactly one `done` or `failed` line, because the SDK's text stream just stops on an error. The browser
-  saves only a pair that ended in `done`. The chat mounts through `ReportView`'s `followUp` prop only when the run's status
+  it with a strict zod schema (an unknown field is a 400), then runs `assertPublicText` on it minus `profile` (the GC's
+  own words: "Google/Apple Pay" matches the vendor pattern, and the profile is in no public event) and on the configured
+  system prompt, and enforces the `followUp` caps, all before resolving the model. The answer streams as NDJSON
+  (`FollowUpLine`): `text` pieces, then exactly one `done` or `failed` line, because the SDK's text stream just stops on
+  an error. `done` only when the stream's `finish` part says `stop`; no finish (dropped upstream), `length` (cut at
+  `maxAnswerTokens`, its own sentence) or any other reason is `failed`. The browser saves only a pair that ended in `done`. The chat mounts through `ReportView`'s `followUp` prop only when the run's status
   is `done` (`followUpChatId`), in `RunView` and `ExampleView`, never on the reviewer's `/evals/reports/**`.
 - **The run window is checked by one function on both sides.** `validateWindow` / `windowDays` (inclusive count) in
   `src/lib/runs/weeks.ts` serve the new-run screen and `src/app/api/run/request.ts`. "Today" for the week buttons is
