@@ -150,6 +150,8 @@ export function modelsContext(index: EvalIndex, judges: JudgePanel, story: EvalS
     "judges.count": String(judges.models.length),
     "judges.minAgree": String(judges.minAgree),
   };
+  const winner = cmp.groups.flatMap((g) => g.rows).find((r) => r.winner);
+  if (winner) ctx["models.winner"] = winner.setup;
   const group = cmp.groups.find((g) => likeForLike(g).length);
   if (!group) return ctx;
   const [{ live, other }] = likeForLike(group);

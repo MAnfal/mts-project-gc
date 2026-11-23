@@ -161,7 +161,7 @@ describe("config/eval-story.yaml → models, filled from the shipped index and c
     const v = view();
     expect(v.judges).toContain("A verdict needs 2 of the 3 judges to agree");
     expect(v.liveRule).toBe(
-      "Highlighted rows run the live model, Sonnet 5.5. The live setup itself (jev-sonnet-strict-passages) came later and never ran beside another model, so these rows are earlier setups on each model.",
+      "The highlighted row, jev-sonnet-strict, is the winner: it was promoted to the live setup (jev-sonnet-strict-passages), which keeps its model, method and prompt and adds passage reading. The live setup itself came later and never ran beside another model. Rows marked live model run Sonnet 5.5.",
     );
   });
 

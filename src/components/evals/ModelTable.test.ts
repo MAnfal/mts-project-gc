@@ -17,10 +17,11 @@ const row = (setup: string, judgePass: number | null) => ({
   modelLabel: setup,
   method: "jev+llm",
   promptSet: null,
-  live: setup === "a",
+  live: setup !== "b",
+  winner: setup === "a",
   result: result(setup, { recall: 0.9, judgePass }, { suite: ["su1"], runs: 18 }),
 });
-const group: ModelGroup = { suite: "su1", weeks: [], runs: 36, evalsets: 6, models: ["a", "b"], rows: [row("a", 0.75), row("b", null)] };
+const group: ModelGroup = { suite: "su1", weeks: [], runs: 36, evalsets: 6, models: ["a", "b"], rows: [row("a", 0.75), row("b", null), row("c", 0.5)] };
 const html = renderToStaticMarkup(createElement(TooltipProvider, null, createElement(ModelTable, { group, story })));
 const rowHtml = (setup: string) => html.split("<tr").find((r) => r.includes(`>${setup}</a>`)) ?? "";
 
@@ -30,6 +31,15 @@ describe("ModelTable", () => {
     expect(rowHtml("b")).not.toMatch(/NaN|null/);
     expect(rowHtml("a")).toContain(">75%<");
     expect(rowHtml("a")).not.toContain(">—<");
+  });
+
+  it("highlights only the winner row, and labels it, not every row on the live model", () => {
+    expect(rowHtml("a")).toContain("bg-status-blue-surface");
+    expect(rowHtml("a")).toContain(">Winner<");
+    for (const other of ["b", "c"]) {
+      expect(rowHtml(other)).not.toContain("bg-status-blue-surface");
+      expect(rowHtml(other)).not.toContain(">Winner<");
+    }
   });
 
   it("links each setup to its cases in this suite", () => {

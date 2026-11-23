@@ -69,6 +69,10 @@ describe("modelComparisons on the shipped bundle", () => {
     expect(cmp.groups[0].rows.some((r) => r.setup === cmp.live.setup)).toBe(false);
   });
 
+  it("marks one winner: the setup the live setup was promoted from (same model, method and prompt set)", () => {
+    expect(cmp.groups[0].rows.filter((r) => r.winner).map((r) => r.setup)).toEqual(["jev-sonnet-strict"]);
+  });
+
   it("finds the like-for-like pair: same method and prompt, live model vs the other", () => {
     const pairs = likeForLike(cmp.groups[0]);
     expect(pairs.map((p) => [p.live.setup, p.other.setup])).toEqual([["jev-sonnet", "jev-gpt"]]);
@@ -204,6 +208,16 @@ describe("likeForLike / lowestRecall guards", () => {
     const low = lowestRecall(modelComparisons(idx).groups[0]);
     expect(low.lowest.map((r) => r.setup)).toEqual(["g"]);
     expect(low.onlyOtherVendor).toBe(false);
+  });
+
+  it("marks the live setup itself as the winner when the suite ran it", () => {
+    const idx = build([info("a", SONNET, "jev+llm", "strict"), info("g", GPT)], [at("live", "su1"), at("a", "su1"), at("g", "su1")]);
+    expect(modelComparisons(idx).groups[0].rows.filter((r) => r.winner).map((r) => r.setup)).toEqual(["live"]);
+  });
+
+  it("marks no winner when no setup matches the live setup's model, method and prompt set", () => {
+    const idx = build([info("a", SONNET), info("g", GPT, "jev+llm", "strict")], [at("a", "su1"), at("g", "su1")]);
+    expect(modelComparisons(idx).groups[0].rows.some((r) => r.winner)).toBe(false);
   });
 
   it("leaves a setup with no recall out of the ranking", () => {

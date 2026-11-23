@@ -26,7 +26,7 @@ const casesHref = (suite: string, setup: string) => `/evals/cases?suite=${encode
 
 /**
  * One suite's setups side by side (rows are setups, as recorded): Setup | Model | Method · prompt | the compared
- * measures | Runs. Rows on the live model are highlighted. Every value names its split, runs and suite on hover;
+ * measures | Runs. Only the winner row (the one the live setup came from) is highlighted; rows on the live model carry a badge. Every value names its split, runs and suite on hover;
  * each setup links to its cases in this suite. Scrolls inside its own box on a narrow screen.
  */
 export function ModelTable({ group, story }: { group: ModelGroup; story: EvalStory }) {
@@ -59,16 +59,17 @@ export function ModelTable({ group, story }: { group: ModelGroup; story: EvalSto
           {group.rows.map((r) => {
             const counts = r.result.runCounts.all;
             return (
-              <tr key={r.setup} className={cn("border-t border-row-border", r.live && "bg-status-blue-surface")}>
+              <tr key={r.setup} className={cn("border-t border-row-border", r.winner && "bg-status-blue-surface")}>
                 <th scope="row" className="min-w-[190px] px-3 py-2.5 text-left font-normal">
                   <Link href={casesHref(group.suite, r.setup)} className="font-semibold whitespace-nowrap" aria-label={`${r.setup}: open its cases in suite ${shortSuite(group.suite)}`}>
                     {r.setup}
                   </Link>
+                  {r.winner ? <Badge className="ml-1.5 rounded-sm bg-status-blue-fg text-primary-foreground">Winner</Badge> : null}
                   <div className="text-xs text-muted-foreground">{r.label}</div>
                 </th>
                 <td className="px-3 py-2.5 text-left whitespace-nowrap">
                   {r.modelLabel}
-                  {r.live ? <Badge className="ml-1.5 rounded-sm bg-status-blue-fg text-primary-foreground">live model</Badge> : null}
+                  {r.live ? <Badge variant="outline" className="ml-1.5 rounded-sm">live model</Badge> : null}
                 </td>
                 <td className="px-3 py-2.5 text-left whitespace-nowrap">
                   {r.method} · {r.promptSet ?? "default"}
@@ -200,9 +201,10 @@ function SuiteGroup({ group, story, liveRule }: { group: ModelGroup; story: Eval
         · {group.evalsets} company-weeks · {group.runs} runs over {group.rows.length} setups
         {perSetup.length === 1 ? ` (${perSetup[0]} each)` : ""}
       </p>
+      {liveRule && group.rows.some((r) => r.winner) ? <p className="m-0 max-w-[74ch] text-sm leading-relaxed">{liveRule}</p> : null}
       <ModelTable group={group} story={story} />
       <p className="m-0 text-[13px] leading-relaxed text-caption">
-        {liveRule ? `${liveRule} ` : ""}All values are over this suite&apos;s weeks only. Recall, precision and dates are over graded runs;
+        All values are over this suite&apos;s weeks only. Recall, precision and dates are over graded runs;
         the judge panel judged only the first repeat of each company-week, so its pass rate rests on the runs judged; cost averages
         over every run and time over finished runs. Hover a value for its exact basis; open a setup for its cases.
       </p>
