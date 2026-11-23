@@ -1,0 +1,76 @@
+{
+  "id": "01-first-pipeline",
+  "title": "Evals kick in: the first staged pipeline",
+  "date": "2026-11-21",
+  "suite": "arena-2026-11-21-18-40-w0i",
+  "setup": "jev-sonnet",
+  "comparedTo": "baseline-sonnet",
+  "hypothesis": "A staged pipeline (cheap Jev filter → LLM filter → code-verified dates and tiers) finds more of what matters than one prompt with web search.",
+  "change": "Pipeline as designed in the RFC, default prompts (config/prompts.yaml). Four model/method setups plus the single-prompt baseline were run 3× on 3 companies × 2 weeks.",
+  "decision": "Kept as the starting point. Recall 98% vs the baseline's 71%, but precision only 45% — it fell for ~2.4 traps per run (look-alike rules, closed deadlines, paperwork notices). Next: make the filter stricter about what does NOT count.",
+  "notes": "The baseline is precise but misses 4 of 9 \"directly affects us\" rules and is the only setup failing trace checks (unverified dates, dates written into action text). Config snapshot taken after the run; since then only setup labels and userView.setup changed.",
+  "regraded": "2026-11-22: re-graded with the fixed judge input (judges now see the verified date shown next to each action). The original verdicts are kept in each run's trace (earlier judge.call events).",
+  "regradedSubset": "2026-11-22: re-graded with subset grading. Precision = found / (found + traps flagged); flags outside the key are reported separately and no longer count as false alarms (they include docs the key reviewers dropped as 50/50).",
+  "results": {
+    "candidate": {
+      "setup": "jev-sonnet",
+      "label": "Sonnet · Jev filter · default prompt",
+      "runs": 18,
+      "recall": 0.976,
+      "precision": 0.488,
+      "trapAvoidance": 0.819,
+      "datesRight": 0.732,
+      "judgePass": 0.772,
+      "consistency": 0.796,
+      "score": 0.856,
+      "perRun": {
+        "tp": 2.28,
+        "fn": 0.06,
+        "trapHit": 2.39,
+        "tn": 10.78,
+        "unlabeled": 0.44
+      },
+      "devCasesRight": "126/147",
+      "testCasesRight": "109/132",
+      "costPerRunUsd": 0.159,
+      "secondsPerRun": 37
+    },
+    "comparedTo": {
+      "setup": "baseline-sonnet",
+      "label": "Baseline · Sonnet, 1 prompt + web search",
+      "runs": 18,
+      "recall": 0.714,
+      "precision": 0.811,
+      "trapAvoidance": 0.97,
+      "datesRight": 0.833,
+      "judgePass": 0.556,
+      "consistency": 0.86,
+      "score": 0.827,
+      "perRun": {
+        "tp": 1.67,
+        "fn": 0.67,
+        "trapHit": 0.39,
+        "tn": 12.78,
+        "unlabeled": 0.06
+      },
+      "devCasesRight": "136/147",
+      "testCasesRight": "124/132",
+      "costPerRunUsd": 0.532,
+      "secondsPerRun": 41
+    }
+  },
+  "code": {
+    "commit": "b5af67f",
+    "uncommittedSrcChanges": 1
+  },
+  "systemChanges": [
+    "mode"
+  ],
+  "configChangesSincePrevious": {
+    "previous": "00-baseline",
+    "files": []
+  },
+  "configHashAtRecord": "e238bb82b4",
+  "recordedAt": "2026-11-21T22:12:14.037Z",
+  "evidenceOnly": false
+}

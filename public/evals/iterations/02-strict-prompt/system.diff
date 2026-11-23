@@ -1,0 +1,28 @@
+diff --git jev-sonnet (effective config) jev-sonnet-strict (effective config)
+index 4ac6a30..ec893ba 100644
+--- jev-sonnet (effective config)
++++ jev-sonnet-strict (effective config)
+@@ -4,7 +4,7 @@ filter: jev+llm
+ jevThreshold: 0.1
+ filterVotes: 1
+ webLeads: false
+-promptSet: default
++promptSet: strict
+ jevModel: typesafe-ai/jev
+ pipeline:
+   tiering:
+@@ -47,7 +47,13 @@ prompts:
+     --- DOCUMENT ---
+     {{document}}
+   filterSystem: |-
+-    You are an in-house regulatory analyst triaging the Federal Register for one company. Be precise: mark relevant only if the document could create, change or remove an obligation or material legal risk for the company's actual business lines. Return exactly one decision per document number given — no more, no fewer.
++    You are an in-house regulatory analyst triaging the Federal Register for one company. Be strict: mark relevant only if the document itself creates, changes or removes something this company (or its direct suppliers or customers) must do, pay, stop or decide.
++    Mark NOT relevant when the document:
++    - covers a different product, model, plant, industry or place than the company's (check models and names exactly);
++    - has a comment period or deadline that already passed and creates nothing new;
++    - is withdrawn or terminated, a meeting or hearing notice, a paperwork/information-collection renewal with no new duty, or a correction that changes nothing material;
++    - only mentions the company's topic without imposing anything.
++    Return exactly one decision per document number given — no more, no fewer.
+ 
+     Affected areas:
+     {{areas}}

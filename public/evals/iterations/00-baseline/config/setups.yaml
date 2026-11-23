@@ -1,0 +1,72 @@
+# Arena setups = models x methods. Each ticked (model, method) pair is one config the code executes.
+# Models: one flagship per vendor at price parity ($2 in / $10 out per M tokens on the Gateway, checked 2026-11-21).
+# search = which web search the baseline gets (vendor-native where it exists, otherwise the Gateway's Exa).
+# estUsd = rough $/run for the pre-flight budget check (Sonnet-measured; reasoning models cost more).
+
+models:
+  - id: anthropic/claude-sonnet-5.5
+    label: Sonnet 5.5
+    vendor: Anthropic
+    search: anthropic-native
+  - id: openai/gpt-6.2-sol
+    label: GPT-6.2 Sol
+    vendor: OpenAI
+    search: openai-native
+  - id: moonshotai/kimi-k3.1-pro
+    label: Kimi K3.1 Pro
+    vendor: Moonshot
+    search: exa
+  - id: google/gemini-4-carbon
+    label: Gemini 4 Carbon
+    vendor: Google
+    search: google-native
+methods:
+  - id: jev+llm
+    label: Pipeline · Jev filter → LLM
+    estUsd: 0.2
+    mode: pipeline
+    filter: jev+llm
+    jevThreshold: 0.1
+    webLeads: false
+  - id: llm
+    label: Pipeline · LLM filter only
+    estUsd: 0.4
+    mode: pipeline
+    filter: llm
+    jevThreshold: 0.1
+    webLeads: false
+  - id: baseline
+    label: Baseline · 1 prompt + web search
+    estUsd: 0.6
+    mode: baseline
+
+# The setups the eval suite runs (the interviewer view's contestants). Each is one model + one method above.
+# id is permanent: runs record it, so rename the label freely but never reuse an id for something else.
+# estUsd = measured $/run on 2026-11-21 (Brightside week), used for the pre-flight budget check.
+setups:
+  - id: jev-sonnet
+    label: Sonnet · Jev filter · default prompt
+    model: anthropic/claude-sonnet-5.5
+    method: jev+llm
+    estUsd: 0.2
+  - id: llm-sonnet
+    label: Sonnet · reads every document
+    model: anthropic/claude-sonnet-5.5
+    method: llm
+    estUsd: 0.65
+  - id: jev-gpt
+    label: GPT · Jev filter · default prompt
+    model: openai/gpt-6.2-sol
+    method: jev+llm
+    estUsd: 0.15
+  - id: baseline-sonnet
+    label: Baseline · Sonnet, 1 prompt + web search
+    model: anthropic/claude-sonnet-5.5
+    method: baseline
+    estUsd: 0.6
+  - id: jev-sonnet-strict
+    label: Sonnet · Jev filter · strict prompt
+    model: anthropic/claude-sonnet-5.5
+    method: jev+llm
+    promptSet: strict
+    estUsd: 0.2

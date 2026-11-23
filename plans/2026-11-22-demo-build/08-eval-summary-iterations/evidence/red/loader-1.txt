@@ -1,0 +1,93 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/loader.test.ts (16 tests | 6 failed) 152ms
+   ❯ loadIteration (4)
+     × returns the shipped iteration.json with its recorded hypothesis, change and decision 2ms
+     × returns the evidence-only record of 07-next with no hypothesis 1ms
+     × throws naming the URL for an unknown iteration 0ms
+     × rejects a record whose recorded text fields are not strings 1ms
+   ❯ loadIterationFile (2)
+     × returns an evidence file's text as shipped 0ms
+     × throws naming the URL when the iteration has no such file 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > returns the shipped iteration.json with its recorded hypothesis, change and decision
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:134:24
+    132|   it("returns the shipped iteration.json with its recorded hypothesis,…
+    133|     const { fetch, requested } = stubFetch(SHIPPED);
+    134|     const it06 = await loadIteration("06-passages", { fetch });
+       |                        ^
+    135|     expect(requested).toEqual(["/evals/iterations/06-passages/iteratio…
+    136|     expect(it06.id).toBe("06-passages");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > returns the evidence-only record of 07-next with no hypothesis
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:145:24
+    143|   it("returns the evidence-only record of 07-next with no hypothesis",…
+    144|     const { fetch } = stubFetch(SHIPPED);
+    145|     const it07 = await loadIteration("07-next", { fetch });
+       |                        ^
+    146|     expect(it07).toMatchObject({ id: "07-next", evidenceOnly: true });
+    147|     expect(it07.hypothesis).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > throws naming the URL for an unknown iteration
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:152:18
+    150|   it("throws naming the URL for an unknown iteration", async () => {
+    151|     const { fetch } = stubFetch(SHIPPED);
+    152|     await expect(loadIteration("99-nope", { fetch })).rejects.toThrow(…
+       |                  ^
+    153|   });
+    154|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIteration > rejects a record whose recorded text fields are not strings
+TypeError: loadIteration is not a function
+ ❯ src/lib/evals/loader.test.ts:158:18
+    156|     put("iterations/01-x/iteration.json", JSON.stringify({ id: "01-x",…
+    157|     const { fetch } = stubFetch(root);
+    158|     await expect(loadIteration("01-x", { fetch })).rejects.toThrow();
+       |                  ^
+    159|   });
+    160| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIterationFile > returns an evidence file's text as shipped
+TypeError: loadIterationFile is not a function
+ ❯ src/lib/evals/loader.test.ts:165:24
+    163|   it("returns an evidence file's text as shipped", async () => {
+    164|     const { fetch } = stubFetch(SHIPPED);
+    165|     const diff = await loadIterationFile("06-passages", "config.diff",…
+       |                        ^
+    166|     expect(diff).toBe(fs.readFileSync(path.join(SHIPPED, "iterations/0…
+    167|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/lib/evals/loader.test.ts > loadIterationFile > throws naming the URL when the iteration has no such file
+TypeError: loadIterationFile is not a function
+ ❯ src/lib/evals/loader.test.ts:171:18
+    169|   it("throws naming the URL when the iteration has no such file", asyn…
+    170|     const { fetch } = stubFetch(SHIPPED);
+    171|     await expect(loadIterationFile("00-baseline", "system.diff", { fet…
+       |                  ^
+    172|   });
+    173| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 10 passed (16)
+   Start at  00:40:13
+   Duration  360ms (tests 64%, import 24%, transform 11%, worker 1%)
+

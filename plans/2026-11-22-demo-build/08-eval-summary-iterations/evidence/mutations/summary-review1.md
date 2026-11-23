@@ -1,0 +1,2 @@
+- **story: 06 noise note removed** (`config/eval-story.yaml`) → exit 1; Tests  1 failed | 9 passed (10); red: × reconciles iteration 06's computed noise verdict with the band its recorded decision used
+- **story-schema: noise note accepts typed numbers** (`src/lib/evals/story-schema.ts`) → exit 1; Tests  1 failed | 9 passed (10); red: × rejects a typed number in a noise note

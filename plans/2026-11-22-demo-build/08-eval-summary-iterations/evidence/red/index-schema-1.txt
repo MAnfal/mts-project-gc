@@ -1,0 +1,121 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/08-eval-summary
+
+ ❯ src/lib/evals/index-schema.test.ts (14 tests | 6 failed) 29ms
+   ❯ EvalIndexSchema (9)
+     × rejects an agreement value that is not its numerator over its denominator 5ms
+     × rejects an agreement number missing its denominator 1ms
+     × accepts a null agreement over an empty denominator 1ms
+   ❯ the shipped public/evals bundle (5)
+     × index.json carries live relevance agreement over both iteration-06 suites (335 of 354 keyed docs) 1ms
+     × index.json gives every iteration with a record its measured candidate over its own suite 1ms
+     × index.json names the noise band's control and its two suites 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > rejects an agreement value that is not its numerator over its denominator
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/index-schema.test.ts:119:25
+    117|     idx.live.relevanceAgreement.all = { ...ratio(9, 10, "all"), value:…
+    118|     const res = EvalIndexSchema.safeParse(idx);
+    119|     expect(res.success).toBe(false);
+       |                         ^
+    120|     expect(res.error?.issues.map((i) => i.path.join("."))).toContain("…
+    121|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > rejects an agreement number missing its denominator
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/lib/evals/index-schema.test.ts:128:52
+    126|     void _d;
+    127|     (idx.live.tierAgreement as Record<string, unknown>).test = noDen;
+    128|     expect(EvalIndexSchema.safeParse(idx).success).toBe(false);
+       |                                                    ^
+    129|   });
+    130|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > EvalIndexSchema > accepts a null agreement over an empty denominator
+TypeError: Cannot read properties of undefined (reading 'test')
+ ❯ src/lib/evals/index-schema.test.ts:134:44
+    132|     const idx = minimalIndex();
+    133|     idx.live.tierAgreement.test = ratio(0, 0, "test");
+    134|     expect(EvalIndexSchema.parse(idx).live.tierAgreement.test.value).t…
+       |                                            ^
+    135|   });
+    136|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json carries live relevance agreement over both iteration-06 suites (335 of 354 keyed docs)
+TypeError: Cannot read properties of undefined (reading 'all')
+ ❯ src/lib/evals/index-schema.test.ts:160:43
+    158|   it("index.json carries live relevance agreement over both iteration-…
+    159|     const idx = EvalIndexSchema.parse(readJson("index.json"));
+    160|     const a = idx.live.relevanceAgreement.all;
+       |                                           ^
+    161|     expect([a.numerator, a.denominator]).toEqual([335, 354]);
+    162|     expect(a.suite).toEqual(["arena-2026-11-21-22-52-l92", "arena-2026…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json gives every iteration with a record its measured candidate over its own suite
+AssertionError: expected undefined to be 'baseline-sonnet' // Object.is equality
+
+- Expected:
+"baseline-sonnet"
+
++ Received:
+undefined
+
+ ❯ src/lib/evals/index-schema.test.ts:173:44
+    171|         continue;
+    172|       }
+    173|       expect(it.measured?.candidate.setup).toBe(it.setup);
+       |                                            ^
+    174|       expect(it.measured?.candidate.suite).toEqual([it.suite]);
+    175|       expect(it.measured?.comparedTo?.setup ?? null).toBe(it.comparedT…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/lib/evals/index-schema.test.ts > the shipped public/evals bundle > index.json names the noise band's control and its two suites
+AssertionError: expected undefined to be 'jev-sonnet-strict' // Object.is equality
+
+- Expected:
+"jev-sonnet-strict"
+
++ Received:
+undefined
+
+ ❯ src/lib/evals/index-schema.test.ts:184:34
+    182|   it("index.json names the noise band's control and its two suites", (…
+    183|     const idx = EvalIndexSchema.parse(readJson("index.json"));
+    184|     expect(idx.noiseBand?.setup).toBe("jev-sonnet-strict");
+       |                                  ^
+    185|     expect(idx.noiseBand?.suites).toEqual(["arena-2026-11-21-22-52-l92…
+    186|     expect(idx.evalSet).toEqual({ companies: 3, weeks: { dev: 2, test:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 8 passed (14)
+   Start at  00:35:56
+   Duration  215ms (import 45%, tests 29%, transform 24%, worker 3%)
+

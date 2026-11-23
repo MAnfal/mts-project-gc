@@ -1,0 +1,78 @@
+diff --git a/dev/fd/12 b/src/lib/config.test.ts
+index 0000000..5fae843 100644
+--- a/dev/fd/12
++++ b/src/lib/config.test.ts
+@@ -1,15 +1,14 @@
+ import fs from "node:fs";
+-import os from "node:os";
+ import path from "node:path";
+-import { afterEach, describe, expect, it, vi } from "vitest";
+-import { frozenWeek, getCompany, pipelineCfg, render, validateAll } from "../src/lib/config";
+-import { actionsPrompt, baselineTask, filterPrompt } from "../src/lib/prompts";
+-import { assignTier } from "../src/lib/tier";
+-import type { ActionItem, RunConfig } from "../src/lib/types";
++import { describe, expect, it } from "vitest";
++import { frozenWeek, getCompany, pipelineCfg, render, validateAll } from "./config";
++import { actionsPrompt, baselineTask, filterPrompt } from "./prompts";
++import { assignTier } from "./tier";
++import type { ActionItem, RunConfig } from "./types";
+ 
+ // Prompts the arena actually sent on 2026-11-21 (copied from data/runs transcripts). If a config edit changes
+ // what the models see, these fail — on purpose: old and new runs would no longer be comparable.
+-const recorded = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures/recorded-prompts.json"), "utf8"));
++const recorded = JSON.parse(fs.readFileSync(path.join(__dirname, "__fixtures__/recorded-prompts.json"), "utf8"));
+ 
+ describe("config/", () => {
+   it("every file parses and cross-references resolve", () => {
+@@ -41,7 +40,7 @@ describe("prompts rebuilt from config/prompts.yaml match what the arena sent", (
+ 
+ describe("every prompt builder renders (no placeholder drift between prompts.yaml and code)", () => {
+   it("renders all 14 templates for a real company and doc", async () => {
+-    const P = await import("../src/lib/prompts");
++    const P = await import("./prompts");
+     const co = getCompany("brightside");
+     const doc = frozenWeek("2026-11-09", "2026-11-13")![0];
+     const item = { document_number: doc.document_number, type: doc.type, title: doc.title, tier: "High" as const, tierReason: "r", owner: co.generalCounsel, reason: "why" };
+@@ -65,16 +64,6 @@ describe("every prompt builder renders (no placeholder drift between prompts.yam
+   });
+ });
+ 
+-describe("arena configs built from setups.yaml match what the 2026-11-21 arena ran", () => {
+-  it("cellConfig reproduces every saved run config", async () => {
+-    const { cellByKey, cellConfig } = await import("../src/lib/arena");
+-    for (const saved of recorded.arenaConfigs as RunConfig[]) {
+-      const rebuilt = cellConfig(cellByKey(saved.cell!)!, saved, saved.arena!);
+-      expect(rebuilt).toEqual(saved);
+-    }
+-  });
+-});
+-
+ describe("tier rules are passed in, not read from an editable file", () => {
+   const R = { criticalWindowDays: 90, recentlyEffectiveDays: 30, criticalDocTypes: ["Rule", "Proposed Rule"] as ("Rule" | "Proposed Rule" | "Notice")[] };
+   const deadlines = [{ date: "2026-12-13", kind: "comment" as const, source: "fr_field" as const, verified: true }];
+@@ -93,25 +82,3 @@ describe("tier rules are passed in, not read from an editable file", () => {
+     expect(pipelineCfg().tiering.criticalDocTypes).toEqual(["Rule", "Proposed Rule"]);
+   });
+ });
+-
+-describe("pinConfig (a suite freezes its config at start)", () => {
+-  afterEach(() => {
+-    vi.unstubAllEnvs();
+-    vi.resetModules();
+-  });
+-
+-  it("after pinning, edits on disk are ignored until unpinned", async () => {
+-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pin-"));
+-    fs.cpSync(path.resolve(__dirname, "../config"), dir, { recursive: true });
+-    vi.stubEnv("POC_CONFIG_DIR", dir);
+-    vi.resetModules();
+-    const cfg = await import("../src/lib/config");
+-    cfg.pinConfig();
+-    const before = cfg.experiment().budgetUsd;
+-    const file = path.join(dir, "experiment.yaml");
+-    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace(/^budgetUsd: .*$/m, "budgetUsd: 1234\nnotAKey: [broken"));
+-    expect(cfg.experiment().budgetUsd).toBe(before);
+-    cfg.unpinConfig();
+-    expect(() => cfg.experiment()).toThrow();
+-  });
+-});

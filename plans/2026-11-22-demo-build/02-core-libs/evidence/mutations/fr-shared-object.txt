@@ -1,0 +1,34 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+
+ ❯ src/lib/fr.test.ts (7 tests | 1 failed) 122ms
+   ❯ in-memory HTTP cache (replaces the POC's data/cache on disk) (5)
+     × hands each caller its own copy, so mutating one result cannot change the next 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > hands each caller its own copy, so mutating one result cannot change the next
+AssertionError: expected [ { …(2) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/lib/fr.test.ts:59:20
+     57|     first[0].title = "planted";
+     58|     const second = await listWindow("2026-11-16", "2026-11-20");
+     59|     expect(second).toHaveLength(1);
+       |                    ^
+     60|     expect(second[0].title).toBeUndefined();
+     61|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  23:43:16
+   Duration  239ms (tests 90%, import 6%, transform 3%, worker 2%)
+

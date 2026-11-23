@@ -1,0 +1,49 @@
+diff --git a/05-strict-v3/config/experiment.yaml b/config/experiment.yaml
+index cc01c19..db9a7f7 100644
+--- a/05-strict-v3/config/experiment.yaml
++++ b/config/experiment.yaml
+@@ -1,6 +1,6 @@
+ # Experiment-wide settings: spend cap, fixed helper models, arena execution.
+ 
+-budgetUsd: 120
++budgetUsd: 130
+ smokeSpendUsd: 0.4
+ jevModel: typesafe-ai/jev
+ arena:
+@@ -12,7 +12,7 @@ arena:
+     - 5
+ # The user-facing view runs one setup (the eval winner) on demo companies or a profile the user types in.
+ userView:
+-  setup: jev-sonnet-strict
++  setup: jev-sonnet-strict-passages
+   maxWindowDays: 7
+ evals:
+   gates:
+diff --git a/05-strict-v3/config/setups.yaml b/config/setups.yaml
+index 85b420d..2c52cd3 100644
+--- a/05-strict-v3/config/setups.yaml
++++ b/config/setups.yaml
+@@ -69,7 +69,8 @@ setups:
+     model: anthropic/claude-sonnet-5.5
+     method: jev+llm
+     promptSet: strict
+-    estUsd: 0.2
++    # Measured 2026-11-22: $0.126/run mean over 72 runs.
++    estUsd: 0.13
+   - id: jev-sonnet-strict-v2
+     label: Sonnet · Jev filter · strict-v2 prompt
+     model: anthropic/claude-sonnet-5.5
+@@ -91,3 +92,13 @@ setups:
+     method: jev+llm
+     promptSet: strict-v3
+     estUsd: 0.2
++  - id: jev-sonnet-strict-passages
++    label: Sonnet · Jev filter · strict prompt · Jev-picked passages
++    model: anthropic/claude-sonnet-5.5
++    method: jev+llm
++    promptSet: strict
++    # For Jev's top 20 docs: split the full text into ~1200-char passages, Jev scores each, the LLM filter also sees the best 3.
++    # topN 20 from dev step scores (every real flag ranked ≤ 13 on dev). Passages are capped at 300 per doc, spread evenly.
++    filterExcerpts: { topN: 20, chunkChars: 1200, perDoc: 3, maxChunks: 300 }
++    # Measured on the dev gate (6 runs): $0.20-0.26/run.
++    estUsd: 0.24

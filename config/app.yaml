@@ -1,0 +1,71 @@
+# App-wide settings. Validated by AppConfigSchema (src/lib/config/schemas.ts) and read only through readYaml.
+appName: Reg Monitor
+# Longest monitor window a GC can pick, in days.
+maxWindowDays: 7
+# RFC success targets for the eval view (/evals), graded against the live setup on all weeks.
+# Each is a minimum share (0–1); nearMiss is how far below a target still shows yellow, not red.
+# Validated by EvalAppConfigSchema (src/lib/config/schemas.ts).
+evalTargets:
+  recall: 0.9
+  precision: 0.8
+  datesRight: 1
+  tierAgreement: 1
+  relevanceAgreement: 0.9
+  beatsBaseline: true
+  nearMiss: 0.01
+# The preset the new-run screen opens on (a `use: demo` company id). Validated by NewRunConfigSchema.
+defaultPreset: ledgerly
+# "Suggest from description" on the new-run screen: one model call that proposes owner areas from the company
+# description, for the GC to review; owners are always left for the GC to fill in. UI-only, so it lives here and never
+# in prompts.yaml or experiment.yaml (both on the decision path). Validated by SuggestAreasConfigSchema.
+suggestAreas:
+  model: anthropic/claude-sonnet-5.5
+  prompt: |
+    A General Counsel is setting up a weekly triage of new federal rules for their company. Each rule that affects
+    the company is routed to one area of the business, and each area has one owner.
+
+    Propose between 3 and 8 areas for the company described below: the parts of the business that federal rules
+    could plausibly touch. For each area give:
+    - id: a short name a lawyer would recognise (2 to 4 words, for example "Consumer payments" or "Product safety");
+    - description: one line naming the rules or regulators it covers.
+    Do not propose owners, and do not invent business lines the description doesn't mention.
+
+    Company description:
+    {{description}}
+# The follow-up chat under a finished report (live runs and examples): the GC asks about this run's report, and one
+# streamed model call answers from that report alone. UI-only, so it lives here and never in prompts.yaml or
+# experiment.yaml (both on the decision path). Validated by FollowUpConfigSchema; the GC pages read only `suggestions`.
+# /api/followup enforces the caps: at most maxTurns messages per request (questions and answers together), each at
+# most maxMessageChars, the report as sent at most maxContextChars (the largest example is ~25k), and each answer at
+# most maxAnswerTokens (≈ 4–6 characters a token, so an answer fits back under maxMessageChars).
+followUp:
+  model: anthropic/claude-sonnet-5.5
+  maxTurns: 20
+  maxMessageChars: 6000
+  maxContextChars: 60000
+  maxAnswerTokens: 1000
+  suggestions:
+    - Summarize for the CEO in 3 lines
+    - Did anything on crypto come close?
+  system: |
+    You answer a General Counsel's follow-up questions about one report: a weekly triage of new Federal Register
+    documents for their company. The report is the JSON below. It holds:
+    - profile: the company profile the run used (business lines, what applies and what doesn't, areas and owners);
+    - items: the action items, in report order. Each has a tier, a deadline, an owner, a reason, an action, its
+      Federal Register citation and link, and `source`, the number the report shows beside it;
+    - checkedByYou: items the GC added after checking them. Their tier is "Not tiered": never give them one;
+    - heldBack: relevant documents left out because a date or citation didn't match the Federal Register;
+    - screenedOut: documents judged not relevant, each with a one-line reason;
+    - scanned and notReviewedCount: how many documents the run read, and how many it never reviewed.
+
+    Rules:
+    - Use only this report. No other knowledge of regulations, no other weeks or runs, no web.
+    - When the report doesn't answer the question, say "That isn't in this report." and stop, or add one line on
+      what the report does cover.
+    - Never change a tier, a deadline, an owner or a citation.
+    - Name items by title, with their source number in brackets, e.g. [1].
+    - Write plainly for a lawyer. Be brief unless asked for detail. Plain text and simple lists; no tables or headings.
+    - Don't say which model, vendor or system produced the report or this answer.
+
+    Report:
+    {{report}}

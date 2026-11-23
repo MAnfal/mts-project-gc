@@ -1,0 +1,161 @@
+// Every sentence and number the Report screen derives from a run, written in code from the run's own items: no model
+// writes any of it, so the same run always reads the same. Pure: no React, no I/O.
+import { format, parseISO } from "date-fns";
+import type { ActionItem, Deadline, DocType, Owner, Tier } from "../types";
+import type { RunViewState } from "./reduce";
+
+export const TIERS: Tier[] = ["Critical", "High", "Medium", "Low"];
+
+/** "Nov 2–6, 2026", "Oct 30 – Nov 3, 2026", "Dec 29, 2026 – Jan 2, 2027"; `year: false` drops the year. */
+export function formatWindow(start: string, end: string, opts: { year?: boolean } = {}): string {
+  const withYear = opts.year ?? true;
+  const a = parseISO(start);
+  const b = parseISO(end);
+  const y = withYear ? `, ${format(b, "yyyy")}` : "";
+  if (start === end) return `${format(a, "MMM d")}${y}`;
+  if (format(a, "yyyy") !== format(b, "yyyy")) return withYear ? `${format(a, "MMM d, yyyy")} – ${format(b, "MMM d, yyyy")}` : `${format(a, "MMM d")} – ${format(b, "MMM d")}`;
+  if (format(a, "MM") !== format(b, "MM")) return `${format(a, "MMM d")} – ${format(b, "MMM d")}${y}`;
+  return `${format(a, "MMM d")}–${format(b, "d")}${y}`;
+}
+
+/** "Marcus Lee (Sanctions)" → "Marcus Lee". */
+export const ownerName = (o: Owner) => o.name.replace(/\s*\([^)]*\)\s*$/, "").trim();
+const firstName = (o: Owner) => ownerName(o).split(/\s+/)[0];
+
+const plural = (n: number, one: string, many = `${one}s`) => (n === 1 ? one : many);
+/** Ends `s` with one full stop: a company called "Ledgerly Inc." must not end a sentence with "..". */
+export const stop = (s: string) => (s.endsWith(".") ? s : `${s}.`);
+
+const DOC_NOUN: Record<DocType, string> = { Rule: "rule", "Proposed Rule": "proposed rule", Notice: "notice", "Presidential Document": "presidential document" };
+
+/** Critical first; the run's own order within a tier. */
+export const sortItems = (items: ActionItem[]) => [...items].sort((a, b) => TIERS.indexOf(a.tier) - TIERS.indexOf(b.tier));
+
+const uniqueOwners = (items: ActionItem[]) => [...new Map(items.map((i) => [i.owner.email, i.owner])).values()];
+
+interface Ctx {
+  company: string;
+  windowStart: string;
+  windowEnd: string;
+}
+
+/**
+ * "3 notices for Marcus Lee, nothing Critical". `checked` counts the held-back items the GC added (never tiered), `held`
+ * those still held back: with no items, either leads the heading, since "nothing affects" would deny them.
+ */
+export function reportHeading(items: ActionItem[], ctx: Ctx, checked = 0, held = 0): string {
+  if (!items.length && checked) return `${checked} ${plural(checked, "item")} you added after checking ${checked === 1 ? "it" : "them"}`;
+  if (!items.length && held) return `No verified items for ${ctx.company}, ${held} held back`;
+  if (!items.length) return `Nothing published ${formatWindow(ctx.windowStart, ctx.windowEnd, { year: false })} affects ${ctx.company}`;
+  const types = new Set(items.map((i) => i.type));
+  const noun = types.size === 1 ? DOC_NOUN[items[0].type] : "item";
+  const owners = uniqueOwners(items);
+  const who = owners.length === 1 ? ownerName(owners[0]) : `${owners.length} owners`;
+  const critical = items.filter((i) => i.tier === "Critical").length;
+  const added = checked ? `, plus ${checked} you added` : "";
+  return `${items.length} ${plural(items.length, noun)} for ${who}, ${critical ? `${critical} Critical` : "nothing Critical"}${added}`;
+}
+
+type SummaryView = Pick<RunViewState, "items" | "scanned" | "dropped"> & Partial<Pick<RunViewState, "checkedByYou">>;
+
+/** The paragraph under the heading: what was read, what matters, what was checked, what was held back or added. */
+export function reportSummary(view: SummaryView, ctx: Ctx): string {
+  const window = formatWindow(ctx.windowStart, ctx.windowEnd, { year: false });
+  const n = view.items.length;
+  const checked = view.checkedByYou?.length ?? 0;
+  const docs = `${view.scanned} federal ${plural(view.scanned, "document")}`;
+  const parts: string[] = [];
+  const held = view.dropped.length;
+  if (!n && (checked || held)) parts.push(stop(`None of the ${docs} published ${window} passed verification for ${ctx.company}`));
+  else if (!n) parts.push(stop(`None of the ${docs} published ${window} affects ${ctx.company}`));
+  else {
+    parts.push(stop(`Of ${docs} published ${window}, ${n} ${n === 1 ? "affects" : "affect"} ${ctx.company}`));
+    const tiers = TIERS.map((t) => [t, view.items.filter((i) => i.tier === t).length] as const).filter(([, c]) => c > 0);
+    parts.push(`Priority: ${tiers.map(([t, c]) => `${c} ${t}`).join(", ")}.`);
+    const unmatched = view.items.filter((i) => !i.citationVerified).length;
+    // A row the GC added sits in the same table unverified, so "below" would overclaim once there is one.
+    const where = checked ? "of the tiered items" : "below";
+    parts.push(
+      unmatched
+        ? `Every deadline ${where} matched the Federal Register; ${unmatched} ${plural(unmatched, "citation")} couldn't be matched and ${unmatched === 1 ? "is" : "are"} marked.`
+        : `Every deadline and citation ${where} matched the Federal Register.`,
+    );
+  }
+  if (checked)
+    parts.push(
+      checked === 1
+        ? "You added 1 held-back item after checking it: it has no priority and its dates weren't verified."
+        : `You added ${checked} held-back items after checking them: they have no priority and their dates weren't verified.`,
+    );
+  const more = n || checked ? " more" : "";
+  if (held) parts.push(`${held}${more} ${held === 1 ? "was" : "were"} held back because ${held === 1 ? "its" : "their"} dates or citation couldn't be confirmed.`);
+  return parts.join(" ");
+}
+
+/** The nothing-applies state: no items, nothing held back, nothing the GC added. Otherwise the report renders. */
+export const isNothingToReport = (view: Pick<RunViewState, "items" | "dropped" | "checkedByYou">) => !view.items.length && !view.dropped.length && !view.checkedByYou.length;
+
+/** The nothing-applies paragraph: how many documents were checked, from which window. */
+export function emptySummary(view: Pick<RunViewState, "scanned">, ctx: Ctx): string {
+  const window = formatWindow(ctx.windowStart, ctx.windowEnd, { year: false });
+  return view.scanned === 1
+    ? `The 1 federal document published ${window} was checked against ${ctx.company}'s profile. It needs no action.`
+    : `All ${view.scanned} federal documents published ${window} were checked against ${ctx.company}'s profile. None needs action.`;
+}
+
+/** The documents that came closest: the first 3 the final screen rejected (screenedOut is most relevant first). */
+export const closestCalls = (view: Pick<RunViewState, "screenedOut">) => view.screenedOut.slice(0, 3);
+
+/** Badge counts. Each comes from its own list: the lists can sum to less than `scanned`. */
+export function reportCounts(view: Pick<RunViewState, "items" | "dropped" | "screenedOut" | "notReviewedCount">) {
+  const tiers = Object.fromEntries(TIERS.map((t) => [t, view.items.filter((i) => i.tier === t).length])) as Record<Tier, number>;
+  return { tiers, heldBack: view.dropped.length, notRelevant: view.screenedOut.length, notReviewed: view.notReviewedCount };
+}
+
+/** "Why Critical: comment deadline in 21 days (under 90)." — the tier rule's own reason. */
+export const whyTier = (item: ActionItem) => `Why ${item.tier}: ${item.tierReason.replace(/\(<\s*(\d+)\)/, "(under $1)")}.`;
+
+const KIND: Record<Deadline["kind"], string> = { comment: "Comments due", effective: "Effective", compliance: "Comply by", other: "Date" };
+
+export const deadlineLabel = (d: Deadline) => ({ kind: KIND[d.kind], date: format(parseISO(d.date), "MMM d, yyyy") });
+
+/** One mailto: per owner, in report order, listing only that owner's items. */
+export function draftEmails(items: ActionItem[], ctx: Ctx): { name: string; email: string; count: number; href: string }[] {
+  const window = formatWindow(ctx.windowStart, ctx.windowEnd);
+  return uniqueOwners(items).map((owner) => {
+    const mine = items.filter((i) => i.owner.email === owner.email);
+    const lines = mine.map((i, n) => {
+      const d = i.deadline ? deadlineLabel(i.deadline) : null;
+      const when = d ? `${d.kind} ${d.date}${i.deadline!.verified ? " (verified against the Federal Register)" : ""}` : "No dated deadline";
+      return `${n + 1}. ${i.title} [${i.tier}]\n   What to do: ${i.action}\n   ${when}\n   Source: ${i.url}`;
+    });
+    const body = `Hi ${firstName(owner)},\n\nThese federal rules published ${window} need your review for ${ctx.company}:\n\n${lines.join("\n\n")}\n\nThanks`;
+    const subject = `Federal rules for you to review: ${window} (${mine.length} ${plural(mine.length, "item")})`;
+    return {
+      name: ownerName(owner),
+      email: owner.email,
+      count: mine.length,
+      href: `mailto:${encodeURI(owner.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    };
+  });
+}
+
+/** The .json download: the report as the GC sees it. Built from public run.done fields only. */
+export function reportJson(view: RunViewState, ctx: { company: string }): string {
+  return JSON.stringify(
+    {
+      company: ctx.company,
+      windowStart: view.windowStart,
+      windowEnd: view.windowEnd,
+      asOf: view.asOf,
+      scanned: view.scanned,
+      items: sortItems(view.items),
+      addedAfterChecking: view.checkedByYou,
+      heldBack: view.dropped,
+      screenedOut: view.screenedOut,
+      notReviewedCount: view.notReviewedCount,
+    },
+    null,
+    2,
+  );
+}

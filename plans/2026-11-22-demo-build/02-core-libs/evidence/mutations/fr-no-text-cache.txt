@@ -1,0 +1,37 @@
+
+ RUN  v5.1.1 /Users/anfal/Projects/hobby_projects/gc-ai-swe-take-home/.worktrees/02-core-libs
+
+ ❯ src/lib/fr.test.ts (7 tests | 1 failed) 122ms
+   ❯ in-memory HTTP cache (replaces the POC's data/cache on disk) (5)
+     × full text is fetched once per document; the second read reports source 'cache' 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/fr.test.ts > in-memory HTTP cache (replaces the POC's data/cache on disk) > full text is fetched once per document; the second read reports source 'cache'
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+-   "source": "cache",
++   "source": "govinfo",
+    "text": " DATES: effective December 10, 2026. ",
+  }
+
+ ❯ src/lib/fr.test.ts:91:20
+     89|     const second = await getRawTextWithSource(doc);
+     90|     expect(first.source).toBe("govinfo");
+     91|     expect(second).toEqual({ text: first.text, source: "cache" });
+       |                    ^
+     92|     expect(fetchMock).toHaveBeenCalledTimes(1);
+     93|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  23:43:19
+   Duration  234ms (tests 90%, import 6%, transform 2%, worker 2%)
+

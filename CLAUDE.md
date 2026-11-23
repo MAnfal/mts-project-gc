@@ -8,8 +8,8 @@ and citation is checked against the primary source, so items can be forwarded wi
 re-checking.
 
 Pipeline: Config → Scan (Federal Register API + web leads) → Filter (LLM) → Verify + Tier  
-(code) → Output (LLM) → `report.json`/`.md`. Harness: Flue (https://flueframework.com/),  
-built on Pi.
+(code) → Output (LLM) → `report.json`/`.md`.  
+Harness: plain Vercel AI SDK + AI Gateway (Flue/Pi deferred).
 
 Success, measured on a frozen hand-labeled eval set (3 companies × 4 past weeks): recall  
 ≥ 0.9, precision ≥ 0.8, 100% of dates and citations verified, tier identical across 3 runs,  

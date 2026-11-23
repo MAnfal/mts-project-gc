@@ -1,0 +1,21 @@
+# Judge panel: grades the judgment calls that code can't (exact facts like dates, tier and owner are graded by
+# code against the answer key). Three frontier models from three vendors vote PASS / FAIL / UNKNOWN on each
+# action item; a verdict needs `minAgree` matching votes, otherwise it's "contested" and reported separately.
+# Editing this file changes the panel hash, so `npx tsx scripts/judge-panel.mts <arenaId>` re-judges old runs
+# without re-running the pipeline.
+
+minAgree: 2
+judges:
+  - model: anthropic/claude-opus-5.5
+  - model: openai/gpt-6.2-sol
+  - model: google/gemini-4-carbon
+
+# One question per criterion. "needsRubric" criteria only apply to items the answer key has a rubric for.
+criteria:
+  - id: clear
+    question: Is the action plain English a non-lawyer understands, naming one concrete next step for the owner?
+  - id: grounded
+    question: Does the action avoid claims that the document title, the reason, or the rubric don't support, and avoid every "mustNotClaim"?
+  - id: covers
+    needsRubric: true
+    question: Does the action convey the key points listed in "mustMention" (in any wording)?
