@@ -71,6 +71,8 @@ export function storyContext(index: EvalIndex, verdict: Verdict, story: EvalStor
   return {
     ...setupContext("live", index.live),
     ...setupContext("baseline", index.baseline),
+    "live.label": index.live.label,
+    "live.setup": index.live.setup,
     "evalSet.companies": String(index.evalSet.companies),
     "evalSet.weeks": String(index.evalSet.weeks.dev + index.evalSet.weeks.test),
     "evalSet.devWeeks": String(index.evalSet.weeks.dev),

@@ -40,6 +40,10 @@ export const IterationStorySchema = z
     moved: z.array(MovedSchema),
     /** Optional sentence after the noise-band line, e.g. reconciling it with a band the recorded decision used. */
     noiseNote: Prose.optional(),
+    /** One line under the title: what changed and what happened. Required for every iteration that ran (tested). */
+    summary: Prose.optional(),
+    /** One-line leads above the recorded Why and Change paragraphs, so the page can be skimmed. */
+    gist: z.object({ why: Prose, change: Prose }).strict().optional(),
   })
   .strict();
 export type IterationStory = z.infer<typeof IterationStorySchema>;
@@ -81,6 +85,36 @@ export const ModelsStorySchema = z
   .strict();
 export type ModelsStory = z.infer<typeof ModelsStorySchema>;
 
+const StageStorySchema = z.object({ title: Prose, text: Prose }).strict();
+
+/**
+ * The Live setup page (/evals/setup): what every GC run executes today. Placeholders come from liveSetupContext
+ * (src/lib/evals/liveSetup.ts → config/), except `match`/`mismatch`, which compare it with index.json in the browser.
+ */
+export const LiveSetupStorySchema = z
+  .object({
+    title: Prose,
+    description: Prose,
+    intro: Prose,
+    /** Fills {{iteration.number}}, {{iteration.label}}: the iteration whose setup is the recorded live one. */
+    match: Prose,
+    /** Fills {{recorded}} (index.json's live setup) and {{setup.id}} (what runs use now). */
+    mismatch: Prose,
+    facts: z.object({ model: Prose, method: Prose, screen: Prose, cutoff: Prose, promptSet: Prose, passages: Prose, votes: Prose, webLeads: Prose }).strict(),
+    passages: Prose,
+    noPassages: Prose,
+    stagesHeading: Prose,
+    stages: z.object({ screen: StageStorySchema, filter: StageStorySchema, extract: StageStorySchema, actions: StageStorySchema }).strict(),
+    code: StageStorySchema,
+    /** Over an overridden prompt's side-by-side diff. */
+    overridden: Prose,
+    defaultPane: Prose,
+    livePane: Prose,
+    placeholders: Prose,
+  })
+  .strict();
+export type LiveSetupStory = z.infer<typeof LiveSetupStorySchema>;
+
 export const EvalStorySchema = z
   .object({
     page: z.object({ title: Prose, description: Prose }).strict(),
@@ -104,6 +138,9 @@ export const EvalStorySchema = z
     /** Keyed by iteration id (public/evals/iterations/<id>). */
     iterations: z.record(z.string().regex(/^\d{2}-[a-z0-9-]+$/), IterationStorySchema),
     models: ModelsStorySchema,
+    /** Under the summary's number cards: which setup the numbers are, and the link to its full config. */
+    cards: z.object({ liveLine: Prose, liveLink: Prose }).strict(),
+    liveSetup: LiveSetupStorySchema,
   })
   .strict();
 export type EvalStory = z.infer<typeof EvalStorySchema>;

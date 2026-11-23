@@ -8,6 +8,7 @@ import { EvalIndexSchema } from "./index-schema";
 import { IterationRecordSchema } from "./loader";
 import { EvalStorySchema, Prose } from "./story-schema";
 import { fillTemplate, modelsStory, resolveQuote, storyContext, verdictHeading } from "./story";
+import { liveSetupContext, liveSetupView } from "./liveSetup";
 import { computeVerdict } from "./verdict";
 
 // The real config files and the real shipped bundle: what the eval pages render.
@@ -75,6 +76,50 @@ describe("config/eval-story.yaml", () => {
         }
     }
     expect(quotes).toBeGreaterThan(0);
+  });
+
+  it("gives every run iteration a one-line summary and a one-line why and change; the not-run one needs none", () => {
+    const s = story();
+    for (const it of shippedIndex().iterations.filter((i) => !i.evidenceOnly)) {
+      const x = s.iterations[it.id];
+      expect(x.summary, it.id).toBeTruthy();
+      expect(x.gist?.why, it.id).toBeTruthy();
+      expect(x.gist?.change, it.id).toBeTruthy();
+      // A one-liner, not a second paragraph.
+      for (const line of [x.summary!, x.gist!.why, x.gist!.change]) expect(line.length, `${it.id}: ${line}`).toBeLessThanOrEqual(200);
+    }
+  });
+
+  it("names the live setup under the summary cards, filled from the shipped index", () => {
+    const s = story();
+    const idx = shippedIndex();
+    const ctx = storyContext(idx, computeVerdict(idx, targets()), s);
+    expect(fillTemplate(s.cards.liveLine, ctx)).toContain(idx.live.label);
+  });
+});
+
+describe("config/eval-story.yaml → liveSetup, filled from the live config", () => {
+  it("fills every template from liveSetupView, with the live setup's own values", async () => {
+    const s = story();
+    const view = await liveSetupView();
+    const ctx = liveSetupContext(view);
+    const texts = [
+      s.liveSetup.intro, s.liveSetup.passages, s.liveSetup.overridden, s.liveSetup.code.text,
+      ...Object.values(s.liveSetup.stages).flatMap((x) => [x.title, x.text]),
+    ];
+    for (const t of texts) expect(fillTemplate(t, ctx)).not.toContain("{{");
+    expect(fillTemplate(s.liveSetup.intro, ctx)).toContain(view.setup.label);
+    expect(fillTemplate(s.liveSetup.passages, ctx)).toContain(String(view.filterExcerpts!.topN));
+    expect(fillTemplate(s.liveSetup.code.text, ctx)).toContain(String(view.tiering.criticalWindowDays));
+  });
+
+  it("rejects a typed number in the live-setup prose or an iteration summary", () => {
+    const s = structuredClone(story());
+    s.liveSetup.passages = "For the top 20 documents";
+    expect(EvalStorySchema.safeParse(s).success).toBe(false);
+    const t = structuredClone(story());
+    t.iterations["06-passages"].summary = "Recall up 2 pts";
+    expect(EvalStorySchema.safeParse(t).success).toBe(false);
   });
 });
 

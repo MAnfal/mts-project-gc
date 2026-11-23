@@ -379,8 +379,9 @@ config/                       Runtime YAML, validated by zod at load, shipped in
                               suggestAreas {model, prompt} for /runs/new, followUp {model, system, suggestions, caps} for
                               the follow-up chat).
   eval-story.yaml             The eval view's prose: verdict, CARL rows, measure labels, per-iteration label,
-                              outcome and "what moved" items, and the Models page (models) (EvalStorySchema; no typed
-                              numbers).
+                              outcome, one-line summary and why/change gists, "what moved" items, the summary cards'
+                              live line (cards), the Models page (models) and the Live setup page (liveSetup)
+                              (EvalStorySchema; no typed numbers).
   prompts.yaml                Every prompt's wording, with {{placeholders}}.
   prompt-sets/                Partial prompt overrides a setup opts into (strict, strict-v2, strict-v3).
   pipeline.yaml               Tier rules (90 / 30 days, critical doc types), batch sizes, text limits.
@@ -424,6 +425,9 @@ src/
                               Models). Company/week/split names come from config/ (evalsetInfo.ts).
     evals/models/             `/evals/models` — why the live model, one table per multi-model suite, single-model suites,
                               caveats, judge panel (prose from eval-story.yaml, panel from judges.yaml).
+    evals/setup/              `/evals/setup` — the setup every GC run executes, read from config/ per request through
+                              buildRunConfig (liveSetupView, src/lib/evals/liveSetup.ts): facts, each stage's prompts
+                              in full, and a prompt-set override side by side with its default (lineDiff.ts).
     evals/runs/               `/evals/runs` — every suite run and example run, each with a raw-trace link.
     evals/traces/[suiteId]/[runId]/  One run's raw trace (`suiteId` = arena id or `user-view`).
     evals/reports/[suiteId]/[runId]/ One run's read-only report (RecordedReport → ReportView readOnly; failed runs show

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { EvalTargets } from "@/lib/config/schemas";
 import { liveIterationId } from "@/lib/evals/cases";
@@ -12,6 +13,7 @@ import { computeVerdict } from "@/lib/evals/verdict";
 import { CarlTable } from "./CarlTable";
 import { ProgressChart } from "./ProgressChart";
 import { Scoreboard } from "./Scoreboard";
+import { StatCards } from "./StatCards";
 
 /** Loads public/evals/index.json in the browser; the summary and iteration views share it. */
 export function useEvalIndex(): { index: EvalIndex | null; error: string | null } {
@@ -83,6 +85,13 @@ export function EvalSummary({ story, targets }: { story: EvalStory; targets: Eva
       <div className="flex flex-col gap-2.5">
         <h1 className="m-0 max-w-[34ch] text-[26px] leading-snug font-bold">{view.heading}</h1>
         <p className="m-0 max-w-[74ch] text-[15px] leading-relaxed text-muted-foreground">{view.sub}</p>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        <StatCards verdict={view.verdict} story={story} targets={targets} />
+        <p className="m-0 text-[13px] text-muted-foreground">
+          {fillTemplate(story.cards.liveLine, view.ctx)}{" "}
+          <Link href="/evals/setup">{story.cards.liveLink}</Link>
+        </p>
       </div>
       <CarlTable rows={rows} />
       <section id="scoreboard" aria-labelledby="scoreboard-h" className="flex scroll-mt-4 flex-col gap-2.5">
