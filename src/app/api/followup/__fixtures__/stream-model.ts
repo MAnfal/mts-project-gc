@@ -1,7 +1,7 @@
 // Test support for the follow-up chat: a streaming mock model behind the gateway seam, at no cost. The calls go
 // through the real AI SDK `streamText` against the SDK's own MockLanguageModelV4 (`doStream`), so the route's handling
 // of the SDK's stream parts is exercised, not bypassed. (src/lib/pipeline/__fixtures__/harness.ts stubs only doGenerate.)
-import { simulateReadableStream } from "ai";
+import { APICallError, simulateReadableStream } from "ai";
 import { MockLanguageModelV4 } from "ai/test";
 import { setModelsForTests } from "@/lib/gateway";
 
@@ -11,7 +11,10 @@ const USAGE = {
 };
 const FINISH = { type: "finish", finishReason: { unified: "stop", raw: undefined }, usage: USAGE };
 
-/** What one model call does: stream these text pieces (then finish), stream them then fail, or fail at the request. */
+/**
+ * What one model call does: stream these text pieces (then finish), stream them then fail, or fail at the request. A
+ * refused request is a retryable 503, the kind the SDK's own retries (when on) would re-send.
+ */
 export type Answer = { text: string[] } | { text: string[]; thenError: string } | { reject: string };
 
 /** Provider stream chunks for `a` (the mock's own format: `delta`, not the SDK's `text`). */
@@ -52,7 +55,7 @@ export function stubStreamingModel(answer: (n: number) => Answer, set: typeof se
             maxOutputTokens: opts.maxOutputTokens,
           });
           const a = answer(calls.length);
-          if ("reject" in a) throw new Error(a.reject);
+          if ("reject" in a) throw new APICallError({ message: a.reject, url: "https://gateway.test", requestBodyValues: {}, statusCode: 503, isRetryable: true });
           return { stream: simulateReadableStream({ chunks: chunks(a) }) } as never;
         },
       }),

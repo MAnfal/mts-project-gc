@@ -196,9 +196,9 @@ describe("askFollowUp", () => {
   });
 
   it("a stream that ends with the failure line: not ok, the route's sentence, nothing saved", async () => {
-    const r = await ask(async () => ndjson(lines({ type: "text", text: "Three it" }, { type: "failed", message: FOLLOWUP_FAILED })));
+    const r = await ask(async () => ndjson(lines({ type: "text", text: "Three it" }, { type: "failed", message: "The route's own sentence." })));
     expect(r.texts).toEqual(["Three it"]);
-    expect(r.result).toEqual({ ok: false, message: FOLLOWUP_FAILED });
+    expect(r.result).toEqual({ ok: false, message: "The route's own sentence." });
     expect(r.saved).toBeNull();
   });
 
