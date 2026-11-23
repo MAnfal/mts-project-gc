@@ -47,7 +47,7 @@ See `SPEC.md` in this directory.
 | 08 | US2 | Merged | [#2](https://github.com/MAnfal/mts-project-gc/pull/2) | — |
 | 09 | US2 | Merged | [#5](https://github.com/MAnfal/mts-project-gc/pull/5) | — |
 | 10 | US2 | Merged | [#6](https://github.com/MAnfal/mts-project-gc/pull/6) | — |
-| 11 | US3 | Not started | — | — |
+| 11 | US3 | Merged | [#8](https://github.com/MAnfal/mts-project-gc/pull/8) | — |
 
 Every chunk names the story it serves. A chunk that serves no story is either scaffolding
 that belongs inside another chunk, or scope that crept in.
@@ -121,6 +121,13 @@ When every chunk is `Merged`, run `/plan:complete`.
 | 2026-11-23 | pr_merged | 06 | #7 → 66ad1dc; plan branch merged in first (chunk 10); plan-tip gates exit 0 (keyless) |
 | 2026-11-23 | user_checkpoint | US1 | Lead live smoke test (local `next start`, real key, ~$0.24): Ledgerly Nov 2–6 streamed scan→rank→read→screen→verify over 54 s, ended run.done with 0 items, 22 screened out with reasons. Same top-ranked docs as the recorded jev-sonnet-strict run; the live passages setup screens the 3 routine national-emergency continuations out. Deployed check deferred |
 | 2026-11-23 | user_checkpoint | US2 | All eval screens on recorded data verified locally across chunks 08–10; deployed check deferred |
+| 2026-11-23 | chunk_dispatched | 11 | implementer chunk-11 (plan amended at preflight, 11 points) |
+| 2026-11-23 | review_iteration | 11 | i1 FAIL: truncated answers (no finish / length / error) saved as done |
+| 2026-11-23 | review_passed | 11 | i2 PASS |
+| 2026-11-23 | pr_created | 11 | #8 |
+| 2026-11-23 | pr_merged | 11 | #8 → 2890746; plan-tip gates exit 0 (keyless) |
+| 2026-11-23 | user_checkpoint | US3 | Lead live check on an example run: "Summarize for the CEO" streamed a grounded answer citing [1]–[3]; "which model are you" declined and named nothing internal. Deployed check deferred |
+| 2026-11-23 | review_iteration | — | Whole-diff review of the plan branch: 2 project.md facts false, `pnpm dev` writes untracked AGENTS.md, README is TBD → Extra cleanup PR |
 
 Events: `wave_started`, `chunk_dispatched`, `gates_passed`, `review_iteration`,
 `review_passed`, `pr_created`, `pr_merged`, `chunk_blocked`, `chunk_dismissed`,
@@ -213,7 +220,7 @@ Two more shared-file notes:
 | Foundation | 01 | The placeholder app in GC AI's theme deploys from `main` on Vercel; config YAML is read on the server; a 90-second stream survives the deployed function | ☐ |
 | US1 (P1) | 06 | On the deployed URL, a GC picks a preset or an edited profile and a week, watches the steps stream, and reads a verified, owner-routed report. Runs persist in IndexedDB. Failures retry ×3, then offer a settings-preserving Retry. Edge states render | ☑ locally (deploy deferred) |
 | US2 (P1) | 10 | On the deployed URL, a reviewer reads the verdict and CARL story, opens any iteration, any case, any run's trace, and the model comparison. Every number comes from the recorded data | ☑ locally (deploy deferred) |
-| US3 (P2) | 11 | A finished report (live or example) takes follow-up questions answered only from that report | ☐ |
+| US3 (P2) | 11 | A finished report (live or example) takes follow-up questions answered only from that report | ☑ locally (deploy deferred) |
 
 ## Design Decisions
 

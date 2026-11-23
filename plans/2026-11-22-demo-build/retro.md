@@ -201,6 +201,15 @@ Every one of these is a candidate for `.claude/resources/project.md`.
   reasons. The SPEC's claim that the mockup's rows came from a real run is true of
   the older setup only. The live setup never finished a recorded Ledgerly Nov 2–6 run.
 
+### Chunk 11 — Follow-up chat
+
+- In `ai` 7, `streamText` returns immediately and reports failures inside the stream,
+  so `withRetry` around it is a no-op. You have to retry through the first text part.
+  The reviewer also caught that truncated streams (no finish part, or a `length` or
+  `error` finish) were saved as done. A stream-level terminal signal is only as good as
+  its check on the finish reason.
+- Live check: the answers were grounded and named no internal model.
+
 
 ---
 
