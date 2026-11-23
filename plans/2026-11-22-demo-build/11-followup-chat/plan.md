@@ -203,7 +203,7 @@ AI_GATEWAY_API_KEY= PORT=3801 bash plans/2026-11-22-demo-build/06-edge-states/ga
 
 ## Deliverables
 
-- [ ] `completion-report.md`, committed, with screenshots: chat hidden while running,
+- [x] `completion-report.md`, committed, with screenshots: chat hidden while running,
       chips + answer on a finished run, and an "isn't in this report" answer.
 
 ## Artifacts Checklist
