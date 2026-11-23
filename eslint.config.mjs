@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local-only folders that are never committed: git worktrees (chunk worktrees and the
+    // poc-src checkout the eval-bundle scripts use) and an untracked POC copy at the root.
+    ".worktrees/**",
+    "poc/**",
   ]),
 ]);
 
