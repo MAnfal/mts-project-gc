@@ -130,7 +130,7 @@ export function FollowUpChat({ chatId, context, suggestions }: { chatId: string;
         <div className="flex items-center gap-2 py-1.5 pr-2 pl-3.5">
           <span className="grow text-xs text-caption">Answers use this report and its sources only</span>
           {turns.length && !pending ? (
-            <button type="button" onClick={() => void clear()} className="rounded-sm px-1.5 py-1 text-xs text-muted-foreground hover:bg-nav-hover">
+            <button type="button" onClick={() => void clear()} className="shrink-0 rounded-sm px-1.5 py-1 text-xs whitespace-nowrap text-muted-foreground hover:bg-nav-hover">
               Clear conversation
             </button>
           ) : null}
