@@ -18,6 +18,7 @@ The transcripts don't render on GitHub, so read them there. Run the app locally 
 
 | | |
 | --- | --- |
+| **Write-up** | [Google Doc](https://docs.google.com/document/d/1Sqbz_TI1cAULYpm8gygLbrXbGrWrQ6F2Q_Dhg189u4s/edit?usp=sharing): design decisions, what changed from the RFC, eval insights, how "good" was defined, and what didn't work |
 | **Prototype** | http://localhost:3000. The landing page opens either the GC app or the eval results |
 | **Eval results** | http://localhost:3000/evals: verdict and headline numbers first, then iterations, cases, models, runs, traces and the live setup |
 | **Design** | [Lo-fi, mid-fi and hi-fi screens](public/submission/design-screens.html): one self-contained HTML file, drawn before any product code |
